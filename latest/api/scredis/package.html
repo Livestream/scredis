@@ -1,0 +1,451 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>scredis - scredis</title>
+          <meta name="description" content="scredis - scredis" />
+          <meta name="keywords" content="scredis scredis" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../index.html';
+            var hash = 'scredis.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../lib/package_big.png" />
+        
+        <h1>scredis</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scredis</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="scredis"><span>scredis</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scredis.Aggregate" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AggregateextendsAnyRef"></a>
+      <a id="Aggregate:Aggregate"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Aggregate.html"><span class="name">Aggregate</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents the aggregation function to be used for aggregating scores when computing the
+union or intersection of sorted sets
+</p>
+    </li><li name="scredis.Client" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClientextendsProtocolwithConnectionCommandswithServerCommandswithKeysCommandswithStringsCommandswithHashesCommandswithListsCommandswithSetsCommandswithSortedSetsCommandswithScriptingCommandswithPubSubCommandswithTransactionalCommands"></a>
+      <a id="Client:Client"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Client.html"><span class="name">Client</span></a><span class="result"> extends <a href="protocol/Protocol.html" class="extype" name="scredis.protocol.Protocol">Protocol</a> with <a href="commands/ConnectionCommands.html" class="extype" name="scredis.commands.ConnectionCommands">ConnectionCommands</a> with <a href="commands/ServerCommands.html" class="extype" name="scredis.commands.ServerCommands">ServerCommands</a> with <a href="commands/KeysCommands.html" class="extype" name="scredis.commands.KeysCommands">KeysCommands</a> with <a href="commands/StringsCommands.html" class="extype" name="scredis.commands.StringsCommands">StringsCommands</a> with <a href="commands/HashesCommands.html" class="extype" name="scredis.commands.HashesCommands">HashesCommands</a> with <a href="commands/ListsCommands.html" class="extype" name="scredis.commands.ListsCommands">ListsCommands</a> with <a href="commands/SetsCommands.html" class="extype" name="scredis.commands.SetsCommands">SetsCommands</a> with <a href="commands/SortedSetsCommands.html" class="extype" name="scredis.commands.SortedSetsCommands">SortedSetsCommands</a> with <a href="commands/ScriptingCommands.html" class="extype" name="scredis.commands.ScriptingCommands">ScriptingCommands</a> with <a href="commands/PubSubCommands.html" class="extype" name="scredis.commands.PubSubCommands">PubSubCommands</a> with <a href="commands/TransactionalCommands.html" class="extype" name="scredis.commands.TransactionalCommands">TransactionalCommands</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Defines a basic Redis client supporting all commands.</p>
+    </li><li name="scredis.ClientPool" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClientPoolextendsAnyRef"></a>
+      <a id="ClientPool:ClientPool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ClientPool.html"><span class="name">ClientPool</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Configurable pool of clients to be used in a multi-threaded environment.</p>
+    </li><li name="scredis.CommandOptions" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CommandOptionsextendsProductwithSerializable"></a>
+      <a id="CommandOptions:CommandOptions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="CommandOptions.html"><span class="name">CommandOptions</span></a><span class="params">(<span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">RedisConfigDefaults.Client.Timeout</span></span>, <span name="tries">tries: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Tries</span></span>, <span name="sleep">sleep: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>] = <span class="symbol">RedisConfigDefaults.Client.Sleep</span></span>, <span name="force">force: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.PipelineClient" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PipelineClientextendsQueuingClientwithConnectionCommandswithServerCommandswithKeysCommandswithStringsCommandswithHashesCommandswithListsCommandswithSetsCommandswithSortedSetsCommandswithScriptingCommandswithPubSubCommands"></a>
+      <a id="PipelineClient:PipelineClient"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="PipelineClient.html"><span class="name">PipelineClient</span></a><span class="result"> extends <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a> with <a href="commands/async/ConnectionCommands.html" class="extype" name="scredis.commands.async.ConnectionCommands">ConnectionCommands</a> with <a href="commands/async/ServerCommands.html" class="extype" name="scredis.commands.async.ServerCommands">ServerCommands</a> with <a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a> with <a href="commands/async/StringsCommands.html" class="extype" name="scredis.commands.async.StringsCommands">StringsCommands</a> with <a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a> with <a href="commands/async/ListsCommands.html" class="extype" name="scredis.commands.async.ListsCommands">ListsCommands</a> with <a href="commands/async/SetsCommands.html" class="extype" name="scredis.commands.async.SetsCommands">SetsCommands</a> with <a href="commands/async/SortedSetsCommands.html" class="extype" name="scredis.commands.async.SortedSetsCommands">SortedSetsCommands</a> with <a href="commands/async/ScriptingCommands.html" class="extype" name="scredis.commands.async.ScriptingCommands">ScriptingCommands</a> with <a href="commands/async/PubSubCommands.html" class="extype" name="scredis.commands.async.PubSubCommands">PubSubCommands</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents a client that queues command before pipelining them all as part of a
+single request.</p>
+    </li><li name="scredis.QueuingClient" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="QueuingClientextendsAnyRef"></a>
+      <a id="QueuingClient:QueuingClient"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="QueuingClient.html"><span class="name">QueuingClient</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Defines a client that queues commands before sending them all as part of a pipeline.</p>
+    </li><li name="scredis.Redis" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisextendsAsyncwithConnectionCommandswithServerCommandswithKeysCommandswithStringsCommandswithHashesCommandswithListsCommandswithSetsCommandswithSortedSetsCommandswithScriptingCommandswithPubSubCommandswithTransactionalCommands"></a>
+      <a id="Redis:Redis"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Redis.html"><span class="name">Redis</span></a><span class="result"> extends <span class="extype" name="scredis.commands.async.Async">Async</span> with <a href="commands/async/ConnectionCommands.html" class="extype" name="scredis.commands.async.ConnectionCommands">ConnectionCommands</a> with <a href="commands/async/ServerCommands.html" class="extype" name="scredis.commands.async.ServerCommands">ServerCommands</a> with <a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a> with <a href="commands/async/StringsCommands.html" class="extype" name="scredis.commands.async.StringsCommands">StringsCommands</a> with <a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a> with <a href="commands/async/ListsCommands.html" class="extype" name="scredis.commands.async.ListsCommands">ListsCommands</a> with <a href="commands/async/SetsCommands.html" class="extype" name="scredis.commands.async.SetsCommands">SetsCommands</a> with <a href="commands/async/SortedSetsCommands.html" class="extype" name="scredis.commands.async.SortedSetsCommands">SortedSetsCommands</a> with <a href="commands/async/ScriptingCommands.html" class="extype" name="scredis.commands.async.ScriptingCommands">ScriptingCommands</a> with <a href="commands/async/PubSubCommands.html" class="extype" name="scredis.commands.async.PubSubCommands">PubSubCommands</a> with <a href="commands/async/TransactionalCommands.html" class="extype" name="scredis.commands.async.TransactionalCommands">TransactionalCommands</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt"></p>
+    </li><li name="scredis.RedisConfig" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisConfigextendsAnyRef"></a>
+      <a id="RedisConfig:RedisConfig"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RedisConfig.html"><span class="name">RedisConfig</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Holds all configurable parameters.</p>
+    </li><li name="scredis.Score" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ScoreextendsAnyRef"></a>
+      <a id="Score:Score"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Score.html"><span class="name">Score</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents the lower or upper bound of a range to be used when querying sorted sets by scores
+</p>
+    </li><li name="scredis.TransactionalClient" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TransactionalClientextendsQueuingClientwithConnectionCommandswithServerCommandswithKeysCommandswithStringsCommandswithHashesCommandswithListsCommandswithSetsCommandswithSortedSetsCommandswithScriptingCommandswithPubSubCommands"></a>
+      <a id="TransactionalClient:TransactionalClient"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TransactionalClient.html"><span class="name">TransactionalClient</span></a><span class="result"> extends <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a> with <a href="commands/async/ConnectionCommands.html" class="extype" name="scredis.commands.async.ConnectionCommands">ConnectionCommands</a> with <a href="commands/async/ServerCommands.html" class="extype" name="scredis.commands.async.ServerCommands">ServerCommands</a> with <a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a> with <a href="commands/async/StringsCommands.html" class="extype" name="scredis.commands.async.StringsCommands">StringsCommands</a> with <a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a> with <a href="commands/async/ListsCommands.html" class="extype" name="scredis.commands.async.ListsCommands">ListsCommands</a> with <a href="commands/async/SetsCommands.html" class="extype" name="scredis.commands.async.SetsCommands">SetsCommands</a> with <a href="commands/async/SortedSetsCommands.html" class="extype" name="scredis.commands.async.SortedSetsCommands">SortedSetsCommands</a> with <a href="commands/async/ScriptingCommands.html" class="extype" name="scredis.commands.async.ScriptingCommands">ScriptingCommands</a> with <a href="commands/async/PubSubCommands.html" class="extype" name="scredis.commands.async.PubSubCommands">PubSubCommands</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The <code>TransactionalClient</code> represents a <code>Redis</code> transaction.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scredis.Aggregate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Aggregate"></a>
+      <a id="Aggregate:Aggregate"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Aggregate$.html"><span class="name">Aggregate</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.Client" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Client"></a>
+      <a id="Client:Client"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Client$.html"><span class="name">Client</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.ClientPool" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClientPool"></a>
+      <a id="ClientPool:ClientPool"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ClientPool$.html"><span class="name">ClientPool</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.package#DefaultCommandOptions" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DefaultCommandOptions:scredis.CommandOptions"></a>
+      <a id="DefaultCommandOptions:CommandOptions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DefaultCommandOptions</span><span class="result">: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.Redis" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Redis"></a>
+      <a id="Redis:Redis"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Redis$.html"><span class="name">Redis</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.RedisConfig" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisConfig"></a>
+      <a id="RedisConfig:RedisConfig"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RedisConfig$.html"><span class="name">RedisConfig</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.RedisConfigDefaults" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisConfigDefaults"></a>
+      <a id="RedisConfigDefaults:RedisConfigDefaults"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RedisConfigDefaults$.html"><span class="name">RedisConfigDefaults</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.Score" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Score"></a>
+      <a id="Score:Score"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Score$.html"><span class="name">Score</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.commands" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="commands"></a>
+      <a id="commands:commands"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="commands/package.html"><span class="name">commands</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.exceptions" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="exceptions"></a>
+      <a id="exceptions:exceptions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="exceptions/package.html"><span class="name">exceptions</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.io" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="io"></a>
+      <a id="io:io"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="io/package.html"><span class="name">io</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.parsing" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="parsing"></a>
+      <a id="parsing:parsing"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="parsing/package.html"><span class="name">parsing</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.protocol" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="protocol"></a>
+      <a id="protocol:protocol"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="protocol/package.html"><span class="name">protocol</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.pubsub" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pubsub"></a>
+      <a id="pubsub:pubsub"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="pubsub/package.html"><span class="name">pubsub</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scredis.util" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="util"></a>
+      <a id="util:util"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="util/package.html"><span class="name">util</span></a>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../lib/template.js"></script>
+    </body>
+      </html>
