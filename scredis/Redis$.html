@@ -39,7 +39,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The companion object provides additional friendly constructors.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -150,7 +150,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(configName:String,path:String):scredis.Redis"></a>
       <a id="apply(String,String):Redis"></a>
       <h4 class="signature">
@@ -162,8 +162,11 @@
         <span class="name">apply</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file and using the provided path.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file and using the provided path.
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(configName:String):scredis.Redis"></a>
       <a id="apply(String):Redis"></a>
       <h4 class="signature">
@@ -175,8 +178,11 @@
         <span class="name">apply</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file.
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config file must contain the scredis object at its root.
+This constructor is equivalent to </p><pre>Redis(configName, <span class="lit">"scredis"</span>)</pre></span></dd></dl></div>
+    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(config:com.typesafe.config.Config,path:String):scredis.Redis"></a>
       <a id="apply(Config,String):Redis"></a>
       <h4 class="signature">
@@ -188,8 +194,11 @@
         <span class="name">apply</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config using the provided path.
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(config:com.typesafe.config.Config):scredis.Redis"></a>
       <a id="apply(Config):Redis"></a>
       <h4 class="signature">
@@ -201,8 +210,11 @@
         <span class="name">apply</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config must contain the scredis object at its root.
+This constructor is equivalent to </p><pre>Redis(config, <span class="lit">"scredis"</span>)</pre></span></dd></dl></div>
+    </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(config:scredis.RedisConfig):scredis.Redis"></a>
       <a id="apply(RedisConfig):Redis"></a>
       <h4 class="signature">
@@ -214,7 +226,10 @@
         <span class="name">apply</span><span class="params">(<span name="config">config: <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">RedisConfig</a> = <span class="symbol"><span class="name"><a href="RedisConfig$.html">RedisConfig()</a></span></span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>
+</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p><a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -453,7 +468,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withExecutionContext(configName:String,path:String)(implicitec:scala.concurrent.ExecutionContext):scredis.Redis"></a>
       <a id="withExecutionContext(String,String)(ExecutionContext):Redis"></a>
       <h4 class="signature">
@@ -465,8 +480,15 @@
         <span class="name">withExecutionContext</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file and using the provided path and execution
+context
+</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file and using the provided path and execution
+context
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis. Also, it is your
+responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a> will not do it.
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withExecutionContext(configName:String)(implicitec:scala.concurrent.ExecutionContext):scredis.Redis"></a>
       <a id="withExecutionContext(String)(ExecutionContext):Redis"></a>
       <h4 class="signature">
@@ -478,8 +500,14 @@
         <span class="name">withExecutionContext</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file using the provided execution context
+</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file using the provided execution context
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config file must contain the scredis object at its root.
+This constructor is equivalent to </p><pre>Redis.withExecutionContext(configName, <span class="lit">"scredis"</span>)</pre><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
+will not do it.
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withExecutionContext(config:com.typesafe.config.Config,path:String)(implicitec:scala.concurrent.ExecutionContext):scredis.Redis"></a>
       <a id="withExecutionContext(Config,String)(ExecutionContext):Redis"></a>
       <h4 class="signature">
@@ -491,8 +519,12 @@
         <span class="name">withExecutionContext</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config using the provided path and execution context
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis. Also, it is your
+responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a> will not do it.
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withExecutionContext(config:com.typesafe.config.Config)(implicitec:scala.concurrent.ExecutionContext):scredis.Redis"></a>
       <a id="withExecutionContext(Config)(ExecutionContext):Redis"></a>
       <h4 class="signature">
@@ -504,8 +536,13 @@
         <span class="name">withExecutionContext</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config using the provided execution context
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config must contain the scredis object at its root.
+This constructor is equivalent to </p><pre>Redis.withExecutionContext(config, <span class="lit">"scredis"</span>)</pre><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
+will not do it.
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withExecutionContext(config:scredis.RedisConfig)(implicitec:scala.concurrent.ExecutionContext):scredis.Redis"></a>
       <a id="withExecutionContext(RedisConfig)(ExecutionContext):Redis"></a>
       <h4 class="signature">
@@ -517,8 +554,15 @@
         <span class="name">withExecutionContext</span><span class="params">(<span name="config">config: <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">RedisConfig</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a> using the provided execution
+context
+</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a> using the provided execution
+context
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p><a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
+will not do it.
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withExecutionContext()(implicitec:scala.concurrent.ExecutionContext):scredis.Redis"></a>
       <a id="withExecutionContext()(ExecutionContext):Redis"></a>
       <h4 class="signature">
@@ -530,7 +574,14 @@
         <span class="name">withExecutionContext</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from the default loaded config using the provided execution
+context
+</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from the default loaded config using the provided execution
+context
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
+will not do it.
+</p></span></dd></dl></div>
     </li></ol>
             </div>
 

@@ -39,7 +39,12 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains the parameters associated to a command. This class can be implicitly passed when
+calling almost any command as to modify its behavior.
+</p></div><dl class="paramcmts block"><dt class="param">timeout</dt><dd class="cmt"><p>maximum duration for the execution of a command, can be infinite</p></dd><dt class="param">tries</dt><dd class="cmt"><p>maximum number of times the command will be executed in case recoverable errors
+occur such as timeouts</p></dd><dt class="param">sleep</dt><dd class="cmt"><p>duration of time to sleep between subsequent tries</p></dd><dt class="param">force</dt><dd class="cmt"><p>if <code>true</code> and if automatic pipelining is enabled, forces the command to be executed
+immediately
+</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -79,7 +84,7 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="scredis.CommandOptions#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="scredis.CommandOptions#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(timeout:scala.concurrent.duration.Duration,tries:Int,sleep:Option[scala.concurrent.duration.FiniteDuration],force:Boolean):scredis.CommandOptions"></a>
       <a id="&lt;init&gt;:CommandOptions"></a>
       <h4 class="signature">
@@ -91,7 +96,10 @@
         <span class="name">CommandOptions</span><span class="params">(<span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">RedisConfigDefaults.Client.Timeout</span></span>, <span name="tries">tries: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Tries</span></span>, <span name="sleep">sleep: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>] = <span class="symbol">RedisConfigDefaults.Client.Sleep</span></span>, <span name="force">force: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">timeout</dt><dd class="cmt"><p>maximum duration for the execution of a command, can be infinite</p></dd><dt class="param">tries</dt><dd class="cmt"><p>maximum number of times the command will be executed in case recoverable errors
+occur such as timeouts</p></dd><dt class="param">sleep</dt><dd class="cmt"><p>duration of time to sleep between subsequent tries</p></dd><dt class="param">force</dt><dd class="cmt"><p>if <code>true</code> and if automatic pipelining is enabled, forces the command to be executed
+immediately
+</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -242,7 +250,9 @@
         <span class="name">force</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">if <code>true</code> and if automatic pipelining is enabled, forces the command to be executed
+immediately
+</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -320,7 +330,7 @@
         <span class="name">sleep</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>]</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">duration of time to sleep between subsequent tries</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -346,7 +356,7 @@
         <span class="name">timeout</span><span class="result">: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">maximum duration for the execution of a command, can be infinite</p>
     </li><li name="scredis.CommandOptions#tries" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="tries:Int"></a>
       <a id="tries:Int"></a>
@@ -359,7 +369,8 @@
         <span class="name">tries</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">maximum number of times the command will be executed in case recoverable errors
+occur such as timeouts</p>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

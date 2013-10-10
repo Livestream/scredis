@@ -41,7 +41,8 @@
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Defines a basic Redis client supporting all commands.
 </p></div><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>a Client is <b>not</b> thread-safe. To execute commands within multiple threads, use
-<a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> or <a href="ClientPool.html" class="extype" name="scredis.ClientPool">scredis.ClientPool</a>.</p></span></dd></dl><div class="toggleContainer block">
+<a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> or <a href="ClientPool.html" class="extype" name="scredis.ClientPool">scredis.ClientPool</a>.
+</p></span></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="commands/TransactionalCommands.html" class="extype" name="scredis.commands.TransactionalCommands">TransactionalCommands</a>, <a href="commands/PubSubCommands.html" class="extype" name="scredis.commands.PubSubCommands">PubSubCommands</a>, <a href="commands/ScriptingCommands.html" class="extype" name="scredis.commands.ScriptingCommands">ScriptingCommands</a>, <a href="commands/SortedSetsCommands.html" class="extype" name="scredis.commands.SortedSetsCommands">SortedSetsCommands</a>, <a href="commands/SetsCommands.html" class="extype" name="scredis.commands.SetsCommands">SetsCommands</a>, <a href="commands/ListsCommands.html" class="extype" name="scredis.commands.ListsCommands">ListsCommands</a>, <a href="commands/HashesCommands.html" class="extype" name="scredis.commands.HashesCommands">HashesCommands</a>, <a href="commands/StringsCommands.html" class="extype" name="scredis.commands.StringsCommands">StringsCommands</a>, <a href="commands/KeysCommands.html" class="extype" name="scredis.commands.KeysCommands">KeysCommands</a>, <a href="commands/ServerCommands.html" class="extype" name="scredis.commands.ServerCommands">ServerCommands</a>, <a href="commands/ConnectionCommands.html" class="extype" name="scredis.commands.ConnectionCommands">ConnectionCommands</a>, <a href="protocol/Protocol.html" class="extype" name="scredis.protocol.Protocol">Protocol</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -81,7 +82,7 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(configName:String,path:String):scredis.Client"></a>
       <a id="&lt;init&gt;:Client"></a>
       <h4 class="signature">
@@ -93,8 +94,11 @@
         <span class="name">Client</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a config file and using the provided path.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a config file and using the provided path.
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.Client">scredis.Client</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis
+</p></span></dd></dl></div>
+    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(configName:String):scredis.Client"></a>
       <a id="&lt;init&gt;:Client"></a>
       <h4 class="signature">
@@ -106,8 +110,11 @@
         <span class="name">Client</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a config file.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a config file.
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.Client">scredis.Client</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config file must contain the scredis object at its root.
+This constructor is equivalent to </p><pre><span class="kw">new</span> Client(configName, <span class="lit">"scredis"</span>)</pre></span></dd></dl></div>
+    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(config:com.typesafe.config.Config,path:String):scredis.Client"></a>
       <a id="&lt;init&gt;:Client"></a>
       <h4 class="signature">
@@ -119,8 +126,11 @@
         <span class="name">Client</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a com.typesafe.Config using the provided path.
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.Client">scredis.Client</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis
+</p></span></dd></dl></div>
+    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(config:com.typesafe.config.Config):scredis.Client"></a>
       <a id="&lt;init&gt;:Client"></a>
       <h4 class="signature">
@@ -132,8 +142,11 @@
         <span class="name">Client</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a com.typesafe.Config
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.Client">scredis.Client</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config must contain the scredis object at its root.
+This constructor is equivalent to </p><pre><span class="kw">new</span> Client(config, <span class="lit">"scredis"</span>)</pre></span></dd></dl></div>
+    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(config:scredis.RedisConfig):scredis.Client"></a>
       <a id="&lt;init&gt;:Client"></a>
       <h4 class="signature">
@@ -145,8 +158,11 @@
         <span class="name">Client</span><span class="params">(<span name="config">config: <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">RedisConfig</a></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>
+</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.Client">scredis.Client</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p><a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.Client">scredis.Client</a>
+</p></dd></dl></div>
+    </li><li name="scredis.Client#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(host:String,port:Int,password:Option[String],database:Int,timeout:scala.concurrent.duration.Duration,tries:Int,sleep:Option[scala.concurrent.duration.FiniteDuration]):scredis.Client"></a>
       <a id="&lt;init&gt;:Client"></a>
       <h4 class="signature">
@@ -158,7 +174,8 @@
         <span class="name">Client</span><span class="params">(<span name="host">host: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">RedisConfigDefaults.Client.Host</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Port</span></span>, <span name="password">password: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">RedisConfigDefaults.Client.Password</span></span>, <span name="database">database: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Database</span></span>, <span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">RedisConfigDefaults.Client.Timeout</span></span>, <span name="tries">tries: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Tries</span></span>, <span name="sleep">sleep: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>] = <span class="symbol">RedisConfigDefaults.Client.Sleep</span></span>)</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">host</dt><dd class="cmt"><p>server address</p></dd><dt class="param">port</dt><dd class="cmt"><p>server port</p></dd><dt class="param">password</dt><dd class="cmt"><p>server password</p></dd><dt class="param">database</dt><dd class="cmt"><p>database index to select</p></dd><dt class="param">timeout</dt><dd class="cmt"><p>maximum duration for the execution of a command, can be infinite</p></dd><dt class="param">tries</dt><dd class="cmt"><p>maximum number of times the command will be executed in case recoverable errors
+occur such as timeouts</p></dd><dt class="param">sleep</dt><dd class="cmt"><p>duration of time to sleep between subsequent tries</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -2904,7 +2921,8 @@ is called).
       <p class="shortcomment cmt">Sets the string value of a key.</p><div class="fullcomment"><div class="comment cmt"><p>Sets the string value of a key.
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>target key to set</p></dd><dt class="param">value</dt><dd class="cmt"><p>value to be stored at key
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/StringsCommands.html" class="extype" name="scredis.commands.StringsCommands">StringsCommands</a></dd><dt>Since</dt><dd><p>1.0.0
-</p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type.
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type. Any previous
+time to live associated with the key is discarded on successful SET operation.
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.StringsCommands#setBit" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="setBit(key:String,offset:Long,bit:Boolean)(implicitopts:scredis.CommandOptions):Boolean"></a>
@@ -3007,6 +3025,25 @@ offset.
       </span>
       </h4>
       
+    </li><li name="scredis.commands.StringsCommands#setWithOptions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="setWithOptions(key:String,value:Any,expireAfter:Option[scala.concurrent.duration.FiniteDuration],condition:Option[scredis.Condition])(implicitopts:scredis.CommandOptions):Boolean"></a>
+      <a id="setWithOptions(String,Any,Option[FiniteDuration],Option[Condition])(CommandOptions):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">setWithOptions</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Any">Any</span></span>, <span name="expireAfter">expireAfter: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>] = <span class="symbol">None</span></span>, <span name="condition">condition: <span class="extype" name="scala.Option">Option</span>[<a href="Condition.html" class="extype" name="scredis.Condition">Condition</a>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Sets the string value of a key, optionally using a condition and/or expiring it.</p><div class="fullcomment"><div class="comment cmt"><p>Sets the string value of a key, optionally using a condition and/or expiring it.
+</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>target key to set</p></dd><dt class="param">value</dt><dd class="cmt"><p>value to be stored at key</p></dd><dt class="param">expireAfter</dt><dd class="cmt"><p>when defined, sets an expiration time on the value</p></dd><dt class="param">condition</dt><dd class="cmt"><p>when defined, only set the value if the condition is verified</p></dd><dt>returns</dt><dd class="cmt"><p><code>true</code> if the value was set, <code>false</code> if the operation was not performed because the
+provided condition was not met
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/StringsCommands.html" class="extype" name="scredis.commands.StringsCommands">StringsCommands</a></dd><dt>Since</dt><dd><p>2.6.12
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type. Any previous
+time to live associated with the key is discarded on successful SET operation.
+</p></span></dd></dl></div>
     </li><li name="scredis.commands.KeysCommands#sort" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sort[A](key:String,by:Option[String],limit:Option[(Long,Long)],get:Traversable[String],desc:Boolean,alpha:Boolean)(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):List[Option[A]]"></a>
       <a id="sort[A](String,Option[String],Option[(Long,Long)],Traversable[String],Boolean,Boolean)(CommandOptions,Parser[A]):List[Option[A]]"></a>

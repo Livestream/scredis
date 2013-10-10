@@ -730,7 +730,8 @@ resulting <code>Map</code>.
       <p class="shortcomment cmt">Sets the string value of a key.</p><div class="fullcomment"><div class="comment cmt"><p>Sets the string value of a key.
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>target key to set</p></dd><dt class="param">value</dt><dd class="cmt"><p>value to be stored at key
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
-</p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type.
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type. Any previous
+time to live associated with the key is discarded on successful SET operation.
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.StringsCommands#setBit" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="setBit(key:String,offset:Long,bit:Boolean)(implicitopts:scredis.CommandOptions):Boolean"></a>
@@ -819,6 +820,25 @@ it can hold a bit at offset. When the string at key is grown, added bits are set
 padded with zero-bytes to make offset fit. Non-existing keys are considered as empty strings,
 so this command will make sure it holds a string large enough to be able to set value at
 offset.
+</p></span></dd></dl></div>
+    </li><li name="scredis.commands.StringsCommands#setWithOptions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="setWithOptions(key:String,value:Any,expireAfter:Option[scala.concurrent.duration.FiniteDuration],condition:Option[scredis.Condition])(implicitopts:scredis.CommandOptions):Boolean"></a>
+      <a id="setWithOptions(String,Any,Option[FiniteDuration],Option[Condition])(CommandOptions):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">setWithOptions</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Any">Any</span></span>, <span name="expireAfter">expireAfter: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>] = <span class="symbol">None</span></span>, <span name="condition">condition: <span class="extype" name="scala.Option">Option</span>[<a href="../Condition.html" class="extype" name="scredis.Condition">Condition</a>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Sets the string value of a key, optionally using a condition and/or expiring it.</p><div class="fullcomment"><div class="comment cmt"><p>Sets the string value of a key, optionally using a condition and/or expiring it.
+</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>target key to set</p></dd><dt class="param">value</dt><dd class="cmt"><p>value to be stored at key</p></dd><dt class="param">expireAfter</dt><dd class="cmt"><p>when defined, sets an expiration time on the value</p></dd><dt class="param">condition</dt><dd class="cmt"><p>when defined, only set the value if the condition is verified</p></dd><dt>returns</dt><dd class="cmt"><p><code>true</code> if the value was set, <code>false</code> if the operation was not performed because the
+provided condition was not met
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.12
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type. Any previous
+time to live associated with the key is discarded on successful SET operation.
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.StringsCommands#strLen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="strLen(key:String)(implicitopts:scredis.CommandOptions):Long"></a>

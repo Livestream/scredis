@@ -39,7 +39,8 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Configurable pool of clients to be used in a multi-threaded environment.</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Configurable pool of clients to be used in a multi-threaded environment.
+</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -79,7 +80,7 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(configName:String,path:String):scredis.ClientPool"></a>
       <a id="&lt;init&gt;:ClientPool"></a>
       <h4 class="signature">
@@ -91,8 +92,11 @@
         <span class="name">ClientPool</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a config file and using the provided path.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a config file and using the provided path.
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis
+</p></span></dd></dl></div>
+    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(configName:String):scredis.ClientPool"></a>
       <a id="&lt;init&gt;:ClientPool"></a>
       <h4 class="signature">
@@ -104,8 +108,11 @@
         <span class="name">ClientPool</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a config file.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a config file.
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config file must contain the scredis object at its root.
+This constructor is equivalent to </p><pre><span class="kw">new</span> ClientPool(configName, <span class="lit">"scredis"</span>)</pre></span></dd></dl></div>
+    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(config:com.typesafe.config.Config,path:String):scredis.ClientPool"></a>
       <a id="&lt;init&gt;:ClientPool"></a>
       <h4 class="signature">
@@ -117,8 +124,11 @@
         <span class="name">ClientPool</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a com.typesafe.Config using the provided path.
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis
+</p></span></dd></dl></div>
+    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(config:com.typesafe.config.Config):scredis.ClientPool"></a>
       <a id="&lt;init&gt;:ClientPool"></a>
       <h4 class="signature">
@@ -130,8 +140,11 @@
         <span class="name">ClientPool</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a com.typesafe.Config
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config must contain the scredis object at its root.
+This constructor is equivalent to </p><pre><span class="kw">new</span> ClientPool(config, <span class="lit">"scredis"</span>)</pre></span></dd></dl></div>
+    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(config:scredis.RedisConfig):scredis.ClientPool"></a>
       <a id="&lt;init&gt;:ClientPool"></a>
       <h4 class="signature">
@@ -143,8 +156,11 @@
         <span class="name">ClientPool</span><span class="params">(<span name="config">config: <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">RedisConfig</a></span>)</span>
       </span>
       </h4>
-      
-    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>
+</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p><a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.ClientPool">scredis.ClientPool</a>
+</p></dd></dl></div>
+    </li><li name="scredis.ClientPool#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(config:org.apache.commons.pool.impl.GenericObjectPool.Config,testWithPing:Boolean)(host:String,port:Int,password:Option[String],database:Int,timeout:scala.concurrent.duration.Duration,tries:Int,sleep:Option[scala.concurrent.duration.FiniteDuration]):scredis.ClientPool"></a>
       <a id="&lt;init&gt;:ClientPool"></a>
       <h4 class="signature">
@@ -156,7 +172,9 @@
         <span class="name">ClientPool</span><span class="params">(<span name="config">config: <span class="extype" name="org.apache.commons.pool.impl.GenericObjectPool.Config">Config</span> = <span class="symbol">RedisConfigDefaults.Pool.Config</span></span>, <span name="testWithPing">testWithPing: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="defval" name="RedisConfigDefaults.Pool.TestWithPing">...</span></span>)</span><span class="params">(<span name="host">host: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">RedisConfigDefaults.Client.Host</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Port</span></span>, <span name="password">password: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">RedisConfigDefaults.Client.Password</span></span>, <span name="database">database: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Database</span></span>, <span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">RedisConfigDefaults.Client.Timeout</span></span>, <span name="tries">tries: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Tries</span></span>, <span name="sleep">sleep: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>] = <span class="symbol">RedisConfigDefaults.Client.Sleep</span></span>)</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>apache pool config (org.apache.commons.pool.impl.GenericObjectPool.Config)</p></dd><dt class="param">testWithPing</dt><dd class="cmt"><p>when <code>true</code>, internal clients are validated with a PING command,
+when false, only socket information are used (less reliable but more performant)</p></dd><dt class="param">host</dt><dd class="cmt"><p>server address</p></dd><dt class="param">port</dt><dd class="cmt"><p>server port</p></dd><dt class="param">password</dt><dd class="cmt"><p>server password</p></dd><dt class="param">database</dt><dd class="cmt"><p>database index to select</p></dd><dt class="param">timeout</dt><dd class="cmt"><p>maximum duration for the execution of a command, can be infinite</p></dd><dt class="param">tries</dt><dd class="cmt"><p>maximum number of times the command will be executed in case recoverable errors
+occur such as timeouts</p></dd><dt class="param">sleep</dt><dd class="cmt"><p>duration of time to sleep between subsequent tries</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -257,7 +275,7 @@
       </span>
       </h4>
       <p class="shortcomment cmt">Authenticates/Deauthenticates all clients to/from the server.</p><div class="fullcomment"><div class="comment cmt"><p>Authenticates/Deauthenticates all clients to/from the server.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
+</p></div><dl class="paramcmts block"><dt class="param">passwordOpt</dt><dd class="cmt"><p>the server password, or <code>None</code> if the server does not require any</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if the password is incorrect
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>If the provided password is incorrect, then whatever was set as the password before
 remains.

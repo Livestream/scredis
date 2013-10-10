@@ -134,7 +134,20 @@ union or intersection of sorted sets
         <a href="CommandOptions.html"><span class="name">CommandOptions</span></a><span class="params">(<span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">RedisConfigDefaults.Client.Timeout</span></span>, <span name="tries">tries: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">RedisConfigDefaults.Client.Tries</span></span>, <span name="sleep">sleep: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>] = <span class="symbol">RedisConfigDefaults.Client.Sleep</span></span>, <span name="force">force: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      
+      <p class="comment cmt">Contains the parameters associated to a command.</p>
+    </li><li name="scredis.Condition" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ConditionextendsAnyRef"></a>
+      <a id="Condition:Condition"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Condition.html"><span class="name">Condition</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents a condition that can be passed to some Redis command, e.</p>
     </li><li name="scredis.PipelineClient" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="PipelineClientextendsQueuingClientwithConnectionCommandswithServerCommandswithKeysCommandswithStringsCommandswithHashesCommandswithListsCommandswithSetsCommandswithSortedSetsCommandswithScriptingCommandswithPubSubCommands"></a>
       <a id="PipelineClient:PipelineClient"></a>
@@ -234,7 +247,8 @@ single request.</p>
         <a href="Aggregate$.html"><span class="name">Aggregate</span></a>
       </span>
       </h4>
-      
+      <p class="comment cmt">Contains all available aggregation functions
+</p>
     </li><li name="scredis.Client" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Client"></a>
       <a id="Client:Client"></a>
@@ -247,7 +261,7 @@ single request.</p>
         <a href="Client$.html"><span class="name">Client</span></a>
       </span>
       </h4>
-      
+      <p class="comment cmt">The companion object provides additional friendly constructors.</p>
     </li><li name="scredis.ClientPool" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ClientPool"></a>
       <a id="ClientPool:ClientPool"></a>
@@ -260,7 +274,21 @@ single request.</p>
         <a href="ClientPool$.html"><span class="name">ClientPool</span></a>
       </span>
       </h4>
-      
+      <p class="comment cmt">The companion object provides additional friendly constructors.</p>
+    </li><li name="scredis.Condition" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Condition"></a>
+      <a id="Condition:Condition"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Condition$.html"><span class="name">Condition</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">Contains all available conditions
+</p>
     </li><li name="scredis.package#DefaultCommandOptions" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DefaultCommandOptions:scredis.CommandOptions"></a>
       <a id="DefaultCommandOptions:CommandOptions"></a>
@@ -286,7 +314,7 @@ single request.</p>
         <a href="Redis$.html"><span class="name">Redis</span></a>
       </span>
       </h4>
-      
+      <p class="comment cmt">The companion object provides additional friendly constructors.</p>
     </li><li name="scredis.RedisConfig" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RedisConfig"></a>
       <a id="RedisConfig:RedisConfig"></a>
