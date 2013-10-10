@@ -16,22 +16,20 @@ Scredis is an advanced [Redis](http://redis.io) client entirely written in Scala
 ## Getting started
 
 ### Binaries
-Scredis is compatible with Scala 2.9.x and 2.10.x. Binary releases will soon be hosted on a Nexus repository. This page will be updated once the repository is available.
+Scredis is compatible with Scala 2.9.x and 2.10.x. Binary releases are hosted on the Sonatype Central Repository.
 
 ```scala
-// Comming soon!
-resolvers += "Name" at "Releases URL"
+resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
-libraryDependencies ++= Seq("livestream" %% "scredis" % "1.0.0")
+libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.0.0")
 ```
 
-Snapshots will be hosted in a separate repository.
+Snapshots are hosted on a separate repository.
 
 ```scala
-// Comming soon!
-resolvers += "Name" at "Snapshots URL"
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-libraryDependencies ++= Seq("livestream" %% "scredis" % "1.0.1-SNAPSHOT")
+libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.0.1-SNAPSHOT")
 ```
 
 ### Quick example
