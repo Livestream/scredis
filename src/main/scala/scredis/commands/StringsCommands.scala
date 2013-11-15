@@ -490,13 +490,13 @@ trait StringsCommands { self: Protocol =>
    *
    * @param key target key to set
    * @param value value to be stored at key
-   * @param ttl time-to-live
+   * @param ttl time-to-live, up to milliseconds precision
    *
    * @since 2.6.0
    */
-  def setEXDuration(key: String, value: Any, ttl: Duration)(
+  def setEXDuration(key: String, value: Any, ttl: FiniteDuration)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = send(PSetEX, key, ttl.toMillis,value)(asUnit)
+  ): Unit = send(PSetEX, key, ttl.toMillis, value)(asUnit)
 
   /**
    * Sets the value and expiration in seconds of a key.

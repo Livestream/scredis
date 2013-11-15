@@ -98,7 +98,7 @@ trait KeysCommands extends Async {
    * Sets a key's time to live.
    *
    * @param key  key to expire
-   * @param ttl duration after which the key should expire
+   * @param ttl duration after which the key should expire, up to milliseconds precision
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
    *
@@ -155,7 +155,7 @@ trait KeysCommands extends Async {
    * @param host destination host
    * @param port destination port
    * @param database destination database
-   * @param timeout timeout duration
+   * @param timeout timeout duration, up to milliseconds precision
    * @param copy if true, do not remove the key from the local instance
    * @param replace if true, replace existing key on the remote instance
    * @throws $e if an error occurs
@@ -167,7 +167,7 @@ trait KeysCommands extends Async {
     host: String,
     port: Int = 6379,
     database: Int = 0,
-    timeout: Duration = 2 seconds,
+    timeout: FiniteDuration = 2 seconds,
     copy: Boolean = false,
     replace: Boolean = false
   )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Unit] =
