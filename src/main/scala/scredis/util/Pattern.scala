@@ -14,6 +14,8 @@
  */
 package scredis.util
 
+import org.slf4j.Logger
+
 import scredis.exceptions._
 
 import scala.concurrent.duration.FiniteDuration
@@ -23,7 +25,9 @@ import scala.concurrent.duration.FiniteDuration
  */
 private[scredis] object Pattern {
 
-  private[scredis] def retry[A](tries: Int, sleep: Option[FiniteDuration])(op: Int => A): A = {
+  private[scredis] def retry[A](tries: Int, sleep: Option[FiniteDuration])(op: Int => A)(
+    implicit logger: Logger
+  ): A = {
     var count = 0
     var result: Option[A] = None
     while (result.isEmpty) {
@@ -33,9 +37,10 @@ private[scredis] object Pattern {
       } catch {
         case e: RedisCommandException => throw e
         case e: RedisParsingException => throw e
-        case e: Throwable => if(count >= tries) {
+        case e: Throwable => if (count >= tries) {
           throw e
         } else {
+          logger.error("A retriable error occurred while executing command", e)
           sleep.map(d => Thread.sleep(d.toMillis))
         }
       }
