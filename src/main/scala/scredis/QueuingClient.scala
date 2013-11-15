@@ -14,6 +14,8 @@
  */
 package scredis
 
+import org.slf4j.LoggerFactory
+
 import akka.dispatch.{ ExecutionContext, Promise, Future }
 
 import scredis.util.Pattern.retry
@@ -28,7 +30,8 @@ import scala.collection.mutable.{ ListBuffer, ArrayBuffer }
  */
 abstract class QueuingClient(client: Client) {
   protected type Command = (Seq[Array[Byte]], (Char, Array[Byte]) => Any)
-
+  
+  private implicit val logger = LoggerFactory.getLogger(getClass)
   private val results = ArrayBuffer[Promise[Any]]()
 
   protected val DefaultCommandOptions = client.DefaultCommandOptions

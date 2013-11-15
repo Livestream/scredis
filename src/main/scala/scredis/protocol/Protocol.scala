@@ -48,7 +48,7 @@ trait Protocol {
 
   private val CrLfByte = "\r\n".getBytes(Encoding)
 
-  private val logger = LoggerFactory.getLogger(getClass)
+  private implicit val logger = LoggerFactory.getLogger(getClass)
   private val builder = new ArrayBuilder.ofByte()
   private val commands = ListBuffer[(Seq[Array[Byte]], (Char, Array[Byte]) => Any)]()
   private var isQueuing = false
