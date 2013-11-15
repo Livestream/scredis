@@ -21,7 +21,7 @@ Scredis is compatible with Scala 2.9.x and 2.10.x. Binary releases are hosted on
 ```scala
 resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
-libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.0.0")
+libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.0.1")
 ```
 
 Snapshots are hosted on a separate repository.
