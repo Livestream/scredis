@@ -98,7 +98,7 @@ trait TransactionalCommands { self: Client =>
    * already been called and won't call it a second time.
    *
    * @param body function to be executed with the provided $p
-   * @return an indexed sequence containing the results of the issued commands in the same order
+   * @return collection containing the results of the issued commands in the same order
    * they were queued
    *
    * @since 1.0.0
@@ -114,6 +114,31 @@ trait TransactionalCommands { self: Client =>
     else {
       p.sync()
       Await.result(result, Never)
+    }
+  }
+  
+  /**
+   * Pipelines multiple commands and returns the results as a map of key to command result pairs.
+   *
+   * @note It is safe to call `sync()` within `body` as the library will detect whether it has
+   * already been called and won't call it a second time.
+   *
+   * @param body function to be executed with the provided $p
+   * @return map of key to command pairs
+   *
+   * @since 1.0.0
+   */
+  def pipelinedM[K, V](body: PipelineClient => Map[K, Future[V]])(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    ec: ExecutionContext
+  ): Map[K, V] = {
+    val p = pipeline()
+    val result = body(p)
+    if (!p.isClosed) {
+      p.sync()
+    }
+    for ((key, future) <- result) yield {
+      (key -> Await.result(future, Never))
     }
   }
 
@@ -206,6 +231,33 @@ trait TransactionalCommands { self: Client =>
     else {
       m.exec()
       Await.result(result, Never)
+    }
+  }
+  
+  /**
+   * Performs multiple commands as part of a Redis transaction and returns the results as a map
+   * of key to command result pairs.
+   *
+   * @note It is safe to call `exec()` within `body` as the library will detect whether it has
+   * already been called and won't call it a second time.
+   *
+   * @param body function to be executed with the provided $m
+   * @return map of key to command pairs
+   * @throws $et if a watched key has been modified by another client
+   *
+   * @since 1.0.0
+   */
+  def transactionalM[K, V](body: TransactionalClient => Map[K, Future[V]])(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    ec: ExecutionContext
+  ): Map[K, V] = {
+    val m = multi()
+    val result = body(m)
+    if (!m.isClosed) {
+      m.exec()
+    }
+    for ((key, future) <- result) yield {
+      (key -> Await.result(future, Never))
     }
   }
 

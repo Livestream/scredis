@@ -93,6 +93,22 @@ trait TransactionalCommands extends Async {
     implicit opts: CommandOptions = DefaultCommandOptions,
     cbf: CanBuildFrom[B[Future[A]], A, B[A]]
   ): Future[B[A]] = async(_.pipelinedN(body))(force(opts))
+  
+  /**
+   * Pipelines multiple commands and returns the results as a map of key to command result pairs.
+   *
+   * @note It is safe to call `sync()` within `body` as the library will detect whether it has
+   * already been called and won't call it a second time.
+   *
+   * @param body function to be executed with the provided $p
+   * @return map of key to command pairs
+   *
+   * @since 1.0.0
+   */
+  def pipelinedM[K, V](body: PipelineClient => Map[K, Future[V]])(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    ec: ExecutionContext
+  ): Future[Map[K, V]] = async(_.pipelinedM(body))(force(opts))
 
   /**
    * Performs multiple commands as part of a Redis transaction and returns the results.
@@ -150,6 +166,24 @@ trait TransactionalCommands extends Async {
     implicit opts: CommandOptions = DefaultCommandOptions,
     cbf: CanBuildFrom[B[Future[A]], A, B[A]]
   ): Future[B[A]] = async(_.transactionalN(body))(force(opts))
+  
+  /**
+   * Performs multiple commands as part of a Redis transaction and returns the results as a map
+   * of key to command result pairs.
+   *
+   * @note It is safe to call `exec()` within `body` as the library will detect whether it has
+   * already been called and won't call it a second time.
+   *
+   * @param body function to be executed with the provided $m
+   * @return map of key to command pairs
+   * @throws $et if a watched key has been modified by another client
+   *
+   * @since 1.0.0
+   */
+  def transactionalM[K, V](body: TransactionalClient => Map[K, Future[V]])(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    ec: ExecutionContext
+  ): Future[Map[K, V]] = async(_.transactionalM(body))(force(opts))
 
   /**
    * Watches the given keys, which upon modification, will abort a transaction.
