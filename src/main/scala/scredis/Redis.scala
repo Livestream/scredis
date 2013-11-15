@@ -28,7 +28,7 @@ import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ Future, Promise, ExecutionContext }
 import scala.concurrent.duration._
 
-import java.util.concurrent.{ Executors, ExecutorService, ConcurrentHashMap }
+import java.util.concurrent._
 import java.util.{ Timer, TimerTask }
 import java.util.concurrent.locks.ReentrantLock
 
@@ -165,16 +165,23 @@ final class Redis private[scredis] (
     config.Client.Sleep
   )
   
-  private def newThreadPool(): ExecutorService = Executors.newFixedThreadPool(
-    config.Async.Executors.Threads,
-    (new BasicThreadFactory.Builder()
+  private def newThreadPool(): ExecutorService = {
+    val threadFactory = new BasicThreadFactory.Builder()
       .namingPattern(
         config.Async.Executors.ThreadsNamingPattern.replace("$p", PoolNumber).replace("$t", "%d")
       )
       .priority(config.Async.Executors.ThreadsPriority)
       .build()
+    
+    new ThreadPoolExecutor(
+      config.Async.Executors.Threads,
+      config.Async.Executors.Threads,
+      0L,
+      TimeUnit.MILLISECONDS,
+      new LinkedBlockingQueue[Runnable](config.Async.Executors.QueueCapacity),
+      threadFactory
     )
-  )
+  }
   
   private def nextIndex(): Int = synchronized {
     if(index == Integer.MAX_VALUE) index = 0 else index += 1
