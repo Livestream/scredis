@@ -975,7 +975,7 @@ the timeout could not be set
       </span>
       </h4>
       <p class="shortcomment cmt">Sets a key's time to live.</p><div class="fullcomment"><div class="comment cmt"><p>Sets a key's time to live.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to expire</p></dd><dt class="param">ttl</dt><dd class="cmt"><p>duration after which the key should expire</p></dd><dt>returns</dt><dd class="cmt"><p>true if the ttl was set, false if key does not exist or
+</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to expire</p></dd><dt class="param">ttl</dt><dd class="cmt"><p>duration after which the key should expire, up to milliseconds precision</p></dd><dt>returns</dt><dd class="cmt"><p>true if the ttl was set, false if key does not exist or
 the timeout could not be set
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>2.6.0
 </p></dd></dl></div>
@@ -1887,19 +1887,19 @@ resulting <code>Map</code>.
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>MSETNX will not perform any operation at all even if just a single key already exists.
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#migrate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="migrate(key:String,host:String,port:Int,database:Int,timeout:scala.concurrent.duration.Duration,copy:Boolean,replace:Boolean)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Unit]"></a>
-      <a id="migrate(String,String,Int,Int,Duration,Boolean,Boolean)(CommandOptions):Future[Unit]"></a>
+      <a id="migrate(key:String,host:String,port:Int,database:Int,timeout:scala.concurrent.duration.FiniteDuration,copy:Boolean,replace:Boolean)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Unit]"></a>
+      <a id="migrate(String,String,Int,Int,FiniteDuration,Boolean,Boolean)(CommandOptions):Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">migrate</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="host">host: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">6379</span></span>, <span name="database">database: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">2 seconds</span></span>, <span name="copy">copy: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="replace">replace: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">migrate</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="host">host: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">6379</span></span>, <span name="database">database: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span> = <span class="symbol">2 seconds</span></span>, <span name="copy">copy: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="replace">replace: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Atomically transfers a key from a Redis instance to another one.</p><div class="fullcomment"><div class="comment cmt"><p>Atomically transfers a key from a Redis instance to another one.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to transfer</p></dd><dt class="param">host</dt><dd class="cmt"><p>destination host</p></dd><dt class="param">port</dt><dd class="cmt"><p>destination port</p></dd><dt class="param">database</dt><dd class="cmt"><p>destination database</p></dd><dt class="param">timeout</dt><dd class="cmt"><p>timeout duration</p></dd><dt class="param">copy</dt><dd class="cmt"><p>if true, do not remove the key from the local instance</p></dd><dt class="param">replace</dt><dd class="cmt"><p>if true, replace existing key on the remote instance</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>2.6.0
+</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to transfer</p></dd><dt class="param">host</dt><dd class="cmt"><p>destination host</p></dd><dt class="param">port</dt><dd class="cmt"><p>destination port</p></dd><dt class="param">database</dt><dd class="cmt"><p>destination database</p></dd><dt class="param">timeout</dt><dd class="cmt"><p>timeout duration, up to milliseconds precision</p></dd><dt class="param">copy</dt><dd class="cmt"><p>if true, do not remove the key from the local instance</p></dd><dt class="param">replace</dt><dd class="cmt"><p>if true, replace existing key on the remote instance</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>2.6.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if an error occurs
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#move" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -2093,6 +2093,24 @@ immediately after <code>body</code> returns.
       <p class="shortcomment cmt">Pipelines multiple commands and returns the result of one command returned by <code>body</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Pipelines multiple commands and returns the result of one command returned by <code>body</code>.
 </p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="PipelineClient.html" class="extype" name="scredis.PipelineClient">scredis.PipelineClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>an indexed sequence containing the results of the issued commands in the same order
 they were queued
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/TransactionalCommands.html" class="extype" name="scredis.commands.async.TransactionalCommands">TransactionalCommands</a></dd><dt>Since</dt><dd><p>1.0.0
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>sync()</code> within <code>body</code> as the library will detect whether it has
+already been called and won't call it a second time.
+</p></span></dd></dl></div>
+    </li><li name="scredis.commands.async.TransactionalCommands#pipelinedM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="pipelinedM[K,V](body:scredis.PipelineClient=&gt;Map[K,scala.concurrent.Future[V]])(implicitopts:scredis.CommandOptions,implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Map[K,V]]"></a>
+      <a id="pipelinedM[K,V]((PipelineClient)⇒Map[K,Future[V]])(CommandOptions,ExecutionContext):Future[Map[K,V]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pipelinedM</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="params">(<span name="body">body: (<a href="PipelineClient.html" class="extype" name="scredis.PipelineClient">PipelineClient</a>) ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.commands.async.TransactionalCommands.pipelinedM.K">K</span>, <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scredis.commands.async.TransactionalCommands.pipelinedM.V">V</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.commands.async.TransactionalCommands.pipelinedM.K">K</span>, <span class="extype" name="scredis.commands.async.TransactionalCommands.pipelinedM.V">V</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Pipelines multiple commands and returns the results as a map of key to command result pairs.</p><div class="fullcomment"><div class="comment cmt"><p>Pipelines multiple commands and returns the results as a map of key to command result pairs.
+</p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="PipelineClient.html" class="extype" name="scredis.PipelineClient">scredis.PipelineClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>map of key to command pairs
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/TransactionalCommands.html" class="extype" name="scredis.commands.async.TransactionalCommands">TransactionalCommands</a></dd><dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>sync()</code> within <code>body</code> as the library will detect whether it has
 already been called and won't call it a second time.
@@ -2721,19 +2739,19 @@ it can hold a bit at offset. When the string at key is grown, added bits are set
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type.
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.async.StringsCommands#setEXDuration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="setEXDuration(key:String,value:Any,ttl:scala.concurrent.duration.Duration)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Unit]"></a>
-      <a id="setEXDuration(String,Any,Duration)(CommandOptions):Future[Unit]"></a>
+      <a id="setEXDuration(key:String,value:Any,ttl:scala.concurrent.duration.FiniteDuration)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Unit]"></a>
+      <a id="setEXDuration(String,Any,FiniteDuration)(CommandOptions):Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">setEXDuration</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Any">Any</span></span>, <span name="ttl">ttl: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">setEXDuration</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Any">Any</span></span>, <span name="ttl">ttl: <span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Sets the value and expiration of a key.</p><div class="fullcomment"><div class="comment cmt"><p>Sets the value and expiration of a key.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>target key to set</p></dd><dt class="param">value</dt><dd class="cmt"><p>value to be stored at key</p></dd><dt class="param">ttl</dt><dd class="cmt"><p>time-to-live
+</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>target key to set</p></dd><dt class="param">value</dt><dd class="cmt"><p>value to be stored at key</p></dd><dt class="param">ttl</dt><dd class="cmt"><p>time-to-live, up to milliseconds precision
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/StringsCommands.html" class="extype" name="scredis.commands.async.StringsCommands">StringsCommands</a></dd><dt>Since</dt><dd><p>2.6.0
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type.
 </p></span></dd></dl></div>
@@ -2941,6 +2959,26 @@ command returned by <code>body</code>.</p><div class="fullcomment"><div class="c
 command returned by <code>body</code>.
 </p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="TransactionalClient.html" class="extype" name="scredis.TransactionalClient">scredis.TransactionalClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>an indexed sequence containing the results of the issued commands in the same order
 they were queued</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/TransactionalCommands.html" class="extype" name="scredis.commands.async.TransactionalCommands">TransactionalCommands</a></dd><dt>Since</dt><dd><p>2.0.0
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisTransactionException]]<p>if a watched key has been modified by another client
+</p></span></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>exec()</code> within <code>body</code> as the library will detect whether it has
+already been called and won't call it a second time.
+</p></span></dd></dl></div>
+    </li><li name="scredis.commands.async.TransactionalCommands#transactionalM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="transactionalM[K,V](body:scredis.TransactionalClient=&gt;Map[K,scala.concurrent.Future[V]])(implicitopts:scredis.CommandOptions,implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Map[K,V]]"></a>
+      <a id="transactionalM[K,V]((TransactionalClient)⇒Map[K,Future[V]])(CommandOptions,ExecutionContext):Future[Map[K,V]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">transactionalM</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="params">(<span name="body">body: (<a href="TransactionalClient.html" class="extype" name="scredis.TransactionalClient">TransactionalClient</a>) ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.commands.async.TransactionalCommands.transactionalM.K">K</span>, <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scredis.commands.async.TransactionalCommands.transactionalM.V">V</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.commands.async.TransactionalCommands.transactionalM.K">K</span>, <span class="extype" name="scredis.commands.async.TransactionalCommands.transactionalM.V">V</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Performs multiple commands as part of a Redis transaction and returns the results as a map
+of key to command result pairs.</p><div class="fullcomment"><div class="comment cmt"><p>Performs multiple commands as part of a Redis transaction and returns the results as a map
+of key to command result pairs.
+</p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="TransactionalClient.html" class="extype" name="scredis.TransactionalClient">scredis.TransactionalClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>map of key to command pairs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/TransactionalCommands.html" class="extype" name="scredis.commands.async.TransactionalCommands">TransactionalCommands</a></dd><dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisTransactionException]]<p>if a watched key has been modified by another client
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>exec()</code> within <code>body</code> as the library will detect whether it has
 already been called and won't call it a second time.

@@ -394,6 +394,24 @@ they were queued
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>sync()</code> within <code>body</code> as the library will detect whether it has
 already been called and won't call it a second time.
 </p></span></dd></dl></div>
+    </li><li name="scredis.commands.TransactionalCommands#pipelinedM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="pipelinedM[K,V](body:scredis.PipelineClient=&gt;Map[K,scala.concurrent.Future[V]])(implicitopts:scredis.CommandOptions,implicitec:scala.concurrent.ExecutionContext):Map[K,V]"></a>
+      <a id="pipelinedM[K,V]((PipelineClient)⇒Map[K,Future[V]])(CommandOptions,ExecutionContext):Map[K,V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pipelinedM</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="params">(<span name="body">body: (<a href="../PipelineClient.html" class="extype" name="scredis.PipelineClient">PipelineClient</a>) ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.commands.TransactionalCommands.pipelinedM.K">K</span>, <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scredis.commands.TransactionalCommands.pipelinedM.V">V</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../Client.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.commands.TransactionalCommands.pipelinedM.K">K</span>, <span class="extype" name="scredis.commands.TransactionalCommands.pipelinedM.V">V</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Pipelines multiple commands and returns the results as a map of key to command result pairs.</p><div class="fullcomment"><div class="comment cmt"><p>Pipelines multiple commands and returns the results as a map of key to command result pairs.
+</p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="../PipelineClient.html" class="extype" name="scredis.PipelineClient">scredis.PipelineClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>map of key to command pairs
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>sync()</code> within <code>body</code> as the library will detect whether it has
+already been called and won't call it a second time.
+</p></span></dd></dl></div>
     </li><li name="scredis.commands.TransactionalCommands#pipelinedN" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="pipelinedN[A,B[_]&lt;:Traversable[_]](body:scredis.PipelineClient=&gt;B[scala.concurrent.Future[A]])(implicitopts:scredis.CommandOptions,implicitcbf:scala.collection.generic.CanBuildFrom[B[scala.concurrent.Future[A]],A,B[A]],implicitec:scala.concurrent.ExecutionContext):B[A]"></a>
       <a id="pipelinedN[A,B[_]&lt;:Traversable[_]]((PipelineClient)⇒B[Future[A]])(CommandOptions,CanBuildFrom[B[Future[A]],A,B[A]],ExecutionContext):B[A]"></a>
@@ -407,7 +425,7 @@ already been called and won't call it a second time.
       </span>
       </h4>
       <p class="shortcomment cmt">Pipelines multiple commands and returns the results of several commands returned by <code>body</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Pipelines multiple commands and returns the results of several commands returned by <code>body</code>.
-</p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="../PipelineClient.html" class="extype" name="scredis.PipelineClient">scredis.PipelineClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>an indexed sequence containing the results of the issued commands in the same order
+</p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="../PipelineClient.html" class="extype" name="scredis.PipelineClient">scredis.PipelineClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>collection containing the results of the issued commands in the same order
 they were queued
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>sync()</code> within <code>body</code> as the library will detect whether it has
@@ -476,6 +494,26 @@ command returned by <code>body</code>.</p><div class="fullcomment"><div class="c
 command returned by <code>body</code>.
 </p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="../TransactionalClient.html" class="extype" name="scredis.TransactionalClient">scredis.TransactionalClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>an indexed sequence containing the results of the issued commands in the same order
 they were queued</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.0.0
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisTransactionException]]<p>if a watched key has been modified by another client
+</p></span></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>exec()</code> within <code>body</code> as the library will detect whether it has
+already been called and won't call it a second time.
+</p></span></dd></dl></div>
+    </li><li name="scredis.commands.TransactionalCommands#transactionalM" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="transactionalM[K,V](body:scredis.TransactionalClient=&gt;Map[K,scala.concurrent.Future[V]])(implicitopts:scredis.CommandOptions,implicitec:scala.concurrent.ExecutionContext):Map[K,V]"></a>
+      <a id="transactionalM[K,V]((TransactionalClient)⇒Map[K,Future[V]])(CommandOptions,ExecutionContext):Map[K,V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">transactionalM</span><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="params">(<span name="body">body: (<a href="../TransactionalClient.html" class="extype" name="scredis.TransactionalClient">TransactionalClient</a>) ⇒ <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.commands.TransactionalCommands.transactionalM.K">K</span>, <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scredis.commands.TransactionalCommands.transactionalM.V">V</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../Client.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.commands.TransactionalCommands.transactionalM.K">K</span>, <span class="extype" name="scredis.commands.TransactionalCommands.transactionalM.V">V</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Performs multiple commands as part of a Redis transaction and returns the results as a map
+of key to command result pairs.</p><div class="fullcomment"><div class="comment cmt"><p>Performs multiple commands as part of a Redis transaction and returns the results as a map
+of key to command result pairs.
+</p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>function to be executed with the provided <a href="../TransactionalClient.html" class="extype" name="scredis.TransactionalClient">scredis.TransactionalClient</a></p></dd><dt>returns</dt><dd class="cmt"><p>map of key to command pairs</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisTransactionException]]<p>if a watched key has been modified by another client
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>It is safe to call <code>exec()</code> within <code>body</code> as the library will detect whether it has
 already been called and won't call it a second time.

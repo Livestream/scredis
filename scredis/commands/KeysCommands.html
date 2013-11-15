@@ -307,7 +307,7 @@ the timeout could not be set
       </span>
       </h4>
       <p class="shortcomment cmt">Sets a key's time to live.</p><div class="fullcomment"><div class="comment cmt"><p>Sets a key's time to live.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to expire</p></dd><dt class="param">ttl</dt><dd class="cmt"><p>duration after which the key should expire</p></dd><dt>returns</dt><dd class="cmt"><p>true if the ttl was set, false if key does not exist or
+</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to expire</p></dd><dt class="param">ttl</dt><dd class="cmt"><p>duration after which the key should expire, up to milliseconds precision</p></dd><dt>returns</dt><dd class="cmt"><p>true if the ttl was set, false if key does not exist or
 the timeout could not be set
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
 </p></dd></dl></div>
@@ -399,19 +399,23 @@ the timeout could not be set
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd></dl></div>
     </li><li name="scredis.commands.KeysCommands#migrate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="migrate(key:String,host:String,port:Int,database:Int,timeout:scala.concurrent.duration.Duration,copy:Boolean,replace:Boolean)(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="migrate(String,String,Int,Int,Duration,Boolean,Boolean)(CommandOptions):Unit"></a>
+      <a id="migrate(key:String,host:String,port:Int,database:Int,timeout:scala.concurrent.duration.FiniteDuration,copy:Boolean,replace:Boolean)(implicitopts:scredis.CommandOptions):Unit"></a>
+      <a id="migrate(String,String,Int,Int,FiniteDuration,Boolean,Boolean)(CommandOptions):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">migrate</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="host">host: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">6379</span></span>, <span name="database">database: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#connection:scredis.io.Connection">connection.timeout</a></span></span></span>, <span name="copy">copy: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="replace">replace: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">migrate</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="host">host: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">6379</span></span>, <span name="database">database: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span> = <span class="defval" name='<span class="name"><a href="../protocol/Protocol.html#connection:scredis.io.Connection">if (connection.timeout.isFinite) {
+      connection.timeout.asInstanceOf[FiniteDuration]
+    } else {
+      2 seconds
+    }</a></span>'>...</span></span>, <span name="copy">copy: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="replace">replace: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Atomically transfers a key from a Redis instance to another one.</p><div class="fullcomment"><div class="comment cmt"><p>Atomically transfers a key from a Redis instance to another one.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to transfer</p></dd><dt class="param">host</dt><dd class="cmt"><p>destination host</p></dd><dt class="param">port</dt><dd class="cmt"><p>destination port</p></dd><dt class="param">database</dt><dd class="cmt"><p>destination database</p></dd><dt class="param">timeout</dt><dd class="cmt"><p>timeout duration</p></dd><dt class="param">copy</dt><dd class="cmt"><p>if true, do not remove the key from the local instance</p></dd><dt class="param">replace</dt><dd class="cmt"><p>if true, replace existing key on the remote instance</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
+</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to transfer</p></dd><dt class="param">host</dt><dd class="cmt"><p>destination host</p></dd><dt class="param">port</dt><dd class="cmt"><p>destination port</p></dd><dt class="param">database</dt><dd class="cmt"><p>destination database</p></dd><dt class="param">timeout</dt><dd class="cmt"><p>timeout duration, up to milliseconds precision</p></dd><dt class="param">copy</dt><dd class="cmt"><p>if true, do not remove the key from the local instance</p></dd><dt class="param">replace</dt><dd class="cmt"><p>if true, replace existing key on the remote instance</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if an error occurs
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.KeysCommands#move" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
