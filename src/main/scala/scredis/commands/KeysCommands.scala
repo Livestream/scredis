@@ -122,7 +122,7 @@ trait KeysCommands { self: Protocol =>
    * Sets a key's time to live.
    *
    * @param key  key to expire
-   * @param ttl duration after which the key should expire
+   * @param ttl duration after which the key should expire, up to milliseconds precision
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
    *
@@ -181,7 +181,7 @@ trait KeysCommands { self: Protocol =>
    * @param host destination host
    * @param port destination port
    * @param database destination database
-   * @param timeout timeout duration
+   * @param timeout timeout duration, up to milliseconds precision
    * @param copy if true, do not remove the key from the local instance
    * @param replace if true, replace existing key on the remote instance
    * @throws $e if an error occurs
@@ -193,7 +193,11 @@ trait KeysCommands { self: Protocol =>
     host: String,
     port: Int = 6379,
     database: Int = 0,
-    timeout: Duration = connection.timeout,
+    timeout: FiniteDuration = if (connection.timeout.isFinite) {
+      connection.timeout.asInstanceOf[FiniteDuration]
+    } else {
+      2 seconds
+    },
     copy: Boolean = false,
     replace: Boolean = false
   )(implicit opts: CommandOptions = DefaultCommandOptions): Unit = {
