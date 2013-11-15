@@ -197,7 +197,7 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
           evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
           evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-          p.sync().toList must be(Result ::: List(Success(true)))
+          p.sync().toList must be(Result ::: List(Right(true)))
           Await.result(set, 100 milliseconds) must be()
           Await.result(get, 100 milliseconds) must be(Some(SomeValue))
           evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
@@ -398,7 +398,7 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
           evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
           evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-          m.exec().toList must be(Result ::: List(Success(true)))
+          m.exec().toList must be(Result ::: List(Right(true)))
           Await.result(set, 100 milliseconds) must be()
           Await.result(get, 100 milliseconds) must be(Some(SomeValue))
           evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]

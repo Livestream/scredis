@@ -29,6 +29,7 @@ import scredis.exceptions._
 import scala.collection.mutable.ListBuffer
 
 import java.util.concurrent._
+import java.util.concurrent.TimeUnit._
 import java.util.{ Timer, TimerTask }
 import java.util.concurrent.locks.ReentrantLock
 
