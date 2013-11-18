@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-lang3" % "3.1",
   "commons-pool" % "commons-pool" % "1.6",
   "com.typesafe" % "config" % "1.0.0",
+  "com.typesafe.akka" %% "akka-actor" % "2.2.3",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 
