@@ -14,9 +14,8 @@
  */
 package scredis
 
-import org.slf4j.LoggerFactory
-
 import scredis.util.Pattern.retry
+import scredis.util.Logger
 import scredis.exceptions._
 import scredis.io.{ ConnectionException, ConnectionTimeoutException }
 
@@ -31,7 +30,7 @@ import scala.util.{ Try, Success, Failure }
 abstract class QueuingClient(client: Client) {
   protected type Command = (Seq[Array[Byte]], (Char, Array[Byte]) => Any)
   
-  private implicit val logger = LoggerFactory.getLogger(getClass)
+  private implicit val logger = Logger(getClass)
   private val results = ArrayBuffer[Promise[Any]]()
 
   protected val DefaultCommandOptions = client.DefaultCommandOptions

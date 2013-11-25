@@ -14,8 +14,6 @@
  */
 package scredis.util
 
-import org.slf4j.Logger
-
 import scredis.exceptions._
 
 import scala.concurrent.duration.FiniteDuration

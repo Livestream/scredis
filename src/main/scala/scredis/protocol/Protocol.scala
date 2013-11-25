@@ -14,13 +14,10 @@
  */
 package scredis.protocol
 
-import org.slf4j.LoggerFactory
-
 import scredis.CommandOptions
 import scredis.io.{ Connection, ConnectionException, ConnectionTimeoutException }
 import scredis.exceptions._
-import scredis.util.LinkedHashSet
-import scredis.util.Pattern.retry
+import scredis.util._
 import scredis.parsing._
 import scredis.parsing.Implicits._
 
@@ -34,6 +31,9 @@ import scala.util.{ Try, Success, Failure }
  * This trait implements the `Redis` protocol.
  */
 trait Protocol {
+  
+  import Pattern.retry
+  
   private val Encoding = "UTF-8"
   private val StatusReply = '+'
   private val ErrorReply = '-'
@@ -49,7 +49,7 @@ trait Protocol {
 
   private val CrLfByte = "\r\n".getBytes(Encoding)
 
-  private implicit val logger = LoggerFactory.getLogger(getClass)
+  private implicit val logger = Logger(getClass)
   private val builder = new ArrayBuilder.ofByte()
   private val commands = ListBuffer[(Seq[Array[Byte]], (Char, Array[Byte]) => Any)]()
   private var isQueuing = false
@@ -114,9 +114,7 @@ trait Protocol {
   }
   
   protected def send(data: Array[Byte]): Unit = {
-    if(logger.isDebugEnabled) {
-      logger.debug(s"Sending command: ${StringParser.parse(data)}")
-    }
+    logger.debug(s"Sending command: ${StringParser.parse(data)}")
     connection.write(data)
   }
   protected def sendOnly(args: Any*): Unit = send(multiBulkRequestFor(serialize(args)))

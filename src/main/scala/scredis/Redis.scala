@@ -16,10 +16,9 @@ package scredis
 
 import com.typesafe.config.Config
 
-import org.slf4j.LoggerFactory
-
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 
+import scredis.util.Logger
 import scredis.commands.async._
 import scredis.exceptions._
 
@@ -132,7 +131,7 @@ final class Redis private[scredis] (
   private val Interval = config.Async.Interval
   private val PoolNumber = newPoolNumber.toString
 
-  private val logger = LoggerFactory.getLogger(getClass)
+  private val logger = Logger(getClass)
   
   private val timerTask = if(IsAutomaticPipeliningEnabled) Some((
     new Timer(config.Async.TimerThreadNamingPattern.replace("$p", PoolNumber)),
@@ -207,9 +206,7 @@ final class Redis private[scredis] (
 
   private def executePipeline(index: Int): Unit = {
     val commands = this.commands.get(index)
-    if (logger.isDebugEnabled) {
-      logger.debug(s"Pipelining ${commands.size} commands")
-    }
+    logger.debug(s"Pipelining ${commands.size} commands")
     try {
       withClient(client => {
         val options = ListBuffer[CommandOptions]()
