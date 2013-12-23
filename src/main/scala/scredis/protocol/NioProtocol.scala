@@ -1,6 +1,10 @@
 package scredis.protocol
 
+import akka.actor.ActorRef
+
 import scredis.util.BufferPool
+
+import scala.concurrent.{ Future, Promise }
 
 import java.nio.ByteBuffer
 
@@ -48,6 +52,11 @@ object NioProtocol {
     
     buffer.flip()
     buffer
+  }
+  
+  def send[A](command: Command[A])(implicit ioActor: ActorRef): Future[A] = {
+    ioActor ! command
+    command.future
   }
   
 }

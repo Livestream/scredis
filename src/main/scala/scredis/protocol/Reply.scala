@@ -3,42 +3,37 @@ package scredis.protocol
 
 import java.nio.{ ByteBuffer, CharBuffer }
 
-trait Reply {
-  def asString: String
-}
+trait Reply
 
 case class ErrorReply(buffer: CharBuffer) extends Reply {
-  override def asString: String = buffer.toString
+  def asString: String = buffer.toString
 }
 
 case class StatusReply(buffer: CharBuffer) extends Reply {
-  override def asString: String = buffer.toString
+  def asString: String = buffer.toString
 }
 
-case class IntegerReply(buffer: CharBuffer) extends Reply {
-  
-  private def parseInt(): Int = {
-    var char = buffer.get()
-    while (char != '\r') {
-      length = (length * 10) + (char - '0')
-      char = buffer.get()
-    }
-  }
-  
-  override def asString: String = buffer.toString
-  def asInt: Int = 
+case class IntegerReply(buffer: CharBuffer) extends Reply {  
+  def asString: String = buffer.toString
+  def asInt: Int = asString.toInt
   def asBoolean: Boolean = (asInt == 1)
 }
 
-case class BulkReply(value: Option[CharBuffer]) extends Reply {
-  override def asString: String = value.toString
-  def toBoolean: Boolean = (value == 1)
+case class BulkReply(length: Int, value: CharBuffer) extends Reply {
+  def asStringOpt: Option[String] = if (length > 0) {
+    Some(value.toString)
+  } else {
+    None
+  }
+  def asIntOpt: Option[Int] = asStringOpt.map(_.toInt)
+  def asLongOpt: Option[Long] = asStringOpt.map(_.toLong)
+  def asBooleanOpt: Option[Boolean] = asIntOpt.map(_ == 1)
 }
 
 
 case object BulkReply {
   
-  def decode[A](buffer: CharBuffer)(implicit decoder: CharBuffer => A): Option[A] = {
+  def apply(buffer: CharBuffer): BulkReply = {
     val `type` = buffer.get()
     var length: Int = 0
     
@@ -47,12 +42,11 @@ case object BulkReply {
       length = (length * 10) + (char - '0')
       char = buffer.get()
     }
-    if (length <= 0) return None
     
     // skip \n
     buffer.position(buffer.position + 2)
     
-    Some(decoder(buffer))
+    BulkReply(length, buffer)
   }
   
 }
