@@ -5,6 +5,7 @@ import akka.actor.{ Actor, ActorRef }
 import akka.util.ByteString
 
 import scredis.util.Logger
+import scredis.protocol.Request
 
 import java.net.InetSocketAddress
 
@@ -16,7 +17,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
   private val logger = Logger(getClass)
   
   private var connection: ActorRef = _
-  private var worker: ActorRef = _
+  private var decoderActor: ActorRef = _
   
   private def stop(): Unit = {
     logger.trace("Stopping Actor...")
@@ -24,11 +25,19 @@ class IOActor(remote: InetSocketAddress) extends Actor {
   }
   
   def receive: Receive = {
+    case decoderActor: ActorRef => {
+      this.decoderActor = decoderActor
+      logger.trace(s"Connecting to $remote...")
+      IO(Tcp) ! Connect(remote)
+      context.become(connecting)
+    }
+  }
+  
+  def connecting: Receive = {
     case c @ Connected(remote, local) => {
       logger.trace(s"Connected to $remote")
       connection = sender
       connection ! Register(self)
-      // TODO: worker = context.actorOf(props)
       context.become(ready)
     }
     case CommandFailed(_: Connect) => {
@@ -40,9 +49,15 @@ class IOActor(remote: InetSocketAddress) extends Actor {
   def ready: Receive = {
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
-      worker ! data
+      decoderActor ! data
     }
-    case data: ByteString => {
+    case request: Request[_, _] => {
+      val data = ByteString(request.encoded)
+      logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
+      connection ! Write(data)
+    }
+    case requests: Seq[Request[_, _]] => {
+      val data = requests.map(x => ByteString(x.encoded)).reduceLeft(_ ++ _)
       logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
       connection ! Write(data)
     }
@@ -68,11 +83,6 @@ class IOActor(remote: InetSocketAddress) extends Actor {
       logger.debug(s"Connection has been closed")
       stop()
     }
-  }
-  
-  {
-    logger.trace(s"Connecting to $remote...")
-    IO(Tcp) ! Connect(remote)
   }
   
 }

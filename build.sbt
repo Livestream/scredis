@@ -9,7 +9,8 @@ scalaVersion := "2.10.2"
 scalacOptions ++= Seq("-deprecation")
 
 libraryDependencies ++= Seq(
-  "org.slf4j" % "slf4j-api" % "1.6.4" intransitive (),
+  "org.slf4j" % "slf4j-api" % "1.7.5" intransitive (),
+  "org.slf4j" % "slf4j-simple" % "1.7.5",
   "org.apache.commons" % "commons-lang3" % "3.1",
   "commons-pool" % "commons-pool" % "1.6",
   "com.typesafe" % "config" % "1.0.0",

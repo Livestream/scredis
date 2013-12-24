@@ -5,10 +5,7 @@ import scredis.protocol._
 import java.nio.ByteBuffer
 
 
-case class Auth(password: String) extends Command[Unit] {
-  val name = "PING"
-  
-  protected def args = Seq(password)
+object Auth extends Command[Unit]("AUTH") {
   
   protected def decode = {
     case StatusReply(_) => ()
@@ -16,8 +13,7 @@ case class Auth(password: String) extends Command[Unit] {
   
 }
 
-object Ping extends NullaryCommand[String] {
-  val name = "PING"
+object Ping extends NullaryCommand[String]("PING") {
   
   protected def decode = {
     case s @ StatusReply(_) => s.asString

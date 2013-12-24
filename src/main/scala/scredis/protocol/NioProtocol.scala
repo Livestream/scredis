@@ -6,18 +6,18 @@ import scredis.util.BufferPool
 
 import scala.concurrent.{ Future, Promise }
 
-import java.nio.ByteBuffer
+import java.nio.{ ByteBuffer, CharBuffer }
 
 object NioProtocol {
   
   private val Encoding = "UTF-8"
 
-  private val StatusReply = '+'.toByte
-  private val ErrorReply = '-'.toByte
-  private val IntegerReply = ':'.toByte
-  private val BulkReply = '$'.toByte
+  private val StatusReplyByte = '+'.toByte
+  private val ErrorReplyByte = '-'.toByte
+  private val IntegerReplyByte = ':'.toByte
+  private val BulkReplyByte = '$'.toByte
   private val BulkReplyLength = 1
-  private val MultiBulkReply = '*'.toByte
+  private val MultiBulkReplyByte = '*'.toByte
   private val MultiBulkReplyLength = 1
   
   private val CrLf = "\r\n".getBytes(Encoding)
@@ -25,9 +25,9 @@ object NioProtocol {
   
   private val bufferPool = new BufferPool(256)
   
-  def multiBulkRequestFor(command: String): ByteBuffer = multiBulkRequestFor(command, Nil)
+  def encode(command: String): ByteBuffer = encode(Seq[Any](command))
   
-  def multiBulkRequestFor(command: String, args: Seq[Any]): ByteBuffer = {
+  def encode(args: Seq[Any]): ByteBuffer = {
     val argsSize = args.size.toString.getBytes(Encoding)
     
     var length = MultiBulkReplyLength + argsSize.length + CrLfLength
@@ -45,18 +45,40 @@ object NioProtocol {
     
     val buffer = bufferPool.acquire(length)
     
-    buffer.put(MultiBulkReply).put(argsSize).put(CrLf)
+    buffer.put(MultiBulkReplyByte).put(argsSize).put(CrLf)
     for ((serializedArg, serializedArgSize) <- serializedArgs) {
-      buffer.put(BulkReply).put(serializedArgSize).put(CrLf).put(serializedArg).put(CrLf)
+      buffer.put(BulkReplyByte).put(serializedArgSize).put(CrLf).put(serializedArg).put(CrLf)
     }
     
     buffer.flip()
     buffer
   }
   
-  def send[A](command: Command[A])(implicit ioActor: ActorRef): Future[A] = {
-    ioActor ! command
-    command.future
+  def parseLength(buffer: ByteBuffer): Int = {
+    var length: Int = 0
+    
+    var char = buffer.get()
+    while (char != '\r') {
+      length = (length * 10) + (char - '0')
+      char = buffer.get()
+    }
+    
+    // skip \n
+    buffer.position(buffer.position + 1)
+    length
+  }
+  
+  def decode(buffer: ByteBuffer): Reply = buffer.get() match {
+    case ErrorReplyByte     => ErrorReply(buffer)
+    case StatusReplyByte    => StatusReply(buffer)
+    case IntegerReplyByte   => IntegerReply(buffer)
+    case BulkReplyByte      => BulkReply(parseLength(buffer), buffer)
+    case MultiBulkReplyByte => MultiBulkReply(parseLength(buffer), buffer)
+  }
+  
+  def send[A, B](request: Request[A, B])(implicit encoderActor: ActorRef): Future[B] = {
+    encoderActor ! request
+    request.future
   }
   
 }
