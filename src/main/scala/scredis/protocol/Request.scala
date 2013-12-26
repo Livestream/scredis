@@ -5,24 +5,23 @@ import scala.concurrent.Promise
 
 import java.nio.ByteBuffer
 
-abstract class Request[A, B](command: Command[A], args: List[Any]) {
-  private val promise = Promise[B]()
+abstract class Request[A](command: Command, args: List[Any]) {
+  private val promise = Promise[A]()
   private var _encoded: ByteBuffer = null
   val future = promise.future
   
-  protected def transform(value: A): B
+  protected def decode: PartialFunction[Reply, A]
   
   private[scredis] def encode(): Unit = {
-    _encoded = command.apply(args)
+    _encoded = command.encode(args)
   }
   
   private[scredis] def encoded: ByteBuffer = _encoded
-  private[scredis] def isEncoded: Boolean = (_encoded != null)
   
   private[scredis] def complete(reply: Try[Reply]): Unit = reply match {
     case Success(s @ ErrorReply(_)) => promise.failure(new Exception(s.asString))
     case Success(reply) => try {
-      promise.success(transform(command.parse(reply)))
+      promise.success(decode(reply))
     } catch {
       case e: Throwable => promise.failure(e)
     }
@@ -31,14 +30,4 @@ abstract class Request[A, B](command: Command[A], args: List[Any]) {
   
 }
 
-case class SimpleRequest[A](
-  command: Command[A], args: List[Any]
-) extends Request[A, A](command, args) {
-  protected def transform(value: A): A = value
-}
-
-case class TransformableRequest[A, B](command: Command[A], args: List[Any])(
-  f: A => B
-) extends Request[A, B](command, args) {
-  protected def transform(value: A): B = f(value)
-}
+abstract class NullaryRequest[A](command: Command) extends Request[A](command, Nil)

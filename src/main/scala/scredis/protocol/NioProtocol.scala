@@ -11,7 +11,9 @@ import java.nio.{ ByteBuffer, CharBuffer }
 object NioProtocol {
   
   private val Encoding = "UTF-8"
-
+    
+  private val CrByte = '\r'.toByte
+  private val CfByte = '\n'.toByte
   private val StatusReplyByte = '+'.toByte
   private val ErrorReplyByte = '-'.toByte
   private val IntegerReplyByte = ':'.toByte
@@ -23,7 +25,7 @@ object NioProtocol {
   private val CrLf = "\r\n".getBytes(Encoding)
   private val CrLfLength = CrLf.length
   
-  private val bufferPool = new BufferPool(256)
+  val bufferPool = new BufferPool(50000)
   
   def encode(command: String): ByteBuffer = encode(Seq[Any](command))
   
@@ -64,19 +66,33 @@ object NioProtocol {
     }
     
     // skip \n
-    buffer.position(buffer.position + 1)
+    buffer.get()
     length
+  }
+  
+  private def decodeBulkReply(buffer: ByteBuffer): BulkReply = {
+    val length = parseLength(buffer)
+    val valueOpt = if (length > 0) {
+      val array = new Array[Byte](length)
+      buffer.get(array)
+      buffer.get()
+      buffer.get()
+      Some(array)
+    } else {
+      None
+    }
+    BulkReply(valueOpt)
   }
   
   def decode(buffer: ByteBuffer): Reply = buffer.get() match {
     case ErrorReplyByte     => ErrorReply(buffer)
     case StatusReplyByte    => StatusReply(buffer)
     case IntegerReplyByte   => IntegerReply(buffer)
-    case BulkReplyByte      => BulkReply(parseLength(buffer), buffer)
+    case BulkReplyByte      => decodeBulkReply(buffer)
     case MultiBulkReplyByte => MultiBulkReply(parseLength(buffer), buffer)
   }
   
-  def send[A, B](request: Request[A, B])(implicit encoderActor: ActorRef): Future[B] = {
+  def send[A](request: Request[A])(implicit encoderActor: ActorRef): Future[A] = {
     encoderActor ! request
     request.future
   }

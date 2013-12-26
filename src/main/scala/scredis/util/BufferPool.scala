@@ -26,7 +26,7 @@ class BufferPool(maxEntries: Int) {
         locked.set(false)
       }
 
-      if (buffer == null) {
+      if (buffer == null || buffer.capacity < length) {
         allocate(length)
       } else {
         buffer.clear()

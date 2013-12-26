@@ -1,5 +1,7 @@
 package scredis.protocol
 
+import scredis.parsing.Parser
+
 import scala.collection.mutable.ListBuffer
 
 import java.nio.ByteBuffer
@@ -26,16 +28,10 @@ case class IntegerReply(buffer: ByteBuffer) extends Reply {
   def asBoolean: Boolean = (asInt == 1)
 }
 
-case class BulkReply(length: Int, value: ByteBuffer) extends Reply {
-  def asByteArrayOpt: Option[Array[Byte]] = if (length > 0) {
-    val length = value.remaining - 2
-    val array = new Array[Byte](length)
-    value.get(array)
-    Some(array)
-  } else {
-    None
-  }
-  def asByteArray = asByteArrayOpt.get
+case class BulkReply(value: Option[Array[Byte]]) extends Reply {
+  def asByteArrayOpt: Option[Array[Byte]] = value
+  
+  def asX[A](implicit parser: Parser[A]): Option[A] = asByteArrayOpt.map(parser.parse)
   
   def asAny: Any = asByteArrayOpt
   def asStringOpt: Option[String] = asByteArrayOpt.map(new String(_, "UTF-8"))
