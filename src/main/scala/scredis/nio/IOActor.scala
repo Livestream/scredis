@@ -1,5 +1,7 @@
 package scredis.nio
 
+import com.codahale.metrics.MetricRegistry
+
 import akka.io.{ IO, Tcp }
 import akka.actor.{ Actor, ActorRef }
 import akka.util.ByteString
@@ -15,12 +17,31 @@ import java.net.InetSocketAddress
 case class Batch(requests: Seq[Request[_]], length: Int)
 case object ClosingException extends Exception("Connection is being closed")
 
+object WriteAck extends Tcp.Event
+
 class IOActor(remote: InetSocketAddress) extends Actor {
  
   import Tcp._
   import context.system
   
-  object WriteAck extends Event
+  /*
+  private val requestMeter = scredis.protocol.NioProtocol.metrics.meter(
+    MetricRegistry.name(getClass, "requestMeter")
+  )
+  
+  private val bytesMeter = scredis.protocol.NioProtocol.metrics.meter(
+    MetricRegistry.name(getClass, "bytesMeter")
+  )
+  
+  private val writeTimer = scredis.protocol.NioProtocol.metrics.timer(
+    MetricRegistry.name(getClass, "writeTimer")
+  )
+  private val waitTimer = scredis.protocol.NioProtocol.metrics.timer(
+    MetricRegistry.name(getClass, "waitTimer")
+  )
+  private val tellTimer = scredis.protocol.NioProtocol.metrics.timer(
+    MetricRegistry.name(getClass, "tellTimer")
+  )*/
   
   private val bufferPool = new scredis.util.BufferPool(256)
   private val logger = Logger(getClass)
@@ -30,6 +51,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
   var written = 0
   private var connection: ActorRef = _
   private var decoderActor: ActorRef = _
+  private var waitTimerContext: com.codahale.metrics.Timer.Context = _
   
   private def stop(): Unit = {
     logger.trace("Stopping Actor...")
@@ -42,16 +64,16 @@ class IOActor(remote: InetSocketAddress) extends Actor {
       return
     }
     
+    //val ctx = writeTimer.time()
     var i = 0
     var length = 0
     val batch = ListBuffer[Request[_]]()
-    while (!requests.isEmpty && i < 10000) {
+    while (!requests.isEmpty && i < 5000) {
       val request = requests.dequeue()
       length += request.encoded.remaining
       batch += request
       i += 1
     }
-    //println(batch.size)
     val buffer = bufferPool.acquire(length)
     batch.foreach { r =>
       buffer.put(r.encoded)
@@ -59,10 +81,14 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     buffer.flip()
     val data = ByteString(buffer)
     logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
+    //requestMeter.mark(batch.size)
+    //bytesMeter.mark(length)
     connection ! Write(data, WriteAck)
     bufferPool.release(buffer)
     batch.foreach(x => scredis.protocol.NioProtocol.bufferPool.release(x.encoded))
     canWrite = false
+    //ctx.stop()
+    //waitTimerContext = waitTimer.time()
   }
   
   def receive: Receive = {
@@ -79,9 +105,8 @@ class IOActor(remote: InetSocketAddress) extends Actor {
       logger.trace(s"Connected to $remote")
       connection = sender
       connection ! Register(self)
-      if (!requests.isEmpty) {
-        self ! requests.toList
-        requests.clear()
+      while (!requests.isEmpty) {
+        self ! requests.dequeue()
       }
       canWrite = true
       context.become(ready)
@@ -90,20 +115,23 @@ class IOActor(remote: InetSocketAddress) extends Actor {
       logger.error(s"Could not connect to $remote")
       stop()
     }
-    case request: Request[_] => requests += request
-    case requests: Seq[Request[_] @unchecked] => this.requests ++= requests
+    case request: Request[_] => requests.enqueue(request)
   }
   
   import context.dispatcher
   import scala.concurrent.duration._
-  //context.system.scheduler.schedule(100 millisecond, 100 millisecond, self, 'Write)
   
   def ready: Receive = {
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
+      //val ctx = tellTimer.time()
       decoderActor ! data
+      //ctx.stop()
     }
-    case WriteAck => write()
+    case WriteAck => {
+      //waitTimerContext.stop()
+      write()
+    }
     case request: Request[_] => {
       //val data = ByteString(request.encoded)
       //logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
@@ -122,7 +150,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
       logger.debug(s"Connection has been closed by the server")
       stop()
     }
-    case x => logger.error(x.toString)
+    case x => logger.error(s"Invalid message received from: $sender: $x")
   }
   
   def closing: Receive = {

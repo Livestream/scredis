@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(
   "commons-pool" % "commons-pool" % "1.6",
   "com.typesafe" % "config" % "1.0.0",
   "com.typesafe.akka" %% "akka-actor" % "2.2.3",
+  "com.codahale.metrics" % "metrics-core" % "3.0.1",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 

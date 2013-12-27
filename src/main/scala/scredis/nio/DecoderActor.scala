@@ -1,5 +1,7 @@
 package scredis.nio
 
+import com.codahale.metrics.MetricRegistry
+
 import akka.actor.{ Actor, ActorRef }
 import akka.util.ByteString
 
@@ -11,84 +13,30 @@ import scala.collection.mutable.{ Queue => MQueue }
 
 import java.nio.ByteBuffer
 
-class DecoderActor(ioActor: ActorRef) extends Actor {
+class DecoderActor extends Actor {
   
   private val logger = Logger(getClass)
   private val requests = MQueue[Request[_]]()
   
-  private var buffer: ByteBuffer = ByteBuffer.allocate(0)
-  private var remainsOpt: Option[Array[Byte]] = None
+  private var count = 0
   
-  private var data = 0
-  private var received = 0
-  private var i = 0
-  
-  private def printBuffer(flip: Boolean): String = {
-    if (flip) {
-      buffer.flip()
-    }
-    val array = new Array[Byte](buffer.remaining)
-    buffer.mark()
-    buffer.get(array)
-    buffer.reset()
-    
-    if (flip) {
-      buffer.flip()
-    }
-    new String(array, "UTF-8").replace("\r", "\\r").replace("\n", "\\n")
-  }
-  
-  private def concat(buffer: ByteBuffer): Unit = {
-    val size = buffer.remaining + remainsOpt.map(_.length).getOrElse(0)
-    if (size > this.buffer.remaining) {
-      this.buffer = ByteBuffer.allocate(size)
-    }
-    remainsOpt.foreach { remains =>
-      this.buffer.put(remains)
-      remainsOpt = None
-    }
-    this.buffer.put(buffer)
-    this.buffer.flip()
-    this.buffer.rewind()
-  }
-  
-  private def clear(): Unit = {
-    if (buffer.remaining > 0) {
-      val array = new Array[Byte](buffer.remaining)
-      buffer.get(array)
-      remainsOpt = Some(array)
-    }
-    buffer.clear()
-  }
+  private val decodeTimer = scredis.protocol.NioProtocol.metrics.timer(
+    MetricRegistry.name(getClass, "decodeTimer")
+  )
   
   def receive: Receive = {
-    case request: Request[_] => {
-      assert(request.encoded != null)
-      requests.enqueue(request)
-      ioActor ! request
-    }
-    case data: ByteString => {
+    case p @ Partition(data, requests) => {
       logger.trace(s"Decoding ${requests.size} requests")
-      
-      concat(data.asByteBuffer)
-      
-      var hasNext = (buffer.remaining > 0)
-      while (hasNext) {
-        buffer.mark()
-        val reply = try {
-          val reply = NioProtocol.decode(buffer)
-          requests.dequeue().complete(Success(reply))
-          i += 1
-          if (i % 100000 == 0) logger.info(i.toString)
-          hasNext = (buffer.remaining > 0)
-        } catch {
-          case e: java.nio.BufferUnderflowException => {
-            buffer.reset()
-            hasNext = false
-          }
-        }
+      assert(data.head == '$', data.decodeString("utf-8").take(14) + " > " + data.size)
+      val buffer = data.asByteBuffer
+      val decode = decodeTimer.time()
+      while (requests.hasNext) {
+        val reply = NioProtocol.decode(buffer)
+        requests.next().complete(Success(reply))
+        count += 1
+        if (count % 100000 == 0) logger.info(count.toString)
       }
-      clear()
+      decode.stop()
     }
   }
   

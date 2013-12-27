@@ -1,5 +1,7 @@
 package scredis.protocol
 
+import com.codahale.metrics._
+
 import akka.actor.ActorRef
 
 import scredis.util.BufferPool
@@ -9,6 +11,9 @@ import scala.concurrent.{ Future, Promise }
 import java.nio.{ ByteBuffer, CharBuffer }
 
 object NioProtocol {
+  
+  private[scredis] val metrics = new MetricRegistry()
+  private val reporter = JmxReporter.forRegistry(metrics).build()
   
   private val Encoding = "UTF-8"
     
@@ -70,6 +75,71 @@ object NioProtocol {
     length
   }
   
+  def count(buffer: ByteBuffer): Int = {
+    var char: Byte = 0
+    var requests = 0
+    var multiBulkCount = 0
+    var position = -1
+    var multiBulkPosition = -1
+    var isFragmented = false
+    
+    def incr(): Unit = if (multiBulkCount > 0) {
+      multiBulkCount -= 1
+      if (multiBulkCount == 0) {
+        requests += 1
+        multiBulkPosition = -1
+      }
+    } else {
+      requests += 1
+    }
+    
+    def fail(): Unit = isFragmented = true
+    
+    while (buffer.remaining > 0 && !isFragmented) {
+      char = buffer.get()
+      if (char == ErrorReplyByte || char == StatusReplyByte || char == IntegerReplyByte) {
+        position = buffer.position - 1
+        while (buffer.remaining > 0 && char != '\n') {
+          char = buffer.get()
+        }
+        if (char == '\n') {
+          incr()
+        } else {
+          fail()
+        }
+      } else if (char == BulkReplyByte) {
+        position = buffer.position - 1
+        try {
+          val length = parseLength(buffer) + 2
+          if (buffer.remaining >= length) {
+            buffer.position(buffer.position + length)
+            incr()
+          } else {
+            fail()
+          }
+        } catch {
+          case e: java.nio.BufferUnderflowException => fail()
+        }
+      } else if (char == MultiBulkReplyByte) {
+        multiBulkPosition = buffer.position - 1
+        try {
+          multiBulkCount = parseLength(buffer)
+        } catch {
+          case e: java.nio.BufferUnderflowException => fail()
+        }
+      }
+    }
+    
+    if (isFragmented) {
+      if (multiBulkPosition >= 0) {
+        buffer.position(multiBulkPosition)
+      } else {
+        buffer.position(position)
+      }
+    }
+    requests
+  }
+  
   private def decodeBulkReply(buffer: ByteBuffer): BulkReply = {
     val length = parseLength(buffer)
     val valueOpt = if (length > 0) {
@@ -96,5 +166,7 @@ object NioProtocol {
     encoderActor ! request
     request.future
   }
+  
+  reporter.start()
   
 }
