@@ -10,22 +10,17 @@ trait Reply {
   def asAny: Any
 }
 
-case class ErrorReply(buffer: ByteBuffer) extends Reply {
-  def asAny: Any = asString
-  def asString: String = buffer.toString
+case class ErrorReply(value: String) extends Reply {
+  def asAny: Any = value
 }
 
-case class StatusReply(buffer: ByteBuffer) extends Reply {
-  def asAny: Any = asString
-  def asString: String = buffer.toString
+case class StatusReply(value: String) extends Reply {
+  def asAny: Any = value
 }
 
-case class IntegerReply(buffer: ByteBuffer) extends Reply {
-  def asAny: Any = asLong
-  def asString: String = buffer.toString
-  def asInt: Int = asString.toInt
-  def asLong: Long = asString.toLong
-  def asBoolean: Boolean = (asInt == 1)
+case class IntegerReply(value: Long) extends Reply {
+  def asAny: Any = value
+  def asInt: Int = value.toInt
 }
 
 case class BulkReply(value: Option[Array[Byte]]) extends Reply {

@@ -18,6 +18,7 @@ case class Partition(data: ByteString, requests: Iterator[Request[_]])
 
 class PartitionerActor(ioActor: ActorRef) extends Actor {
   
+  private var c = 0
   private val logger = Logger(getClass)
   private val requests = MQueue[Request[_]]()
   
@@ -39,22 +40,25 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
       ioActor ! request
     }
     case data: ByteString => {
-      val buffer = data.asByteBuffer
+      val completedData = remainingByteStringOpt match {
+        case Some(remains) => {
+          remainingByteStringOpt = None
+          remains ++ data
+        }
+        case None => data
+      }
+      
+      val buffer = completedData.asByteBuffer
       var count = NioProtocol.count(buffer)
       val position = buffer.position
+      c += count
+      //println(c)
       
-      val adaptedData = if (buffer.remaining == 0) {
-        remainingByteStringOpt match {
-          case Some(remains) => {
-            remainingByteStringOpt = None
-            count += 1
-            remains ++ data
-          }
-          case None => data
-        }
-      } else {
+      val trimmedData = if (buffer.remaining > 0) {
         remainingByteStringOpt = Some(ByteString(buffer))
-        data.take(position)
+        completedData.take(position)
+      } else {
+        completedData
       }
       
       val requests = ListBuffer[Request[_]]()
@@ -62,7 +66,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
         requests += this.requests.dequeue()
       }
       
-      router ! Partition(adaptedData, requests.toList.iterator)
+      router ! Partition(trimmedData, requests.toList.iterator)
     }
   }
   

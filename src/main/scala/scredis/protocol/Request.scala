@@ -19,7 +19,7 @@ abstract class Request[A](command: Command, args: List[Any]) {
   private[scredis] def encoded: ByteBuffer = _encoded
   
   private[scredis] def complete(reply: Try[Reply]): Unit = reply match {
-    case Success(s @ ErrorReply(_)) => promise.failure(new Exception(s.asString))
+    case Success(ErrorReply(error)) => promise.failure(new Exception(error))
     case Success(reply) => try {
       promise.success(decode(reply))
     } catch {

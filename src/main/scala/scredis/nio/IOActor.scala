@@ -43,7 +43,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     MetricRegistry.name(getClass, "tellTimer")
   )*/
   
-  private val bufferPool = new scredis.util.BufferPool(256)
+  private val bufferPool = new scredis.util.BufferPool(1)
   private val logger = Logger(getClass)
   private val requests = MQueue[Request[_]]()
   
@@ -77,6 +77,9 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     val buffer = bufferPool.acquire(length)
     batch.foreach { r =>
       buffer.put(r.encoded)
+      if (r.isInstanceOf[scredis.protocol.NullaryRequest[_]]) {
+        r.encoded.rewind()
+      }
     }
     buffer.flip()
     val data = ByteString(buffer)

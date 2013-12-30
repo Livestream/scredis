@@ -27,7 +27,6 @@ class DecoderActor extends Actor {
   def receive: Receive = {
     case p @ Partition(data, requests) => {
       logger.trace(s"Decoding ${requests.size} requests")
-      assert(data.head == '$', data.decodeString("utf-8").take(14) + " > " + data.size)
       val buffer = data.asByteBuffer
       val decode = decodeTimer.time()
       while (requests.hasNext) {

@@ -19,7 +19,7 @@ object Ping extends NullaryCommand("PING")
 case class Ping() extends NullaryRequest[String](Ping) {
   
   protected def decode = {
-    case s @ StatusReply(_) => s.asString
+    case StatusReply(value) => value
   }
   
 }
