@@ -70,6 +70,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     val batch = ListBuffer[Request[_]]()
     while (!requests.isEmpty && i < 5000) {
       val request = requests.dequeue()
+      request.encode()
       length += request.encoded.remaining
       batch += request
       i += 1
@@ -79,6 +80,8 @@ class IOActor(remote: InetSocketAddress) extends Actor {
       buffer.put(r.encoded)
       if (r.isInstanceOf[scredis.protocol.NullaryRequest[_]]) {
         r.encoded.rewind()
+      } else {
+        scredis.protocol.NioProtocol.bufferPool.release(r.encoded)
       }
     }
     buffer.flip()
@@ -88,7 +91,6 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     //bytesMeter.mark(length)
     connection ! Write(data, WriteAck)
     bufferPool.release(buffer)
-    batch.foreach(x => scredis.protocol.NioProtocol.bufferPool.release(x.encoded))
     canWrite = false
     //ctx.stop()
     //waitTimerContext = waitTimer.time()
@@ -112,6 +114,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
         self ! requests.dequeue()
       }
       canWrite = true
+      context.watch(connection)
       context.become(ready)
     }
     case CommandFailed(_: Connect) => {
@@ -143,7 +146,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
         write()
       }
     }
-    case CommandFailed(w: Write) => // O/S buffer was full
+    case CommandFailed(x) => logger.error(s"Command failed: $x")
     case Close => {
       logger.trace(s"Closing connection...")
       connection ! Close
@@ -168,9 +171,6 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     }
     case request: Request[_] => {
       request.complete(Failure(ClosingException))
-    }
-    case requests: Seq[Request[_] @unchecked] => {
-      requests.foreach(_.complete(Failure(ClosingException)))
     }
   }
   

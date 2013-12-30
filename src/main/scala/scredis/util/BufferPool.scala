@@ -5,12 +5,17 @@ import scala.annotation.tailrec
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
-class BufferPool(maxEntries: Int) {
+class BufferPool(maxEntries: Int, isDirect: Boolean = false) {
   private[this] val locked = new AtomicBoolean(false)
   private[this] val pool = new Array[ByteBuffer](maxEntries)
   private[this] var size: Int = 0
-
-  private def allocate(length: Int): ByteBuffer = ByteBuffer.allocate(length)
+  
+  @inline
+  private def allocate(length: Int): ByteBuffer = if (isDirect) {
+    ByteBuffer.allocateDirect(length)
+  } else {
+    ByteBuffer.allocate(length)
+  }
   
   @tailrec
   final def acquire(length: Int): ByteBuffer = {

@@ -17,3 +17,20 @@ case class Get[A](key: String)(
   }
   
 }
+
+object Get2 extends NullaryCommand("GET") {
+  val encoded = NioProtocol.encode(Seq(Get.name, "key"))
+}
+
+case class Get2[A](
+  implicit parser: Parser[A]
+) extends NullaryRequest[Option[A]](Get2) {
+  
+  
+  override private[scredis] def encoded: ByteBuffer = Get2.encoded
+  
+  protected def decode = {
+    case b: BulkReply => b.asX[A]
+  }
+  
+}

@@ -20,9 +20,10 @@ class EncoderActor(decoderActor: ActorRef) extends Actor {
   
   def receive: Receive = {
     case request: Request[_] => {
+      scredis.protocol.NioProtocol.concurrent.acquire()
       logger.trace(request.toString)
       //val encode = encodeTimer.time()
-      request.encode()
+      //request.encode()
       //encode.stop()
       //val tell = tellTimer.time()
       decoderActor ! request

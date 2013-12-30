@@ -10,6 +10,7 @@ import scala.collection.mutable.ArrayBuilder
 import scala.concurrent.{ Future, Promise }
 
 import java.nio.{ ByteBuffer, CharBuffer }
+import java.util.concurrent.Semaphore
 
 object NioProtocol {
   
@@ -32,6 +33,7 @@ object NioProtocol {
   private val CrLfLength = CrLf.length
   
   val bufferPool = new BufferPool(50000)
+  val concurrent = new Semaphore(30000)
   
   def encode(command: String): ByteBuffer = encode(Seq[Any](command))
   

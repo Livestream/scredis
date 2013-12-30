@@ -18,14 +18,13 @@ case class Partition(data: ByteString, requests: Iterator[Request[_]])
 
 class PartitionerActor(ioActor: ActorRef) extends Actor {
   
-  private var c = 0
   private val logger = Logger(getClass)
   private val requests = MQueue[Request[_]]()
   
   private val router = context.actorOf(
     Props[DecoderActor]
       .withDispatcher("scredis.decoder-dispatcher")
-      .withRouter(RoundRobinRouter(nrOfInstances = 10))
+      .withRouter(RoundRobinRouter(nrOfInstances = 2))
   )
   
   private val tellTimer = scredis.protocol.NioProtocol.metrics.timer(
@@ -51,8 +50,8 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
       val buffer = completedData.asByteBuffer
       var count = NioProtocol.count(buffer)
       val position = buffer.position
-      c += count
-      //println(c)
+      
+      scredis.protocol.NioProtocol.concurrent.release(count)
       
       val trimmedData = if (buffer.remaining > 0) {
         remainingByteStringOpt = Some(ByteString(buffer))

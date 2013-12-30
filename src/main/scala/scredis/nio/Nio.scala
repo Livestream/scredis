@@ -63,20 +63,15 @@ object Nio {
     
     // WARMUP
     
-    Await.result(
-      Future.traverse((1 to 250000).toList)(i => {
-        NioProtocol.send(Get("key"))(target)
-      })(List.canBuildFrom, dispatcher),
-      5 second
-    )
-    
+    run(target)
     println("WARMUP complete")
-    Thread.sleep(3000)
+    Thread.sleep(1000)
     
     val times = List(run(target), run(target), run(target))
     val avg = times.foldLeft(0L)(_ + _) / times.size
     val rps = range.size.toFloat / avg * 1000
     println(s"AVG: $rps r/s")
+    system.shutdown()
   }
   
 }
