@@ -70,7 +70,7 @@ trait KeysCommands extends Async {
   /**
    * Sets a key's time to live in seconds.
    *
-   * @param key  key to expire
+   * @param key key to expire
    * @param ttlSeconds time-to-live in seconds
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -84,7 +84,7 @@ trait KeysCommands extends Async {
   /**
    * Sets a key's time to live in milliseconds.
    *
-   * @param key  key to expire
+   * @param key key to expire
    * @param ttlMillis time-to-live in milliseconds
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -98,7 +98,7 @@ trait KeysCommands extends Async {
   /**
    * Sets a key's time to live.
    *
-   * @param key  key to expire
+   * @param key key to expire
    * @param ttl duration after which the key should expire, up to milliseconds precision
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -112,7 +112,7 @@ trait KeysCommands extends Async {
   /**
    * Sets the expiration for a key as a UNIX timestamp.
    *
-   * @param  key key to expire
+   * @param key key to expire
    * @param timestamp  UNIX timestamp at which the key should expire
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -126,7 +126,7 @@ trait KeysCommands extends Async {
   /**
    * Sets the expiration for a key as a UNIX timestamp specified in milliseconds.
    *
-   * @param  key key to expire
+   * @param key key to expire
    * @param timestampMillis  UNIX milliseconds-timestamp at which the key should expire
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -316,40 +316,101 @@ trait KeysCommands extends Async {
 
   /**
    * Gets the time to live for a key in seconds.
-   *
-   * @param key key to persist
-   * @return time-to-live in seconds for specified key, or $none if key does not exist or does not
-   * have a ttl
+   * 
+   * {{{
+   * result match {
+   *   case Left(false) => // key does not exist
+   *   case Left(true) => // key exists but has no associated expire
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @note For `Redis` version <= 2.8.x, `Left(false)` will be returned when the key does not
+   * exists and when it exists but has no associated expire (`Redis` returns the same error code
+   * for both cases). In other words, you can simply check the following
+   * 
+   * {{{
+   * result match {
+   *   case Left(_) =>
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @param key the target key
+   * @return `Right(ttl)` where ttl is the time-to-live in seconds for specified key,
+   * `Left(false)` if key does not exist or `Left(true)` if key exists but has no associated
+   * expire
    *
    * @since 1.0.0
    */
-  def ttl(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Option[Int]] =
-    async(_.ttl(key))
+  def ttl(key: String)(
+    implicit opts: CommandOptions = DefaultCommandOptions
+  ): Future[Either[Boolean, Int]] = async(_.ttl(key))
 
   /**
    * Gets the time to live for a key in milliseconds.
-   *
-   * @param key key to persist
-   * @return time-to-live in milliseconds for specified key, or $none if key does not exist or does
-   * not have a ttl
+   * 
+   * {{{
+   * result match {
+   *   case Left(false) => // key does not exist
+   *   case Left(true) => // key exists but has no associated expire
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @note For `Redis` version <= 2.8.x, `Left(false)` will be returned when the key does not
+   * exists and when it exists but has no associated expire (`Redis` returns the same error code
+   * for both cases). In other words, you can simply check the following
+   * 
+   * {{{
+   * result match {
+   *   case Left(_) =>
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @param key the target key
+   * @return `Right(ttl)` where ttl is the time-to-live in milliseconds for specified key,
+   * `Left(false)` if key does not exist or `Left(true)` if key exists but has no associated
+   * expire
    *
    * @since 2.6.0
    */
   def pTtl(key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[Long]] = async(_.pTtl(key))
+  ): Future[Either[Boolean, Long]] = async(_.pTtl(key))
 
   /**
-   * Gets the time to live for a key.
-   *
-   * @param key key to persist
-   * @return time-to-live for specified key or $none if key does not exist or does not have a ttl
+   * Gets the time to live `FiniteDuration` for a key.
+   * 
+   * {{{
+   * result match {
+   *   case Left(false) => // key does not exist
+   *   case Left(true) => // key exists but has no associated expire
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @note For `Redis` version <= 2.8.x, `Left(false)` will be returned when the key does not
+   * exists and when it exists but has no associated expire (`Redis` returns the same error code
+   * for both cases). In other words, you can simply check the following
+   * 
+   * {{{
+   * result match {
+   *   case Left(_) =>
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @param key the target key
+   * @return `Right(ttl)` where ttl is the time-to-live `FiniteDuration` for specified key,
+   * `Left(false)` if key does not exist or `Left(true)` if key exists but has no associated expire
    *
    * @since 2.6.0
    */
   def ttlDuration(key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[FiniteDuration]] = async(_.ttlDuration(key))
+  ): Future[Either[Boolean, FiniteDuration]] = async(_.ttlDuration(key))
 
   /**
    * Determine the type stored at key.
@@ -367,5 +428,21 @@ trait KeysCommands extends Async {
   def `type`(key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
   ): Future[Option[String]] = async(_.`type`(key))
-
+  
+  /**
+   * Incrementally iterates the set of keys in the currently selected Redis database.
+   *
+   * @param cursor the offset
+   * @param countOpt when defined, provides a hint of how many elements should be returned
+   * @param matchOpt when defined, the command only returns elements matching the pattern 
+   * @return a pair containing the next cursor as its first element and the set of keys
+   * as its second element
+   *
+   * @since 2.8.0
+   */
+  def scan[A](cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None)(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    parser: Parser[A] = StringParser
+  ): Future[(Long, Set[A])] = async(_.scan(cursor, countOpt, matchOpt))
+  
 }

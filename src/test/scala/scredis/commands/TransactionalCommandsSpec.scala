@@ -32,7 +32,8 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
   private val client2 = Client()
   private val SomeValue = "HelloWorld!虫àéç蟲"
   private val RedisException = RedisCommandException(
-    "ERR Operation against a key holding the wrong kind of value")
+    "WRONGTYPE Operation against a key holding the wrong kind of value"
+  )
   private val Result = List(Right(), Right(Some(SomeValue)), Left(RedisException))
   private val PingResult = List(Right("PONG"))
 

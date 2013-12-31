@@ -61,6 +61,12 @@ object TestUtils {
     convertToAnyMustWrapper(Await.result(f, Duration.Inf))
   }
   
+  implicit def eitherFutureToMatcher[A, B](
+    f: Future[Either[A, B]]
+  ): AnyMustWrapper[Either[A, B]] = {
+    convertToAnyMustWrapper(Await.result(f, Duration.Inf))
+  }
+  
   def evaluating[A](f: => Future[A]): ResultOfEvaluatingApplication =
     org.scalatest.matchers.MustMatchers.evaluating(Await.result(f, Duration.Inf))
     

@@ -23,6 +23,9 @@ import scredis.Redis
 import scredis.exceptions.RedisCommandException
 import scredis.tags._
 
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration._
+
 class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAll {
   private val client = Redis()
   private val client2 = Redis("application.conf", "authenticated.scredis")
@@ -376,19 +379,19 @@ class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   Ttl when {
     "key does not exist" should {
       "return None" taggedAs (V100) in {
-        client.ttl("NONEXISTENTKEY") must be('empty)
+        client.ttl("NONEXISTENTKEY") must be(Left(false))
       }
     }
     "key exists but has no ttl" should {
       "return None" taggedAs (V100) in {
         client.set("TO-TTL", SomeValue)
-        client.ttl("TO-TTL") must be('empty)
+        client.ttl("TO-TTL") must be(Left(true))
       }
     }
     "key exists and has a ttl" should {
       "return None" taggedAs (V100) in {
         client.expire("TO-TTL", 1)
-        client.ttl("TO-TTL").map(_.get) must be <= (1)
+        client.ttl("TO-TTL").map(_.right.get) must be <= (1)
         client.del("TO-TTL")
       }
     }
@@ -397,22 +400,22 @@ class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   PTtl when {
     "key does not exist" should {
       "return None" taggedAs (V260) in {
-        client.pTtl("NONEXISTENTKEY") must be('empty)
-        client.ttlDuration("NONEXISTENTKEY") must be('empty)
+        client.pTtl("NONEXISTENTKEY") must be(Left(false))
+        client.ttlDuration("NONEXISTENTKEY") must be(Left(false))
       }
     }
     "key exists but has no ttl" should {
       "return None" taggedAs (V260) in {
         client.set("TO-TTL", SomeValue)
-        client.pTtl("TO-TTL") must be('empty)
-        client.ttlDuration("TO-TTL") must be('empty)
+        client.pTtl("TO-TTL") must be(Left(true))
+        client.ttlDuration("TO-TTL") must be(Left(true))
       }
     }
     "key exists and has a ttl" should {
       "return None" taggedAs (V260) in {
         client.pExpire("TO-TTL", 500)
-        client.pTtl("TO-TTL").map(_.get.toInt) must be <= (500)
-        (client.ttlDuration("TO-TTL").!.get <= (500 milliseconds)) must be(true)
+        client.pTtl("TO-TTL").map(_.right.get) must be <= (500L)
+        (client.ttlDuration("TO-TTL").!.right.get <= (500 milliseconds)) must be(true)
         client.del("TO-TTL")
       }
     }
@@ -750,6 +753,86 @@ class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
         client.zAdd("SORTED-SET", ("HELLO", 0))
         client.`type`("SORTED-SET") must be(Some("zset"))
         client.del("SORTED-SET")
+      }
+    }
+  }
+  
+  Scan when {
+    "the database is empty" should {
+      "return an empty set" taggedAs (V280) in {
+        client.flushDb().!
+        val (next, set) = client.scan(0).!
+        next must be(0)
+        set must be ('empty)
+      }
+    }
+    "the database contains 5 keys" should {
+      "return all keys" taggedAs (V280) in {
+        for (i <- 1 to 5) {
+          client.set("key" + i, SomeValue).!
+        }
+        val (next, set) = client.scan(0).!
+        next must be(0)
+        set must (
+          contain("key1") and
+          contain("key2") and
+          contain("key3") and
+          contain("key4") and
+          contain("key5")
+        )
+        for (i <- 1 to 10) {
+          client.set("foo" + i, SomeValue).!
+        }
+      }
+    }
+    "the database contains 15 keys" should {
+      val full = ListBuffer[String]()
+      for (i <- 1 to 5) {
+        full += ("key" + i)
+      }
+      for (i <- 1 to 10) {
+        full += ("foo" + i)
+      }
+      val fullSortedList = full.toList.sorted
+      
+      Given("that no pattern is set")
+      "return all keys" taggedAs (V280) in {
+        val keys = ListBuffer[String]()
+        var cursor = 0L
+        do {
+          val (next, set) = client.scan(cursor).!
+          keys ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        keys.toList.sorted must be(fullSortedList)
+      }
+      Given("that a pattern is set")
+      "return all matching keys" taggedAs (V280) in {
+        val keys = ListBuffer[String]()
+        var cursor = 0L
+        do {
+          val (next, set) = client.scan[String](cursor, matchOpt = Some("foo*")).!
+          keys ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        keys.toList.sorted must be(fullSortedList.filter(_.startsWith("foo")))
+      }
+      Given("that a pattern is set and count is set to 100")
+      "return all matching keys in one iteration" taggedAs (V280) in {
+        val keys = ListBuffer[String]()
+        var cursor = 0L
+        do {
+          val (next, set) = client.scan[String](
+            cursor, matchOpt = Some("foo*"), countOpt = Some(100)
+          ).!
+          set.size must be(10)
+          keys ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        keys.toList.sorted must be(fullSortedList.filter(_.startsWith("foo")))
       }
     }
   }
