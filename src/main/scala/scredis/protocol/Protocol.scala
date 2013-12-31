@@ -344,6 +344,25 @@ trait Protocol {
     }
     builder.result
   }
+  
+  private[scredis] def asScanMultiBulk[A, B[X] <: Traversable[X]](
+    replyType: Char, bytes: Array[Byte]
+  )(
+    implicit parser: Parser[A],
+    cbf: CanBuildFrom[Nothing, A, B[A]]
+  ): (Long, B[A]) = {
+    checkReplyType(replyType, MultiBulkReply)
+    intParser.parse(bytes) match {
+      case x if x <= 0 => throw RedisProtocolException(
+        "Unexpected length received for scan multi bulk reply: %d", x
+      )
+      case n => {
+        val next = receive(asBulk[Long]).get
+        val set = receive(asMultiBulk[A, A, B](asBulk[A, A](flatten)))
+        (next, set)
+      }
+    }
+  }
 
   private[scredis] def toBoolean(integer: Long): Boolean = (integer > 0)
 

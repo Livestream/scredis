@@ -517,7 +517,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
       "successfully set the value at key and expire it" taggedAs (V2612) in {
         redis.setWithOptions("KEY", SomeValue, expireAfter = Some(1 second)) must be(true)
         redis.get("KEY") must be(Some(SomeValue))
-        redis.ttl("KEY") must be(Some(1))
+        redis.ttl("KEY") must be(Right(1))
         Thread.sleep(1000)
         redis.get("KEY") must be('empty)
       }
@@ -553,7 +553,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
           "KEY", "C", expireAfter = Some(1 second), condition = Some(Condition.IfDoesNotExist)
         ) must be(true)
         redis.get("KEY") must be(Some("C"))
-        redis.ttl("KEY") must be(Some(1))
+        redis.ttl("KEY") must be(Right(1))
         Thread.sleep(1000)
         redis.get("KEY") must be('empty)
       }

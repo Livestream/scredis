@@ -219,7 +219,11 @@ trait ServerCommands { self: Protocol =>
       s.isEmpty == false && s.startsWith("#") == false
     }).map(p => {
       val split = p.split(":")
-      (split(0) -> split(1))
+      if (split.length > 1) {
+        (split(0) -> split(1))
+      } else {
+        (split(0) -> "")
+      }
     }).toMap
   }))
   
@@ -239,7 +243,11 @@ trait ServerCommands { self: Protocol =>
       s.isEmpty == false && s.startsWith("#") == false
     }).map(p => {
       val split = p.split(":")
-      (split(0) -> split(1))
+      if (split.length > 1) {
+        (split(0) -> split(1))
+      } else {
+        (split(0) -> "")
+      }
     }).toMap
   }))
 
