@@ -1,3 +1,5 @@
+import SiteKeys._
+
 organization := "com.livestream"
 
 name := "scredis"
@@ -60,6 +62,11 @@ site.settings
 
 ghpages.settings
 
-git.remoteRepo := "git@github.com:Livestream/scredis.git"
+siteMappings <++= (mappings in packageDoc in Compile, version) map { (m, v) =>
+  for((f, d) <- m) yield (
+    f,
+    if (v.trim.endsWith("SNAPSHOT")) ("api/snapshot/" + d) else ("api/"+v+"/"+d)
+  )
+}
 
-site.includeScaladoc("")
+git.remoteRepo := "git@github.com:Livestream/scredis.git"
