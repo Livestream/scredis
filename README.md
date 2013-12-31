@@ -3,7 +3,7 @@
 Scredis is an advanced [Redis](http://redis.io) client entirely written in Scala. It has been (and still is) extensively used in production at Livestream.
 
 * [Documentation](https://github.com/Livestream/scredis/wiki)
-* [Scaladoc](http://livestream.github.io/scredis/)
+* [Scaladoc](http://livestream.github.io/scredis/api/snapshot/)
 
 ## Features
 * Supports all Redis 2.6.x commands
