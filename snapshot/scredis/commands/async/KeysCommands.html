@@ -520,22 +520,31 @@ the timeout could not be set
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
 </p></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#pTtl" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pTtl(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[Long]]"></a>
-      <a id="pTtl(String)(CommandOptions):Future[Option[Long]]"></a>
+      <a id="pTtl(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Either[Boolean,Long]]"></a>
+      <a id="pTtl(String)(CommandOptions):Future[Either[Boolean,Long]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">pTtl</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>]]</span>
+        <span class="name">pTtl</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Boolean">Boolean</span>, <span class="extype" name="scala.Long">Long</span>]]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Gets the time to live for a key in milliseconds.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key in milliseconds.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to persist</p></dd><dt>returns</dt><dd class="cmt"><p>time-to-live in milliseconds for specified key, or <code>None</code> if key does not exist or does
-not have a ttl
+      <p class="shortcomment cmt">Gets the time to live for a key in milliseconds.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key in milliseconds.</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(<span class="kw">false</span>) <span class="kw">=&gt;</span> <span class="cmt">// key does not exist</span>
+<span class="kw">case</span> Left(<span class="kw">true</span>) <span class="kw">=&gt;</span> <span class="cmt">// key exists but has no associated expire</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>the target key</p></dd><dt>returns</dt><dd class="cmt"><p><code>Right(ttl)</code> where ttl is the time-to-live in milliseconds for specified key,
+<code>Left(false)</code> if key does not exist or <code>Left(true)</code> if key exists but has no associated
+expire
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd></dl></div>
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>For <code>Redis</code> version &lt;= 2.8.x, <code>Left(false)</code> will be returned when the key does not
+exists and when it exists but has no associated expire (<code>Redis</code> returns the same error code
+for both cases). In other words, you can simply check the following</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(_) <span class="kw">=&gt;</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#persist" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="persist(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Boolean]"></a>
       <a id="persist(String)(CommandOptions):Future[Boolean]"></a>
@@ -619,6 +628,23 @@ does not exist
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>destination key</p></dd><dt class="param">serializedValue</dt><dd class="cmt"><p>serialized value, previously obtained using DUMP</p></dd><dt class="param">ttl</dt><dd class="cmt"><p>optional time-to-live duration of newly created key (expire)</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if the value could not be restored
 </p></span></dd></dl></div>
+    </li><li name="scredis.commands.async.KeysCommands#scan" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="scan[A](cursor:Long,countOpt:Option[Int],matchOpt:Option[String])(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[(Long,Set[A])]"></a>
+      <a id="scan[A](Long,Option[Int],Option[String])(CommandOptions,Parser[A]):Future[(Long,Set[A])]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scan</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="cursor">cursor: <span class="extype" name="scala.Long">Long</span></span>, <span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="matchOpt">matchOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="parser">parser: <a href="../../parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.async.KeysCommands.scan.A">A</span>] = <span class="symbol"><span class="name"><a href="../../package.html">StringParser</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scredis.commands.async.KeysCommands.scan.A">A</span>])]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Incrementally iterates the set of keys in the currently selected Redis database.</p><div class="fullcomment"><div class="comment cmt"><p>Incrementally iterates the set of keys in the currently selected Redis database.
+</p></div><dl class="paramcmts block"><dt class="param">cursor</dt><dd class="cmt"><p>the offset</p></dd><dt class="param">countOpt</dt><dd class="cmt"><p>when defined, provides a hint of how many elements should be returned</p></dd><dt class="param">matchOpt</dt><dd class="cmt"><p>when defined, the command only returns elements matching the pattern</p></dd><dt>returns</dt><dd class="cmt"><p>a pair containing the next cursor as its first element and the set of keys
+as its second element
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#sort" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sort[A](key:String,by:Option[String],limit:Option[(Long,Long)],get:Traversable[String],desc:Boolean,alpha:Boolean)(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[List[Option[A]]]"></a>
       <a id="sort[A](String,Option[String],Option[(Long,Long)],Traversable[String],Boolean,Boolean)(CommandOptions,Parser[A]):Future[List[Option[A]]]"></a>
@@ -687,38 +713,56 @@ replaced by the values of the elements in the collection</p></dd><dt class="para
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#ttl" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ttl(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[Int]]"></a>
-      <a id="ttl(String)(CommandOptions):Future[Option[Int]]"></a>
+      <a id="ttl(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Either[Boolean,Int]]"></a>
+      <a id="ttl(String)(CommandOptions):Future[Either[Boolean,Int]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ttl</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]]</span>
+        <span class="name">ttl</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Boolean">Boolean</span>, <span class="extype" name="scala.Int">Int</span>]]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Gets the time to live for a key in seconds.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key in seconds.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to persist</p></dd><dt>returns</dt><dd class="cmt"><p>time-to-live in seconds for specified key, or <code>None</code> if key does not exist or does not
-have a ttl
+      <p class="shortcomment cmt">Gets the time to live for a key in seconds.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key in seconds.</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(<span class="kw">false</span>) <span class="kw">=&gt;</span> <span class="cmt">// key does not exist</span>
+<span class="kw">case</span> Left(<span class="kw">true</span>) <span class="kw">=&gt;</span> <span class="cmt">// key exists but has no associated expire</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>the target key</p></dd><dt>returns</dt><dd class="cmt"><p><code>Right(ttl)</code> where ttl is the time-to-live in seconds for specified key,
+<code>Left(false)</code> if key does not exist or <code>Left(true)</code> if key exists but has no associated
+expire
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
-</p></dd></dl></div>
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>For <code>Redis</code> version &lt;= 2.8.x, <code>Left(false)</code> will be returned when the key does not
+exists and when it exists but has no associated expire (<code>Redis</code> returns the same error code
+for both cases). In other words, you can simply check the following</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(_) <span class="kw">=&gt;</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#ttlDuration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ttlDuration(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[scala.concurrent.duration.FiniteDuration]]"></a>
-      <a id="ttlDuration(String)(CommandOptions):Future[Option[FiniteDuration]]"></a>
+      <a id="ttlDuration(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Either[Boolean,scala.concurrent.duration.FiniteDuration]]"></a>
+      <a id="ttlDuration(String)(CommandOptions):Future[Either[Boolean,FiniteDuration]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ttlDuration</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>]]</span>
+        <span class="name">ttlDuration</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Boolean">Boolean</span>, <span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>]]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Gets the time to live for a key.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to persist</p></dd><dt>returns</dt><dd class="cmt"><p>time-to-live for specified key or <code>None</code> if key does not exist or does not have a ttl
+      <p class="shortcomment cmt">Gets the time to live <code>FiniteDuration</code> for a key.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live <code>FiniteDuration</code> for a key.</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(<span class="kw">false</span>) <span class="kw">=&gt;</span> <span class="cmt">// key does not exist</span>
+<span class="kw">case</span> Left(<span class="kw">true</span>) <span class="kw">=&gt;</span> <span class="cmt">// key exists but has no associated expire</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>the target key</p></dd><dt>returns</dt><dd class="cmt"><p><code>Right(ttl)</code> where ttl is the time-to-live <code>FiniteDuration</code> for specified key,
+<code>Left(false)</code> if key does not exist or <code>Left(true)</code> if key exists but has no associated expire
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd></dl></div>
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>For <code>Redis</code> version &lt;= 2.8.x, <code>Left(false)</code> will be returned when the key does not
+exists and when it exists but has no associated expire (<code>Redis</code> returns the same error code
+for both cases). In other words, you can simply check the following</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(_) <span class="kw">=&gt;</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#type" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="type(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[String]]"></a>
       <a id="type(String)(CommandOptions):Future[Option[String]]"></a>

@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>TransactionalClient - scredis.TransactionalClient</title>
-          <meta name="description" content="TransactionalClient - scredis.TransactionalClient" />
-          <meta name="keywords" content="TransactionalClient scredis.TransactionalClient" />
+          <title>PipelineClient - scredis.PipelineClient</title>
+          <meta name="description" content="PipelineClient - scredis.PipelineClient" />
+          <meta name="keywords" content="PipelineClient scredis.PipelineClient" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../index.html';
-            var hash = 'scredis.TransactionalClient';
+            var hash = 'scredis.PipelineClient';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -26,7 +26,7 @@
       <div id="definition">
         <img src="../lib/class_big.png" />
         <p id="owner"><a href="package.html" class="extype" name="scredis">scredis</a></p>
-        <h1>TransactionalClient</h1>
+        <h1>PipelineClient</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -35,11 +35,12 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">TransactionalClient</span><span class="result"> extends <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a> with <a href="commands/async/ConnectionCommands.html" class="extype" name="scredis.commands.async.ConnectionCommands">ConnectionCommands</a> with <a href="commands/async/ServerCommands.html" class="extype" name="scredis.commands.async.ServerCommands">ServerCommands</a> with <a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a> with <a href="commands/async/StringsCommands.html" class="extype" name="scredis.commands.async.StringsCommands">StringsCommands</a> with <a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a> with <a href="commands/async/ListsCommands.html" class="extype" name="scredis.commands.async.ListsCommands">ListsCommands</a> with <a href="commands/async/SetsCommands.html" class="extype" name="scredis.commands.async.SetsCommands">SetsCommands</a> with <a href="commands/async/SortedSetsCommands.html" class="extype" name="scredis.commands.async.SortedSetsCommands">SortedSetsCommands</a> with <a href="commands/async/ScriptingCommands.html" class="extype" name="scredis.commands.async.ScriptingCommands">ScriptingCommands</a> with <a href="commands/async/PubSubCommands.html" class="extype" name="scredis.commands.async.PubSubCommands">PubSubCommands</a></span>
+        <span class="name">PipelineClient</span><span class="result"> extends <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a> with <a href="commands/async/ConnectionCommands.html" class="extype" name="scredis.commands.async.ConnectionCommands">ConnectionCommands</a> with <a href="commands/async/ServerCommands.html" class="extype" name="scredis.commands.async.ServerCommands">ServerCommands</a> with <a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a> with <a href="commands/async/StringsCommands.html" class="extype" name="scredis.commands.async.StringsCommands">StringsCommands</a> with <a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a> with <a href="commands/async/ListsCommands.html" class="extype" name="scredis.commands.async.ListsCommands">ListsCommands</a> with <a href="commands/async/SetsCommands.html" class="extype" name="scredis.commands.async.SetsCommands">SetsCommands</a> with <a href="commands/async/SortedSetsCommands.html" class="extype" name="scredis.commands.async.SortedSetsCommands">SortedSetsCommands</a> with <a href="commands/async/ScriptingCommands.html" class="extype" name="scredis.commands.async.ScriptingCommands">ScriptingCommands</a> with <a href="commands/async/PubSubCommands.html" class="extype" name="scredis.commands.async.PubSubCommands">PubSubCommands</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The <code>TransactionalClient</code> represents a <code>Redis</code> transaction.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents a client that queues command before pipelining them all as part of a
+single request.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="commands/async/PubSubCommands.html" class="extype" name="scredis.commands.async.PubSubCommands">PubSubCommands</a>, <a href="commands/async/ScriptingCommands.html" class="extype" name="scredis.commands.async.ScriptingCommands">ScriptingCommands</a>, <a href="commands/async/SortedSetsCommands.html" class="extype" name="scredis.commands.async.SortedSetsCommands">SortedSetsCommands</a>, <a href="commands/async/SetsCommands.html" class="extype" name="scredis.commands.async.SetsCommands">SetsCommands</a>, <a href="commands/async/ListsCommands.html" class="extype" name="scredis.commands.async.ListsCommands">ListsCommands</a>, <a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a>, <a href="commands/async/StringsCommands.html" class="extype" name="scredis.commands.async.StringsCommands">StringsCommands</a>, <a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a>, <a href="commands/async/ServerCommands.html" class="extype" name="scredis.commands.async.ServerCommands">ServerCommands</a>, <a href="commands/async/ConnectionCommands.html" class="extype" name="scredis.commands.async.ConnectionCommands">ConnectionCommands</a>, <span class="extype" name="scredis.commands.async.Async">Async</span>, <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -60,7 +61,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scredis.TransactionalClient"><span>TransactionalClient</span></li><li class="in" name="scredis.commands.async.PubSubCommands"><span>PubSubCommands</span></li><li class="in" name="scredis.commands.async.ScriptingCommands"><span>ScriptingCommands</span></li><li class="in" name="scredis.commands.async.SortedSetsCommands"><span>SortedSetsCommands</span></li><li class="in" name="scredis.commands.async.SetsCommands"><span>SetsCommands</span></li><li class="in" name="scredis.commands.async.ListsCommands"><span>ListsCommands</span></li><li class="in" name="scredis.commands.async.HashesCommands"><span>HashesCommands</span></li><li class="in" name="scredis.commands.async.StringsCommands"><span>StringsCommands</span></li><li class="in" name="scredis.commands.async.KeysCommands"><span>KeysCommands</span></li><li class="in" name="scredis.commands.async.ServerCommands"><span>ServerCommands</span></li><li class="in" name="scredis.commands.async.ConnectionCommands"><span>ConnectionCommands</span></li><li class="in" name="scredis.commands.async.Async"><span>Async</span></li><li class="in" name="scredis.QueuingClient"><span>QueuingClient</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scredis.PipelineClient"><span>PipelineClient</span></li><li class="in" name="scredis.commands.async.PubSubCommands"><span>PubSubCommands</span></li><li class="in" name="scredis.commands.async.ScriptingCommands"><span>ScriptingCommands</span></li><li class="in" name="scredis.commands.async.SortedSetsCommands"><span>SortedSetsCommands</span></li><li class="in" name="scredis.commands.async.SetsCommands"><span>SetsCommands</span></li><li class="in" name="scredis.commands.async.ListsCommands"><span>ListsCommands</span></li><li class="in" name="scredis.commands.async.HashesCommands"><span>HashesCommands</span></li><li class="in" name="scredis.commands.async.StringsCommands"><span>StringsCommands</span></li><li class="in" name="scredis.commands.async.KeysCommands"><span>KeysCommands</span></li><li class="in" name="scredis.commands.async.ServerCommands"><span>ServerCommands</span></li><li class="in" name="scredis.commands.async.ConnectionCommands"><span>ConnectionCommands</span></li><li class="in" name="scredis.commands.async.Async"><span>Async</span></li><li class="in" name="scredis.QueuingClient"><span>QueuingClient</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -627,20 +628,6 @@ a string that cannot be represented as integer
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>a key is ignored if it does not exist
 </p></span></dd></dl></div>
-    </li><li name="scredis.TransactionalClient#discard" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="discard():Unit"></a>
-      <a id="discard():Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">discard</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Discards the transaction and completes all futures with a
-<a href="exceptions/RedisTransactionException.html" class="extype" name="scredis.exceptions.RedisTransactionException">scredis.exceptions.RedisTransactionException</a>.</p>
     </li><li name="scredis.commands.async.KeysCommands#dump" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="dump(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[Array[Byte]]]"></a>
       <a id="dump(String)(CommandOptions):Future[Option[Array[Byte]]]"></a>
@@ -831,21 +818,6 @@ occurs while running the script</p></span><span class="cmt">[[scredis.exceptions
 </p></div><dl class="paramcmts block"><dt class="param">script</dt><dd class="cmt"><p>set key</p></dd><dt class="param">keys</dt><dd class="cmt"><p>keys to be used in the script</p></dd><dt class="param">args</dt><dd class="cmt"><p>arguments to be used in the script</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/ScriptingCommands.html" class="extype" name="scredis.commands.async.ScriptingCommands">ScriptingCommands</a></dd><dt>Since</dt><dd><p>2.6.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if an error occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
 </p></span></dd></dl></div>
-    </li><li name="scredis.TransactionalClient#exec" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="exec()(implicitopts:scredis.CommandOptions):IndexedSeq[scala.util.Try[Any]]"></a>
-      <a id="exec()(CommandOptions):IndexedSeq[Try[Any]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">exec</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="QueuingClient.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Any">Any</span>]]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Executes the transaction and returns all results.</p><div class="fullcomment"><div class="comment cmt"><p>Executes the transaction and returns all results.
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an <code>IndexedSeq</code> containing the results of each command, in the order they were queued.
-</p></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#exists" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="exists(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Boolean]"></a>
       <a id="exists(String)(CommandOptions):Future[Boolean]"></a>
@@ -1233,7 +1205,7 @@ exists and no operation was performed</p></dd></dl><dl class="attributes block">
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>hash key</p></dd><dt>returns</dt><dd class="cmt"><p>list of values, or the empty if hash is empty or key does not exist</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a></dd><dt>Since</dt><dd><p>2.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if the value stored at key is not of type hash
 </p></span></dd></dl></div>
-    </li><li name="scredis.TransactionalClient#handleException" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scredis.QueuingClient#handleException" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="handleException(e:Throwable):Unit"></a>
       <a id="handleException(Throwable):Unit"></a>
       <h4 class="signature">
@@ -1245,7 +1217,7 @@ exists and no operation was performed</p></dd></dl><dl class="attributes block">
         <span class="name">handleException</span><span class="params">(<span name="e">e: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.TransactionalClient">TransactionalClient</a> → <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -1821,7 +1793,7 @@ resulting <code>Map</code>.
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if the provided keyValueMap is empty
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>MSETNX will not perform any operation at all even if just a single key already exists.
 </p></span></dd></dl></div>
-    </li><li name="scredis.TransactionalClient#methodName" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scredis.PipelineClient#methodName" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="methodName:String"></a>
       <a id="methodName:String"></a>
       <h4 class="signature">
@@ -1833,7 +1805,7 @@ resulting <code>Map</code>.
         <span class="name">methodName</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.TransactionalClient">TransactionalClient</a> → <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.PipelineClient">PipelineClient</a> → <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#migrate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="migrate(key:String,host:String,port:Int,database:Int,timeout:scala.concurrent.duration.FiniteDuration,copy:Boolean,replace:Boolean)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Unit]"></a>
       <a id="migrate(String,String,Int,Int,FiniteDuration,Boolean,Boolean)(CommandOptions):Future[Unit]"></a>
@@ -1866,7 +1838,7 @@ resulting <code>Map</code>.
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to move</p></dd><dt class="param">database</dt><dd class="cmt"><p>destination database</p></dd><dt>returns</dt><dd class="cmt"><p>true if key was moved, false otherwise
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>1.0.0
 </p></dd></dl></div>
-    </li><li name="scredis.TransactionalClient#name" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scredis.PipelineClient#name" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="name:String"></a>
       <a id="name:String"></a>
       <h4 class="signature">
@@ -1878,7 +1850,7 @@ resulting <code>Map</code>.
         <span class="name">name</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.TransactionalClient">TransactionalClient</a> → <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.PipelineClient">PipelineClient</a> → <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -1970,22 +1942,31 @@ the timeout could not be set
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>If key already holds a value, it is overwritten, regardless of its type.
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#pTtl" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pTtl(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[Long]]"></a>
-      <a id="pTtl(String)(CommandOptions):Future[Option[Long]]"></a>
+      <a id="pTtl(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Either[Boolean,Long]]"></a>
+      <a id="pTtl(String)(CommandOptions):Future[Either[Boolean,Long]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">pTtl</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>]]</span>
+        <span class="name">pTtl</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Boolean">Boolean</span>, <span class="extype" name="scala.Long">Long</span>]]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Gets the time to live for a key in milliseconds.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key in milliseconds.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to persist</p></dd><dt>returns</dt><dd class="cmt"><p>time-to-live in milliseconds for specified key, or <code>None</code> if key does not exist or does
-not have a ttl
+      <p class="shortcomment cmt">Gets the time to live for a key in milliseconds.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key in milliseconds.</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(<span class="kw">false</span>) <span class="kw">=&gt;</span> <span class="cmt">// key does not exist</span>
+<span class="kw">case</span> Left(<span class="kw">true</span>) <span class="kw">=&gt;</span> <span class="cmt">// key exists but has no associated expire</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>the target key</p></dd><dt>returns</dt><dd class="cmt"><p><code>Right(ttl)</code> where ttl is the time-to-live in milliseconds for specified key,
+<code>Left(false)</code> if key does not exist or <code>Left(true)</code> if key exists but has no associated
+expire
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>2.6.0
-</p></dd></dl></div>
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>For <code>Redis</code> version &lt;= 2.8.x, <code>Left(false)</code> will be returned when the key does not
+exists and when it exists but has no associated expire (<code>Redis</code> returns the same error code
+for both cases). In other words, you can simply check the following</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(_) <span class="kw">=&gt;</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#persist" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="persist(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Boolean]"></a>
       <a id="persist(String)(CommandOptions):Future[Boolean]"></a>
@@ -2194,7 +2175,7 @@ does not exist
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
-    </li><li name="scredis.TransactionalClient#runImpl" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scredis.PipelineClient#runImpl" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="runImpl(commands:List[(Seq[Array[Byte]],(Char,Array[Byte])=&gt;Any)]):IndexedSeq[scala.util.Try[Any]]"></a>
       <a id="runImpl(List[(Seq[Array[Byte]],(Char,Array[Byte])⇒Any)]):IndexedSeq[Try[Any]]"></a>
       <h4 class="signature">
@@ -2206,7 +2187,7 @@ does not exist
         <span class="name">runImpl</span><span class="params">(<span name="commands">commands: <span class="extype" name="scala.List">List</span>[(<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]], (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scala.Any">Any</span>)]</span>)</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Any">Any</span>]]</span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.TransactionalClient">TransactionalClient</a> → <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.PipelineClient">PipelineClient</a> → <a href="QueuingClient.html" class="extype" name="scredis.QueuingClient">QueuingClient</a></dd></dl></div>
     </li><li name="scredis.commands.async.SetsCommands#sAdd" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sAdd(key:String,member:Any,members:Any*)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Long]"></a>
       <a id="sAdd(String,Any,Any*)(CommandOptions):Future[Long]"></a>
@@ -2477,6 +2458,23 @@ simply copied to destKey</p></dd><dt>returns</dt><dd class="cmt"><p>the number o
       <p class="shortcomment cmt">Synchronously saves the dataset to disk.</p><div class="fullcomment"><div class="comment cmt"><p>Synchronously saves the dataset to disk.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/ServerCommands.html" class="extype" name="scredis.commands.async.ServerCommands">ServerCommands</a></dd><dt>Since</dt><dd><p>1.0.0
 </p></dd></dl></div>
+    </li><li name="scredis.commands.async.KeysCommands#scan" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="scan[A](cursor:Long,countOpt:Option[Int],matchOpt:Option[String])(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[(Long,Set[A])]"></a>
+      <a id="scan[A](Long,Option[Int],Option[String])(CommandOptions,Parser[A]):Future[(Long,Set[A])]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scan</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="cursor">cursor: <span class="extype" name="scala.Long">Long</span></span>, <span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="matchOpt">matchOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="parser">parser: <a href="parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.async.KeysCommands.scan.A">A</span>] = <span class="symbol"><span class="name"><a href="package.html">StringParser</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scredis.commands.async.KeysCommands.scan.A">A</span>])]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Incrementally iterates the set of keys in the currently selected Redis database.</p><div class="fullcomment"><div class="comment cmt"><p>Incrementally iterates the set of keys in the currently selected Redis database.
+</p></div><dl class="paramcmts block"><dt class="param">cursor</dt><dd class="cmt"><p>the offset</p></dd><dt class="param">countOpt</dt><dd class="cmt"><p>when defined, provides a hint of how many elements should be returned</p></dd><dt class="param">matchOpt</dt><dd class="cmt"><p>when defined, the command only returns elements matching the pattern</p></dd><dt>returns</dt><dd class="cmt"><p>a pair containing the next cursor as its first element and the set of keys
+as its second element
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>2.8.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.async.ScriptingCommands#scriptExists" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="scriptExists(sha1:String,sha1s:String*)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[IndexedSeq[Boolean]]"></a>
       <a id="scriptExists(String,String*)(CommandOptions):Future[IndexedSeq[Boolean]]"></a>
@@ -2745,6 +2743,21 @@ replaced by the values of the elements in the collection</p></dd><dt class="para
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>target key</p></dd><dt>returns</dt><dd class="cmt"><p>the length of the string stored at key, or 0 when the key does not exist</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/StringsCommands.html" class="extype" name="scredis.commands.async.StringsCommands">StringsCommands</a></dd><dt>Since</dt><dd><p>2.2.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if the key contains a value of the wrong type
 </p></span></dd></dl></div>
+    </li><li name="scredis.PipelineClient#sync" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sync()(implicitopts:scredis.CommandOptions):IndexedSeq[scala.util.Try[Any]]"></a>
+      <a id="sync()(CommandOptions):IndexedSeq[Try[Any]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sync</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="QueuingClient.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Any">Any</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Executes the pipeline and returns all results.</p><div class="fullcomment"><div class="comment cmt"><p>Executes the pipeline and returns all results.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an <code>IndexedSeq</code> containing the results of each command, in the order they were queued.
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -2788,38 +2801,56 @@ replaced by the values of the elements in the collection</p></dd><dt class="para
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#ttl" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ttl(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[Int]]"></a>
-      <a id="ttl(String)(CommandOptions):Future[Option[Int]]"></a>
+      <a id="ttl(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Either[Boolean,Int]]"></a>
+      <a id="ttl(String)(CommandOptions):Future[Either[Boolean,Int]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ttl</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]]</span>
+        <span class="name">ttl</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Boolean">Boolean</span>, <span class="extype" name="scala.Int">Int</span>]]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Gets the time to live for a key in seconds.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key in seconds.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to persist</p></dd><dt>returns</dt><dd class="cmt"><p>time-to-live in seconds for specified key, or <code>None</code> if key does not exist or does not
-have a ttl
+      <p class="shortcomment cmt">Gets the time to live for a key in seconds.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key in seconds.</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(<span class="kw">false</span>) <span class="kw">=&gt;</span> <span class="cmt">// key does not exist</span>
+<span class="kw">case</span> Left(<span class="kw">true</span>) <span class="kw">=&gt;</span> <span class="cmt">// key exists but has no associated expire</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>the target key</p></dd><dt>returns</dt><dd class="cmt"><p><code>Right(ttl)</code> where ttl is the time-to-live in seconds for specified key,
+<code>Left(false)</code> if key does not exist or <code>Left(true)</code> if key exists but has no associated
+expire
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>1.0.0
-</p></dd></dl></div>
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>For <code>Redis</code> version &lt;= 2.8.x, <code>Left(false)</code> will be returned when the key does not
+exists and when it exists but has no associated expire (<code>Redis</code> returns the same error code
+for both cases). In other words, you can simply check the following</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(_) <span class="kw">=&gt;</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#ttlDuration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ttlDuration(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[scala.concurrent.duration.FiniteDuration]]"></a>
-      <a id="ttlDuration(String)(CommandOptions):Future[Option[FiniteDuration]]"></a>
+      <a id="ttlDuration(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Either[Boolean,scala.concurrent.duration.FiniteDuration]]"></a>
+      <a id="ttlDuration(String)(CommandOptions):Future[Either[Boolean,FiniteDuration]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ttlDuration</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>]]</span>
+        <span class="name">ttlDuration</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Boolean">Boolean</span>, <span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>]]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Gets the time to live for a key.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live for a key.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to persist</p></dd><dt>returns</dt><dd class="cmt"><p>time-to-live for specified key or <code>None</code> if key does not exist or does not have a ttl
+      <p class="shortcomment cmt">Gets the time to live <code>FiniteDuration</code> for a key.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the time to live <code>FiniteDuration</code> for a key.</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(<span class="kw">false</span>) <span class="kw">=&gt;</span> <span class="cmt">// key does not exist</span>
+<span class="kw">case</span> Left(<span class="kw">true</span>) <span class="kw">=&gt;</span> <span class="cmt">// key exists but has no associated expire</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>the target key</p></dd><dt>returns</dt><dd class="cmt"><p><code>Right(ttl)</code> where ttl is the time-to-live <code>FiniteDuration</code> for specified key,
+<code>Left(false)</code> if key does not exist or <code>Left(true)</code> if key exists but has no associated expire
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/KeysCommands.html" class="extype" name="scredis.commands.async.KeysCommands">KeysCommands</a></dd><dt>Since</dt><dd><p>2.6.0
-</p></dd></dl></div>
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>For <code>Redis</code> version &lt;= 2.8.x, <code>Left(false)</code> will be returned when the key does not
+exists and when it exists but has no associated expire (<code>Redis</code> returns the same error code
+for both cases). In other words, you can simply check the following</p><pre>result <span class="kw">match</span> {
+<span class="kw">case</span> Left(_) <span class="kw">=&gt;</span>
+<span class="kw">case</span> Right(ttl) <span class="kw">=&gt;</span>
+}</pre></span></dd></dl></div>
     </li><li name="scredis.commands.async.KeysCommands#type" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="type(key:String)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[String]]"></a>
       <a id="type(String)(CommandOptions):Future[Option[String]]"></a>
