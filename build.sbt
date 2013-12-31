@@ -1,4 +1,6 @@
 import SiteKeys._
+import GhPagesKeys._
+import GitKeys._
 
 organization := "com.livestream"
 
@@ -68,10 +70,16 @@ site.settings
 ghpages.settings
 
 siteMappings <++= (mappings in packageDoc in Compile, version) map { (m, v) =>
-  for((f, d) <- m) yield (
+  for ((f, d) <- m) yield (
     f,
     if (v.trim.endsWith("SNAPSHOT")) ("api/snapshot/" + d) else ("api/"+v+"/"+d)
   )
+}
+
+synchLocal <<= (privateMappings, updatedRepository, gitRunner, streams) map { (mappings, repo, git, s) =>
+  val betterMappings = mappings map { case (file, target) => (file, repo / target) }
+  IO.copy(betterMappings)
+  repo
 }
 
 git.remoteRepo := "git@github.com:Livestream/scredis.git"
