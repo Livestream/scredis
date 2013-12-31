@@ -2433,15 +2433,15 @@ copied to destKey</p></dd><dt>returns</dt><dd class="cmt"><p>the number of eleme
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if key contains a value that is not a set
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.async.SetsCommands#sMembers" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="sMembers[A](key:String)(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[Set[String]]"></a>
-      <a id="sMembers[A](String)(CommandOptions,Parser[A]):Future[Set[String]]"></a>
+      <a id="sMembers[A](key:String)(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[Set[A]]"></a>
+      <a id="sMembers[A](String)(CommandOptions,Parser[A]):Future[Set[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sMembers</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="parser">parser: <a href="parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.async.SetsCommands.sMembers.A">A</span>] = <span class="symbol"><span class="name"><a href="package.html">StringParser</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">sMembers</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="parser">parser: <a href="parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.async.SetsCommands.sMembers.A">A</span>] = <span class="symbol"><span class="name"><a href="package.html">StringParser</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scredis.commands.async.SetsCommands.sMembers.A">A</span>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns all the members of a set.</p><div class="fullcomment"><div class="comment cmt"><p>Returns all the members of a set.
