@@ -185,7 +185,7 @@ trait SetsCommands extends Async {
   def sMembers[A](key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Set[String]] = async(_.sMembers(key))
+  ): Future[Set[A]] = async(_.sMembers(key))
 
   /**
    * Moves a member from one set to another.

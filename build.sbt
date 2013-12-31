@@ -2,7 +2,7 @@ organization := "com.livestream"
 
 name := "scredis"
 
-version := "1.0.1"
+version := "1.0.2"
 
 scalaVersion := "2.9.3"
 
@@ -13,7 +13,7 @@ scalacOptions ++= Seq("-deprecation")
 resolvers += "Akka Repo" at "http://repo.akka.io/repository"
 
 libraryDependencies ++= Seq(
-  "org.slf4j" % "slf4j-api" % "1.6.4" intransitive (),
+  "org.slf4j" % "slf4j-api" % "1.7.5" intransitive (),
   "org.apache.commons" % "commons-lang3" % "3.1",
   "commons-pool" % "commons-pool" % "1.6",
   "com.typesafe" % "config" % "1.0.0",
