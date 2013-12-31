@@ -29,7 +29,7 @@ Snapshots are hosted on a separate repository.
 ```scala
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.0.1-SNAPSHOT")
+libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.1.0-SNAPSHOT")
 ```
 
 ### Quick example
