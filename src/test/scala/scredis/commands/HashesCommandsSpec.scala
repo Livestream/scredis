@@ -21,6 +21,8 @@ import scredis.Redis
 import scredis.exceptions.RedisCommandException
 import scredis.tags._
 
+import scala.collection.mutable.{ Set => MutableSet }
+
 class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAll {
   private val client = Redis()
   private val SomeValue = "HelloWorld!虫àéç蟲"
@@ -401,6 +403,94 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
         client.hSet("HASH")("FIELD3", "YES")
         client.hVals("HASH") must be(List(SomeValue, "YES", "YES"))
         client.del("HASH")
+      }
+    }
+  }
+  
+  HScan when {
+    "the key does not exist" should {
+      "return an empty set" taggedAs (V280) in {
+        val (next, set) = client.hScan[String]("NONEXISTENTKEY")(0).!
+        next must be(0)
+        set must be ('empty)
+      }
+    }
+    "the key does not contain a hash" should {
+      "return an error" taggedAs (V280) in {
+        evaluating { client.hScan[String]("LIST")(0) } must produce[RedisCommandException]
+      }
+    }
+    "the hash contains 5 fields" should {
+      "return all fields" taggedAs (V280) in {
+        for (i <- 1 to 5) {
+          client.hSet("HASH")("key" + i, "value" + i).!
+        }
+        val (next, set) = client.hScan[String]("HASH")(0).!
+        next must be(0)
+        set must (
+          contain(("key1", "value1")) and
+          contain(("key2", "value2")) and
+          contain(("key3", "value3")) and
+          contain(("key4", "value4")) and
+          contain(("key5", "value5"))
+        )
+        for (i <- 1 to 10) {
+          client.hSet("HASH")("foo" + i, "foo" + i).!
+        }
+      }
+    }
+    "the hash contains 15 fields" should {
+      val full = MutableSet[(String, String)]()
+      for (i <- 1 to 5) {
+        full += (("key" + i, "value" + i))
+      }
+      for (i <- 1 to 10) {
+        full += (("foo" + i, "foo" + i))
+      }
+      val fullSet = full.toSet
+      
+      Given("that no pattern is set")
+      "return all fields" taggedAs (V280) in {
+        val elements = MutableSet[(String, String)]()
+        var cursor = 0L
+        do {
+          val (next, set) = client.hScan[String]("HASH")(cursor).!
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.toSet must be(fullSet)
+      }
+      Given("that a pattern is set")
+      "return all matching fields" taggedAs (V280) in {
+        val elements = MutableSet[(String, String)]()
+        var cursor = 0L
+        do {
+          val (next, set) = client.hScan[String]("HASH")(cursor, matchOpt = Some("foo*")).!
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.toSet must be(fullSet.filter {
+          case (key, value) => key.startsWith("foo")
+        })
+      }
+      Given("that a pattern is set and count is set to 100")
+      "return all matching fields in one iteration" taggedAs (V280) in {
+        val elements = MutableSet[(String, String)]()
+        var cursor = 0L
+        do {
+          val (next, set) = client.hScan[String]("HASH")(
+            cursor, matchOpt = Some("foo*"), countOpt = Some(100)
+          ).!
+          set.size must be(10)
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.toSet must be(fullSet.filter {
+          case (key, value) => key.startsWith("foo")
+        })
       }
     }
   }

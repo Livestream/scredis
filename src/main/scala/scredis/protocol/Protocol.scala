@@ -113,6 +113,29 @@ trait Protocol {
     )
   }
   
+  protected def generateScanLikeArgs(
+    name: String,
+    keyOpt: Option[String],
+    cursor: Long,
+    countOpt: Option[Int],
+    matchOpt: Option[String]
+  ): Seq[Any] = {
+    val args = ListBuffer[Any](name)
+    keyOpt.foreach { key =>
+      args += key
+    }
+    args += cursor
+    countOpt.foreach { count =>
+      args += "COUNT"
+      args += count
+    }
+    matchOpt.foreach { pattern =>
+      args += "MATCH"
+      args += pattern
+    }
+    args.toList
+  }
+  
   protected def send(data: Array[Byte]): Unit = {
     if(logger.isDebugEnabled) {
       logger.debug(s"Sending command: ${StringParser.parse(data)}")
@@ -359,6 +382,22 @@ trait Protocol {
       case n => {
         val next = receive(asBulk[Long]).get
         val set = receive(asMultiBulk[A, A, B](asBulk[A, A](flatten)))
+        (next, set)
+      }
+    }
+  }
+  
+  private[scredis] def asScanMultiBulk[A](to: List[Option[Array[Byte]]] => A)(
+    replyType: Char, bytes: Array[Byte]
+  ): (Long, A) = {
+    checkReplyType(replyType, MultiBulkReply)
+    intParser.parse(bytes) match {
+      case x if x <= 0 => throw RedisProtocolException(
+        "Unexpected length received for scan multi bulk reply: %d", x
+      )
+      case n => {
+        val next = receive(asBulk[Long]).get
+        val set = receive(asMultiBulk[A](to))
         (next, set)
       }
     }

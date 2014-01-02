@@ -495,7 +495,7 @@ trait KeysCommands { self: Protocol =>
    *
    * @param cursor the offset
    * @param countOpt when defined, provides a hint of how many elements should be returned
-   * @param matchOpt when defined, the command only returns elements matching the pattern 
+   * @param matchOpt when defined, the command only returns elements matching the pattern
    * @return a pair containing the next cursor as its first element and the set of keys
    * as its second element
    *
@@ -504,17 +504,8 @@ trait KeysCommands { self: Protocol =>
   def scan[A](cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): (Long, Set[A]) = {
-    val args = ListBuffer[Any](Scan, cursor)
-    countOpt.foreach { count =>
-      args += "COUNT"
-      args += count
-    }
-    matchOpt.foreach { pattern =>
-      args += "MATCH"
-      args += pattern
-    }
-    send(args: _*)(asScanMultiBulk[A, Set])
-  }
-
+  ): (Long, Set[A]) = send(
+    generateScanLikeArgs(Scan, None, cursor, countOpt, matchOpt): _*
+  )(asScanMultiBulk[A, Set])
+  
 }

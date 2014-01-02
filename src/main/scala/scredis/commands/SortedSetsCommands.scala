@@ -549,5 +549,25 @@ trait SortedSetsCommands { self: Protocol =>
   def zScore(key: String, member: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
   ): Option[Double] = send(ZScore, key,member)(asBulk[Double])
-
+  
+  /**
+   * Incrementally iterates the elements (value-score pairs) of a sorted set.
+   *
+   * @param cursor the offset
+   * @param countOpt when defined, provides a hint of how many elements should be returned
+   * @param matchOpt when defined, the command only returns elements matching the pattern
+   * @return a pair containing the next cursor as its first element and the sorted set of
+   * elements (value-score pairs) as its second element
+   *
+   * @since 2.8.0
+   */
+  def zScan[A](key: String)(
+    cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None
+  )(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    parser: Parser[A] = StringParser
+  ): (Long, LinkedHashSet[(A, Double)]) = send(
+    generateScanLikeArgs(ZScan, Some(key), cursor, countOpt, matchOpt): _*
+  )(asScanMultiBulk[LinkedHashSet[(A, Double)]](toPairsLinkedHashSet))
+  
 }

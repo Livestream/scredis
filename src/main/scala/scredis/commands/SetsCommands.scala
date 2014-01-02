@@ -274,5 +274,25 @@ trait SetsCommands { self: Protocol =>
   def sRem(key: String, member: Any, members: Any*)(
     implicit opts: CommandOptions = DefaultCommandOptions
   ): Long = send((Seq(SRem, key,member) ++members): _*)(asInteger)
-
+  
+  /**
+   * Incrementally iterates the elements of a set.
+   *
+   * @param cursor the offset
+   * @param countOpt when defined, provides a hint of how many elements should be returned
+   * @param matchOpt when defined, the command only returns elements matching the pattern
+   * @return a pair containing the next cursor as its first element and the set of elements
+   * as its second element
+   *
+   * @since 2.8.0
+   */
+  def sScan[A](key: String)(
+    cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None
+  )(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    parser: Parser[A] = StringParser
+  ): (Long, Set[A]) = send(
+    generateScanLikeArgs(SScan, Some(key), cursor, countOpt, matchOpt): _*
+  )(asScanMultiBulk[A, Set])
+  
 }
