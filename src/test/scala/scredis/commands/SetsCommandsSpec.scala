@@ -21,6 +21,8 @@ import scredis.Redis
 import scredis.exceptions.RedisCommandException
 import scredis.tags._
 
+import scala.collection.mutable.{ Set => MutableSet }
+
 import java.util.concurrent.Executors
 
 class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAll {
@@ -601,6 +603,90 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
         redis.sMembers("SET") must be('empty)
 
         redis.sRem("SET", "A", "B", "C") must be(0)
+      }
+    }
+  }
+  
+  SScan when {
+    "the key does not exist" should {
+      "return an empty set" taggedAs (V280) in {
+        val (next, set) = redis.sScan[String]("NONEXISTENTKEY")(0).!
+        next must be(0)
+        set must be ('empty)
+      }
+    }
+    "the key does not contain a set" should {
+      "return an error" taggedAs (V280) in {
+        evaluating { redis.sScan[String]("HASH")(0) } must produce[RedisCommandException]
+      }
+    }
+    "the set contains 5 elements" should {
+      "return all elements" taggedAs (V280) in {
+        for (i <- 1 to 5) {
+          redis.sAdd("SSET", "value" + i).!
+        }
+        val (next, set) = redis.sScan[String]("SSET")(0).!
+        next must be(0)
+        set must (
+          contain("value1") and
+          contain("value2") and
+          contain("value3") and
+          contain("value4") and
+          contain("value5")
+        )
+        for (i <- 1 to 10) {
+          redis.sAdd("SSET", "foo" + i).!
+        }
+      }
+    }
+    "the set contains 15 elements" should {
+      val full = MutableSet[String]()
+      for (i <- 1 to 5) {
+        full += ("value" + i)
+      }
+      for (i <- 1 to 10) {
+        full += ("foo" + i)
+      }
+      val fullSet = full.toSet
+      
+      Given("that no pattern is set")
+      "return all elements" taggedAs (V280) in {
+        val elements = MutableSet[String]()
+        var cursor = 0L
+        do {
+          val (next, set) = redis.sScan[String]("SSET")(cursor).!
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.toSet must be(fullSet)
+      }
+      Given("that a pattern is set")
+      "return all matching elements" taggedAs (V280) in {
+        val elements = MutableSet[String]()
+        var cursor = 0L
+        do {
+          val (next, set) = redis.sScan[String]("SSET")(cursor, matchOpt = Some("foo*")).!
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.toSet must be(fullSet.filter(_.startsWith("foo")))
+      }
+      Given("that a pattern is set and count is set to 100")
+      "return all matching elements in one iteration" taggedAs (V280) in {
+        val elements = MutableSet[String]()
+        var cursor = 0L
+        do {
+          val (next, set) = redis.sScan[String]("SSET")(
+            cursor, matchOpt = Some("foo*"), countOpt = Some(100)
+          ).!
+          set.size must be(10)
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.toSet must be(fullSet.filter(_.startsWith("foo")))
       }
     }
   }
