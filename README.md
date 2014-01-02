@@ -4,6 +4,8 @@ Scredis is an advanced [Redis](http://redis.io) client entirely written in Scala
 
 * [Documentation](https://github.com/Livestream/scredis/wiki)
 * [Scaladoc](http://livestream.github.io/scredis/api/snapshot/)
+ 
+> Redis v2.8.x commands are now supported! Scredis v1.1.0 has been released with the following [changes](https://github.com/Livestream/scredis/releases/tag/v1.1.0-2.10).
 
 ## Features
 * Supports all Redis commands up to v2.8.x
