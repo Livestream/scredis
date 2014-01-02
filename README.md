@@ -6,7 +6,7 @@ Scredis is an advanced [Redis](http://redis.io) client entirely written in Scala
 * [Scaladoc](http://livestream.github.io/scredis/api/snapshot/)
 
 ## Features
-* Supports all Redis 2.6.x commands
+* Supports all Redis commands up to v2.8.x
 * Native Scala types and customizable parsing
 * Asynchronous and synchronous commands processing
 * Transactions, pipelining and configurable automatic pipelining
@@ -21,7 +21,7 @@ Scredis is compatible with Scala 2.9.x and 2.10.x. Binary releases are hosted on
 ```scala
 resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
-libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.0.1")
+libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.1.0")
 ```
 
 Snapshots are hosted on a separate repository.
