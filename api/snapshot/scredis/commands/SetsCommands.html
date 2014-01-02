@@ -528,6 +528,23 @@ members</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if key contains a value that is not a set
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>Redis versions older than 2.4 can only remove one member per call.
 </p></span></dd></dl></div>
+    </li><li name="scredis.commands.SetsCommands#sScan" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sScan[A](key:String)(cursor:Long,countOpt:Option[Int],matchOpt:Option[String])(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):(Long,Set[A])"></a>
+      <a id="sScan[A](String)(Long,Option[Int],Option[String])(CommandOptions,Parser[A]):(Long,Set[A])"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sScan</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="cursor">cursor: <span class="extype" name="scala.Long">Long</span></span>, <span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="matchOpt">matchOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>, <span name="parser">parser: <a href="../parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.SetsCommands.sScan.A">A</span>] = <span class="symbol"><span class="name"><a href="../package.html">StringParser</a></span></span></span>)</span><span class="result">: (<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scredis.commands.SetsCommands.sScan.A">A</span>])</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Incrementally iterates the elements of a set.</p><div class="fullcomment"><div class="comment cmt"><p>Incrementally iterates the elements of a set.
+</p></div><dl class="paramcmts block"><dt class="param">cursor</dt><dd class="cmt"><p>the offset</p></dd><dt class="param">countOpt</dt><dd class="cmt"><p>when defined, provides a hint of how many elements should be returned</p></dd><dt class="param">matchOpt</dt><dd class="cmt"><p>when defined, the command only returns elements matching the pattern</p></dd><dt>returns</dt><dd class="cmt"><p>a pair containing the next cursor as its first element and the set of elements
+as its second element
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.SetsCommands#sUnion" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sUnion[A](firstKey:String,key:String,keys:String*)(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):Set[A]"></a>
       <a id="sUnion[A](String,String,String*)(CommandOptions,Parser[A]):Set[A]"></a>

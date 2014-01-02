@@ -790,6 +790,23 @@ empty set if key does not exist</p></dd></dl><dl class="attributes block"> <dt>S
 does not exist</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if key contains a value that is not a sorted set
 </p></span></dd></dl></div>
+    </li><li name="scredis.commands.async.SortedSetsCommands#zScan" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zScan[A](key:String)(cursor:Long,countOpt:Option[Int],matchOpt:Option[String])(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[(Long,scredis.util.LinkedHashSet[(A,Double)])]"></a>
+      <a id="zScan[A](String)(Long,Option[Int],Option[String])(CommandOptions,Parser[A]):Future[(Long,LinkedHashSet[(A,Double)])]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zScan</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="cursor">cursor: <span class="extype" name="scala.Long">Long</span></span>, <span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="matchOpt">matchOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="parser">parser: <a href="../../parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.async.SortedSetsCommands.zScan.A">A</span>] = <span class="symbol"><span class="name"><a href="../../package.html">StringParser</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[(<span class="extype" name="scala.Long">Long</span>, <a href="../../util/LinkedHashSet.html" class="extype" name="scredis.util.LinkedHashSet">LinkedHashSet</a>[(<span class="extype" name="scredis.commands.async.SortedSetsCommands.zScan.A">A</span>, <span class="extype" name="scala.Double">Double</span>)])]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Incrementally iterates the elements (value-score pairs) of a sorted set.</p><div class="fullcomment"><div class="comment cmt"><p>Incrementally iterates the elements (value-score pairs) of a sorted set.
+</p></div><dl class="paramcmts block"><dt class="param">cursor</dt><dd class="cmt"><p>the offset</p></dd><dt class="param">countOpt</dt><dd class="cmt"><p>when defined, provides a hint of how many elements should be returned</p></dd><dt class="param">matchOpt</dt><dd class="cmt"><p>when defined, the command only returns elements matching the pattern</p></dd><dt>returns</dt><dd class="cmt"><p>a pair containing the next cursor as its first element and the sorted set of
+elements (value-score pairs) as its second element
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.async.SortedSetsCommands#zScore" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="zScore(key:String,member:Any)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[Double]]"></a>
       <a id="zScore(String,Any)(CommandOptions):Future[Option[Double]]"></a>

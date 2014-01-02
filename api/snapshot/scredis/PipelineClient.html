@@ -1154,6 +1154,23 @@ value is set to 0 before the operation is performed.
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>hash key</p></dd><dt>returns</dt><dd class="cmt"><p>number of fields in the hash, or 0 if the key does not exist</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a></dd><dt>Since</dt><dd><p>2.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if the value stored at key is not of type hash
 </p></span></dd></dl></div>
+    </li><li name="scredis.commands.async.HashesCommands#hScan" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hScan[A](key:String)(cursor:Long,countOpt:Option[Int],matchOpt:Option[String])(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[(Long,Set[(String,A)])]"></a>
+      <a id="hScan[A](String)(Long,Option[Int],Option[String])(CommandOptions,Parser[A]):Future[(Long,Set[(String,A)])]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hScan</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="cursor">cursor: <span class="extype" name="scala.Long">Long</span></span>, <span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="matchOpt">matchOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="parser">parser: <a href="parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.async.HashesCommands.hScan.A">A</span>] = <span class="symbol"><span class="name"><a href="package.html">StringParser</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Predef.Set">Set</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scredis.commands.async.HashesCommands.hScan.A">A</span>)])]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Incrementally iterates through the fields of a hash.</p><div class="fullcomment"><div class="comment cmt"><p>Incrementally iterates through the fields of a hash.
+</p></div><dl class="paramcmts block"><dt class="param">cursor</dt><dd class="cmt"><p>the offset</p></dd><dt class="param">countOpt</dt><dd class="cmt"><p>when defined, provides a hint of how many elements should be returned</p></dd><dt class="param">matchOpt</dt><dd class="cmt"><p>when defined, the command only returns elements matching the pattern</p></dd><dt>returns</dt><dd class="cmt"><p>a pair containing the next cursor as its first element and the list of fields
+(key-value pairs) as its second element
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/HashesCommands.html" class="extype" name="scredis.commands.async.HashesCommands">HashesCommands</a></dd><dt>Since</dt><dd><p>2.8.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.async.HashesCommands#hSet" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hSet(key:String)(field:String,value:Any)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Boolean]"></a>
       <a id="hSet(String)(String,Any)(CommandOptions):Future[Boolean]"></a>
@@ -2409,6 +2426,23 @@ members</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><d
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if key contains a value that is not a set
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>Redis versions older than 2.4 can only remove one member per call.
 </p></span></dd></dl></div>
+    </li><li name="scredis.commands.async.SetsCommands#sScan" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sScan[A](key:String)(cursor:Long,countOpt:Option[Int],matchOpt:Option[String])(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[(Long,Set[A])]"></a>
+      <a id="sScan[A](String)(Long,Option[Int],Option[String])(CommandOptions,Parser[A]):Future[(Long,Set[A])]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sScan</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="cursor">cursor: <span class="extype" name="scala.Long">Long</span></span>, <span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="matchOpt">matchOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="parser">parser: <a href="parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.async.SetsCommands.sScan.A">A</span>] = <span class="symbol"><span class="name"><a href="package.html">StringParser</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scredis.commands.async.SetsCommands.sScan.A">A</span>])]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Incrementally iterates the elements of a set.</p><div class="fullcomment"><div class="comment cmt"><p>Incrementally iterates the elements of a set.
+</p></div><dl class="paramcmts block"><dt class="param">cursor</dt><dd class="cmt"><p>the offset</p></dd><dt class="param">countOpt</dt><dd class="cmt"><p>when defined, provides a hint of how many elements should be returned</p></dd><dt class="param">matchOpt</dt><dd class="cmt"><p>when defined, the command only returns elements matching the pattern</p></dd><dt>returns</dt><dd class="cmt"><p>a pair containing the next cursor as its first element and the set of elements
+as its second element
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/SetsCommands.html" class="extype" name="scredis.commands.async.SetsCommands">SetsCommands</a></dd><dt>Since</dt><dd><p>2.8.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.async.SetsCommands#sUnion" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sUnion[A](firstKey:String,key:String,keys:String*)(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[Set[A]]"></a>
       <a id="sUnion[A](String,String,String*)(CommandOptions,Parser[A]):Future[Set[A]]"></a>
@@ -3294,6 +3328,23 @@ empty set if key does not exist</p></dd></dl><dl class="attributes block"> <dt>D
 does not exist</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/SortedSetsCommands.html" class="extype" name="scredis.commands.async.SortedSetsCommands">SortedSetsCommands</a></dd><dt>Since</dt><dd><p>2.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if key contains a value that is not a sorted set
 </p></span></dd></dl></div>
+    </li><li name="scredis.commands.async.SortedSetsCommands#zScan" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zScan[A](key:String)(cursor:Long,countOpt:Option[Int],matchOpt:Option[String])(implicitopts:scredis.CommandOptions,implicitparser:scredis.parsing.Parser[A]):scala.concurrent.Future[(Long,scredis.util.LinkedHashSet[(A,Double)])]"></a>
+      <a id="zScan[A](String)(Long,Option[Int],Option[String])(CommandOptions,Parser[A]):Future[(Long,LinkedHashSet[(A,Double)])]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zScan</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="cursor">cursor: <span class="extype" name="scala.Long">Long</span></span>, <span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="matchOpt">matchOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol">DefaultCommandOptions</span></span>, <span name="parser">parser: <a href="parsing/Parser.html" class="extype" name="scredis.parsing.Parser">Parser</a>[<span class="extype" name="scredis.commands.async.SortedSetsCommands.zScan.A">A</span>] = <span class="symbol"><span class="name"><a href="package.html">StringParser</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[(<span class="extype" name="scala.Long">Long</span>, <a href="util/LinkedHashSet.html" class="extype" name="scredis.util.LinkedHashSet">LinkedHashSet</a>[(<span class="extype" name="scredis.commands.async.SortedSetsCommands.zScan.A">A</span>, <span class="extype" name="scala.Double">Double</span>)])]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Incrementally iterates the elements (value-score pairs) of a sorted set.</p><div class="fullcomment"><div class="comment cmt"><p>Incrementally iterates the elements (value-score pairs) of a sorted set.
+</p></div><dl class="paramcmts block"><dt class="param">cursor</dt><dd class="cmt"><p>the offset</p></dd><dt class="param">countOpt</dt><dd class="cmt"><p>when defined, provides a hint of how many elements should be returned</p></dd><dt class="param">matchOpt</dt><dd class="cmt"><p>when defined, the command only returns elements matching the pattern</p></dd><dt>returns</dt><dd class="cmt"><p>a pair containing the next cursor as its first element and the sorted set of
+elements (value-score pairs) as its second element
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/SortedSetsCommands.html" class="extype" name="scredis.commands.async.SortedSetsCommands">SortedSetsCommands</a></dd><dt>Since</dt><dd><p>2.8.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.async.SortedSetsCommands#zScore" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="zScore(key:String,member:Any)(implicitopts:scredis.CommandOptions):scala.concurrent.Future[Option[Double]]"></a>
       <a id="zScore(String,Any)(CommandOptions):Future[Option[Double]]"></a>
