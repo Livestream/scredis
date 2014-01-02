@@ -24,7 +24,6 @@ import scredis.exceptions.RedisCommandException
 import scredis.tags._
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.duration._
 
 class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAll {
   private val client = Redis()
