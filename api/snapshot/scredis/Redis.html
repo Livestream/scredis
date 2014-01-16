@@ -2177,19 +2177,24 @@ already been called and won't call it a second time.
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/async/PubSubCommands.html" class="extype" name="scredis.commands.async.PubSubCommands">PubSubCommands</a></dd><dt>Since</dt><dd><p>2.0.0
 </p></dd></dl></div>
     </li><li name="scredis.Redis#quit" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="quit():Unit"></a>
-      <a id="quit():Unit"></a>
+      <a id="quit(awaitTerminationOpt:Option[scala.concurrent.duration.Duration]):Unit"></a>
+      <a id="quit(Option[Duration]):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">quit</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">quit</span><span class="params">(<span name="awaitTerminationOpt">awaitTerminationOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.Duration">Duration</span>] = <span class="symbol">Some(1 second)</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Closes all connections, including internal pool and shut down the default execution context.</p><div class="fullcomment"><div class="comment cmt"><p>Closes all connections, including internal pool and shut down the default execution context.
-</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
+      <p class="shortcomment cmt">Gracefully shuts down this <a href="" class="extype" name="scredis.Redis">scredis.Redis</a> instance.</p><div class="fullcomment"><div class="comment cmt"><p>Gracefully shuts down this <a href="" class="extype" name="scredis.Redis">scredis.Redis</a> instance. Flushes all queued commands, gracefully
+terminates the default executor (optionally awaiting for its termination) and closes all
+connections to the target <code>Redis</code> server.
+</p></div><dl class="paramcmts block"><dt class="param">awaitTerminationOpt</dt><dd class="cmt"><p>when provided with a <span class="extype" name="scala.concurrent.duration.Duration">scala.concurrent.duration.Duration</span>, the
+method waits until either the executor is fully terminated or a timeout occurs. The duration
+can be infinite.
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>If you provided your own execution context using <code>withExecutionContext()</code>, it will not
 be shutdown by this method. It is your responsibility to do so.
 </p></span></dd></dl></div>

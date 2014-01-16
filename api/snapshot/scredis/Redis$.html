@@ -486,7 +486,7 @@ context
 context
 </p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
 </p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis. Also, it is your
-responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a> will not do it.
+responsibility to shutdown the execution context as <a href="Redis.html#quit(awaitTerminationOpt:Option[scala.concurrent.duration.Duration]):Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a> will not do it.
 </p></span></dd></dl></div>
     </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withExecutionContext(configName:String)(implicitec:scala.concurrent.ExecutionContext):scredis.Redis"></a>
@@ -504,7 +504,7 @@ responsibility to shutdown the execution context as <a href="Redis.html#quit():U
 </p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file using the provided execution context
 </p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
 </p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config file must contain the scredis object at its root.
-This constructor is equivalent to </p><pre>Redis.withExecutionContext(configName, <span class="lit">"scredis"</span>)</pre><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
+This constructor is equivalent to </p><pre>Redis.withExecutionContext(configName, <span class="lit">"scredis"</span>)</pre><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit(awaitTerminationOpt:Option[scala.concurrent.duration.Duration]):Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
 will not do it.
 </p></span></dd></dl></div>
     </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -522,7 +522,7 @@ will not do it.
       <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config using the provided path and execution context
 </p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
 </p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis. Also, it is your
-responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a> will not do it.
+responsibility to shutdown the execution context as <a href="Redis.html#quit(awaitTerminationOpt:Option[scala.concurrent.duration.Duration]):Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a> will not do it.
 </p></span></dd></dl></div>
     </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withExecutionContext(config:com.typesafe.config.Config)(implicitec:scala.concurrent.ExecutionContext):scredis.Redis"></a>
@@ -539,7 +539,7 @@ responsibility to shutdown the execution context as <a href="Redis.html#quit():U
       <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config using the provided execution context
 </p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
 </p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config must contain the scredis object at its root.
-This constructor is equivalent to </p><pre>Redis.withExecutionContext(config, <span class="lit">"scredis"</span>)</pre><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
+This constructor is equivalent to </p><pre>Redis.withExecutionContext(config, <span class="lit">"scredis"</span>)</pre><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit(awaitTerminationOpt:Option[scala.concurrent.duration.Duration]):Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
 will not do it.
 </p></span></dd></dl></div>
     </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -559,7 +559,7 @@ context
 </p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a> using the provided execution
 context
 </p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p><a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
-</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit(awaitTerminationOpt:Option[scala.concurrent.duration.Duration]):Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
 will not do it.
 </p></span></dd></dl></div>
     </li><li name="scredis.Redis#withExecutionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -579,7 +579,7 @@ context
 </p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from the default loaded config using the provided execution
 context
 </p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
-</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit():Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>It is your responsibility to shutdown the execution context as <a href="Redis.html#quit(awaitTerminationOpt:Option[scala.concurrent.duration.Duration]):Unit" class="extmbr" name="scredis.Redis#quit">scredis.Redis.quit</a>
 will not do it.
 </p></span></dd></dl></div>
     </li></ol>
