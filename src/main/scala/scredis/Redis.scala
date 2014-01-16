@@ -135,18 +135,21 @@ final class Redis private[scredis] (
   private val logger = LoggerFactory.getLogger(getClass)
   
   private val timerTask = if(IsAutomaticPipeliningEnabled) Some((
-    new Timer(config.Async.TimerThreadNamingPattern.replace("$p", PoolNumber)),
+    new Timer(
+      config.Async.TimerThreadNamingPattern.replace("$p", PoolNumber),
+      config.Async.Executors.DaemonThreads
+    ),
     new TimerTask() {
       def run(): Unit = executePipelineIfNeeded()
     }
   )) else None
   
-  private val executor = ecOpt match {
+  private val executorOpt = ecOpt match {
     case Some(_) => None
     case None => Some(newThreadPool())
   }
   
-  implicit val ec = ecOpt.getOrElse(ExecutionContext.fromExecutorService(executor.get))
+  implicit val ec = ecOpt.getOrElse(ExecutionContext.fromExecutorService(executorOpt.get))
   
   private val pool = ClientPool(config)
 
@@ -170,6 +173,7 @@ final class Redis private[scredis] (
       .namingPattern(
         config.Async.Executors.ThreadsNamingPattern.replace("$p", PoolNumber).replace("$t", "%d")
       )
+      .daemon(config.Async.Executors.DaemonThreads)
       .priority(config.Async.Executors.ThreadsPriority)
       .build()
     
@@ -325,30 +329,6 @@ final class Redis private[scredis] (
     flushAutomaticPipeline()
     pool.auth(passwordOpt)
   }
-  
-  private[scredis] def closeInternal(): Unit = synchronized {
-    shouldShutdown = true
-    flushAutomaticPipeline()
-    while(this.commands.size > 1) Thread.sleep(100)
-    
-    timerTask.foreach {
-      case (timer, task) => {
-        task.cancel()
-        timer.cancel()
-      }
-    }
-    
-    try {
-      pool.close()
-    } catch {
-      case e: Throwable =>
-    }
-    try {
-      executor.foreach(_.shutdown())
-    } catch {
-      case e: Throwable =>
-    }
-  }
 
   def borrowClient(): Client = pool.borrowClient()
   def returnClient(client: Client): Unit = pool.returnClient(client)
@@ -410,14 +390,57 @@ final class Redis private[scredis] (
   )(implicit opts: CommandOptions = DefaultCommandOptions): Unit = selectInternal(db)
   
   /**
-   * Closes all connections, including internal pool and shut down the default execution context.
+   * Gracefully shuts down this [[scredis.Redis]] instance. Flushes all queued commands, gracefully
+   * terminates the default executor (optionally awaiting for its termination) and closes all
+   * connections to the target `Redis` server.
    * 
    * @note If you provided your own execution context using `withExecutionContext()`, it will not
    * be shutdown by this method. It is your responsibility to do so.
-   *
+   * 
+   * @param awaitTerminationOpt when provided with a [[scala.concurrent.duration.Duration]], the
+   * method waits until either the executor is fully terminated or a timeout occurs. The duration
+   * can be infinite.
+   * 
    * @since 1.0.0
    */
-  def quit(): Unit = closeInternal()
+  def quit(awaitTerminationOpt: Option[Duration] = Some(1 second)): Unit = synchronized {
+    shouldShutdown = true
+    flushAutomaticPipeline()
+    while (this.commands.size > 1) {
+      Thread.sleep(100)
+    }
+    
+    timerTask.foreach {
+      case (timer, task) => {
+        task.cancel()
+        timer.cancel()
+      }
+    }
+    
+    try {
+      executorOpt.foreach { executor =>
+        executor.shutdown()
+        awaitTerminationOpt.foreach { timeout =>
+          if (timeout.isFinite) {
+            executor.awaitTermination(timeout.toNanos, TimeUnit.NANOSECONDS)
+          } else {
+            executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS)
+          }
+        }
+      }
+    } catch {
+      case e: Throwable => logger.error(
+        "An error occurred while shutting down default executor", e
+      )
+    }
+    try {
+      pool.close()
+    } catch {
+      case e: Throwable => logger.error(
+        "An error occurred while shutting down the internal pool", e
+      )
+    }
+  }
   
   if(IsAutomaticPipeliningEnabled) nextIndex()
   

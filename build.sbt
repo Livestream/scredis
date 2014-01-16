@@ -6,7 +6,7 @@ organization := "com.livestream"
 
 name := "scredis"
 
-version := "1.1.0"
+version := "1.1.1-SNAPSHOT"
 
 scalaVersion := "2.10.3"
 
@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "1.7.5" intransitive (),
   "org.apache.commons" % "commons-lang3" % "3.1",
   "commons-pool" % "commons-pool" % "1.6",
-  "com.typesafe" % "config" % "1.0.0",
+  "com.typesafe" % "config" % "1.2.0",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 
