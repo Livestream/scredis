@@ -180,6 +180,7 @@ class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
       val Threads = asyncExecutors.getInt("threads")
       val QueueCapacity = asyncExecutors.getInt("queue-capacity")
       val ThreadsNamingPattern = asyncExecutors.getString("threads-naming-pattern")
+      val DaemonThreads = asyncExecutors.getBoolean("daemon-threads")
       val ThreadsPriority = asyncExecutors.getString("threads-priority").toLowerCase match {
         case "min"    => Thread.MIN_PRIORITY
         case "normal" => Thread.NORM_PRIORITY
