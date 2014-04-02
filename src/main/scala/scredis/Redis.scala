@@ -22,6 +22,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory
 
 import akka.dispatch.{ Future, Promise, ExecutionContext }
 import akka.util.{ Duration, FiniteDuration }
+import akka.util.duration._
 
 import scredis.commands.async._
 import scredis.exceptions._
