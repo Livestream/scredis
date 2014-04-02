@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>pubsub - scredis.pubsub</title>
+          <meta name="description" content="pubsub - scredis.pubsub" />
+          <meta name="keywords" content="pubsub scredis.pubsub" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'scredis.pubsub.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="scredis">scredis</a></p>
+        <h1>pubsub</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pubsub</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scredis.pubsub.Error" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ErrorextendsPubSubMessagewithProductwithSerializable"></a>
+      <a id="Error:Error"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Error.html"><span class="name">Error</span></a><span class="params">(<span name="exception">exception: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result"> extends <a href="PubSubMessage.html" class="extype" name="scredis.pubsub.PubSubMessage">PubSubMessage</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This message is triggered if an error occurs.</p>
+    </li><li name="scredis.pubsub.Message" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MessageextendsPubSubMessagewithProductwithSerializable"></a>
+      <a id="Message:Message"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Message.html"><span class="name">Message</span></a><span class="params">(<span name="channel">channel: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PubSubMessage.html" class="extype" name="scredis.pubsub.PubSubMessage">PubSubMessage</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This message is triggered when a message is received.</p>
+    </li><li name="scredis.pubsub.PMessage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PMessageextendsPubSubMessagewithProductwithSerializable"></a>
+      <a id="PMessage:PMessage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="PMessage.html"><span class="name">PMessage</span></a><span class="params">(<span name="pattern">pattern: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="channel">channel: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PubSubMessage.html" class="extype" name="scredis.pubsub.PubSubMessage">PubSubMessage</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This message is triggered when a message that matches a pattern is received.</p>
+    </li><li name="scredis.pubsub.PSubscribe" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PSubscribeextendsPubSubMessagewithProductwithSerializable"></a>
+      <a id="PSubscribe:PSubscribe"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="PSubscribe.html"><span class="name">PSubscribe</span></a><span class="params">(<span name="pattern">pattern: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="patternsCount">patternsCount: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="PubSubMessage.html" class="extype" name="scredis.pubsub.PubSubMessage">PubSubMessage</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This message is triggered after we successfully subscribed to a pattern.</p>
+    </li><li name="scredis.pubsub.PUnsubscribe" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PUnsubscribeextendsPubSubMessagewithProductwithSerializable"></a>
+      <a id="PUnsubscribe:PUnsubscribe"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="PUnsubscribe.html"><span class="name">PUnsubscribe</span></a><span class="params">(<span name="channel">channel: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="patternsCount">patternsCount: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="PubSubMessage.html" class="extype" name="scredis.pubsub.PubSubMessage">PubSubMessage</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This message is triggered after we successfully unsubscribed from a pattern.</p>
+    </li><li name="scredis.pubsub.PubSubMessage" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="PubSubMessageextendsAnyRef"></a>
+      <a id="PubSubMessage:PubSubMessage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PubSubMessage.html"><span class="name">PubSubMessage</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Base trait for all pub/sub messages.</p>
+    </li><li name="scredis.pubsub.Subscribe" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SubscribeextendsPubSubMessagewithProductwithSerializable"></a>
+      <a id="Subscribe:Subscribe"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Subscribe.html"><span class="name">Subscribe</span></a><span class="params">(<span name="channel">channel: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="channelsCount">channelsCount: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="PubSubMessage.html" class="extype" name="scredis.pubsub.PubSubMessage">PubSubMessage</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This message is triggered after we successfully subscribed to a channel.</p>
+    </li><li name="scredis.pubsub.Unsubscribe" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnsubscribeextendsPubSubMessagewithProductwithSerializable"></a>
+      <a id="Unsubscribe:Unsubscribe"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Unsubscribe.html"><span class="name">Unsubscribe</span></a><span class="params">(<span name="channel">channel: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="channelsCount">channelsCount: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="PubSubMessage.html" class="extype" name="scredis.pubsub.PubSubMessage">PubSubMessage</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">This message is triggered after we successfully unsubscribed from a channel.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+    </body>
+      </html>
