@@ -40,10 +40,10 @@ import scala.util.{ Success, Failure }
 // See reference.conf for the complete list of configurable parameters.
 val redis = Redis()
 
-// Import the default execution context for working with futures
+// Imports the lazily initialized callback execution context to register callbacks
 import redis.ec
 
-// Futures handling
+// Registering callbacks on returned Futures
 redis.hGetAll("my-hash") onComplete {
   case Success(content) => println(content)
   case Failure(e) => e.printStackTrace()
@@ -59,7 +59,7 @@ redis.pipelined { p =>
 redis.sync(_.blPop(0, "queue"))
 redis.withClient(_.blPop(0, "queue"))
 
-// Disconnects all internal clients and shutdown the default execution context
+// Disconnects all internal clients and shutdown the default internal thread pool
 redis.quit()
 ```
 
