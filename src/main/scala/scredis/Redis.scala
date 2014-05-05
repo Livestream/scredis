@@ -26,6 +26,7 @@ import akka.util.duration._
 
 import scredis.commands.async._
 import scredis.exceptions._
+import scredis.util.BlockingExecutor
 
 import scala.collection.mutable.ListBuffer
 
@@ -139,19 +140,36 @@ final class Redis private[scredis] (
   private val timerTask = if(IsAutomaticPipeliningEnabled) Some((
     new Timer(
       config.Async.TimerThreadNamingPattern.replace("$p", PoolNumber),
-      config.Async.Executors.DaemonThreads
+      true
     ),
     new TimerTask() {
       def run(): Unit = executePipelineIfNeeded()
     }
   )) else None
   
-  private val executorOpt = ecOpt match {
+  private val internalExecutorOpt = ecOpt match {
     case Some(_) => None
-    case None => Some(newThreadPool())
+    case None => Some(
+      newThreadPool(
+        config.Async.Executors.Internal.ThreadsNamingPattern,
+        config.Async.Executors.Internal.DaemonThreads,
+        config.Async.Executors.Internal.ThreadsPriority
+      )
+    )
   }
+  private val interalExecutionContext = ecOpt.getOrElse(
+    BlockingExecutor(internalExecutorOpt.get, config.Async.Executors.Internal.MaxConcurrent)
+  )
   
-  implicit val ec = ecOpt.getOrElse(ExecutionContext.fromExecutorService(executorOpt.get))
+  private var shouldShutdownCallbackExecutor = false
+  private lazy val callbackExecutor: ExecutorService = {
+    shouldShutdownCallbackExecutor = true
+    newThreadPool(
+      config.Async.Executors.Callback.ThreadsNamingPattern,
+      config.Async.Executors.Callback.DaemonThreads,
+      config.Async.Executors.Callback.ThreadsPriority
+    )
+  }
   
   private val pool = ClientPool(config)
 
@@ -170,23 +188,26 @@ final class Redis private[scredis] (
     config.Client.Sleep
   )
   
-  private def newThreadPool(): ExecutorService = {
+  lazy implicit val ec = ecOpt.getOrElse(
+    BlockingExecutor(callbackExecutor, config.Async.Executors.Callback.MaxConcurrent)
+  )
+  
+  private def execute[A](f: => A): Future[A] = Future {
+    f
+  }(interalExecutionContext)
+  
+  private def newThreadPool(
+    namingPattern: String, daemon: Boolean, priority: Int
+  ): ExecutorService = {
     val threadFactory = new BasicThreadFactory.Builder()
       .namingPattern(
-        config.Async.Executors.ThreadsNamingPattern.replace("$p", PoolNumber).replace("$t", "%d")
+        namingPattern.replace("$p", PoolNumber).replace("$t", "%d")
       )
-      .daemon(config.Async.Executors.DaemonThreads)
-      .priority(config.Async.Executors.ThreadsPriority)
+      .daemon(daemon)
+      .priority(priority)
       .build()
     
-    new ThreadPoolExecutor(
-      config.Async.Executors.Threads,
-      config.Async.Executors.Threads,
-      0L,
-      TimeUnit.MILLISECONDS,
-      new LinkedBlockingQueue[Runnable](config.Async.Executors.QueueCapacity),
-      threadFactory
-    )
+    Executors.newCachedThreadPool(threadFactory)
   }
   
   private def nextIndex(): Int = synchronized {
@@ -273,7 +294,7 @@ final class Redis private[scredis] (
           -1
         }
       }
-      if(executeIndex >= 0) Future { executePipeline(executeIndex) }
+      if(executeIndex >= 0) execute { executePipeline(executeIndex) }
     } catch {
       case e: Throwable => logger.error("An unexpected error occurred", e)
     } finally {
@@ -293,7 +314,11 @@ final class Redis private[scredis] (
       val (future, executeIndex) = synchronized {
         val commands = this.commands.get(index)
         val future = try {
-          val promise = Promise[Any]()
+          /*
+           * Akka promises need explicit execution context.
+           * Cannot re-use internal execution context otherwise it can create deadlocks.
+           */
+          val promise = Promise[Any]()(ec)
           commands += ((body, opts, promise))
           promise.future.asInstanceOf[Future[A]]
         } catch {
@@ -311,7 +336,7 @@ final class Redis private[scredis] (
         }
         (future, executeIndex)
       }
-      if(executeIndex >= 0) Future { executePipeline(executeIndex) }
+      if(executeIndex >= 0) execute { executePipeline(executeIndex) }
       future
     } else {
       withClientAsync(body)
@@ -335,7 +360,7 @@ final class Redis private[scredis] (
   def borrowClient(): Client = pool.borrowClient()
   def returnClient(client: Client): Unit = pool.returnClient(client)
   def withClient[A](body: Client => A): A = pool.withClient(body)
-  def withClientAsync[A](body: Client => A): Future[A] = Future {
+  def withClientAsync[A](body: Client => A): Future[A] = execute {
     withClient(body)
   }
   
@@ -357,7 +382,7 @@ final class Redis private[scredis] (
    */
   override def select(
     db: Int
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Unit] = Future {
+  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Unit] = execute {
     selectInternal(db)
   }
   
@@ -375,7 +400,7 @@ final class Redis private[scredis] (
    */
   override def auth(password: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = Future {
+  ): Future[Unit] = execute {
     authInternal(if(password.isEmpty) None else Some(password))
   }
   
@@ -420,7 +445,7 @@ final class Redis private[scredis] (
     }
     
     try {
-      executorOpt.foreach { executor =>
+      internalExecutorOpt.foreach { executor =>
         executor.shutdown()
         awaitTerminationOpt.foreach { timeout =>
           if (timeout.isFinite) {
@@ -432,8 +457,17 @@ final class Redis private[scredis] (
       }
     } catch {
       case e: Throwable => logger.error(
-        "An error occurred while shutting down default executor", e
+        "An error occurred while shutting down internal executor", e
       )
+    }
+    if (shouldShutdownCallbackExecutor) {
+      try {
+        callbackExecutor.shutdown()
+      } catch {
+        case e: Throwable => logger.error(
+          "An error occurred while shutting down callback executor", e
+        )
+      }
     }
     try {
       pool.close()
@@ -444,7 +478,9 @@ final class Redis private[scredis] (
     }
   }
   
-  if(IsAutomaticPipeliningEnabled) nextIndex()
+  if (IsAutomaticPipeliningEnabled) {
+    nextIndex()
+  }
   
   timerTask.foreach {
     case (timer, task) => timer.scheduleAtFixedRate(task, Interval.toMillis, Interval.toMillis)
