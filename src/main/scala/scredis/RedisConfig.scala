@@ -176,17 +176,33 @@ class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
     val TimerThreadNamingPattern = async.getString("timer-thread-naming-pattern")
     
     object Executors {
-      val Threads = asyncExecutors.getInt("threads")
-      val QueueCapacity = asyncExecutors.getInt("queue-capacity")
-      val ThreadsNamingPattern = asyncExecutors.getString("threads-naming-pattern")
-      val DaemonThreads = asyncExecutors.getBoolean("daemon-threads")
-      val ThreadsPriority = asyncExecutors.getString("threads-priority").toLowerCase match {
-        case "min"    => Thread.MIN_PRIORITY
-        case "normal" => Thread.NORM_PRIORITY
-        case "max"    => Thread.MAX_PRIORITY
-        case _        => throw new IllegalArgumentException(
-          "threads-priority can only be min, normal or max"
-        )
+      object Internal {
+        private val config = asyncExecutors.getConfig("internal")
+        val MaxConcurrent = config.getInt("max-concurrent")
+        val ThreadsNamingPattern = config.getString("threads-naming-pattern")
+        val DaemonThreads = config.getBoolean("daemon-threads")
+        val ThreadsPriority = config.getString("threads-priority").toLowerCase match {
+          case "min"    => Thread.MIN_PRIORITY
+          case "normal" => Thread.NORM_PRIORITY
+          case "max"    => Thread.MAX_PRIORITY
+          case _        => throw new IllegalArgumentException(
+            "threads-priority can only be min, normal or max"
+          )
+        }
+      }
+      object Callback {
+        private val config = asyncExecutors.getConfig("callback")
+        val MaxConcurrent = config.getInt("max-concurrent")
+        val ThreadsNamingPattern = config.getString("threads-naming-pattern")
+        val DaemonThreads = config.getBoolean("daemon-threads")
+        val ThreadsPriority = config.getString("threads-priority").toLowerCase match {
+          case "min"    => Thread.MIN_PRIORITY
+          case "normal" => Thread.NORM_PRIORITY
+          case "max"    => Thread.MAX_PRIORITY
+          case _        => throw new IllegalArgumentException(
+            "threads-priority can only be min, normal or max"
+          )
+        }
       }
     }
   }

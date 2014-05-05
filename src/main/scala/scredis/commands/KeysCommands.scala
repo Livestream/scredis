@@ -20,7 +20,6 @@ import scredis.CommandOptions
 import scredis.protocol.Protocol
 import scredis.parsing._
 import scredis.parsing.Implicits._
-import scredis.util.ScanLikeIterator
 
 import scala.collection.mutable.ListBuffer
 
