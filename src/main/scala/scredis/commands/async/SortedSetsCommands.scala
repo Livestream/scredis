@@ -460,5 +460,23 @@ trait SortedSetsCommands extends Async {
   def zScore(key: String, member: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
   ): Future[Option[Double]] = async(_.zScore(key, member))
-
+  
+  /**
+   * Incrementally iterates the elements (value-score pairs) of a sorted set.
+   *
+   * @param cursor the offset
+   * @param countOpt when defined, provides a hint of how many elements should be returned
+   * @param matchOpt when defined, the command only returns elements matching the pattern
+   * @return a pair containing the next cursor as its first element and the sorted set of
+   * elements (value-score pairs) as its second element
+   *
+   * @since 2.8.0
+   */
+  def zScan[A](key: String)(
+    cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None
+  )(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    parser: Parser[A] = StringParser
+  ): Future[(Long, LinkedHashSet[(A, Double)])] = async(_.zScan(key)(cursor, countOpt, matchOpt))
+  
 }

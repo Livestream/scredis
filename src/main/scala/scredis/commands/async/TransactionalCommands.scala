@@ -33,8 +33,6 @@ import scala.util.Try
  */
 trait TransactionalCommands extends Async {
   
-  protected implicit val ec: ExecutionContext
-  
   protected def force(opts: CommandOptions): CommandOptions = CommandOptions(
     opts.timeout,
     opts.tries,
@@ -91,7 +89,8 @@ trait TransactionalCommands extends Async {
    */
   def pipelinedN[A, B[_] <: Traversable[_]](body: PipelineClient => B[Future[A]])(
     implicit opts: CommandOptions = DefaultCommandOptions,
-    cbf: CanBuildFrom[B[Future[A]], A, B[A]]
+    cbf: CanBuildFrom[B[Future[A]], A, B[A]],
+    ec: ExecutionContext
   ): Future[B[A]] = async(_.pipelinedN(body))(force(opts))
   
   /**
@@ -163,7 +162,8 @@ trait TransactionalCommands extends Async {
    */
   def transactionalN[A, B[_] <: Traversable[_]](body: TransactionalClient => B[Future[A]])(
     implicit opts: CommandOptions = DefaultCommandOptions,
-    cbf: CanBuildFrom[B[Future[A]], A, B[A]]
+    cbf: CanBuildFrom[B[Future[A]], A, B[A]],
+    ec: ExecutionContext
   ): Future[B[A]] = async(_.transactionalN(body))(force(opts))
   
   /**

@@ -21,6 +21,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import scredis.util.Logger
 import scredis.commands.async._
 import scredis.exceptions._
+import scredis.util.BlockingExecutor
 
 import scala.util.Failure
 import scala.collection.mutable.ListBuffer
@@ -134,18 +135,38 @@ final class Redis private[scredis] (
   private val logger = Logger(getClass)
   
   private val timerTask = if(IsAutomaticPipeliningEnabled) Some((
-    new Timer(config.Async.TimerThreadNamingPattern.replace("$p", PoolNumber)),
+    new Timer(
+      config.Async.TimerThreadNamingPattern.replace("$p", PoolNumber),
+      true
+    ),
     new TimerTask() {
       def run(): Unit = executePipelineIfNeeded()
     }
   )) else None
   
-  private val executor = ecOpt match {
+  private val internalExecutorOpt = ecOpt match {
     case Some(_) => None
-    case None => Some(newThreadPool())
+    case None => Some(
+      newThreadPool(
+        config.Async.Executors.Internal.ThreadsNamingPattern,
+        config.Async.Executors.Internal.DaemonThreads,
+        config.Async.Executors.Internal.ThreadsPriority
+      )
+    )
   }
+  private val interalExecutionContext = ecOpt.getOrElse(
+    BlockingExecutor(internalExecutorOpt.get, config.Async.Executors.Internal.MaxConcurrent)
+  )
   
-  implicit val ec = ecOpt.getOrElse(ExecutionContext.fromExecutorService(executor.get))
+  private var shouldShutdownCallbackExecutor = false
+  private lazy val callbackExecutor: ExecutorService = {
+    shouldShutdownCallbackExecutor = true
+    newThreadPool(
+      config.Async.Executors.Callback.ThreadsNamingPattern,
+      config.Async.Executors.Callback.DaemonThreads,
+      config.Async.Executors.Callback.ThreadsPriority
+    )
+  }
   
   private val pool = ClientPool(config)
 
@@ -164,22 +185,26 @@ final class Redis private[scredis] (
     config.Client.Sleep
   )
   
-  private def newThreadPool(): ExecutorService = {
+  lazy implicit val ec = ecOpt.getOrElse(
+    BlockingExecutor(callbackExecutor, config.Async.Executors.Callback.MaxConcurrent)
+  )
+  
+  private def execute[A](f: => A): Future[A] = Future {
+    f
+  }(interalExecutionContext)
+  
+  private def newThreadPool(
+    namingPattern: String, daemon: Boolean, priority: Int
+  ): ExecutorService = {
     val threadFactory = new BasicThreadFactory.Builder()
       .namingPattern(
-        config.Async.Executors.ThreadsNamingPattern.replace("$p", PoolNumber).replace("$t", "%d")
+        namingPattern.replace("$p", PoolNumber).replace("$t", "%d")
       )
-      .priority(config.Async.Executors.ThreadsPriority)
+      .daemon(daemon)
+      .priority(priority)
       .build()
     
-    new ThreadPoolExecutor(
-      config.Async.Executors.Threads,
-      config.Async.Executors.Threads,
-      0L,
-      TimeUnit.MILLISECONDS,
-      new LinkedBlockingQueue[Runnable](config.Async.Executors.QueueCapacity),
-      threadFactory
-    )
+    Executors.newCachedThreadPool(threadFactory)
   }
   
   private def nextIndex(): Int = synchronized {
@@ -264,7 +289,7 @@ final class Redis private[scredis] (
           -1
         }
       }
-      if(executeIndex >= 0) Future { executePipeline(executeIndex) }
+      if(executeIndex >= 0) execute { executePipeline(executeIndex) }
     } catch {
       case e: Throwable => logger.error("An unexpected error occurred", e)
     } finally {
@@ -302,7 +327,7 @@ final class Redis private[scredis] (
         }
         (future, executeIndex)
       }
-      if(executeIndex >= 0) Future { executePipeline(executeIndex) }
+      if(executeIndex >= 0) execute { executePipeline(executeIndex) }
       future
     } else {
       withClientAsync(body)
@@ -322,35 +347,11 @@ final class Redis private[scredis] (
     flushAutomaticPipeline()
     pool.auth(passwordOpt)
   }
-  
-  private[scredis] def closeInternal(): Unit = synchronized {
-    shouldShutdown = true
-    flushAutomaticPipeline()
-    while(this.commands.size > 1) Thread.sleep(100)
-    
-    timerTask.foreach {
-      case (timer, task) => {
-        task.cancel()
-        timer.cancel()
-      }
-    }
-    
-    try {
-      pool.close()
-    } catch {
-      case e: Throwable =>
-    }
-    try {
-      executor.foreach(_.shutdown())
-    } catch {
-      case e: Throwable =>
-    }
-  }
 
   def borrowClient(): Client = pool.borrowClient()
   def returnClient(client: Client): Unit = pool.returnClient(client)
   def withClient[A](body: Client => A): A = pool.withClient(body)
-  def withClientAsync[A](body: Client => A): Future[A] = Future {
+  def withClientAsync[A](body: Client => A): Future[A] = execute {
     withClient(body)
   }
   
@@ -372,7 +373,7 @@ final class Redis private[scredis] (
    */
   override def select(
     db: Int
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Unit] = Future {
+  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Unit] = execute {
     selectInternal(db)
   }
   
@@ -390,7 +391,7 @@ final class Redis private[scredis] (
    */
   override def auth(password: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = Future {
+  ): Future[Unit] = execute {
     authInternal(if(password.isEmpty) None else Some(password))
   }
   
@@ -407,16 +408,70 @@ final class Redis private[scredis] (
   )(implicit opts: CommandOptions = DefaultCommandOptions): Unit = selectInternal(db)
   
   /**
-   * Closes all connections, including internal pool and shut down the default execution context.
+   * Gracefully shuts down this [[scredis.Redis]] instance. Flushes all queued commands, gracefully
+   * terminates the default executor (optionally awaiting for its termination) and closes all
+   * connections to the target `Redis` server.
    * 
    * @note If you provided your own execution context using `withExecutionContext()`, it will not
    * be shutdown by this method. It is your responsibility to do so.
-   *
+   * 
+   * @param awaitTerminationOpt when provided with a [[scala.concurrent.duration.Duration]], the
+   * method waits until either the executor is fully terminated or a timeout occurs. The duration
+   * can be infinite.
+   * 
    * @since 1.0.0
    */
-  def quit(): Unit = closeInternal()
+  def quit(awaitTerminationOpt: Option[Duration] = Some(1 second)): Unit = synchronized {
+    shouldShutdown = true
+    flushAutomaticPipeline()
+    while (this.commands.size > 1) {
+      Thread.sleep(100)
+    }
+    
+    timerTask.foreach {
+      case (timer, task) => {
+        task.cancel()
+        timer.cancel()
+      }
+    }
+    
+    try {
+      internalExecutorOpt.foreach { executor =>
+        executor.shutdown()
+        awaitTerminationOpt.foreach { timeout =>
+          if (timeout.isFinite) {
+            executor.awaitTermination(timeout.toNanos, TimeUnit.NANOSECONDS)
+          } else {
+            executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS)
+          }
+        }
+      }
+    } catch {
+      case e: Throwable => logger.error(
+        "An error occurred while shutting down internal executor", e
+      )
+    }
+    if (shouldShutdownCallbackExecutor) {
+      try {
+        callbackExecutor.shutdown()
+      } catch {
+        case e: Throwable => logger.error(
+          "An error occurred while shutting down callback executor", e
+        )
+      }
+    }
+    try {
+      pool.close()
+    } catch {
+      case e: Throwable => logger.error(
+        "An error occurred while shutting down the internal pool", e
+      )
+    }
+  }
   
-  if(IsAutomaticPipeliningEnabled) nextIndex()
+  if (IsAutomaticPipeliningEnabled) {
+    nextIndex()
+  }
   
   timerTask.foreach {
     case (timer, task) => timer.scheduleAtFixedRate(task, Interval.toMillis, Interval.toMillis)

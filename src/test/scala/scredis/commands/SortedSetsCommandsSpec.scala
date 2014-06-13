@@ -1023,6 +1023,94 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
       }
     }
   }
+  
+  ZScan when {
+    "the key does not exist" should {
+      "return an empty set" taggedAs (V280) in {
+        val (next, set) = redis.zScan[String]("NONEXISTENTKEY")(0).!
+        next must be(0)
+        set must be ('empty)
+      }
+    }
+    "the key does not contain a sorted set" should {
+      "return an error" taggedAs (V280) in {
+        evaluating { redis.zScan[String]("HASH")(0) } must produce[RedisCommandException]
+      }
+    }
+    "the sorted set contains 5 elements" should {
+      "return all elements" taggedAs (V280) in {
+        for (i <- 1 to 5) {
+          redis.zAdd("SSET", ("value" + i, i)).!
+        }
+        val (next, set) = redis.zScan[String]("SSET")(0).!
+        next must be(0)
+        set must (
+          contain(("value1", 1.0)) and
+          contain(("value2", 2.0)) and
+          contain(("value3", 3.0)) and
+          contain(("value4", 4.0)) and
+          contain(("value5", 5.0))
+        )
+        for (i <- 1 to 10) {
+          redis.zAdd("SSET", ("foo" + i, 5 + i)).!
+        }
+      }
+    }
+    "the sorted set contains 15 elements" should {
+      val full = LinkedHashSet.newBuilder[(String, Double)]
+      for (i <- 1 to 5) {
+        full += (("value" + i, i))
+      }
+      for (i <- 1 to 10) {
+        full += (("foo" + i, 5 + i))
+      }
+      val fullSet = full.result()
+      
+      Given("that no pattern is set")
+      "return all elements" taggedAs (V280) in {
+        val elements = LinkedHashSet.newBuilder[(String, Double)]
+        var cursor = 0L
+        do {
+          val (next, set) = redis.zScan[String]("SSET")(cursor).!
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.result() must be(fullSet)
+      }
+      Given("that a pattern is set")
+      "return all matching elements" taggedAs (V280) in {
+        val elements = LinkedHashSet.newBuilder[(String, Double)]
+        var cursor = 0L
+        do {
+          val (next, set) = redis.zScan[String]("SSET")(cursor, matchOpt = Some("foo*")).!
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.result() must be(fullSet.filter {
+          case (value, score) => value.startsWith("foo")
+        })
+      }
+      Given("that a pattern is set and count is set to 100")
+      "return all matching elements in one iteration" taggedAs (V280) in {
+        val elements = LinkedHashSet.newBuilder[(String, Double)]
+        var cursor = 0L
+        do {
+          val (next, set) = redis.zScan[String]("SSET")(
+            cursor, matchOpt = Some("foo*"), countOpt = Some(100)
+          ).!
+          set.size must be(10)
+          elements ++= set
+          cursor = next
+        }
+        while (cursor > 0)
+        elements.result() must be(fullSet.filter {
+          case (value, score) => value.startsWith("foo")
+        })
+      }
+    }
+  }
 
   override def afterAll() {
     redis.flushDb().!

@@ -69,6 +69,7 @@ private[scredis] object Names {
   val Sort = "SORT"
   val Ttl = "TTL"
   val Type = "TYPE"
+  val Scan = "SCAN"
 
   // Strings commands
   val Append = "APPEND"
@@ -109,6 +110,7 @@ private[scredis] object Names {
   val HSet = "HSET"
   val HSetNX = "HSETNX"
   val HVals = "HVALS"
+  val HScan = "HSCAN"
 
   // Lists commands
   val BLPop = "BLPOP"
@@ -144,6 +146,7 @@ private[scredis] object Names {
   val SRem = "SREM"
   val SUnion = "SUNION"
   val SUnionStore = "SUNIONSTORE"
+  val SScan = "SSCAN"
 
   // Sorted sets commands
   val ZAdd = "ZADD"
@@ -162,6 +165,7 @@ private[scredis] object Names {
   val ZRevRank = "ZREVRANK"
   val ZScore = "ZSCORE"
   val ZUnionStore = "ZUNIONSTORE"
+  val ZScan = "ZSCAN"
 
   // Scripting commands
   val Eval = "EVAL"

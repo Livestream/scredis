@@ -3,10 +3,10 @@
 Scredis is an advanced [Redis](http://redis.io) client entirely written in Scala. It has been (and still is) extensively used in production at Livestream.
 
 * [Documentation](https://github.com/Livestream/scredis/wiki)
-* [Scaladoc](http://livestream.github.io/scredis/)
+* [Scaladoc](http://livestream.github.io/scredis/api/snapshot/)
 
 ## Features
-* Supports all Redis 2.6.x commands
+* Supports all Redis commands up to v2.8.x
 * Native Scala types and customizable parsing
 * Asynchronous and synchronous commands processing
 * Transactions, pipelining and configurable automatic pipelining
@@ -21,7 +21,7 @@ Scredis is compatible with Scala 2.9.x and 2.10.x. Binary releases are hosted on
 ```scala
 resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
-libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.0.1")
+libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.1.2")
 ```
 
 Snapshots are hosted on a separate repository.
@@ -29,7 +29,7 @@ Snapshots are hosted on a separate repository.
 ```scala
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.0.1-SNAPSHOT")
+libraryDependencies ++= Seq("com.livestream" %% "scredis" % "1.1.3-SNAPSHOT")
 ```
 
 ### Quick example
@@ -40,10 +40,10 @@ import scala.util.{ Success, Failure }
 // See reference.conf for the complete list of configurable parameters.
 val redis = Redis()
 
-// Import the default execution context for working with futures
+// Imports the lazily initialized callback execution context to register callbacks
 import redis.ec
 
-// Futures handling
+// Registering callbacks on returned Futures
 redis.hGetAll("my-hash") onComplete {
   case Success(content) => println(content)
   case Failure(e) => e.printStackTrace()
@@ -59,7 +59,7 @@ redis.pipelined { p =>
 redis.sync(_.blPop(0, "queue"))
 redis.withClient(_.blPop(0, "queue"))
 
-// Disconnects all internal clients and shutdown the default execution context
+// Disconnects all internal clients and shutdown the default internal thread pool
 redis.quit()
 ```
 

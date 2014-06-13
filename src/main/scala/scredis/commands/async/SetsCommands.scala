@@ -185,7 +185,7 @@ trait SetsCommands extends Async {
   def sMembers[A](key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Set[String]] = async(_.sMembers(key))
+  ): Future[Set[A]] = async(_.sMembers(key))
 
   /**
    * Moves a member from one set to another.
@@ -266,5 +266,23 @@ trait SetsCommands extends Async {
   def sRem(key: String, member: Any, members: Any*)(
     implicit opts: CommandOptions = DefaultCommandOptions
   ): Future[Long] = async(_.sRem(key, member, members: _*))
-
+  
+  /**
+   * Incrementally iterates the elements of a set.
+   *
+   * @param cursor the offset
+   * @param countOpt when defined, provides a hint of how many elements should be returned
+   * @param matchOpt when defined, the command only returns elements matching the pattern
+   * @return a pair containing the next cursor as its first element and the set of elements
+   * as its second element
+   *
+   * @since 2.8.0
+   */
+  def sScan[A](key: String)(
+    cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None
+  )(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    parser: Parser[A] = StringParser
+  ): Future[(Long, Set[A])] = async(_.sScan(key)(cursor, countOpt, matchOpt))
+  
 }

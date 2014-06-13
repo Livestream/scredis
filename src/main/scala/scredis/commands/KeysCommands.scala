@@ -92,7 +92,7 @@ trait KeysCommands { self: Protocol =>
   /**
    * Sets a key's time to live in seconds.
    *
-   * @param key  key to expire
+   * @param key key to expire
    * @param ttlSeconds time-to-live in seconds
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -106,7 +106,7 @@ trait KeysCommands { self: Protocol =>
   /**
    * Sets a key's time to live in milliseconds.
    *
-   * @param key  key to expire
+   * @param key key to expire
    * @param ttlMillis time-to-live in milliseconds
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -120,7 +120,7 @@ trait KeysCommands { self: Protocol =>
   /**
    * Sets a key's time to live.
    *
-   * @param key  key to expire
+   * @param key key to expire
    * @param ttl duration after which the key should expire, up to milliseconds precision
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -134,7 +134,7 @@ trait KeysCommands { self: Protocol =>
   /**
    * Sets the expiration for a key as a UNIX timestamp.
    *
-   * @param  key key to expire
+   * @param key key to expire
    * @param timestamp  UNIX timestamp at which the key should expire
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -353,42 +353,125 @@ trait KeysCommands { self: Protocol =>
 
   /**
    * Gets the time to live for a key in seconds.
-   *
-   * @param key key to persist
-   * @return time-to-live in seconds for specified key, or $none if key does not exist or does not
-   * have a ttl
+   * 
+   * {{{
+   * result match {
+   *   case Left(false) => // key does not exist
+   *   case Left(true) => // key exists but has no associated expire
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @note For `Redis` version <= 2.8.x, `Left(false)` will be returned when the key does not
+   * exists and when it exists but has no associated expire (`Redis` returns the same error code
+   * for both cases). In other words, you can simply check the following
+   * 
+   * {{{
+   * result match {
+   *   case Left(_) =>
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @param key the target key
+   * @return `Right(ttl)` where ttl is the time-to-live in seconds for specified key,
+   * `Left(false)` if key does not exist or `Left(true)` if key exists but has no associated
+   * expire
    *
    * @since 1.0.0
    */
-  def ttl(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Option[Int] =
-    send(Ttl, key)(asInteger(toOptionalInt))
+  def ttl(key: String)(
+    implicit opts: CommandOptions = DefaultCommandOptions
+  ): Either[Boolean, Int] = send(Ttl, key)(asInteger { x =>
+    if (x == -2) {
+      Left(false)
+    } else if (x == -1) {
+      Left(true)
+    } else {
+      Right(x.toInt)
+    }
+  })
 
   /**
    * Gets the time to live for a key in milliseconds.
-   *
-   * @param key key to persist
-   * @return time-to-live in milliseconds for specified key, or $none if key does not exist or does
-   * not have a ttl
+   * 
+   * {{{
+   * result match {
+   *   case Left(false) => // key does not exist
+   *   case Left(true) => // key exists but has no associated expire
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @note For `Redis` version <= 2.8.x, `Left(false)` will be returned when the key does not
+   * exists and when it exists but has no associated expire (`Redis` returns the same error code
+   * for both cases). In other words, you can simply check the following
+   * 
+   * {{{
+   * result match {
+   *   case Left(_) =>
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @param key the target key
+   * @return `Right(ttl)` where ttl is the time-to-live in milliseconds for specified key,
+   * `Left(false)` if key does not exist or `Left(true)` if key exists but has no associated
+   * expire
    *
    * @since 2.6.0
    */
-  def pTtl(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Option[Long] =
-    send(PTtl, key)(asInteger(toOptionalLong))
+  def pTtl(key: String)(
+    implicit opts: CommandOptions = DefaultCommandOptions
+  ): Either[Boolean, Long] = send(PTtl, key)(asInteger { x =>
+    if (x == -2) {
+      Left(false)
+    } else if (x == -1) {
+      Left(true)
+    } else {
+      Right(x)
+    }
+  })
 
   /**
-   * Gets the time to live for a key.
-   *
-   * @param key key to persist
-   * @return time-to-live for specified key or $none if key does not exist or does not have a ttl
+   * Gets the time to live `FiniteDuration` for a key.
+   * 
+   * {{{
+   * result match {
+   *   case Left(false) => // key does not exist
+   *   case Left(true) => // key exists but has no associated expire
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @note For `Redis` version <= 2.8.x, `Left(false)` will be returned when the key does not
+   * exists and when it exists but has no associated expire (`Redis` returns the same error code
+   * for both cases). In other words, you can simply check the following
+   * 
+   * {{{
+   * result match {
+   *   case Left(_) =>
+   *   case Right(ttl) =>
+   * }
+   * }}}
+   * 
+   * @param key the target key
+   * @return `Right(ttl)` where ttl is the time-to-live `FiniteDuration` for specified key,
+   * `Left(false)` if key does not exist or `Left(true)` if key exists but has no associated expire
    *
    * @since 2.6.0
    */
   def ttlDuration(key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Option[FiniteDuration] = send(PTtl, key)(asInteger(x => x match {
-    case -1 => None
-    case x => Some(x milliseconds)
-  }))
+  ): Either[Boolean, FiniteDuration] = send(PTtl, key)(asInteger { x =>
+    if (x == -2) {
+      Left(false)
+    } else if (x == -1) {
+      Left(true)
+    } else {
+      Right(x milliseconds)
+    }
+  })
 
   /**
    * Determine the type stored at key.
@@ -405,5 +488,23 @@ trait KeysCommands { self: Protocol =>
    */
   def `type`(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Option[String] =
     send(Type, key)(asStatus(x => if (x.toLowerCase() == "none") None else Some(x)))
-
+  
+  /**
+   * Incrementally iterates the set of keys in the currently selected Redis database.
+   *
+   * @param cursor the offset
+   * @param countOpt when defined, provides a hint of how many elements should be returned
+   * @param matchOpt when defined, the command only returns elements matching the pattern
+   * @return a pair containing the next cursor as its first element and the set of keys
+   * as its second element
+   *
+   * @since 2.8.0
+   */
+  def scan[A](cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None)(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    parser: Parser[A] = StringParser
+  ): (Long, Set[A]) = send(
+    generateScanLikeArgs(Scan, None, cursor, countOpt, matchOpt): _*
+  )(asScanMultiBulk[A, Set])
+  
 }

@@ -22,6 +22,7 @@ import scredis.parsing.Implicits._
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.HashSet
+import scala.collection.mutable.ListBuffer
 
 /**
  * This trait implements hashes commands.
@@ -289,5 +290,25 @@ trait HashesCommands { self: Protocol =>
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
   ): List[A] = send(HVals, key)(asMultiBulk[A, A, List](asBulk[A, A](flatten)))
-
+  
+  /**
+   * Incrementally iterates through the fields of a hash.
+   *
+   * @param cursor the offset
+   * @param countOpt when defined, provides a hint of how many elements should be returned
+   * @param matchOpt when defined, the command only returns elements matching the pattern
+   * @return a pair containing the next cursor as its first element and the list of fields
+   * (key-value pairs) as its second element
+   *
+   * @since 2.8.0
+   */
+  def hScan[A](key: String)(
+    cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None
+  )(
+    implicit opts: CommandOptions = DefaultCommandOptions,
+    parser: Parser[A] = StringParser
+  ): (Long, Set[(String, A)]) = send(
+    generateScanLikeArgs(HScan, Some(key), cursor, countOpt, matchOpt): _*
+  )(asScanMultiBulk[Set[(String, A)]](toPairsList[String, A](_).toSet))
+  
 }

@@ -1,10 +1,14 @@
+import SiteKeys._
+import GhPagesKeys._
+import GitKeys._
+
 organization := "com.livestream"
 
 name := "scredis"
 
-version := "1.0.1"
+version := "1.1.2"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.4"
 
 scalacOptions ++= Seq("-deprecation")
 
@@ -13,8 +17,8 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.5",
   "org.apache.commons" % "commons-lang3" % "3.1",
   "commons-pool" % "commons-pool" % "1.6",
-  "com.typesafe" % "config" % "1.0.0",
-  "com.typesafe.akka" %% "akka-actor" % "2.2.3",
+  "com.typesafe" % "config" % "1.2.0",
+  "com.typesafe.akka" %% "akka-actor" % "2.3.3",
   "com.codahale.metrics" % "metrics-core" % "3.0.1",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
@@ -63,6 +67,17 @@ site.settings
 
 ghpages.settings
 
-git.remoteRepo := "git@github.com:Livestream/scredis.git"
+siteMappings <++= (mappings in packageDoc in Compile, version) map { (m, v) =>
+  for ((f, d) <- m) yield (
+    f,
+    if (v.trim.endsWith("SNAPSHOT")) ("api/snapshot/" + d) else ("api/"+v+"/"+d)
+  )
+}
 
-site.includeScaladoc("")
+synchLocal <<= (privateMappings, updatedRepository, gitRunner, streams) map { (mappings, repo, git, s) =>
+  val betterMappings = mappings map { case (file, target) => (file, repo / target) }
+  IO.copy(betterMappings)
+  repo
+}
+
+git.remoteRepo := "git@github.com:Livestream/scredis.git"

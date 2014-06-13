@@ -113,6 +113,29 @@ trait Protocol {
     )
   }
   
+  protected def generateScanLikeArgs(
+    name: String,
+    keyOpt: Option[String],
+    cursor: Long,
+    countOpt: Option[Int],
+    matchOpt: Option[String]
+  ): Seq[Any] = {
+    val args = ListBuffer[Any](name)
+    keyOpt.foreach { key =>
+      args += key
+    }
+    args += cursor
+    countOpt.foreach { count =>
+      args += "COUNT"
+      args += count
+    }
+    matchOpt.foreach { pattern =>
+      args += "MATCH"
+      args += pattern
+    }
+    args.toList
+  }
+  
   protected def send(data: Array[Byte]): Unit = {
     logger.debug(s"Sending command: ${StringParser.parse(data)}")
     connection.write(data)
@@ -341,6 +364,41 @@ trait Protocol {
       case n => for(i <- 1 to n) builder += receive(asBulkOrNestedMultiBulk(parser, cbf))
     }
     builder.result
+  }
+  
+  private[scredis] def asScanMultiBulk[A, B[X] <: Traversable[X]](
+    replyType: Char, bytes: Array[Byte]
+  )(
+    implicit parser: Parser[A],
+    cbf: CanBuildFrom[Nothing, A, B[A]]
+  ): (Long, B[A]) = {
+    checkReplyType(replyType, MultiBulkReply)
+    intParser.parse(bytes) match {
+      case x if x <= 0 => throw RedisProtocolException(
+        "Unexpected length received for scan multi bulk reply: %d", x
+      )
+      case n => {
+        val next = receive(asBulk[Long]).get
+        val set = receive(asMultiBulk[A, A, B](asBulk[A, A](flatten)))
+        (next, set)
+      }
+    }
+  }
+  
+  private[scredis] def asScanMultiBulk[A](to: List[Option[Array[Byte]]] => A)(
+    replyType: Char, bytes: Array[Byte]
+  ): (Long, A) = {
+    checkReplyType(replyType, MultiBulkReply)
+    intParser.parse(bytes) match {
+      case x if x <= 0 => throw RedisProtocolException(
+        "Unexpected length received for scan multi bulk reply: %d", x
+      )
+      case n => {
+        val next = receive(asBulk[Long]).get
+        val set = receive(asMultiBulk[A](to))
+        (next, set)
+      }
+    }
   }
 
   private[scredis] def toBoolean(integer: Long): Boolean = (integer > 0)
