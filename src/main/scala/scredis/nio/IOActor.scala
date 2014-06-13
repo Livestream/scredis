@@ -78,10 +78,10 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     val buffer = bufferPool.acquire(length)
     batch.foreach { r =>
       buffer.put(r.encoded)
-      if (r.isInstanceOf[scredis.protocol.NullaryRequest[_]]) {
-        r.encoded.rewind()
-      } else {
+      if (r.hasArguments) {
         scredis.protocol.NioProtocol.bufferPool.release(r.encoded)
+      } else {
+        r.encoded.rewind()
       }
     }
     buffer.flip()

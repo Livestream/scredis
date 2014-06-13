@@ -22,9 +22,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
   private val requests = MQueue[Request[_]]()
   
   private val router = context.actorOf(
-    Props[DecoderActor]
-      .withDispatcher("scredis.decoder-dispatcher")
-      .withRouter(RoundRobinRouter(nrOfInstances = 2))
+    SmallestMailboxPool(3).props(Props[DecoderActor]).withDispatcher("scredis.decoder-dispatcher")
   )
   
   private val tellTimer = scredis.protocol.NioProtocol.metrics.timer(
@@ -48,10 +46,9 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
       }
       
       val buffer = completedData.asByteBuffer
-      var count = NioProtocol.count(buffer)
+      val repliesCount = NioProtocol.count(buffer)
       val position = buffer.position
-      
-      scredis.protocol.NioProtocol.concurrent.release(count)
+      scredis.protocol.NioProtocol.concurrent.release(repliesCount)
       
       val trimmedData = if (buffer.remaining > 0) {
         remainingByteStringOpt = Some(ByteString(buffer))
@@ -61,7 +58,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
       }
       
       val requests = ListBuffer[Request[_]]()
-      for (i <- 1 to count) {
+      for (i <- 1 to repliesCount) {
         requests += this.requests.dequeue()
       }
       

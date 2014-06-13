@@ -26,7 +26,7 @@ object Nio {
     
     val start = System.currentTimeMillis
     val f = Future.traverse(range)(i => {
-      NioProtocol.send(Get("key"))(target)
+      NioProtocol.send(LRange("list", 0, -1))(target)
     })(List.canBuildFrom, ec)
     println("QUEUING DONE")
     Await.ready(

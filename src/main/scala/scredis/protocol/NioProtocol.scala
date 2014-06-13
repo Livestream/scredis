@@ -66,8 +66,15 @@ object NioProtocol {
   
   private def parseInteger(buffer: ByteBuffer): Int = {
     var length: Int = 0
+    var isPositive = true
     
     var char = buffer.get()
+    
+    if (char == '-') {
+      isPositive = false
+      char = buffer.get()
+    }
+    
     while (char != '\r') {
       length = (length * 10) + (char - '0')
       char = buffer.get()
@@ -75,13 +82,24 @@ object NioProtocol {
     
     // skip \n
     buffer.get()
-    length
+    if (isPositive) {
+      length
+    } else {
+      -length
+    }
   }
   
   private def parseLong(buffer: ByteBuffer): Long = {
     var length: Long = 0
+    var isPositive = true
     
     var char = buffer.get()
+    
+    if (char == '-') {
+      isPositive = false
+      char = buffer.get()
+    }
+    
     while (char != '\r') {
       length = (length * 10) + (char - '0')
       char = buffer.get()
@@ -89,7 +107,11 @@ object NioProtocol {
     
     // skip \n
     buffer.get()
-    length
+    if (isPositive) {
+      length
+    } else {
+      -length
+    }
   }
   
   private def parseString(buffer: ByteBuffer): String = {
@@ -155,7 +177,10 @@ object NioProtocol {
       } else if (char == BulkReplyByte) {
         position = buffer.position - 1
         try {
-          val length = parseInteger(buffer) + 2
+          val length = parseInteger(buffer) match {
+            case -1 => 0
+            case x => x + 2
+          }
           if (buffer.remaining >= length) {
             buffer.position(buffer.position + length)
             incr()
@@ -168,7 +193,12 @@ object NioProtocol {
       } else if (char == MultiBulkReplyByte) {
         multiBulkPosition = buffer.position - 1
         try {
-          multiBulkCount = parseInteger(buffer)
+          val length = parseInteger(buffer)
+          if (length <= 0) {
+            incr()
+          } else {
+            multiBulkCount = length
+          }
         } catch {
           case e: java.nio.BufferUnderflowException => fail()
         }
@@ -182,6 +212,7 @@ object NioProtocol {
         buffer.position(position)
       }
     }
+    
     requests
   }
   

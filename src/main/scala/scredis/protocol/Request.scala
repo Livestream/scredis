@@ -5,7 +5,7 @@ import scala.concurrent.Promise
 
 import java.nio.ByteBuffer
 
-abstract class Request[A](command: Command, args: List[Any]) {
+abstract class Request[A](command: Command, args: Any*) {
   private val promise = Promise[A]()
   private var _encoded: ByteBuffer = null
   val future = promise.future
@@ -13,7 +13,7 @@ abstract class Request[A](command: Command, args: List[Any]) {
   protected def decode: PartialFunction[Reply, A]
   
   private[scredis] def encode(): Unit = {
-    _encoded = command.encode(args)
+    _encoded = command.encode(args.toList)
   }
   
   private[scredis] def encoded: ByteBuffer = _encoded
@@ -28,6 +28,6 @@ abstract class Request[A](command: Command, args: List[Any]) {
     case Failure(e) => promise.failure(e)
   }
   
+  def hasArguments = args.size > 0
+  
 }
-
-abstract class NullaryRequest[A](command: Command) extends Request[A](command, Nil)
