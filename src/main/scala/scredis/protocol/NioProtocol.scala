@@ -21,13 +21,13 @@ object NioProtocol {
     
   private val CrByte = '\r'.toByte
   private val CfByte = '\n'.toByte
-  private val StatusReplyByte = '+'.toByte
+  private val SimpleStringReplyByte = '+'.toByte
   private val ErrorReplyByte = '-'.toByte
   private val IntegerReplyByte = ':'.toByte
-  private val BulkReplyByte = '$'.toByte
-  private val BulkReplyLength = 1
-  private val MultiBulkReplyByte = '*'.toByte
-  private val MultiBulkReplyLength = 1
+  private val BulkStringReplyByte = '$'.toByte
+  private val BulkStringReplyLength = 1
+  private val ArrayReplyByte = '*'.toByte
+  private val ArrayReplyLength = 1
   
   private val CrLf = "\r\n".getBytes(Encoding)
   private val CrLfLength = CrLf.length
@@ -40,12 +40,15 @@ object NioProtocol {
   def encode(args: Seq[Any]): ByteBuffer = {
     val argsSize = args.size.toString.getBytes(Encoding)
     
-    var length = MultiBulkReplyLength + argsSize.length + CrLfLength
+    var length = ArrayReplyLength + argsSize.length + CrLfLength
     
     val serializedArgs = args.map { arg =>
-      val serializedArg = arg.toString.getBytes(Encoding)
+      val serializedArg = arg match {
+        case x: Array[Byte] => x
+        case x => arg.toString.getBytes(Encoding)
+      }
       val serializedArgSize = serializedArg.length.toString.getBytes(Encoding)
-      length += BulkReplyLength +
+      length += BulkStringReplyLength +
         serializedArgSize.length +
         CrLfLength +
         serializedArg.length +
@@ -55,9 +58,9 @@ object NioProtocol {
     
     val buffer = bufferPool.acquire(length)
     
-    buffer.put(MultiBulkReplyByte).put(argsSize).put(CrLf)
+    buffer.put(BulkStringReplyByte).put(argsSize).put(CrLf)
     for ((serializedArg, serializedArgSize) <- serializedArgs) {
-      buffer.put(BulkReplyByte).put(serializedArgSize).put(CrLf).put(serializedArg).put(CrLf)
+      buffer.put(BulkStringReplyByte).put(serializedArgSize).put(CrLf).put(serializedArg).put(CrLf)
     }
     
     buffer.flip()
@@ -126,7 +129,7 @@ object NioProtocol {
     new String(bytes.result(), "UTF-8")
   }
   
-  private def decodeBulkReply(buffer: ByteBuffer): BulkReply = {
+  private def decodeBulkStringReply(buffer: ByteBuffer): BulkStringReply = {
     val length = parseInteger(buffer)
     val valueOpt = if (length > 0) {
       val array = new Array[Byte](length)
@@ -137,23 +140,23 @@ object NioProtocol {
     } else {
       None
     }
-    BulkReply(valueOpt)
+    BulkStringReply(valueOpt)
   }
   
   def count(buffer: ByteBuffer): Int = {
     var char: Byte = 0
     var requests = 0
-    var multiBulkCount = 0
+    var arrayCount = 0
     var position = -1
-    var multiBulkPosition = -1
+    var arrayPosition = -1
     var isFragmented = false
     
     @inline
-    def incr(): Unit = if (multiBulkCount > 0) {
-      multiBulkCount -= 1
-      if (multiBulkCount == 0) {
+    def incr(): Unit = if (arrayCount > 0) {
+      arrayCount -= 1
+      if (arrayCount == 0) {
         requests += 1
-        multiBulkPosition = -1
+        arrayPosition = -1
       }
     } else {
       requests += 1
@@ -164,7 +167,7 @@ object NioProtocol {
     
     while (buffer.remaining > 0 && !isFragmented) {
       char = buffer.get()
-      if (char == ErrorReplyByte || char == StatusReplyByte || char == IntegerReplyByte) {
+      if (char == ErrorReplyByte || char == SimpleStringReplyByte || char == IntegerReplyByte) {
         position = buffer.position - 1
         while (buffer.remaining > 0 && char != '\n') {
           char = buffer.get()
@@ -174,7 +177,7 @@ object NioProtocol {
         } else {
           fail()
         }
-      } else if (char == BulkReplyByte) {
+      } else if (char == BulkStringReplyByte) {
         position = buffer.position - 1
         try {
           val length = parseInteger(buffer) match {
@@ -190,14 +193,14 @@ object NioProtocol {
         } catch {
           case e: java.nio.BufferUnderflowException => fail()
         }
-      } else if (char == MultiBulkReplyByte) {
-        multiBulkPosition = buffer.position - 1
+      } else if (char == ArrayReplyByte) {
+        arrayPosition = buffer.position - 1
         try {
           val length = parseInteger(buffer)
           if (length <= 0) {
             incr()
           } else {
-            multiBulkCount = length
+            arrayCount = length
           }
         } catch {
           case e: java.nio.BufferUnderflowException => fail()
@@ -206,8 +209,8 @@ object NioProtocol {
     }
     
     if (isFragmented) {
-      if (multiBulkPosition >= 0) {
-        buffer.position(multiBulkPosition)
+      if (arrayPosition >= 0) {
+        buffer.position(arrayPosition)
       } else {
         buffer.position(position)
       }
@@ -217,11 +220,11 @@ object NioProtocol {
   }
   
   def decode(buffer: ByteBuffer): Reply = buffer.get() match {
-    case ErrorReplyByte     => ErrorReply(parseString(buffer))
-    case StatusReplyByte    => StatusReply(parseString(buffer))
-    case IntegerReplyByte   => IntegerReply(parseLong(buffer))
-    case BulkReplyByte      => decodeBulkReply(buffer)
-    case MultiBulkReplyByte => MultiBulkReply(parseInteger(buffer), buffer)
+    case ErrorReplyByte         => ErrorReply(parseString(buffer))
+    case SimpleStringReplyByte  => SimpleStringReply(parseString(buffer))
+    case IntegerReplyByte       => IntegerReply(parseLong(buffer))
+    case BulkStringReplyByte    => decodeBulkStringReply(buffer)
+    case ArrayReplyByte         => ArrayReply(parseInteger(buffer), buffer)
   }
   
   def send[A](request: Request[A])(implicit encoderActor: ActorRef): Future[A] = {

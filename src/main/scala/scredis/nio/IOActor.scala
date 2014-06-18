@@ -170,7 +170,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
       stop()
     }
     case request: Request[_] => {
-      request.complete(Failure(ClosingException))
+      request.failure(ClosingException)
     }
   }
   

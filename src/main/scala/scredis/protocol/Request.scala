@@ -1,5 +1,7 @@
 package scredis.protocol
 
+import scredis.exceptions._
+
 import scala.util.{ Try, Success, Failure }
 import scala.concurrent.Promise
 
@@ -10,24 +12,26 @@ abstract class Request[A](command: Command, args: Any*) {
   private var _encoded: ByteBuffer = null
   val future = promise.future
   
-  protected def decode: PartialFunction[Reply, A]
-  
   private[scredis] def encode(): Unit = {
     _encoded = command.encode(args.toList)
   }
   
   private[scredis] def encoded: ByteBuffer = _encoded
   
-  private[scredis] def complete(reply: Try[Reply]): Unit = reply match {
-    case Success(ErrorReply(error)) => promise.failure(new Exception(error))
-    case Success(reply) => try {
+  private[scredis] def complete(reply: Reply): Unit = reply match {
+    case ErrorReply(error) => promise.failure(RedisCommandException(error))
+    case reply => try {
       promise.success(decode(reply))
     } catch {
-      case e: Throwable => promise.failure(e)
+      case e: Throwable => promise.failure(RedisProtocolException(s"Unexpected reply: $reply", e))
     }
-    case Failure(e) => promise.failure(e)
   }
   
+  private[scredis] def failure(throwable: Throwable): Unit = {
+    promise.failure(throwable)
+  }
+  
+  def decode: PartialFunction[Reply, A]
   def hasArguments = args.size > 0
   
 }

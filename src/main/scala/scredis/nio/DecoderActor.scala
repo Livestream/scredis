@@ -31,7 +31,7 @@ class DecoderActor extends Actor {
       val decode = decodeTimer.time()
       while (requests.hasNext) {
         val reply = NioProtocol.decode(buffer)
-        requests.next().complete(Success(reply))
+        requests.next().complete(reply)
         count += 1
         if (count % 100000 == 0) logger.info(count.toString)
       }
