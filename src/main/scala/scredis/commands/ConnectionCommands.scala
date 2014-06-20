@@ -14,28 +14,29 @@
  */
 package scredis.commands
 
-import scredis.CommandOptions
 import scredis.protocol.Protocol
-import scredis.parsing.Implicits._
+import scredis.protocol.commands.ConnectionCommands._
+
+import scala.concurrent.Future
 
 /**
  * This trait implements connection commands.
  *
- * @define e [[scredis.exceptions.RedisCommandException]]
+ * @define e [[scredis.exceptions.RedisErrorResponseException]]
  */
 trait ConnectionCommands { self: Protocol =>
-  import Names._
 
   /**
    * Authenticates to the server.
+   * 
+   * @note use the empty string to re-authenticate with no password
    *
    * @param password the server password
    * @throws $e if authentication failed
    *
    * @since 1.0.0
    */
-  def auth(password: String)(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(Auth, password)(asUnit)
+  def auth(password: String): Future[Unit] = send(Auth(password))
 
   /**
    * Echoes the given string on the server.
@@ -45,8 +46,7 @@ trait ConnectionCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def echo(message: String)(implicit opts: CommandOptions = DefaultCommandOptions): String =
-    send(Echo, message)(asBulk[String, String](flatten))
+  def echo(message: String): Future[String] = send(Echo(message))
 
   /**
    * Pings the server. This command is often used to test if a connection is still alive,
@@ -56,35 +56,25 @@ trait ConnectionCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def ping()(implicit opts: CommandOptions = DefaultCommandOptions): String = send(Ping)(asStatus)
+  def ping(): Future[String] = send(Ping())
 
   /**
    * Closes the connection.
    *
    * @since 1.0.0
    */
-  def quit()(implicit opts: CommandOptions = DefaultCommandOptions): Unit = {
-    try {
-      send(Quit)(asUnit)
-    } catch {
-      case e: Throwable =>
-    }
-    try {
-      connection.disconnect()
-    } catch {
-      case e: Throwable =>
-    }
+  def quit(): Future[Unit] = send(Quit()).map {
+    _ => // TODO: shutdown IO
   }
 
   /**
    * Changes the selected database on the current client.
    *
-   * @param db database index
+   * @param database database index
    * @throws $e if the database index is invalid
    *
    * @since 1.0.0
    */
-  def select(db: Int)(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(Select, db)(asOkStatus)
-
+  def select(database: Int): Future[Unit] = send(Select(database))
+  
 }

@@ -1,27 +1,25 @@
 package scredis.nio
 
+import com.typesafe.scalalogging.Logging
 import com.codahale.metrics.MetricRegistry
 
 import akka.io.{ IO, Tcp }
 import akka.actor.{ Actor, ActorRef }
 import akka.util.ByteString
 
-import scredis.util.Logger
-import scredis.protocol.Request
+import scredis.protocol.{ Protocol, Request }
 
 import scala.util.Failure
 import scala.collection.mutable.{ Queue => MQueue, ListBuffer }
 
 import java.net.InetSocketAddress
 
-case class Batch(requests: Seq[Request[_]], length: Int)
 case object ClosingException extends Exception("Connection is being closed")
 
-object WriteAck extends Tcp.Event
-
-class IOActor(remote: InetSocketAddress) extends Actor {
- 
+class IOActor(remote: InetSocketAddress) extends Actor with Logging {
+  
   import Tcp._
+  import IOActor._
   import context.system
   
   /*
@@ -44,13 +42,12 @@ class IOActor(remote: InetSocketAddress) extends Actor {
   )*/
   
   private val bufferPool = new scredis.util.BufferPool(1)
-  private val logger = Logger(getClass)
   private val requests = MQueue[Request[_]]()
   
   private var canWrite = false
   var written = 0
   private var connection: ActorRef = _
-  private var decoderActor: ActorRef = _
+  private var partitionerActor: ActorRef = _
   private var waitTimerContext: com.codahale.metrics.Timer.Context = _
   
   private def stop(): Unit = {
@@ -79,7 +76,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     batch.foreach { r =>
       buffer.put(r.encoded)
       if (r.hasArguments) {
-        scredis.protocol.NioProtocol.bufferPool.release(r.encoded)
+        Protocol.releaseBuffer(r.encoded)
       } else {
         r.encoded.rewind()
       }
@@ -97,8 +94,8 @@ class IOActor(remote: InetSocketAddress) extends Actor {
   }
   
   def receive: Receive = {
-    case decoderActor: ActorRef => {
-      this.decoderActor = decoderActor
+    case partitionerActor: ActorRef => {
+      this.partitionerActor = partitionerActor
       logger.trace(s"Connecting to $remote...")
       IO(Tcp) ! Connect(remote)
       context.become(connecting)
@@ -131,7 +128,7 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
       //val ctx = tellTimer.time()
-      decoderActor ! data
+      partitionerActor ! data
       //ctx.stop()
     }
     case WriteAck => {
@@ -174,4 +171,9 @@ class IOActor(remote: InetSocketAddress) extends Actor {
     }
   }
   
+}
+
+object IOActor {
+  object WriteAck extends Tcp.Event
+  case class Batch(requests: Seq[Request[_]], length: Int)
 }

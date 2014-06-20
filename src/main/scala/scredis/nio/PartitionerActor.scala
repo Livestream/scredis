@@ -6,22 +6,18 @@ import akka.actor.{ Actor, ActorRef, Props }
 import akka.routing._
 import akka.util.ByteString
 
-import scredis.util.Logger
-import scredis.protocol.{ NioProtocol, Request }
+import scredis.protocol.{ Protocol, Request }
 
 import scala.util.Success
 import scala.collection.mutable.{ Queue => MQueue, ListBuffer }
 
 import java.nio.ByteBuffer
 
-case class Partition(data: ByteString, requests: Iterator[Request[_]])
-
 class PartitionerActor(ioActor: ActorRef) extends Actor {
   
-  private val logger = Logger(getClass)
   private val requests = MQueue[Request[_]]()
   
-  private val router = context.actorOf(
+  private val decoders = context.actorOf(
     SmallestMailboxPool(3).props(Props[DecoderActor]).withDispatcher("scredis.decoder-dispatcher")
   )
   
@@ -46,9 +42,8 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
       }
       
       val buffer = completedData.asByteBuffer
-      val repliesCount = NioProtocol.count(buffer)
+      val repliesCount = Protocol.count(buffer)
       val position = buffer.position
-      scredis.protocol.NioProtocol.concurrent.release(repliesCount)
       
       val trimmedData = if (buffer.remaining > 0) {
         remainingByteStringOpt = Some(ByteString(buffer))
@@ -62,7 +57,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
         requests += this.requests.dequeue()
       }
       
-      router ! Partition(trimmedData, requests.toList.iterator)
+      decoders ! Partition(trimmedData, requests.toList.iterator)
     }
   }
   

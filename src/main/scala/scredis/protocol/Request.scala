@@ -18,20 +18,24 @@ abstract class Request[A](command: Command, args: Any*) {
   
   private[scredis] def encoded: ByteBuffer = _encoded
   
-  private[scredis] def complete(reply: Reply): Unit = reply match {
-    case ErrorReply(error) => promise.failure(RedisCommandException(error))
-    case reply => try {
-      promise.success(decode(reply))
-    } catch {
-      case e: Throwable => promise.failure(RedisProtocolException(s"Unexpected reply: $reply", e))
+  private[scredis] def complete(reply: Response): Unit = {
+    reply match {
+      case ErrorResponse(message) => promise.failure(RedisCommandException(message))
+      case reply => try {
+        promise.success(decode(reply))
+      } catch {
+        case e: Throwable => promise.failure(RedisProtocolException(s"Unexpected reply: $reply", e))
+      }
     }
+    Protocol.release()
   }
   
   private[scredis] def failure(throwable: Throwable): Unit = {
     promise.failure(throwable)
+    Protocol.release()
   }
   
-  def decode: PartialFunction[Reply, A]
+  def decode: PartialFunction[Response, A]
   def hasArguments = args.size > 0
   
 }

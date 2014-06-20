@@ -12,23 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. See accompanying LICENSE file.
  */
-package scredis.commands.async
+package scredis.commands
 
 import scredis.{ Score, Aggregate, CommandOptions }
 import scredis.parsing._
+import scredis.parsing.Implicits._
+import scredis.protocol.Protocol
+import scredis.exceptions.RedisCommandException
 import scredis.Score._
 import scredis.Aggregate._
 import scredis.util.LinkedHashSet
 
-import scala.concurrent.Future
-
 /**
- * This trait implements asynchronous sorted sets commands.
- * 
+ * This trait implements sorted sets commands.
+ *
  * @define e [[scredis.exceptions.RedisCommandException]]
  * @define none `None`
  */
-trait SortedSetsCommands extends Async {
+trait SortedSetCommands { self: Protocol =>
+  protected val Aggregate = "AGGREGATE"
+  protected val Weights = "WEIGHTS"
+  protected val WithScores = "WITHSCORES"
+  protected val Limit = "LIMIT"
+
+  import Names._
+  
+  private implicit def stringToDouble(str: String): Double = augmentString(str).toDouble
 
   /**
    * Adds one or more members to a sorted set, or update its score if it already exists.
@@ -47,7 +56,11 @@ trait SortedSetsCommands extends Async {
    */
   def zAddFromMap(key: String, memberScoreMap: Map[Any, Double])(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.zAddFromMap(key, memberScoreMap))
+  ): Long = if(memberScoreMap.isEmpty) {
+    throw RedisCommandException("ZADD: memberScoreMap cannot be empty")
+  } else {
+    send(flattenValueKeyMap(List(ZAdd, key), memberScoreMap): _*)(asInteger)
+  }
 
   /**
    * Adds one or more members to a sorted set, or update its score if it already exists.
@@ -67,7 +80,9 @@ trait SortedSetsCommands extends Async {
    */
   def zAdd(key: String, memberScorePair: (Any, Double), memberScorePairs: (Any, Double)*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.zAdd(key, memberScorePair, memberScorePairs: _*))
+  ): Long = zAddFromMap(key, (memberScorePair :: memberScorePairs.toList).map {
+    case (member, score) => (member, score)
+  }.toMap)
 
   /**
    * Returns the number of members in a sorted set.
@@ -78,8 +93,8 @@ trait SortedSetsCommands extends Async {
    *
    * @since 1.2.0
    */
-  def zCard(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.zCard(key))
+  def zCard(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
+    send(ZCard, key)(asInteger)
 
   /**
    * Returns the number of elements of a sorted set belonging to a given score range.
@@ -94,7 +109,7 @@ trait SortedSetsCommands extends Async {
    */
   def zCount(key: String, min: Score, max: Score)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.zCount(key, min, max))
+  ): Long = send(ZCount, key, min.asMin, max.asMax)(asInteger)
 
   /**
    * Increments the score of a member in a sorted set.
@@ -109,7 +124,7 @@ trait SortedSetsCommands extends Async {
    */
   def zIncrBy(key: String, member: Any, count: Double)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Double] = async(_.zIncrBy(key, member, count))
+  ): Double = send(ZIncrBy, key, count,member)(asBulk(toDouble))
 
   /**
    * Intersects multiple sorted sets and stores the resulting sorted set in a new key.
@@ -125,7 +140,12 @@ trait SortedSetsCommands extends Async {
    */
   def zInterStore(destKey: String, aggregate: Aggregate = Sum)(key: String, keys: String*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.zInterStore(destKey, aggregate)(key, keys: _*))
+  ): Long = {
+    val count = keys.size + 1
+    send((
+      ZInterStore :: destKey :: count :: key :: keys.toList ::: Aggregate :: aggregate :: Nil
+    ): _*)(asInteger)
+  }
 
   /**
    * Intersects multiple sorted sets and stores the resulting sorted set in a new key.
@@ -141,8 +161,20 @@ trait SortedSetsCommands extends Async {
    */
   def zInterStoreWeighted(destKey: String, aggregate: Aggregate = Sum)(
     keyWeightPair: (String, Int), keyWeightPairs: (String, Int)*
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.zInterStoreWeighted(destKey, aggregate)(keyWeightPair, keyWeightPairs: _*))
+  )(implicit opts: CommandOptions = DefaultCommandOptions): Long = {
+    val (keys, weights) = (keyWeightPair :: keyWeightPairs.toList).unzip
+    send((
+      ZInterStore ::
+      destKey ::
+      keys.size ::
+      keys :::
+      Weights ::
+      weights :::
+      Aggregate ::
+      aggregate ::
+      Nil
+    ): _*)(asInteger)
+  }
 
   /**
    * Computes the union of multiple sorted sets and stores the resulting sorted set in a new key.
@@ -158,7 +190,12 @@ trait SortedSetsCommands extends Async {
    */
   def zUnionStore(destKey: String, aggregate: Aggregate = Sum)(key: String, keys: String*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.zUnionStore(destKey, aggregate)(key, keys: _*))
+  ): Long = {
+    val count = keys.size + 1
+    send((
+      ZUnionStore :: destKey :: count :: key :: keys.toList ::: Aggregate :: aggregate :: Nil
+    ): _*)(asInteger)
+  }
 
   /**
    * Computes the union of multiple sorted sets and stores the resulting sorted set in a new key.
@@ -174,8 +211,20 @@ trait SortedSetsCommands extends Async {
    */
   def zUnionStoreWeighted(destKey: String, aggregate: Aggregate = Sum)(
     keyWeightPair: (String, Int), keyWeightPairs: (String, Int)*
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.zUnionStoreWeighted(destKey, aggregate)(keyWeightPair, keyWeightPairs: _*))
+  )(implicit opts: CommandOptions = DefaultCommandOptions): Long = {
+    val (keys, weights) = (keyWeightPair :: keyWeightPairs.toList).unzip
+    send((
+      ZUnionStore ::
+      destKey ::
+      keys.size ::
+      keys :::
+      Weights ::
+      weights :::
+      Aggregate ::
+      aggregate ::
+      Nil
+    ): _*)(asInteger)
+  }
 
   /**
    * Returns a range of members in a sorted set, by index.
@@ -200,7 +249,9 @@ trait SortedSetsCommands extends Async {
   def zRange[A](key: String, start: Long = 0, end: Long = -1)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[LinkedHashSet[A]] = async(_.zRange(key, start, end))
+  ): LinkedHashSet[A] = send(ZRange, key, start, end)(
+    asMultiBulk[A, A, LinkedHashSet](asBulk[A, A](flatten))
+  )
 
   /**
    * Returns a range of members with associated scores in a sorted set, by index.
@@ -225,7 +276,9 @@ trait SortedSetsCommands extends Async {
   def zRangeWithScores[A](key: String, start: Long = 0, end: Long = -1)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[LinkedHashSet[(A, Double)]] = async(_.zRangeWithScores(key, start, end))
+  ): LinkedHashSet[(A, Double)] = send(ZRange, key, start, end, WithScores)(
+    asMultiBulk[List, LinkedHashSet[(A, Double)]](toPairsLinkedHashSet[A, Double])
+  )
 
   /**
    * Returns a range of members in a sorted set, by score.
@@ -244,10 +297,19 @@ trait SortedSetsCommands extends Async {
    *
    * @since 2.2.0
    */
-  def zRangeByScore[A](key: String, min: Score, max: Score, limit: Option[(Long, Long)] = None)(
+  def zRangeByScore[A](
+    key: String,
+    min: Score,
+    max: Score,
+    limit: Option[(Long, Long)] = None
+  )(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[LinkedHashSet[A]] = async(_.zRangeByScore(key, min, max, limit))
+  ): LinkedHashSet[A] = {
+    val params = collection.mutable.MutableList[Any](ZRangeByScore, key, min.asMin, max.asMax)
+    if (limit.isDefined) params ++= Limit :: limit.get._1 :: limit.get._2 :: Nil
+    send(params: _*)(asMultiBulk[A, A, LinkedHashSet](asBulk[A, A](flatten)))
+  }
 
   /**
    * Returns a range of members with associated scores in a sorted set, by score.
@@ -274,8 +336,15 @@ trait SortedSetsCommands extends Async {
   )(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[LinkedHashSet[(A, Double)]] =
-    async(_.zRangeByScoreWithScores(key, min, max, limit))
+  ): LinkedHashSet[(A, Double)] = {
+    val params = collection.mutable.MutableList[Any](
+      ZRangeByScore, key, min.asMin, max.asMax, WithScores
+    )
+    if (limit.isDefined) params ++= Limit :: limit.get._1 :: limit.get._2 :: Nil
+    send(params: _*)(
+      asMultiBulk[List, LinkedHashSet[(A, Double)]](toPairsLinkedHashSet[A, Double])
+    )
+  }
 
   /**
    * Determines the index of a member in a sorted set.
@@ -290,7 +359,7 @@ trait SortedSetsCommands extends Async {
    */
   def zRank(key: String, member: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[Long]] = async(_.zRank(key, member))
+  ): Option[Long] = send(ZRank, key,member)(asIntegerOrNullBulkReply)
 
   /**
    * Removes one or more members from a sorted set.
@@ -307,7 +376,7 @@ trait SortedSetsCommands extends Async {
    */
   def zRem(key: String, member: Any, members: Any*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.zRem(key, member, members: _*))
+  ): Long = send(ZRem :: key ::member ::members.toList: _*)(asInteger)
 
   /**
    * Removes all members in a sorted set within the given indexes.
@@ -327,7 +396,7 @@ trait SortedSetsCommands extends Async {
    */
   def zRemRangeByRank(key: String, start: Long, end: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.zRemRangeByRank(key, start, end))
+  ): Long = send(ZRemRangeByRank, key, start, end)(asInteger)
 
   /**
    * Removes all members in a sorted set within the given scores range.
@@ -344,7 +413,7 @@ trait SortedSetsCommands extends Async {
    */
   def zRemRangeByScore(key: String, min: Score, max: Score)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.zRemRangeByScore(key, min, max))
+  ): Long = send(ZRemRangeByScore, key, min.asMin, max.asMax)(asInteger)
 
   /**
    * Returns a range of members in a sorted set, by index, with scores ordered from high to low.
@@ -363,7 +432,9 @@ trait SortedSetsCommands extends Async {
   def zRevRange[A](key: String, start: Long = 0, end: Long = -1)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[LinkedHashSet[A]] = async(_.zRevRange(key, start, end))
+  ): LinkedHashSet[A] = send(ZRevRange, key, start, end)(
+    asMultiBulk[A, A, LinkedHashSet](asBulk[A, A](flatten))
+  )
 
   /**
    * Returns a range of members in a sorted set, by index, with scores ordered from high to low.
@@ -382,7 +453,9 @@ trait SortedSetsCommands extends Async {
   def zRevRangeWithScores[A](key: String, start: Long = 0, end: Long = -1)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[LinkedHashSet[(A, Double)]] = async(_.zRevRangeWithScores(key, start, end))
+  ): LinkedHashSet[(A, Double)] = send(ZRevRange, key, start, end, WithScores)(
+    asMultiBulk[List, LinkedHashSet[(A, Double)]](toPairsLinkedHashSet[A, Double])
+  )
 
   /**
    * Returns a range of members in a sorted set, by score, with scores ordered from high to low.
@@ -399,10 +472,19 @@ trait SortedSetsCommands extends Async {
    *
    * @since 2.2.0
    */
-  def zRevRangeByScore[A](key: String, max: Score, min: Score, limit: Option[(Long, Long)] = None)(
+  def zRevRangeByScore[A](
+    key: String,
+    max: Score,
+    min: Score,
+    limit: Option[(Long, Long)] = None
+  )(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[LinkedHashSet[A]] = async(_.zRevRangeByScore(key, max, min, limit))
+  ): LinkedHashSet[A] = {
+    val params = collection.mutable.MutableList[Any](ZRevRangeByScore, key, max.asMax, min.asMin)
+    if (limit.isDefined) params ++= Limit :: limit.get._1 :: limit.get._2 :: Nil
+    send(params: _*)(asMultiBulk[A, A, LinkedHashSet](asBulk[A, A](flatten)))
+  }
 
   /**
    * Return a range of members with associated scores in a sorted set, by score, with scores
@@ -428,8 +510,15 @@ trait SortedSetsCommands extends Async {
   )(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[LinkedHashSet[(A, Double)]] =
-    async(_.zRevRangeByScoreWithScores(key, max, min, limit))
+  ): LinkedHashSet[(A, Double)] = {
+    val params = collection.mutable.MutableList[Any](
+      ZRevRangeByScore, key, max.asMax, min.asMin, WithScores
+    )
+    if (limit.isDefined) params ++= Limit :: limit.get._1 :: limit.get._2 :: Nil
+    send(params: _*)(
+      asMultiBulk[List, LinkedHashSet[(A, Double)]](toPairsLinkedHashSet[A, Double])
+    )
+  }
 
   /**
    * Determine the index of a member in a sorted set, with scores ordered from high to low.
@@ -444,7 +533,7 @@ trait SortedSetsCommands extends Async {
    */
   def zRevRank(key: String, member: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[Long]] = async(_.zRevRank(key, member))
+  ): Option[Long] = send(ZRevRank, key,member)(asIntegerOrNullBulkReply)
 
   /**
    * Returns the score associated with the given member in a sorted set.
@@ -459,7 +548,7 @@ trait SortedSetsCommands extends Async {
    */
   def zScore(key: String, member: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[Double]] = async(_.zScore(key, member))
+  ): Option[Double] = send(ZScore, key,member)(asBulk[Double])
   
   /**
    * Incrementally iterates the elements (value-score pairs) of a sorted set.
@@ -477,6 +566,8 @@ trait SortedSetsCommands extends Async {
   )(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[(Long, LinkedHashSet[(A, Double)])] = async(_.zScan(key)(cursor, countOpt, matchOpt))
+  ): (Long, LinkedHashSet[(A, Double)]) = send(
+    generateScanLikeArgs(ZScan, Some(key), cursor, countOpt, matchOpt): _*
+  )(asScanMultiBulk[LinkedHashSet[(A, Double)]](toPairsLinkedHashSet))
   
 }

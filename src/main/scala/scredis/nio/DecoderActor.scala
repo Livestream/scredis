@@ -5,8 +5,7 @@ import com.codahale.metrics.MetricRegistry
 import akka.actor.{ Actor, ActorRef }
 import akka.util.ByteString
 
-import scredis.util.Logger
-import scredis.protocol.{ NioProtocol, Request }
+import scredis.protocol.{ Protocol, Request }
 
 import scala.util.Success
 import scala.collection.mutable.{ Queue => MQueue }
@@ -15,8 +14,7 @@ import java.nio.ByteBuffer
 
 class DecoderActor extends Actor {
   
-  private val logger = Logger(getClass)
-  private val requests = MQueue[Request[_]]()
+  import DecoderActor.Partition
   
   private var count = 0
   
@@ -26,17 +24,20 @@ class DecoderActor extends Actor {
   
   def receive: Receive = {
     case p @ Partition(data, requests) => {
-      logger.trace(s"Decoding ${requests.size} requests")
       val buffer = data.asByteBuffer
       val decode = decodeTimer.time()
       while (requests.hasNext) {
-        val reply = NioProtocol.decode(buffer)
+        val reply = Protocol.decode(buffer)
         requests.next().complete(reply)
         count += 1
-        if (count % 100000 == 0) logger.info(count.toString)
+        if (count % 100000 == 0) println(count)
       }
       decode.stop()
     }
   }
   
+}
+
+object DecoderActor {
+  case class Partition(data: ByteString, requests: Iterator[Request[_]])
 }

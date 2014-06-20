@@ -9,28 +9,28 @@ import scala.collection.mutable.ListBuffer
 
 import java.nio.ByteBuffer
 
-trait Reply
+trait Response
 
-case class ErrorReply(value: String) extends Reply
+case class ErrorResponse(value: String) extends Response
 
-case class SimpleStringReply(value: String) extends Reply
+case class SimpleStringResponse(value: String) extends Response
 
-case class IntegerReply(value: Long) extends Reply
+case class IntegerResponse(value: Long) extends Response
 
-case class BulkStringReply(valueOpt: Option[Array[Byte]]) extends Reply {
+case class BulkStringResponse(valueOpt: Option[Array[Byte]]) extends Response {
   def parsed[A](implicit parser: Parser[A]): Option[A] = valueOpt.map(parser.parse)
   def flattened[A](implicit parser: Parser[A]): A = parsed[A].get
 }
 
-case class ArrayReply(length: Int, buffer: ByteBuffer) extends Reply {
+case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
   
-  def parsed[A, CC[X] <: Traversable[X]](parsePf: PartialFunction[Reply, A])(
+  def parsed[A, CC[X] <: Traversable[X]](parsePf: PartialFunction[Response, A])(
     implicit cbf: CanBuildFrom[Nothing, A, CC[A]]
   ): CC[A] = {
     val builder = cbf()
     var i = 0
     while (i < length) {
-      val reply = NioProtocol.decode(buffer)
+      val reply = Protocol.decode(buffer)
       if (parsePf.isDefinedAt(reply)) {
         builder += parsePf.apply(reply)
       } else {
@@ -41,17 +41,17 @@ case class ArrayReply(length: Int, buffer: ByteBuffer) extends Reply {
     builder.result()
   }
   
-  def parsed[CC[X] <: Traversable[X]](parsers: Traversable[PartialFunction[Reply, Any]])(
+  def parsed[CC[X] <: Traversable[X]](parsers: Traversable[PartialFunction[Response, Any]])(
     implicit cbf: CanBuildFrom[Nothing, Try[Any], CC[Try[Any]]]
   ): CC[Try[Any]] = {
     val builder = cbf()
     var i = 0
     val parsersIterator = parsers.toIterator
     while (i < length) {
-      val reply = NioProtocol.decode(buffer)
+      val reply = Protocol.decode(buffer)
       val parser = parsersIterator.next()
       val result = reply match {
-        case ErrorReply(error) => Failure(RedisCommandException(error))
+        case ErrorResponse(message) => Failure(RedisCommandException(message))
         case reply => if (parser.isDefinedAt(reply)) {
           try {
             Success(parser.apply(reply))

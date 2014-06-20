@@ -12,33 +12,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. See accompanying LICENSE file.
  */
-package scredis.commands.async
+package scredis.commands
 
-import scredis.{ PipelineClient, TransactionalClient, CommandOptions }
+import scredis.{ CommandOptions, Client, PipelineClient, TransactionalClient }
 import scredis.exceptions.RedisCommandException
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ Await, Future, ExecutionContext }
+import scala.concurrent.duration.Duration
 import scala.collection.generic.CanBuildFrom
 import scala.util.Try
 
 /**
- * This trait implements asynchronous transactional commands and pipelining.
+ * This trait implements transactional commands and pipelining.
  *
- * @author Alexandre Curreli
  * @define e [[scredis.exceptions.RedisCommandException]]
  * @define ep [[scredis.exceptions.RedisProtocolException]]
  * @define et [[scredis.exceptions.RedisTransactionException]]
  * @define p [[scredis.PipelineClient]]
  * @define m [[scredis.TransactionalClient]]
  */
-trait TransactionalCommands extends Async {
-  
-  protected def force(opts: CommandOptions): CommandOptions = CommandOptions(
-    opts.timeout,
-    opts.tries,
-    opts.sleep,
-    true
-  )
+trait TransactionCommands { self: Client =>
+  import Names._
+
+  protected val Never = Duration.Inf
+
+  /**
+   * Creates and returns a $p used to send multiple commands at once. Calling `sync()` on $p
+   * triggers the execution of all queued commands.
+   *
+   * @return $p
+   *
+   * @since 1.0.0
+   */
+  def pipeline(): PipelineClient = new PipelineClient(this)
 
   /**
    * Pipelines multiple commands and returns the results.
@@ -53,11 +59,13 @@ trait TransactionalCommands extends Async {
    *
    * @since 1.0.0
    */
-  def pipelined(
-    body: PipelineClient => Any
-  )(
+  def pipelined(body: PipelineClient => Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[IndexedSeq[Try[Any]]] = async(_.pipelined(body))(force(opts))
+  ): IndexedSeq[Try[Any]] = {
+    val p = pipeline()
+    body(p)
+    p.sync()
+  }
 
   /**
    * Pipelines multiple commands and returns the result of one command returned by `body`.
@@ -73,7 +81,15 @@ trait TransactionalCommands extends Async {
    */
   def pipelined1[A](body: PipelineClient => Future[A])(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[A] = async(_.pipelined1(body))(force(opts))
+  ): A = {
+    val p = pipeline()
+    val result = body(p)
+    if (p.isClosed) Await.result(result, Never)
+    else {
+      p.sync()
+      Await.result(result, Never)
+    }
+  }
 
   /**
    * Pipelines multiple commands and returns the results of several commands returned by `body`.
@@ -82,7 +98,7 @@ trait TransactionalCommands extends Async {
    * already been called and won't call it a second time.
    *
    * @param body function to be executed with the provided $p
-   * @return an indexed sequence containing the results of the issued commands in the same order
+   * @return collection containing the results of the issued commands in the same order
    * they were queued
    *
    * @since 1.0.0
@@ -91,7 +107,15 @@ trait TransactionalCommands extends Async {
     implicit opts: CommandOptions = DefaultCommandOptions,
     cbf: CanBuildFrom[B[Future[A]], A, B[A]],
     ec: ExecutionContext
-  ): Future[B[A]] = async(_.pipelinedN(body))(force(opts))
+  ): B[A] = {
+    val p = pipeline()
+    val result = Future.sequence(body(p))
+    if (p.isClosed) Await.result(result, Never)
+    else {
+      p.sync()
+      Await.result(result, Never)
+    }
+  }
   
   /**
    * Pipelines multiple commands and returns the results as a map of key to command result pairs.
@@ -107,7 +131,31 @@ trait TransactionalCommands extends Async {
   def pipelinedM[K, V](body: PipelineClient => Map[K, Future[V]])(
     implicit opts: CommandOptions = DefaultCommandOptions,
     ec: ExecutionContext
-  ): Future[Map[K, V]] = async(_.pipelinedM(body))(force(opts))
+  ): Map[K, V] = {
+    val p = pipeline()
+    val result = body(p)
+    if (!p.isClosed) {
+      p.sync()
+    }
+    for ((key, future) <- result) yield {
+      (key -> Await.result(future, Never))
+    }
+  }
+
+  /**
+   * Creates and returns a $m used to perform a transaction. Calling `exec()` on $m triggers the
+   * execution of all queued commands as part of a Redis transaction.
+   *
+   * @return $m
+   * @throws $e if a previous transaction is still running, i.e. if `exec()` has not been called on
+   * a previous `multi()`
+   *
+   * @since 2.0.0
+   */
+  def multi()(implicit opts: CommandOptions = DefaultCommandOptions): TransactionalClient = {
+    send(Multi)(asUnit)
+    new TransactionalClient(this)
+  }
 
   /**
    * Performs multiple commands as part of a Redis transaction and returns the results.
@@ -126,7 +174,11 @@ trait TransactionalCommands extends Async {
    */
   def transactional(body: TransactionalClient => Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[IndexedSeq[Try[Any]]] = async(_.transactional(body))(force(opts))
+  ): IndexedSeq[Try[Any]] = {
+    val m = multi()
+    body(m)
+    m.exec()
+  }
 
   /**
    * Performs multiple commands as part of a Redis transaction and returns the result of the
@@ -144,7 +196,15 @@ trait TransactionalCommands extends Async {
    */
   def transactional1[A](body: TransactionalClient => Future[A])(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[A] = async(_.transactional1(body))(force(opts))
+  ): A = {
+    val m = multi()
+    val result = body(m)
+    if (m.isClosed) Await.result(result, Never)
+    else {
+      m.exec()
+      Await.result(result, Never)
+    }
+  }
 
   /**
    * Performs multiple commands as part of a Redis transaction and returns the results of several
@@ -164,7 +224,15 @@ trait TransactionalCommands extends Async {
     implicit opts: CommandOptions = DefaultCommandOptions,
     cbf: CanBuildFrom[B[Future[A]], A, B[A]],
     ec: ExecutionContext
-  ): Future[B[A]] = async(_.transactionalN(body))(force(opts))
+  ): B[A] = {
+    val m = multi()
+    val result = Future.sequence(body(m))
+    if (m.isClosed) Await.result(result, Never)
+    else {
+      m.exec()
+      Await.result(result, Never)
+    }
+  }
   
   /**
    * Performs multiple commands as part of a Redis transaction and returns the results as a map
@@ -182,7 +250,16 @@ trait TransactionalCommands extends Async {
   def transactionalM[K, V](body: TransactionalClient => Map[K, Future[V]])(
     implicit opts: CommandOptions = DefaultCommandOptions,
     ec: ExecutionContext
-  ): Future[Map[K, V]] = async(_.transactionalM(body))(force(opts))
+  ): Map[K, V] = {
+    val m = multi()
+    val result = body(m)
+    if (!m.isClosed) {
+      m.exec()
+    }
+    for ((key, future) <- result) yield {
+      (key -> Await.result(future, Never))
+    }
+  }
 
   /**
    * Watches the given keys, which upon modification, will abort a transaction.
@@ -194,7 +271,7 @@ trait TransactionalCommands extends Async {
    */
   def watch(key: String, keys: String*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.watch(key, keys: _*))(force(opts))
+  ): Unit = send((Watch :: key :: keys.toList): _*)(asUnit)
 
   /**
    * Forgets about all watched keys.
@@ -204,7 +281,6 @@ trait TransactionalCommands extends Async {
    *
    * @since 2.0.0
    */
-  def unWatch()(implicit opts: CommandOptions = DefaultCommandOptions): Future[Unit] =
-    async(_.unWatch())(force(opts))
+  def unWatch()(implicit opts: CommandOptions = DefaultCommandOptions): Unit = send(UnWatch)(asUnit)
 
 }

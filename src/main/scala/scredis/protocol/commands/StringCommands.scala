@@ -9,6 +9,6 @@ case class Get[A](key: String)(
   implicit parser: Parser[A]
 ) extends Request[Option[A]](Get, key) {
   override def decode = {
-    case b: BulkStringReply => b.parsed[A]
+    case b: BulkStringResponse => b.parsed[A]
   }
 }

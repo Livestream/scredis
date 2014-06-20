@@ -9,8 +9,8 @@ case class LRange[A](key: String, from: Long, to: Long)(
   implicit parser: Parser[A]
 ) extends Request[List[A]](LRange, key, from, to) {
   override def decode = {
-    case a: ArrayReply => a.parsed[A, List] {
-      case b: BulkStringReply => b.flattened[A]
+    case a: ArrayResponse=> a.parsed[A, List] {
+      case b: BulkStringResponse => b.flattened[A]
     }
   }
 }

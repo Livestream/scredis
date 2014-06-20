@@ -1,61 +1,268 @@
-/*
- * Copyright (c) 2013 Livestream LLC. All rights reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. See accompanying LICENSE file.
- */
 package scredis.protocol
 
-import scredis.CommandOptions
-import scredis.io.{ Connection, ConnectionException, ConnectionTimeoutException }
-import scredis.exceptions._
-import scredis.util._
-import scredis.parsing._
-import scredis.parsing.Implicits._
+import com.typesafe.scalalogging.Logging
+import com.codahale.metrics._
 
-import scala.collection.TraversableLike
-import scala.collection.GenTraversableOnce
-import scala.collection.generic.{ CanBuildFrom, GenericTraversableTemplate }
+import akka.actor.ActorRef
+
+import scredis.exceptions._
+import scredis.util.BufferPool
+
 import scala.collection.mutable.{ ArrayBuilder, ListBuffer }
 import scala.util.{ Try, Success, Failure }
+import scala.concurrent.{ ExecutionContext, Future, Promise }
+
+import java.nio.{ ByteBuffer, CharBuffer }
+import java.util.concurrent.Semaphore
 
 /**
- * This trait implements the `Redis` protocol.
+ * This object implements various aspects of the `Redis` protocol.
  */
-trait Protocol {
+object Protocol {
   
-  import Pattern.retry
+  private[scredis] val metrics = new MetricRegistry()
+  private val reporter = JmxReporter.forRegistry(metrics).build()
   
   private val Encoding = "UTF-8"
-  private val StatusReply = '+'
-  private val ErrorReply = '-'
-  private val IntegerReply = ':'
-  private val BulkReply = '$'
-  private val MultiBulkReply = '*'
-
-  private val StatusReplyByte = StatusReply.toByte
-  private val ErrorReplyByte = ErrorReply.toByte
-  private val IntegerReplyByte = IntegerReply.toByte
-  private val BulkReplyByte = BulkReply.toByte
-  private val MultiBulkReplyByte = MultiBulkReply.toByte
-
-  private val CrLfByte = "\r\n".getBytes(Encoding)
-
-  private implicit val logger = Logger(getClass)
-  private val builder = new ArrayBuilder.ofByte()
-  private val commands = ListBuffer[(Seq[Array[Byte]], (Char, Array[Byte]) => Any)]()
-  private var isQueuing = false
+    
+  private val CrByte = '\r'.toByte
+  private val CfByte = '\n'.toByte
+  private val SimpleStringReplyByte = '+'.toByte
+  private val ErrorReplyByte = '-'.toByte
+  private val IntegerReplyByte = ':'.toByte
+  private val BulkStringReplyByte = '$'.toByte
+  private val BulkStringReplyLength = 1
+  private val ArrayReplyByte = '*'.toByte
+  private val ArrayReplyLength = 1
   
-  protected val DefaultCommandOptions: CommandOptions
-  protected val connection: Connection
+  private val CrLf = "\r\n".getBytes(Encoding)
+  private val CrLfLength = CrLf.length
+  
+  private val bufferPool = new BufferPool(50000)
+  private val concurrentOpt: Option[(Semaphore, Boolean)] = Some(new Semaphore(30000), true)
+  
+  private def aquire(): Unit = concurrentOpt.foreach {
+    case (semaphore, true) => semaphore.acquire()
+    case (semaphore, false) => if (!semaphore.tryAcquire()) {
+      throw new Exception("Busy")
+    }
+  }
+  
+  private def parseInteger(buffer: ByteBuffer): Int = {
+    var length: Int = 0
+    var isPositive = true
+    
+    var char = buffer.get()
+    
+    if (char == '-') {
+      isPositive = false
+      char = buffer.get()
+    }
+    
+    while (char != '\r') {
+      length = (length * 10) + (char - '0')
+      char = buffer.get()
+    }
+    
+    // skip \n
+    buffer.get()
+    if (isPositive) {
+      length
+    } else {
+      -length
+    }
+  }
+  
+  private def parseLong(buffer: ByteBuffer): Long = {
+    var length: Long = 0
+    var isPositive = true
+    
+    var char = buffer.get()
+    
+    if (char == '-') {
+      isPositive = false
+      char = buffer.get()
+    }
+    
+    while (char != '\r') {
+      length = (length * 10) + (char - '0')
+      char = buffer.get()
+    }
+    
+    // skip \n
+    buffer.get()
+    if (isPositive) {
+      length
+    } else {
+      -length
+    }
+  }
+  
+  private def parseString(buffer: ByteBuffer): String = {
+    val bytes = new ArrayBuilder.ofByte()
+    var count = 0
+    var char = buffer.get()
+    while (char != '\r') {
+      bytes += char
+      char = buffer.get()
+    }
+    buffer.get()
+    new String(bytes.result(), "UTF-8")
+  }
+  
+  private def decodeBulkStringReply(buffer: ByteBuffer): BulkStringReply = {
+    val length = parseInteger(buffer)
+    val valueOpt = if (length > 0) {
+      val array = new Array[Byte](length)
+      buffer.get(array)
+      buffer.get()
+      buffer.get()
+      Some(array)
+    } else {
+      None
+    }
+    BulkStringReply(valueOpt)
+  }
+  
+  private[scredis] def release(): Unit = concurrentOpt.foreach {
+    case (semaphore, _) => semaphore.release()
+  }
+  
+  private[scredis] def releaseBuffer(buffer: ByteBuffer): Unit = bufferPool.release(buffer)
+  
+  private[scredis] def encode(command: String): ByteBuffer = encode(Seq[Any](command))
+  
+  private[scredis] def encode(args: Seq[Any]): ByteBuffer = {
+    val argsSize = args.size.toString.getBytes(Encoding)
+    
+    var length = ArrayReplyLength + argsSize.length + CrLfLength
+    
+    val serializedArgs = args.map { arg =>
+      val serializedArg = arg match {
+        case x: Array[Byte] => x
+        case x => arg.toString.getBytes(Encoding)
+      }
+      val serializedArgSize = serializedArg.length.toString.getBytes(Encoding)
+      length += BulkStringReplyLength +
+        serializedArgSize.length +
+        CrLfLength +
+        serializedArg.length +
+        CrLfLength
+      (serializedArg, serializedArgSize)
+    }
+    
+    val buffer = bufferPool.acquire(length)
+    
+    buffer.put(BulkStringReplyByte).put(argsSize).put(CrLf)
+    for ((serializedArg, serializedArgSize) <- serializedArgs) {
+      buffer.put(BulkStringReplyByte).put(serializedArgSize).put(CrLf).put(serializedArg).put(CrLf)
+    }
+    
+    buffer.flip()
+    buffer
+  }
+  
+  private[scredis] def count(buffer: ByteBuffer): Int = {
+    var char: Byte = 0
+    var requests = 0
+    var arrayCount = 0
+    var position = -1
+    var arrayPosition = -1
+    var isFragmented = false
+    
+    @inline
+    def incr(): Unit = if (arrayCount > 0) {
+      arrayCount -= 1
+      if (arrayCount == 0) {
+        requests += 1
+        arrayPosition = -1
+      }
+    } else {
+      requests += 1
+    }
+    
+    @inline
+    def fail(): Unit = isFragmented = true
+    
+    while (buffer.remaining > 0 && !isFragmented) {
+      char = buffer.get()
+      if (char == ErrorReplyByte || char == SimpleStringReplyByte || char == IntegerReplyByte) {
+        position = buffer.position - 1
+        while (buffer.remaining > 0 && char != '\n') {
+          char = buffer.get()
+        }
+        if (char == '\n') {
+          incr()
+        } else {
+          fail()
+        }
+      } else if (char == BulkStringReplyByte) {
+        position = buffer.position - 1
+        try {
+          val length = parseInteger(buffer) match {
+            case -1 => 0
+            case x => x + 2
+          }
+          if (buffer.remaining >= length) {
+            buffer.position(buffer.position + length)
+            incr()
+          } else {
+            fail()
+          }
+        } catch {
+          case e: java.nio.BufferUnderflowException => fail()
+        }
+      } else if (char == ArrayReplyByte) {
+        arrayPosition = buffer.position - 1
+        try {
+          val length = parseInteger(buffer)
+          if (length <= 0) {
+            incr()
+          } else {
+            arrayCount = length
+          }
+        } catch {
+          case e: java.nio.BufferUnderflowException => fail()
+        }
+      }
+    }
+    
+    if (isFragmented) {
+      if (arrayPosition >= 0) {
+        buffer.position(arrayPosition)
+      } else {
+        buffer.position(position)
+      }
+    }
+    
+    requests
+  }
+  
+  private[scredis] def decode(buffer: ByteBuffer): Reply = buffer.get() match {
+    case ErrorReplyByte         => ErrorReply(parseString(buffer))
+    case SimpleStringReplyByte  => SimpleStringReply(parseString(buffer))
+    case IntegerReplyByte       => IntegerReply(parseLong(buffer))
+    case BulkStringReplyByte    => decodeBulkStringReply(buffer)
+    case ArrayReplyByte         => ArrayReply(parseInteger(buffer), buffer)
+  }
+  
+  private[scredis] def send[A](request: Request[A])(implicit targetActor: ActorRef): Future[A] = {
+    aquire()
+    targetActor ! request
+    request.future
+  }
+  
+  reporter.start()
+  
+}
+
+/**
+ * This trait represents an instance of a client connected to a `Redis` server.
+ */
+// TODO: rename this, e.g. ClientLike? Connection? AbstractClient?
+trait Protocol extends Logging {
+  
+  protected implicit val ec = ExecutionContext.global
 
   protected def flattenKeyValueMap[K <: Any, V <: Any](
     before: List[String], map: Map[K, V]
@@ -73,44 +280,6 @@ trait Protocol {
     keyValues ++= before
     for ((key, value) <- map) keyValues += value += key
     keyValues.toList
-  }
-  
-  private def serialize(arg: Any): Array[Byte] = arg match {
-    case bytes: Array[Byte] => bytes
-    case _ => arg.toString.getBytes(Encoding)
-  }
-  private def serialize(args: Seq[Any]): Seq[Array[Byte]] = args.map(serialize)
-
-  private def multiBulkRequestFor(args: Seq[Array[Byte]]): Array[Byte] = {
-    builder.clear()
-    builder += MultiBulkReplyByte ++= args.size.toString.getBytes(Encoding) ++= CrLfByte
-    for (arg <- args) {
-      builder += BulkReplyByte ++= arg.size.toString.getBytes(Encoding) ++= CrLfByte
-      builder ++= arg ++= CrLfByte
-    }
-    builder.result
-  }
-
-  private def multiBulkRequestFor(commands: List[Seq[Array[Byte]]]): Array[Byte] = {
-    builder.clear()
-    for (args <- commands) {
-      builder += MultiBulkReplyByte ++= serialize(args.size) ++= CrLfByte
-      for (arg <- args) {
-        builder += BulkReplyByte ++= serialize(arg.size) ++= CrLfByte
-        builder ++= arg ++= CrLfByte
-      }
-    }
-    builder.result
-  }
-
-  private def parse(bytes: Array[Byte]): (Char, Array[Byte]) = {
-    (bytes(0).toChar, bytes.drop(1))
-  }
-
-  private def checkReplyType(received: Char, expected: Char): Unit = {
-    if (received != expected) throw RedisProtocolException(
-      "Invalid reply type received -> expected: %c, received: %c", expected, received
-    )
   }
   
   protected def generateScanLikeArgs(
@@ -136,400 +305,9 @@ trait Protocol {
     args.toList
   }
   
-  protected def send(data: Array[Byte]): Unit = {
-    logger.debug(s"Sending command: ${StringParser.parse(data)}")
-    connection.write(data)
-  }
-  protected def sendOnly(args: Any*): Unit = send(multiBulkRequestFor(serialize(args)))
-
-  private[scredis] def startQueuing(): Unit = isQueuing = true
-
-  private[scredis] def stopQueuing(): List[(Seq[Array[Byte]], (Char, Array[Byte]) => Any)] = {
-    isQueuing = false
-    val commands = this.commands.toList
-    this.commands.clear()
-    commands
+  protected def send[A](request: Request[A]): Future[A] = {
+    logger.debug(s"Sending request: $request")
+    null
   }
   
-  private[scredis] def reconnectOnce[A](f: => A): A = try {
-    f
-  } catch {
-    case e @ ConnectionException(_, _, true) => try {
-      connection.connect()
-      f
-    } catch {
-      case _: Throwable => throw RedisConnectionException(e, None)
-    }
-    case e @ ConnectionException(_, _, false) => throw RedisConnectionException(e, None)
-    case e: ConnectionTimeoutException => throw RedisConnectionException(e, None)
-  }
-
-  private[scredis] def receive[A](as: (Char, Array[Byte]) => A): A = {
-    val (replyType, bytes) = parse(connection.readLine())
-    if (replyType == ErrorReply) throw RedisCommandException(StringParser.parse(bytes))
-    as(replyType, bytes)
-  }
-
-  private[scredis] def send[A](args: Any*)(as: (Char, Array[Byte]) => A)(
-    implicit opts: CommandOptions = DefaultCommandOptions, setTimeout: Boolean = true
-  ): A = {
-    if (isQueuing) {
-      commands += ((serialize(args), as))
-      null.asInstanceOf[A]
-    } else {
-      val currentTimeout = connection.currentTimeout
-      if (setTimeout && currentTimeout != opts.timeout) connection.setTimeout(opts.timeout)
-      
-      if (opts.tries <= 1) reconnectOnce {
-        sendOnly(args: _*)
-        receive(as)
-      } else {
-        retry(opts.tries, opts.sleep) { count =>
-          if (count == 1) reconnectOnce {
-            sendOnly(args: _*)
-            receive(as)
-          } else try {
-            sendOnly(args: _*)
-            receive(as)
-          } catch {
-            case e: ConnectionException => throw RedisConnectionException(e, None)
-            case e: ConnectionTimeoutException => throw RedisConnectionException(e, None)
-          }
-        }
-      }
-    }
-  }
-  
-  private[scredis] def sendPipeline(commands: List[Seq[Array[Byte]]]): Unit =
-    send(multiBulkRequestFor(commands))
-
-  private[scredis] def receiveWithError[A](as: (Char, Array[Byte]) => A): Try[Any] = try {
-    Success(receive(as))
-  } catch {
-    case e: RedisCommandException => Failure(e)
-    case e: Throwable => throw e
-  }
-
-  private[scredis] def asUnit(replyType: Char, bytes: Array[Byte]): Unit = Unit
-
-  private[scredis] def asAny(
-    replyType: Char, bytes: Array[Byte]
-  ): Option[String] = replyType match {
-    case StatusReply => Some(asStatus(replyType, bytes))
-    case IntegerReply => Some(asInteger(replyType, bytes).toString)
-    case BulkReply => asBulk[String](replyType, bytes)
-  }
-
-  private[scredis] def asStatus(replyType: Char, bytes: Array[Byte]): String = {
-    checkReplyType(replyType, StatusReply)
-    StringParser.parse(bytes)
-  }
-  private[scredis] def asStatus[A](to: String => A)(replyType: Char, bytes: Array[Byte]): A =
-    to(asStatus(replyType, bytes))
-
-  private[scredis] def asOkStatus(replyType: Char, bytes: Array[Byte]): Unit = {
-    val status = asStatus(replyType, bytes)
-    if (status != "OK") throw RedisCommandException(status)
-  }
-
-  private[scredis] def asInteger(replyType: Char, bytes: Array[Byte]): Long = {
-    checkReplyType(replyType, IntegerReply)
-    longParser.parse(bytes)
-  }
-  private[scredis] def asInteger[A](to: Long => A)(replyType: Char, bytes: Array[Byte]): A =
-    to(asInteger(replyType, bytes))
-
-  private def asBulk[A](fn: Int => A)(replyType: Char, bytes: Array[Byte]): Option[A] = {
-    checkReplyType(replyType, BulkReply)
-    intParser.parse(bytes) match {
-      case -1 => None
-      case n => try {
-        Some(fn(n))
-      } catch {
-        case e: RedisParsingException => throw e
-        case e: Throwable => throw RedisConnectionException(e, None)
-      }
-    }
-  }
-  
-  private[scredis] def asBulk[A](replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A]
-  ): Option[A] = asBulk((n: Int) => parser.parse(connection.read(n)))(replyType, bytes)
-
-  private[scredis] def asBulk[A, B](to: Option[A] => B)(replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A]
-  ): B = to(asBulk[A](replyType, bytes))
-
-  private[scredis] def asMultiBulk[A, B, C[X] <: Traversable[X]](as: (Char, Array[Byte]) => B)(
-    replyType: Char, bytes: Array[Byte]
-  )(
-    implicit cbf: CanBuildFrom[Nothing, B, C[B]]
-  ): C[B] = {
-    checkReplyType(replyType, MultiBulkReply)
-    val builder = cbf()
-    intParser.parse(bytes) match {
-      case -1 | 0 => // empty collection
-      case n => for(i <- 1 to n) builder += receive(as)
-    }
-    builder.result
-  }
-  
-  private[scredis] def asMultiBulk[A, B, C[X] <: Traversable[X], D](as: (Char, Array[Byte]) => B)(
-    to: C[B] => D
-  )(replyType: Char, bytes: Array[Byte])(
-    implicit cbf: CanBuildFrom[Nothing, B, C[B]]
-  ): D = to(asMultiBulk[A, B, C](as)(replyType, bytes))
-  
-  private[scredis] def asMultiBulk[A, B[X] <: Traversable[X]](replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A],
-    cbf: CanBuildFrom[Nothing, Option[A], B[Option[A]]]
-  ): B[Option[A]] = asMultiBulk[A, Option[A], B](asBulk[A])(replyType, bytes)
-  
-  private[scredis] def asMultiBulk[A, B[X] <: Traversable[X], C](to: B[Option[A]] => C)(
-    replyType: Char, bytes: Array[Byte]
-  )(
-    implicit parser: Parser[A],
-    cbf: CanBuildFrom[Nothing, Option[A], B[Option[A]]]
-  ): C = to(asMultiBulk[A, Option[A], B](asBulk[A])(replyType, bytes))
-  
-  private[scredis] def asMultiBulk[A[X] <: Traversable[X], B](
-    to: A[Option[Array[Byte]]] => B
-  )(replyType: Char, bytes: Array[Byte])(
-    implicit cbf: CanBuildFrom[Nothing, Option[Array[Byte]], A[Option[Array[Byte]]]]
-  ): B = to(asMultiBulk[Array[Byte], A](replyType, bytes))
-  
-  private[scredis] def asMultiBulk[A](
-    to: List[Option[Array[Byte]]] => A
-  )(replyType: Char, bytes: Array[Byte]): A =
-    asMultiBulk[List, A](to)(replyType, bytes)(List.canBuildFrom)
-
-  private[scredis] def asBulkOrNullMultiBulkReply[A](replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A]
-  ): Option[A] = try {
-    asBulk[A](replyType, bytes)
-  } catch {
-    case e: RedisProtocolException => {
-      assert(asMultiBulk[A, List](replyType, bytes).isEmpty)
-      None
-    }
-    case e: Throwable => throw e
-  }
-
-  private[scredis] def asIntegerOrNullBulkReply(
-    replyType: Char, bytes: Array[Byte]
-  ): Option[Long] = try {
-    Some(asInteger(replyType, bytes))
-  } catch {
-    case e: RedisProtocolException => {
-      assert(asBulk[String](replyType, bytes).isEmpty)
-      None
-    }
-    case e: Throwable => throw e
-  }
-  
-  private[scredis] def asOkStatusOrNullBulkReply(
-    replyType: Char, bytes: Array[Byte]
-  ): Boolean = try {
-    asOkStatus(replyType, bytes)
-    true
-  } catch {
-    case e: RedisProtocolException => {
-      assert(asBulk[String](replyType, bytes).isEmpty)
-      false
-    }
-    case e: Throwable => throw e
-  }
-
-  private[scredis] def asBulkOrNestedMultiBulk[A, B[X] <: Traversable[X]](
-    parser: Parser[A], cbf: CanBuildFrom[Nothing, Any, B[Any]]
-  )(
-    replyType: Char, bytes: Array[Byte]
-  ): Any = try {
-    asBulk[A](replyType, bytes)(parser).get
-  } catch {
-    case e: RedisParsingException => throw e
-    case e: Throwable => asNestedMultiBulk(replyType, bytes)(parser, cbf)
-  }
-
-  private[scredis] def asNestedMultiBulk[A, B[X] <: Traversable[X]](
-    replyType: Char, bytes: Array[Byte]
-  )(
-    implicit parser: Parser[A],
-    cbf: CanBuildFrom[Nothing, Any, B[Any]]
-  ): B[Any] = {
-    checkReplyType(replyType, MultiBulkReply)
-    val builder = cbf()
-    intParser.parse(bytes) match {
-      case -1 | 0 => // empty collection
-      case n => for(i <- 1 to n) builder += receive(asBulkOrNestedMultiBulk(parser, cbf))
-    }
-    builder.result
-  }
-  
-  private[scredis] def asScanMultiBulk[A, B[X] <: Traversable[X]](
-    replyType: Char, bytes: Array[Byte]
-  )(
-    implicit parser: Parser[A],
-    cbf: CanBuildFrom[Nothing, A, B[A]]
-  ): (Long, B[A]) = {
-    checkReplyType(replyType, MultiBulkReply)
-    intParser.parse(bytes) match {
-      case x if x <= 0 => throw RedisProtocolException(
-        "Unexpected length received for scan multi bulk reply: %d", x
-      )
-      case n => {
-        val next = receive(asBulk[Long]).get
-        val set = receive(asMultiBulk[A, A, B](asBulk[A, A](flatten)))
-        (next, set)
-      }
-    }
-  }
-  
-  private[scredis] def asScanMultiBulk[A](to: List[Option[Array[Byte]]] => A)(
-    replyType: Char, bytes: Array[Byte]
-  ): (Long, A) = {
-    checkReplyType(replyType, MultiBulkReply)
-    intParser.parse(bytes) match {
-      case x if x <= 0 => throw RedisProtocolException(
-        "Unexpected length received for scan multi bulk reply: %d", x
-      )
-      case n => {
-        val next = receive(asBulk[Long]).get
-        val set = receive(asMultiBulk[A](to))
-        (next, set)
-      }
-    }
-  }
-
-  private[scredis] def toBoolean(integer: Long): Boolean = (integer > 0)
-
-  private[scredis] def toOptionalInt(integer: Long): Option[Int] = integer match {
-    case -1 => None
-    case _ => Some(integer.toInt)
-  }
-
-  private[scredis] def toOptionalLong(integer: Long): Option[Long] = integer match {
-    case -1 => None
-    case _ => Some(integer)
-  }
-
-  private[scredis] def toDouble(bulk: Option[String]): Double = bulk.get.toDouble
-
-  private[scredis] def toOptionalDouble(bulk: Option[String]): Option[Double] =
-    if (bulk.isDefined) Some(toDouble(bulk)) else None
-
-  private[scredis] def flatten[A](option: Option[A]): A = option.get
-    
-  private[scredis] def flattenAll[A, B[X] <: Traversable[X]](
-    option: Option[B[Option[A]]]
-  )(
-    implicit cbf: CanBuildFrom[Nothing, A, B[A]]
-  ): B[A] = flattenElements[A, B](option)(cbf).get
-  
-  private[scredis] def flattenElements[A, B[X] <: Traversable[X]](
-    option: Option[B[Option[A]]]
-  )(
-    implicit cbf: CanBuildFrom[Nothing, A, B[A]]
-  ): Option[B[A]] = option.map { c =>
-    val builder = cbf()
-    for(x <- c) builder += x.get
-    builder.result
-  }
-
-
-  private[scredis] def toLinkedHashSet(list: List[Option[String]]): LinkedHashSet[String] =
-    LinkedHashSet(list.flatten: _*)
-
-  private[scredis] def toPairsList[K, V](list: List[Option[Array[Byte]]])(
-    implicit keyParser: Parser[K], valueParser: Parser[V]
-  ): List[(K, V)] = list.grouped(2).collect {
-    case List(Some(key), Some(value)) => (keyParser.parse(key), valueParser.parse(value))
-  }.toList
-  
-  private[scredis] def toOptionalPairsList[K, V](list: List[Option[Array[Byte]]])(
-    implicit keyParser: Parser[K], valueParser: Parser[V]
-  ): Option[List[(K, V)]] = if(list.isEmpty) None else Some(toPairsList[K, V](list))
-
-  private[scredis] def toPairsLinkedHashSet[K, V](list: List[Option[Array[Byte]]])(
-    implicit keyParser: Parser[K], valueParser: Parser[V]
-  ): LinkedHashSet[(K, V)] = LinkedHashSet(toPairsList[K, V](list): _*)
-
-  private[scredis] def toMap[K, V](list: List[Option[Array[Byte]]])(
-    implicit keyParser: Parser[K], valueParser: Parser[V]
-  ): Map[K, V] = toPairsList[K, V](list).toMap
-  
-  private[scredis] def toOptionalMap[K, V](list: List[Option[Array[Byte]]])(
-    implicit keyParser: Parser[K], valueParser: Parser[V]
-  ): Option[Map[K, V]] = if(list.isEmpty) None else Some(toPairsList[K, V](list).toMap)
-
-  private[scredis] def toMapWithKeys[K, V](keys: List[K])(list: List[Option[Array[Byte]]])(
-    implicit parser: Parser[V]
-  ): Map[K, V] = keys.zip(list).collect {
-    case (key, Some(value)) => (key -> parser.parse(value))
-  }.toMap
-  
-}
-
-private[scredis] final class As private[scredis] (p: Protocol) {
-  def asUnit(replyType: Char, bytes: Array[Byte]): Unit = p.asUnit(replyType, bytes)
-
-  def asAny(replyType: Char, bytes: Array[Byte]): Option[String] = p.asAny(replyType, bytes)
-
-  def asStatus(replyType: Char, bytes: Array[Byte]): String = p.asStatus(replyType, bytes)
-
-  def asStatus[A](to: String => A)(replyType: Char, bytes: Array[Byte]): A =
-    to(asStatus(replyType, bytes))
-
-  def asOkStatus(replyType: Char, bytes: Array[Byte]): Unit = p.asOkStatus(replyType, bytes)
-
-  def asInteger(replyType: Char, bytes: Array[Byte]): Long = p.asInteger(replyType, bytes)
-  def asInteger[A](to: Long => A)(replyType: Char, bytes: Array[Byte]): A =
-    to(asInteger(replyType, bytes))
-
-  def asBulk[A](replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A] = StringParser
-  ): Option[A] = p.asBulk[A](replyType, bytes)
-
-  def asBulk[A, B](to: Option[A] => B)(replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A] = StringParser
-  ): B = to(asBulk[A](replyType, bytes))
-
-  def asMultiBulk[A, B, C[X] <: Traversable[X]](as: (Char, Array[Byte]) => B)(
-    replyType: Char, bytes: Array[Byte]
-  )(
-    implicit cbf: CanBuildFrom[Nothing, B, C[B]]
-  ): C[B] = p.asMultiBulk[A, B, C](as)(replyType, bytes)
-  
-  def asMultiBulk[A, B[X] <: Traversable[X]](replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A] = StringParser,
-    cbf: CanBuildFrom[Nothing, Option[A], B[Option[A]]]
-  ): B[Option[A]] = asMultiBulk[A, Option[A], B](asBulk[A])(replyType, bytes)
-  
-  def asMultiBulk[A[X] <: Traversable[X], B](
-    to: A[Option[Array[Byte]]] => B
-  )(replyType: Char, bytes: Array[Byte])(
-    implicit cbf: CanBuildFrom[Nothing, Option[Array[Byte]], A[Option[Array[Byte]]]]
-  ): B = to(asMultiBulk[Array[Byte], A](replyType, bytes))
-  
-  def asMultiBulk[A](
-    to: List[Option[Array[Byte]]] => A
-  )(replyType: Char, bytes: Array[Byte]): A =
-    asMultiBulk[List, A](to)(replyType, bytes)(List.canBuildFrom)
-  
-  /* Lua Conversions */
-
-  def asBoolean(replyType: Char, bytes: Array[Byte]): Boolean =
-    p.asIntegerOrNullBulkReply(replyType, bytes).isDefined
-
-  def asString(replyType: Char, bytes: Array[Byte]): Option[String] =
-    p.asBulk[String](replyType, bytes)
-
-  def asList(replyType: Char, bytes: Array[Byte]): List[String] = {
-    p.asMultiBulk[String, String, List](p.asBulk[String, String](p.flatten))(
-      replyType, bytes
-    )
-  }
-
-  def asNestedList(replyType: Char, bytes: Array[Byte]): List[Any] =
-    p.asNestedMultiBulk(replyType, bytes)(StringParser, List.canBuildFrom)
 }

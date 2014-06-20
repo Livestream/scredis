@@ -25,7 +25,7 @@ import scredis.protocol.Protocol
  * @define e [[scredis.exceptions.RedisCommandException]]
  * @define none `None`
  */
-trait SetsCommands { self: Protocol =>
+trait SetCommands { self: Protocol =>
   import Names._
 
   /**

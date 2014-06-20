@@ -9,7 +9,7 @@ object Multi extends NullaryCommand("MULTI")
 
 case class Multi() extends Request[Unit](Multi) {
   override def decode = {
-    case m: SimpleStringReply => 
+    case m: SimpleStringResponse => 
   }
 }
 
@@ -19,6 +19,6 @@ case class Exec(
   parsers: Traversable[PartialFunction[Reply, Any]]
 ) extends Request[IndexedSeq[Try[Any]]](Multi) {
   override def decode = {
-    case a: ArrayReply => a.parsed[IndexedSeq](parsers)
+    case a: ArrayResponse => a.parsed[IndexedSeq](parsers)
   }
 }

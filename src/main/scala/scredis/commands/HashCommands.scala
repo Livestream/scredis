@@ -30,7 +30,7 @@ import scala.collection.mutable.ListBuffer
  * @define e [[scredis.exceptions.RedisCommandException]]
  * @define none `None`
  */
-trait HashesCommands { self: Protocol =>
+trait HashCommands { self: Protocol =>
   import Names._
 
   /**

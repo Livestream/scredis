@@ -12,21 +12,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. See accompanying LICENSE file.
  */
-package scredis.commands.async
+package scredis.commands
 
-import scredis.CommandOptions
-import scredis.parsing._
-
-import scala.concurrent.Future
 import scala.concurrent.duration._
 
+import scredis.CommandOptions
+import scredis.protocol.Protocol
+import scredis.parsing._
+import scredis.parsing.Implicits._
+
+import scala.collection.mutable.ListBuffer
+
 /**
- * This trait implements asynchronous keys commands.
- * 
+ * This trait implements keys commands.
+ *
  * @define none `None`
  * @define e [[scredis.exceptions.RedisCommandException]]
  */
-trait KeysCommands extends Async {
+trait KeyCommands { self: Protocol =>
+  import Names._
+
+  protected def generateSortCommand(
+    key: String,
+    by: Option[String],
+    limit: Option[(Long, Long)],
+    get: Traversable[String],
+    desc: Boolean,
+    alpha: Boolean
+  ): ListBuffer[Any] = {
+    val command = ListBuffer[Any]()
+    command += Sort += key
+    by.foreach(command += "BY" += _)
+    limit.foreach {
+      case (offset, limit) => command += "LIMIT" += offset += limit
+    }
+    get.foreach(x => command += "GET" += x)
+    if (desc) command += "DESC"
+    if (alpha) command += "ALPHA"
+    command
+  }
 
   /**
    * Deletes one or multiple keys.
@@ -39,9 +63,8 @@ trait KeysCommands extends Async {
    *
    * @since 1.0.0
    */
-  def del(key: String, keys: String*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.del(key, keys: _*))
+  def del(key: String, keys: String*)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
+    send((Seq(Del, key) ++ keys): _*)(asInteger)
 
   /**
    * Returns a serialized version of the value stored at the specified key.
@@ -53,7 +76,7 @@ trait KeysCommands extends Async {
    */
   def dump(key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[Array[Byte]]] = async(_.dump(key))
+  ): Option[Array[Byte]] = send(Dump, key)(asBulk[Array[Byte]])
 
   /**
    * Determines if a key exists.
@@ -63,8 +86,8 @@ trait KeysCommands extends Async {
    *
    * @since 1.0.0
    */
-  def exists(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Boolean] =
-    async(_.exists(key))
+  def exists(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Boolean =
+    send(Exists, key)(asInteger(toBoolean))
 
   /**
    * Sets a key's time to live in seconds.
@@ -78,7 +101,7 @@ trait KeysCommands extends Async {
    */
   def expire(key: String, ttlSeconds: Int)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.expire(key, ttlSeconds))
+  ): Boolean = send(Expire, key, ttlSeconds)(asInteger(toBoolean))
 
   /**
    * Sets a key's time to live in milliseconds.
@@ -92,7 +115,7 @@ trait KeysCommands extends Async {
    */
   def pExpire(key: String, ttlMillis: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.pExpire(key, ttlMillis))
+  ): Boolean = send(PExpire, key, ttlMillis)(asInteger(toBoolean))
 
   /**
    * Sets a key's time to live.
@@ -106,7 +129,7 @@ trait KeysCommands extends Async {
    */
   def expireFromDuration(key: String, ttl: FiniteDuration)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.expireFromDuration(key, ttl))
+  ): Boolean = send(PExpire, key, ttl.toMillis)(asInteger(toBoolean))
 
   /**
    * Sets the expiration for a key as a UNIX timestamp.
@@ -120,12 +143,12 @@ trait KeysCommands extends Async {
    */
   def expireAt(key: String, timestamp: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.expireAt(key, timestamp))
+  ): Boolean = send(ExpireAt, key, timestamp)(asInteger(toBoolean))
 
   /**
    * Sets the expiration for a key as a UNIX timestamp specified in milliseconds.
    *
-   * @param key key to expire
+   * @param  key key to expire
    * @param timestampMillis  UNIX milliseconds-timestamp at which the key should expire
    * @return true if the ttl was set, false if key does not exist or
    * the timeout could not be set
@@ -134,7 +157,7 @@ trait KeysCommands extends Async {
    */
   def pExpireAt(key: String, timestampMillis: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.pExpireAt(key, timestampMillis))
+  ): Boolean = send(PExpireAt, key, timestampMillis)(asInteger(toBoolean))
 
   /**
    * Finds all keys matching the given pattern.
@@ -146,7 +169,9 @@ trait KeysCommands extends Async {
    */
   def keys(pattern: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Set[String]] = async(_.keys(pattern))
+  ): Set[String] = send(Keys, pattern)(
+    asMultiBulk[String, String, Set](asBulk[String, String](flatten))
+  )
 
   /**
    * Atomically transfers a key from a Redis instance to another one.
@@ -167,11 +192,19 @@ trait KeysCommands extends Async {
     host: String,
     port: Int = 6379,
     database: Int = 0,
-    timeout: FiniteDuration = 2 seconds,
+    timeout: FiniteDuration = if (connection.timeout.isFinite) {
+      connection.timeout.asInstanceOf[FiniteDuration]
+    } else {
+      2 seconds
+    },
     copy: Boolean = false,
     replace: Boolean = false
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Unit] =
-    async(_.migrate(key, host, port, database, timeout, copy, replace))
+  )(implicit opts: CommandOptions = DefaultCommandOptions): Unit = {
+    val command = ListBuffer[Any](Migrate, host, port, key, database, timeout.toMillis)
+    if(copy) command += "COPY"
+    if(replace) command += "REPLACE"
+    send(command: _*)(asOkStatus)
+  }
 
   /**
    * Moves a key to another database.
@@ -184,7 +217,7 @@ trait KeysCommands extends Async {
    */
   def move(key: String, database: Int)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.move(key, database))
+  ): Boolean = send(Move, key, database)(asInteger(toBoolean))
 
   /**
    * Removes the expiration from a key.
@@ -195,8 +228,8 @@ trait KeysCommands extends Async {
    *
    * @since 2.2.0
    */
-  def persist(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Boolean] =
-    async(_.persist(key))
+  def persist(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Boolean =
+    send(Persist, key)(asInteger(toBoolean))
 
   /**
    * Returns a random key from the keyspace.
@@ -206,8 +239,8 @@ trait KeysCommands extends Async {
    *
    * @since 1.0.0
    */
-  def randomKey()(implicit opts: CommandOptions = DefaultCommandOptions): Future[Option[String]] =
-    async(_.randomKey())
+  def randomKey()(implicit opts: CommandOptions = DefaultCommandOptions): Option[String] =
+    send(RandomKey)(asBulk[String])
 
   /**
    * Renames a key.
@@ -222,7 +255,7 @@ trait KeysCommands extends Async {
    */
   def rename(key: String, newKey: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.rename(key, newKey))
+  ): Unit = send(Rename, key, newKey)(asUnit)
 
   /**
    * Renames a key, only if the new key does not exist.
@@ -236,7 +269,7 @@ trait KeysCommands extends Async {
    */
   def renameNX(key: String, newKey: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.renameNX(key, newKey))
+  ): Boolean = send(RenameNX, key, newKey)(asInteger(toBoolean))
 
   /**
    * Creates a key using the provided serialized value, previously obtained using DUMP.
@@ -244,13 +277,13 @@ trait KeysCommands extends Async {
    * @param key destination key
    * @param serializedValue serialized value, previously obtained using DUMP
    * @param ttl optional time-to-live duration of newly created key (expire)
-   * @throws $e  if the value could not be restored
+   * @throws $e if the value could not be restored
    *
    * @since 2.6.0
    */
   def restore(key: String, serializedValue: Array[Byte], ttl: Option[FiniteDuration] = None)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.restore(key, serializedValue, ttl))
+  ): Unit = send(Restore, key, ttl.map(_.toMillis).getOrElse(0), serializedValue)(asUnit)
 
   /**
    * Sorts the elements of a list, set or sorted set.
@@ -280,7 +313,9 @@ trait KeysCommands extends Async {
   )(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[List[Option[A]]] = async(_.sort(key, by, limit, get, desc, alpha))
+  ): List[Option[A]] = {
+    send(generateSortCommand(key, by, limit, get, desc, alpha): _*)(asMultiBulk[A, List])
+  }
 
   /**
    * Sorts the elements of a list, set or sorted set and then store the result.
@@ -310,8 +345,11 @@ trait KeysCommands extends Async {
     get: Traversable[String] = Traversable(),
     desc: Boolean = false,
     alpha: Boolean = false
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.sortAndStore(key, targetKey, by, limit, get, desc, alpha))
+  )(implicit opts: CommandOptions = DefaultCommandOptions): Long = {
+    val command = generateSortCommand(key, by, limit, get, desc, alpha)
+    command += "STORE" += targetKey
+    send(command: _*)(asInteger)
+  }
 
   /**
    * Gets the time to live for a key in seconds.
@@ -344,7 +382,15 @@ trait KeysCommands extends Async {
    */
   def ttl(key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Either[Boolean, Int]] = async(_.ttl(key))
+  ): Either[Boolean, Int] = send(Ttl, key)(asInteger { x =>
+    if (x == -2) {
+      Left(false)
+    } else if (x == -1) {
+      Left(true)
+    } else {
+      Right(x.toInt)
+    }
+  })
 
   /**
    * Gets the time to live for a key in milliseconds.
@@ -377,7 +423,15 @@ trait KeysCommands extends Async {
    */
   def pTtl(key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Either[Boolean, Long]] = async(_.pTtl(key))
+  ): Either[Boolean, Long] = send(PTtl, key)(asInteger { x =>
+    if (x == -2) {
+      Left(false)
+    } else if (x == -1) {
+      Left(true)
+    } else {
+      Right(x)
+    }
+  })
 
   /**
    * Gets the time to live `FiniteDuration` for a key.
@@ -409,7 +463,15 @@ trait KeysCommands extends Async {
    */
   def ttlDuration(key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Either[Boolean, FiniteDuration]] = async(_.ttlDuration(key))
+  ): Either[Boolean, FiniteDuration] = send(PTtl, key)(asInteger { x =>
+    if (x == -2) {
+      Left(false)
+    } else if (x == -1) {
+      Left(true)
+    } else {
+      Right(x milliseconds)
+    }
+  })
 
   /**
    * Determine the type stored at key.
@@ -424,9 +486,8 @@ trait KeysCommands extends Async {
    *
    * @since 1.0.0
    */
-  def `type`(key: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[String]] = async(_.`type`(key))
+  def `type`(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Option[String] =
+    send(Type, key)(asStatus(x => if (x.toLowerCase() == "none") None else Some(x)))
   
   /**
    * Incrementally iterates the set of keys in the currently selected Redis database.
@@ -442,6 +503,8 @@ trait KeysCommands extends Async {
   def scan[A](cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[(Long, Set[A])] = async(_.scan(cursor, countOpt, matchOpt))
+  ): (Long, Set[A]) = send(
+    generateScanLikeArgs(Scan, None, cursor, countOpt, matchOpt): _*
+  )(asScanMultiBulk[A, Set])
   
 }

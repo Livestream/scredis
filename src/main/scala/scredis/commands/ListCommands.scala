@@ -12,20 +12,96 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. See accompanying LICENSE file.
  */
-package scredis.commands.async
+package scredis.commands
 
 import scredis.CommandOptions
 import scredis.parsing._
+import scredis.parsing.Implicits._
+import scredis.protocol.Protocol
 
-import scala.concurrent.Future
+import scala.concurrent.duration._
 
 /**
- * This trait implements asynchronous lists commands.
- * 
+ * This trait implements lists commands.
+ *
  * @define e [[scredis.exceptions.RedisCommandException]]
  * @define none `None`
  */
-trait ListsCommands extends Async {
+trait ListCommands { self: Protocol =>
+  import Names._
+
+  /**
+   * Removes and returns the first element in a list, or block until one is available.
+   *
+   * @param timeoutSeconds timeout in seconds, if zero, the command blocks indefinitely until
+   * an element is available
+   * @param key list key
+   * @param keys additional list keys
+   * @return list of key to popped element pair, or $none if timeout occurs
+   * @throws $e if key contains a non-list value
+   *
+   * @since 2.0.0
+   */
+  def blPop[A](timeoutSeconds: Int, key: String, keys: String*)(
+    implicit parser: Parser[A] = StringParser
+  ): Option[(String, A)] = {
+    connection.setTimeout(Duration.Inf)
+    val result = send((Seq(BLPop, key) ++ keys :+ timeoutSeconds): _*)(
+      asMultiBulk[Option[(String, A)]](
+        x => toOptionalPairsList[String, A](x).map(_.head))
+      )(DefaultCommandOptions, false)
+    connection.restoreDefaultTimeout()
+    result
+  }
+
+  /**
+   * Removes and returns the last element in a list, or block until one is available.
+   *
+   * @param timeoutSeconds timeout in seconds, if zero, the command blocks indefinitely until
+   * an element is available in at least one of the provided lists
+   * @param key list key
+   * @param keys additional list keys
+   * @return list of key to popped element pair, or $none if timeout occurs
+   * @throws $e if key contains a non-list value
+   *
+   * @since 2.0.0
+   */
+  def brPop[A](timeoutSeconds: Int, key: String, keys: String*)(
+    implicit parser: Parser[A] = StringParser
+  ): Option[(String, A)] = {
+    connection.setTimeout(Duration.Inf)
+    val result = send((Seq(BRPop, key) ++ keys :+ timeoutSeconds): _*)(
+      asMultiBulk[Option[(String, A)]](
+        x => toOptionalPairsList[String, A](x).map(_.head))
+      )(DefaultCommandOptions, false)
+    connection.restoreDefaultTimeout()
+    result
+  }
+
+  /**
+   * Pops a value from a list, pushes it to another list and returns it, or block until one is
+   * available.
+   *
+   * @param sourceKey key of list to pop from
+   * @param destKey key of list to push to
+   * @param timeoutSeconds timeout in seconds, if zero, the command blocks indefinitely until
+   * an element is available in the list at sourceKey
+   * @return the element being popped from source and pushed to destination, or $none if timeout
+   * occurs
+   * @throws $e if sourceKey or destKey contain non-list values
+   *
+   * @since 2.2.0
+   */
+  def brPopLPush[A](sourceKey: String, destKey: String, timeoutSeconds: Int)(
+    implicit parser: Parser[A] = StringParser
+  ): Option[A] = {
+    connection.setTimeout(Duration.Inf)
+    val result = send(BRPopLPush, sourceKey, destKey, timeoutSeconds)(
+      asBulkOrNullMultiBulkReply[A]
+    )(DefaultCommandOptions, false)
+    connection.restoreDefaultTimeout()
+    result
+  }
 
   /**
    * Returns an element from a list by its index.
@@ -44,7 +120,7 @@ trait ListsCommands extends Async {
   def lIndex[A](key: String, index: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Option[A]] = async(_.lIndex(key, index))
+  ): Option[A] = send(LIndex, key, index)(asBulk[A])
 
   /**
    * Inserts an element before or after another element in a list.
@@ -61,7 +137,9 @@ trait ListsCommands extends Async {
    */
   def lInsert(key: String, pivot: String, value: Any, after: Boolean = true)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[Long]] = async(_.lInsert(key, pivot, value, after))
+  ): Option[Long] = send(LInsert, key, (if (after) "AFTER" else "BEFORE"), pivot, value)(
+    asInteger(toOptionalLong)
+  )
 
   /**
    * Inserts an element before another element in a list.
@@ -76,7 +154,7 @@ trait ListsCommands extends Async {
    */
   def lInsertBefore(key: String, pivot: String, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[Long]] = async(_.lInsertBefore(key, pivot, value))
+  ): Option[Long] = lInsert(key, pivot, value, false)
 
   /**
    * Inserts an element after another element in a list.
@@ -91,7 +169,7 @@ trait ListsCommands extends Async {
    */
   def lInsertAfter(key: String, pivot: String, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Option[Long]] = async(_.lInsertAfter(key, pivot, value))
+  ): Option[Long] = lInsert(key, pivot, value, true)
 
   /**
    * Returns the length of a list.
@@ -102,8 +180,8 @@ trait ListsCommands extends Async {
    *
    * @since 1.0.0
    */
-  def lLen(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.lLen(key))
+  def lLen(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
+    send(LLen, key)(asInteger)
 
   /**
    * Removes and returns the first element of a list.
@@ -117,7 +195,7 @@ trait ListsCommands extends Async {
   def lPop[A](key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Option[A]] = async(_.lPop(key))
+  ): Option[A] = send(LPop, key)(asBulk[A])
 
   /**
    * Removes and returns the last element of a list.
@@ -131,7 +209,7 @@ trait ListsCommands extends Async {
   def rPop[A](key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Option[A]] = async(_.rPop(key))
+  ): Option[A] = send(RPop, key)(asBulk[A])
 
   /**
    * Prepends one or multiple values to a list.
@@ -149,7 +227,7 @@ trait ListsCommands extends Async {
    */
   def lPush(key: String, value: Any, values: Any*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.lPush(key, value, values: _*))
+  ): Long = send((Seq(LPush, key, value) ++ values): _*)(asInteger)
 
   /**
    * Appends one or multiple values to a list.
@@ -167,7 +245,7 @@ trait ListsCommands extends Async {
    */
   def rPush(key: String, value: Any, values: Any*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.rPush(key, value, values: _*))
+  ): Long = send((Seq(RPush, key, value) ++ values): _*)(asInteger)
 
   /**
    * Prepends a value to a list, only if the list exists.
@@ -181,7 +259,7 @@ trait ListsCommands extends Async {
    */
   def lPushX(key: String, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.lPushX(key, value))
+  ): Long = send(LPushX, key, value)(asInteger)
 
   /**
    * Appends a value to a list, only if the list exists.
@@ -195,7 +273,7 @@ trait ListsCommands extends Async {
    */
   def rPushX(key: String, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.rPushX(key, value))
+  ): Long = send(RPushX, key, value)(asInteger)
 
   /**
    * Returns a range of elements from a list.
@@ -210,7 +288,7 @@ trait ListsCommands extends Async {
    * @param start start offset (inclusive)
    * @param end end offset (inclusive)
    * @return list of elements in the specified range, or the empty list if there are no such
-   * elements or if key does not exist
+   * elements or the key does not exist
    * @throws $e if key contains a non-list value
    *
    * @since 1.0.0
@@ -218,7 +296,9 @@ trait ListsCommands extends Async {
   def lRange[A](key: String, start: Long = 0, end: Long = -1)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[List[A]] = async(_.lRange(key, start, end))
+  ): List[A] = send(LRange, key, start, end)(
+    asMultiBulk[A, A, List](asBulk[A, A](flatten))
+  )
 
   /**
    * Removes the first count occurrences of elements equal to value from the list stored at key.
@@ -240,7 +320,7 @@ trait ListsCommands extends Async {
    */
   def lRem(key: String, value: Any, count: Long = 0)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.lRem(key, value, count))
+  ): Long = send(LRem, key, count, value)(asInteger)
 
   /**
    * Sets the value of an element in a list by its index.
@@ -254,7 +334,7 @@ trait ListsCommands extends Async {
    */
   def lSet(key: String, index: Long, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.lSet(key, index, value))
+  ): Unit = send(LSet, key, index, value)(asUnit)
 
   /**
    * Trims a list to the specified range.
@@ -272,7 +352,7 @@ trait ListsCommands extends Async {
    */
   def lTrim(key: String, start: Long, end: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.lTrim(key, start, end))
+  ): Unit = send(LTrim, key, start, end)(asUnit)
 
   /**
    * Removes the last element in a list, appends it to another list and returns it.
@@ -287,6 +367,6 @@ trait ListsCommands extends Async {
   def rPopLPush[A](sourceKey: String, destKey: String)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Option[A]] = async(_.rPopLPush(sourceKey, destKey))
+  ): Option[A] = send(RPopLPush, sourceKey, destKey)(asBulk[A])
 
 }

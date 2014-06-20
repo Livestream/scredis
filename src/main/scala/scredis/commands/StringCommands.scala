@@ -12,21 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. See accompanying LICENSE file.
  */
-package scredis.commands.async
+package scredis.commands
 
 import scredis.{ CommandOptions, Condition }
 import scredis.parsing._
+import scredis.parsing.Implicits._
+import scredis.protocol.Protocol
+import scredis.exceptions.RedisCommandException
 
-import scala.concurrent.Future
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 /**
- * This trait implements asynchronous strings commands.
- * 
+ * This trait implements strings commands.
+ *
  * @define e [[scredis.exceptions.RedisCommandException]]
  * @define none `None`
  */
-trait StringsCommands extends Async {
+trait StringCommands { self: Protocol =>
+  import Names._
+
+  private def bitOpBinary(op: String)(key1: String, key2: String, destKey: String)(
+    implicit opts: CommandOptions = DefaultCommandOptions
+  ): Long = send(BitOp, op, destKey, key1, key2)(asInteger)
 
   /**
    * Appends a value to a key.
@@ -40,7 +48,7 @@ trait StringsCommands extends Async {
    */
   def append(key: String, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.append(key, value))
+  ): Long = send(Append, key,value)(asInteger)
 
   /**
    * Counts the number of bits set to 1 in a string.
@@ -53,8 +61,8 @@ trait StringsCommands extends Async {
    *
    * @since 2.6.0
    */
-  def bitCount(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.bitCount(key))
+  def bitCount(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
+    send(BitCount, key)(asInteger)
 
   /**
    * Counts the number of bits set to 1 in a string from start offset to end offset.
@@ -71,7 +79,7 @@ trait StringsCommands extends Async {
    */
   def bitCountInRange(key: String, start: Long, end: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.bitCountInRange(key, start, end))
+  ): Long = send(BitCount, key, start, end)(asInteger)
 
   /**
    * Performs bitwise AND operation between two strings.
@@ -92,7 +100,7 @@ trait StringsCommands extends Async {
    */
   def bitOpAnd(key1: String, key2: String, destKey: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.bitOpAnd(key1, key2, destKey))
+  ): Long = bitOpBinary("AND")(key1, key2, destKey)
 
   /**
    * Performs bitwise OR operation between two strings.
@@ -113,7 +121,7 @@ trait StringsCommands extends Async {
    */
   def bitOpOr(key1: String, key2: String, destKey: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.bitOpOr(key1, key2, destKey))
+  ): Long = bitOpBinary("OR")(key1, key2, destKey)
 
   /**
    * Performs bitwise XOR operation between two strings.
@@ -134,7 +142,7 @@ trait StringsCommands extends Async {
    */
   def bitOpXor(key1: String, key2: String, destKey: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.bitOpXor(key1, key2, destKey))
+  ): Long = bitOpBinary("XOR")(key1, key2, destKey)
 
   /**
    * Performs bitwise NOT operation on a given string.
@@ -149,7 +157,7 @@ trait StringsCommands extends Async {
    */
   def bitOpNot(key: String, destKey: String)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.bitOpNot(key, destKey))
+  ): Long = send(BitOp, "NOT", destKey, key)(asInteger)
 
   /**
    * Decrements the integer value of a key by one.
@@ -163,8 +171,8 @@ trait StringsCommands extends Async {
    *
    * @since 1.0.0
    */
-  def decr(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.decr(key))
+  def decr(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
+    send(Decr, key)(asInteger)
 
   /**
    * Decrements the integer value of a key by the given amount.
@@ -181,7 +189,7 @@ trait StringsCommands extends Async {
    */
   def decrBy(key: String, count: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.decrBy(key, count))
+  ): Long = send(DecrBy, key, count)(asInteger)
 
   /**
    * Returns the value stored at key.
@@ -195,7 +203,7 @@ trait StringsCommands extends Async {
   def get[A](key: String)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Option[A]] = async(_.get(key))
+  ): Option[A] = send(Get, key)(asBulk[A])
 
   /**
    * Returns the bit value at offset in the string value stored at key.
@@ -209,7 +217,7 @@ trait StringsCommands extends Async {
    */
   def getBit(key: String, offset: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.getBit(key, offset))
+  ): Boolean = send(GetBit, key, offset)(asInteger(toBoolean))
 
   /**
    * Returns a substring of the string stored at a key.
@@ -229,7 +237,7 @@ trait StringsCommands extends Async {
   def substr[A](key: String, start: Long, end: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[A] = async(_.substr(key, start, end))
+  ): A = send(Substr, key, start, end)(asBulk[A, A](flatten))
 
   /**
    * Returns a substring of the string stored at a key.
@@ -248,7 +256,7 @@ trait StringsCommands extends Async {
   def getRange[A](key: String, start: Long, end: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[A] = async(_.getRange(key, start, end))
+  ): A = send(GetRange, key, start, end)(asBulk[A, A](flatten))
 
   /**
    * Sets the string value of a key and return its old value.
@@ -263,7 +271,7 @@ trait StringsCommands extends Async {
   def getSet[A](key: String, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Option[A]] = async(_.getSet(key, value))
+  ): Option[A] = send(GetSet, key,value)(asBulk[A])
 
   /**
    * Increments the integer value of a key by one.
@@ -277,8 +285,8 @@ trait StringsCommands extends Async {
    *
    * @since 1.0.0
    */
-  def incr(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.incr(key))
+  def incr(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
+    send(Incr, key)(asInteger)
 
   /**
    * Increments the integer value of a key by the given amount.
@@ -295,7 +303,7 @@ trait StringsCommands extends Async {
    */
   def incrBy(key: String, count: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.incrBy(key, count))
+  ): Long = send(IncrBy, key, count)(asInteger)
 
   /**
    * Increment the float value of a key by the given amount.
@@ -312,7 +320,7 @@ trait StringsCommands extends Async {
    */
   def incrByFloat(key: String, count: Double)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Double] = async(_.incrByFloat(key, count))
+  ): Double = send(IncrByFloat, key, count)(asBulk[Double, Double](flatten))
 
   /**
    * Returns the values of all specified keys.
@@ -329,7 +337,7 @@ trait StringsCommands extends Async {
   def mGet[A](key: String, keys: String*)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[List[Option[A]]] = async(_.mGet(key, keys: _*))
+  ): List[Option[A]] = send((Seq(MGet, key) ++ keys): _*)(asMultiBulk[A, List])
 
   /**
    * Returns a `Map` containing the specified key(s) paired to their respective value(s).
@@ -346,7 +354,9 @@ trait StringsCommands extends Async {
   def mGetAsMap[A](key: String, keys: String*)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
-  ): Future[Map[String, A]] = async(_.mGetAsMap(key, keys: _*))
+  ): Map[String, A] = send((Seq(MGet, key) ++ keys): _*)(
+    asMultiBulk[List, Map[String, A]](toMapWithKeys[String, A](key :: keys.toList))
+  )
 
   /**
    * Atomically sets multiple keys to multiple values.
@@ -360,7 +370,11 @@ trait StringsCommands extends Async {
    */
   def mSetFromMap(keyValueMap: Map[String, Any])(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.mSetFromMap(keyValueMap))
+  ): Unit = if(keyValueMap.isEmpty) {
+    throw RedisCommandException("MSET: keyValueMap cannot be empty")
+  } else {
+    send(flattenKeyValueMap(List(MSet), keyValueMap): _*)(asUnit)
+  }
 
   /**
    * Atomically sets multiple keys to multiple values.
@@ -374,7 +388,7 @@ trait StringsCommands extends Async {
    */
   def mSet(keyValuePair: (String, Any), keyValuePairs: (String, Any)*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.mSet(keyValuePair, keyValuePairs: _*))
+  ): Unit = mSetFromMap((keyValuePair :: keyValuePairs.toList).toMap)
 
   /**
    * Atomically sets multiple keys to multiple values, only if none of the keys exist.
@@ -388,7 +402,11 @@ trait StringsCommands extends Async {
    */
   def mSetNXFromMap(keyValueMap: Map[String, Any])(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.mSetNXFromMap(keyValueMap))
+  ): Boolean = if(keyValueMap.isEmpty) {
+    throw RedisCommandException("MSETNX: keyValueMap cannot be empty")
+  } else {
+    send(flattenKeyValueMap(List(MSetNX), keyValueMap): _*)(asInteger(toBoolean))
+  }
 
   /**
    * Atomically sets multiple keys to multiple values, only if none of the keys exist.
@@ -402,7 +420,7 @@ trait StringsCommands extends Async {
    */
   def mSetNX(keyValuePair: (String, Any), keyValuePairs: (String, Any)*)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.mSetNX(keyValuePair, keyValuePairs: _*))
+  ): Boolean = mSetNXFromMap((keyValuePair :: keyValuePairs.toList).toMap)
 
   /**
    * Sets the string value of a key.
@@ -415,9 +433,8 @@ trait StringsCommands extends Async {
    *
    * @since 1.0.0
    */
-  def set(key: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.set(key, value))
+  def set(key: String, value: Any)(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
+    send(Set, key, value)(asUnit)
   
   /**
    * Sets the string value of a key, optionally using a condition and/or expiring it.
@@ -439,9 +456,15 @@ trait StringsCommands extends Async {
     value: Any,
     expireAfter: Option[FiniteDuration] = None,
     condition: Option[Condition] = None
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Boolean] = async(
-    _.setWithOptions(key, value, expireAfter, condition)
-  )
+  )(implicit opts: CommandOptions = DefaultCommandOptions): Boolean = {
+    val arguments = ListBuffer[Any](Set, key, value)
+    expireAfter.foreach { d =>
+      arguments += "PX"
+      arguments += d.toMillis
+    }
+    condition.foreach(arguments += _)
+    send(arguments: _*)(asOkStatusOrNullBulkReply)
+  }
 
   /**
    * Sets or clears the bit at offset in the string value stored at key.
@@ -458,14 +481,14 @@ trait StringsCommands extends Async {
    */
   def setBit(key: String, offset: Long, bit: Boolean)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.setBit(key, offset, bit))
+  ): Boolean = send(SetBit, key, offset, if (bit) 1 else 0)(asInteger(toBoolean))
 
   /**
    * Sets the value and expiration of a key.
    *
    * @note If key already holds a value, it is overwritten, regardless of its type.
    *
-   * @param key	target key to set
+   * @param key target key to set
    * @param value value to be stored at key
    * @param ttl time-to-live, up to milliseconds precision
    *
@@ -473,7 +496,7 @@ trait StringsCommands extends Async {
    */
   def setEXDuration(key: String, value: Any, ttl: FiniteDuration)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.setEXDuration(key, value, ttl))
+  ): Unit = send(PSetEX, key, ttl.toMillis, value)(asUnit)
 
   /**
    * Sets the value and expiration in seconds of a key.
@@ -488,7 +511,7 @@ trait StringsCommands extends Async {
    */
   def setEX(key: String, value: Any, ttlSeconds: Int)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.setEX(key, value, ttlSeconds))
+  ): Unit = send(SetEX, key, ttlSeconds,value)(asUnit)
 
   /**
    * Sets the value and expiration in milliseconds of a key.
@@ -503,7 +526,7 @@ trait StringsCommands extends Async {
    */
   def pSetEX(key: String, value: Any, ttlMillis: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Unit] = async(_.pSetEX(key, value, ttlMillis))
+  ): Unit = send(PSetEX, key, ttlMillis,value)(asUnit)
 
   /**
    * Sets the value of a key, only if the key does not exist.
@@ -516,7 +539,7 @@ trait StringsCommands extends Async {
    */
   def setNX(key: String, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Boolean] = async(_.setNX(key, value))
+  ): Boolean = send(SetNX, key,value)(asInteger(toBoolean))
 
   /**
    * Overwrites part of a string at key starting at the specified offset.
@@ -526,7 +549,7 @@ trait StringsCommands extends Async {
    * so this command will make sure it holds a string large enough to be able to set value at
    * offset.
    *
-   * @param key	target key
+   * @param key target key
    * @param offset position from which the string must be overwritten
    * @param value string value to be set at given offset
    * @return the length of the string after it was modified by the command
@@ -536,7 +559,7 @@ trait StringsCommands extends Async {
    */
   def setRange(key: String, offset: Long, value: Any)(
     implicit opts: CommandOptions = DefaultCommandOptions
-  ): Future[Long] = async(_.setRange(key, offset, value))
+  ): Long = send(SetRange, key, offset,value)(asInteger)
 
   /**
    * Returns the length of the string value stored in a key.
@@ -547,7 +570,7 @@ trait StringsCommands extends Async {
    *
    * @since 2.2.0
    */
-  def strLen(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Future[Long] =
-    async(_.strLen(key))
+  def strLen(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
+    send(StrLen, key)(asInteger)
 
 }
