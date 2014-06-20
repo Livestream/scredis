@@ -27,13 +27,13 @@ object Protocol {
     
   private val CrByte = '\r'.toByte
   private val CfByte = '\n'.toByte
-  private val SimpleStringReplyByte = '+'.toByte
-  private val ErrorReplyByte = '-'.toByte
-  private val IntegerReplyByte = ':'.toByte
-  private val BulkStringReplyByte = '$'.toByte
-  private val BulkStringReplyLength = 1
-  private val ArrayReplyByte = '*'.toByte
-  private val ArrayReplyLength = 1
+  private val SimpleStringResponseByte = '+'.toByte
+  private val ErrorResponseByte = '-'.toByte
+  private val IntegerResponseByte = ':'.toByte
+  private val BulkStringResponseByte = '$'.toByte
+  private val BulkStringResponseLength = 1
+  private val ArrayResponseByte = '*'.toByte
+  private val ArrayResponseLength = 1
   
   private val CrLf = "\r\n".getBytes(Encoding)
   private val CrLfLength = CrLf.length
@@ -48,7 +48,7 @@ object Protocol {
     }
   }
   
-  private def parseInteger(buffer: ByteBuffer): Int = {
+  private def parseInt(buffer: ByteBuffer): Int = {
     var length: Int = 0
     var isPositive = true
     
@@ -110,8 +110,8 @@ object Protocol {
     new String(bytes.result(), "UTF-8")
   }
   
-  private def decodeBulkStringReply(buffer: ByteBuffer): BulkStringReply = {
-    val length = parseInteger(buffer)
+  private def decodeBulkStringResponse(buffer: ByteBuffer): BulkStringResponse = {
+    val length = parseInt(buffer)
     val valueOpt = if (length > 0) {
       val array = new Array[Byte](length)
       buffer.get(array)
@@ -121,7 +121,7 @@ object Protocol {
     } else {
       None
     }
-    BulkStringReply(valueOpt)
+    BulkStringResponse(valueOpt)
   }
   
   private[scredis] def release(): Unit = concurrentOpt.foreach {
@@ -135,15 +135,16 @@ object Protocol {
   private[scredis] def encode(args: Seq[Any]): ByteBuffer = {
     val argsSize = args.size.toString.getBytes(Encoding)
     
-    var length = ArrayReplyLength + argsSize.length + CrLfLength
+    var length = ArrayResponseLength + argsSize.length + CrLfLength
     
     val serializedArgs = args.map { arg =>
       val serializedArg = arg match {
+        case null => throw new NullPointerException(args.mkString(" "))
         case x: Array[Byte] => x
         case x => arg.toString.getBytes(Encoding)
       }
       val serializedArgSize = serializedArg.length.toString.getBytes(Encoding)
-      length += BulkStringReplyLength +
+      length += BulkStringResponseLength +
         serializedArgSize.length +
         CrLfLength +
         serializedArg.length +
@@ -152,10 +153,14 @@ object Protocol {
     }
     
     val buffer = bufferPool.acquire(length)
-    
-    buffer.put(BulkStringReplyByte).put(argsSize).put(CrLf)
+    buffer.put(BulkStringResponseByte).put(argsSize).put(CrLf)
     for ((serializedArg, serializedArgSize) <- serializedArgs) {
-      buffer.put(BulkStringReplyByte).put(serializedArgSize).put(CrLf).put(serializedArg).put(CrLf)
+      buffer
+        .put(BulkStringResponseByte)
+        .put(serializedArgSize)
+        .put(CrLf)
+        .put(serializedArg)
+        .put(CrLf)
     }
     
     buffer.flip()
@@ -165,8 +170,8 @@ object Protocol {
   private[scredis] def count(buffer: ByteBuffer): Int = {
     var char: Byte = 0
     var requests = 0
-    var arrayCount = 0
     var position = -1
+    var arrayCount = 0
     var arrayPosition = -1
     var isFragmented = false
     
@@ -182,11 +187,15 @@ object Protocol {
     }
     
     @inline
-    def fail(): Unit = isFragmented = true
+    def stop(): Unit = isFragmented = true
     
     while (buffer.remaining > 0 && !isFragmented) {
       char = buffer.get()
-      if (char == ErrorReplyByte || char == SimpleStringReplyByte || char == IntegerReplyByte) {
+      if (
+        char == ErrorResponseByte ||
+        char == SimpleStringResponseByte ||
+        char == IntegerResponseByte
+      ) {
         position = buffer.position - 1
         while (buffer.remaining > 0 && char != '\n') {
           char = buffer.get()
@@ -194,12 +203,12 @@ object Protocol {
         if (char == '\n') {
           incr()
         } else {
-          fail()
+          stop()
         }
-      } else if (char == BulkStringReplyByte) {
+      } else if (char == BulkStringResponseByte) {
         position = buffer.position - 1
         try {
-          val length = parseInteger(buffer) match {
+          val length = parseInt(buffer) match {
             case -1 => 0
             case x => x + 2
           }
@@ -207,22 +216,22 @@ object Protocol {
             buffer.position(buffer.position + length)
             incr()
           } else {
-            fail()
+            stop()
           }
         } catch {
-          case e: java.nio.BufferUnderflowException => fail()
+          case e: java.nio.BufferUnderflowException => stop()
         }
-      } else if (char == ArrayReplyByte) {
+      } else if (char == ArrayResponseByte) {
         arrayPosition = buffer.position - 1
         try {
-          val length = parseInteger(buffer)
+          val length = parseInt(buffer)
           if (length <= 0) {
             incr()
           } else {
             arrayCount = length
           }
         } catch {
-          case e: java.nio.BufferUnderflowException => fail()
+          case e: java.nio.BufferUnderflowException => stop()
         }
       }
     }
@@ -238,12 +247,12 @@ object Protocol {
     requests
   }
   
-  private[scredis] def decode(buffer: ByteBuffer): Reply = buffer.get() match {
-    case ErrorReplyByte         => ErrorReply(parseString(buffer))
-    case SimpleStringReplyByte  => SimpleStringReply(parseString(buffer))
-    case IntegerReplyByte       => IntegerReply(parseLong(buffer))
-    case BulkStringReplyByte    => decodeBulkStringReply(buffer)
-    case ArrayReplyByte         => ArrayReply(parseInteger(buffer), buffer)
+  private[scredis] def decode(buffer: ByteBuffer): Response = buffer.get() match {
+    case ErrorResponseByte         => ErrorResponse(parseString(buffer))
+    case SimpleStringResponseByte  => SimpleStringResponse(parseString(buffer))
+    case IntegerResponseByte       => IntegerResponse(parseLong(buffer))
+    case BulkStringResponseByte    => decodeBulkStringResponse(buffer)
+    case ArrayResponseByte         => ArrayResponse(parseInt(buffer), buffer)
   }
   
   private[scredis] def send[A](request: Request[A])(implicit targetActor: ActorRef): Future[A] = {
@@ -259,11 +268,11 @@ object Protocol {
 /**
  * This trait represents an instance of a client connected to a `Redis` server.
  */
-// TODO: rename this, e.g. ClientLike? Connection? AbstractClient?
+// TODO: rename this, e.g. ClientLike? Connection in io package? AbstractClient?
 trait Protocol extends Logging {
   
   protected implicit val ec = ExecutionContext.global
-
+  
   protected def flattenKeyValueMap[K <: Any, V <: Any](
     before: List[String], map: Map[K, V]
   ): List[Any] = {

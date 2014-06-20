@@ -68,7 +68,7 @@ trait ConnectionCommands { self: Protocol =>
   }
 
   /**
-   * Changes the selected database on the current client.
+   * Changes the selected database on the current connection.
    *
    * @param database database index
    * @throws $e if the database index is invalid
