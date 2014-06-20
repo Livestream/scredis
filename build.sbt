@@ -8,7 +8,7 @@ name := "scredis"
 
 version := "1.1.2"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.1"
 
 scalacOptions ++= Seq("-deprecation")
 
@@ -17,7 +17,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-lang3" % "3.1",
   "commons-pool" % "commons-pool" % "1.6",
   "com.typesafe" % "config" % "1.2.0",
-  "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+  "org.scalatest" %% "scalatest" % "2.1.7" % "test"
 )
 
 publishTo <<= version { (v: String) =>

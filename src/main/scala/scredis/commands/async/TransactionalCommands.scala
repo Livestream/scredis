@@ -15,11 +15,12 @@
 package scredis.commands.async
 
 import scredis.{ PipelineClient, TransactionalClient, CommandOptions }
-import scredis.exceptions.RedisCommandException
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.collection.generic.CanBuildFrom
 import scala.util.Try
+
+import scala.language.higherKinds
 
 /**
  * This trait implements asynchronous transactional commands and pipelining.
@@ -87,7 +88,7 @@ trait TransactionalCommands extends Async {
    *
    * @since 1.0.0
    */
-  def pipelinedN[A, B[_] <: Traversable[_]](body: PipelineClient => B[Future[A]])(
+  def pipelinedN[A, B[X] <: Traversable[X]](body: PipelineClient => B[Future[A]])(
     implicit opts: CommandOptions = DefaultCommandOptions,
     cbf: CanBuildFrom[B[Future[A]], A, B[A]],
     ec: ExecutionContext
@@ -160,7 +161,7 @@ trait TransactionalCommands extends Async {
    *
    * @since 2.0.0
    */
-  def transactionalN[A, B[_] <: Traversable[_]](body: TransactionalClient => B[Future[A]])(
+  def transactionalN[A, B[X] <: TraversableOnce[X]](body: TransactionalClient => B[Future[A]])(
     implicit opts: CommandOptions = DefaultCommandOptions,
     cbf: CanBuildFrom[B[Future[A]], A, B[A]],
     ec: ExecutionContext

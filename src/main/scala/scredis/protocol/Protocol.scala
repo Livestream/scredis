@@ -24,11 +24,11 @@ import scredis.util.Pattern.retry
 import scredis.parsing._
 import scredis.parsing.Implicits._
 
-import scala.collection.TraversableLike
-import scala.collection.GenTraversableOnce
-import scala.collection.generic.{ CanBuildFrom, GenericTraversableTemplate }
+import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ ArrayBuilder, ListBuffer }
 import scala.util.{ Try, Success, Failure }
+
+import scala.language.higherKinds
 
 /**
  * This trait implements the `Redis` protocol.
@@ -489,11 +489,11 @@ private[scredis] final class As private[scredis] (p: Protocol) {
     to(asInteger(replyType, bytes))
 
   def asBulk[A](replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A] = StringParser
+    implicit parser: Parser[A]
   ): Option[A] = p.asBulk[A](replyType, bytes)
 
   def asBulk[A, B](to: Option[A] => B)(replyType: Char, bytes: Array[Byte])(
-    implicit parser: Parser[A] = StringParser
+    implicit parser: Parser[A]
   ): B = to(asBulk[A](replyType, bytes))
 
   def asMultiBulk[A, B, C[X] <: Traversable[X]](as: (Char, Array[Byte]) => B)(
