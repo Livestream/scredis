@@ -14,8 +14,8 @@
  */
 package scredis.commands
 
-import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll }
-import org.scalatest.matchers.MustMatchers._
+import org.scalatest.{ConfigMap, WordSpec, GivenWhenThen, BeforeAndAfterAll}
+import org.scalatest.MustMatchers._
 
 import scredis.{ Redis, Condition }
 import scredis.exceptions.RedisCommandException
@@ -727,7 +727,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
   }
 
-  override def afterAll(configMap: Map[String, Any]) {
+  override def afterAll(configMap: ConfigMap) {
     redis.flushAll().!
     redis.quit()
   }

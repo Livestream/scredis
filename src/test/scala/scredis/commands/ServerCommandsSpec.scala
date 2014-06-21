@@ -15,7 +15,7 @@
 package scredis.commands
 
 import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll, OneInstancePerTest }
-import org.scalatest.matchers.MustMatchers._
+import org.scalatest.MustMatchers._
 
 import scredis.{ Redis, Client }
 import scredis.exceptions._
