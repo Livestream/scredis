@@ -137,9 +137,9 @@ class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   Restore when {
     "the destination key already exists" should {
       "return an error" taggedAs (V260) in {
-        evaluating {
-          client.restore("TO-DUMP", dumpedValue)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.restore("TO-DUMP", dumpedValue).!
+        }
       }
     }
     "the destination key does not exist" should {
@@ -275,24 +275,24 @@ class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   Migrate when {
     "the key does not exist" should {
       "return an error" taggedAs (V260) in {
-        evaluating {
-          client.migrate("NONEXISTENTKEY", "127.0.0.1")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.migrate("NONEXISTENTKEY", "127.0.0.1").!
+        }
       }
     }
     "migrating a key to the same instance" should {
       "return an error" taggedAs (V260) in {
         client.set("TO-MIGRATE", SomeValue).!
-        evaluating {
-          client.migrate("TO-MIGRATE", "127.0.0.1", timeout = 500 milliseconds)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.migrate("TO-MIGRATE", "127.0.0.1", timeout = 500 milliseconds).!
+        }
       }
     }
     "migrating a key to a non-existing instance" should {
       "return an error" taggedAs (V260) in {
-        evaluating {
-          client.migrate("TO-MIGRATE", "127.0.0.1", 6378, timeout = 500 milliseconds)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.migrate("TO-MIGRATE", "127.0.0.1", 6378, timeout = 500 milliseconds).!
+        }
       }
     }
     "migrating a key to a valid instance" should {
@@ -439,17 +439,17 @@ class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   Rename when {
     "the key does not exist" should {
       "return an error" taggedAs (V100) in {
-        evaluating {
-          client.rename("sourceKey", "destKey")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.rename("sourceKey", "destKey").!
+        }
       }
     }
     "the source key exists but destination key is identical to source key" should {
       "return an error" taggedAs (V100) in {
         client.set("sourceKey", SomeValue)
-        evaluating {
-          client.rename("sourceKey", "sourceKey")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.rename("sourceKey", "sourceKey").!
+        }
       }
     }
     "the source key exists and destination key is different" should {
@@ -473,17 +473,17 @@ class KeysCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     "the key does not exist" should {
       "return an error" taggedAs (V100) in {
         client.del("sourceKey", "destKey")
-        evaluating {
-          client.renameNX("sourceKey", "destKey")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.renameNX("sourceKey", "destKey").!
+        }
       }
     }
     "the source key exists but destination key is identical to source key" should {
       "return an error" taggedAs (V100) in {
         client.set("sourceKey", SomeValue)
-        evaluating {
-          client.renameNX("sourceKey", "sourceKey")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.renameNX("sourceKey", "sourceKey").!
+        }
       }
     }
     "the source key exists and destination key is different" should {

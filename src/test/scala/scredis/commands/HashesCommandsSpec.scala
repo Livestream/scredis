@@ -43,7 +43,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hDel("LIST")("foo") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hDel("LIST")("foo").! }
       }
     }
     "the hash does not contain the field" should {
@@ -68,7 +68,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V240) in {
-        evaluating { client.hDel("LIST")("foo", "bar") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hDel("LIST")("foo", "bar").! }
       }
     }
     "the hash does not contain the fields" should {
@@ -98,7 +98,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hExists("LIST")("foo") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hExists("LIST")("foo").! }
       }
     }
     "the hash does not contain the field" should {
@@ -123,7 +123,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hGet("LIST")("foo") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hGet("LIST")("foo").! }
       }
     }
     "the hash does not contain the field" should {
@@ -148,7 +148,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hGetAll("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hGetAll("LIST").! }
       }
     }
     "the hash contains some fields" should {
@@ -170,7 +170,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hIncrBy("LIST")("foo", 1) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hIncrBy("LIST")("foo", 1).! }
       }
     }
     "the hash does not contain the field" should {
@@ -182,7 +182,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     "the hash contains the field but the latter does not contain an integer" should {
       "return an error" taggedAs (V200) in {
         client.hSet("HASH")("FIELD3", SomeValue)
-        evaluating { client.hIncrBy("HASH")("FIELD3", 2) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hIncrBy("HASH")("FIELD3", 2).! }
       }
     }
     "the hash contains the field and the latter is an integer" should {
@@ -203,7 +203,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V260) in {
-        evaluating { client.hIncrByFloat("LIST")("foo", 1.2) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hIncrByFloat("LIST")("foo", 1.2).! }
       }
     }
     "the hash does not contain the field" should {
@@ -215,9 +215,9 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     "the hash contains the field but the latter does not contain a floating point number" should {
       "return an error" taggedAs (V260) in {
         client.hSet("HASH")("FIELD3", SomeValue)
-        evaluating {
-          client.hIncrByFloat("HASH")("FIELD3", 2.1)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.hIncrByFloat("HASH")("FIELD3", 2.1).!
+        }
       }
     }
     "the hash contains the field and the latter is a floating point number" should {
@@ -237,7 +237,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hKeys("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hKeys("LIST").! }
       }
     }
     "the hash contains some fields" should {
@@ -258,7 +258,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hLen("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hLen("LIST").! }
       }
     }
     "the hash contains some fields" should {
@@ -280,8 +280,8 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hmGet("LIST")("foo", "bar") } must produce[RedisCommandException]
-        evaluating { client.hmGetAsMap("LIST")("foo", "bar") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hmGet("LIST")("foo", "bar").! }
+        an [RedisCommandException] must be thrownBy { client.hmGetAsMap("LIST")("foo", "bar").! }
       }
     }
     "the hash contains some fields" should {
@@ -309,12 +309,12 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating {
-          client.hmSet("LIST")(("FIELD", SomeValue), ("FIELD2", "YES"))
-        } must produce[RedisCommandException]
-        evaluating {
-          client.hmSetFromMap("LIST", Map("FIELD" -> SomeValue, "FIELD2" -> "YES"))
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          client.hmSet("LIST")(("FIELD", SomeValue), ("FIELD2", "YES")).!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          client.hmSetFromMap("LIST", Map("FIELD" -> SomeValue, "FIELD2" -> "YES")).!
+        }
       }
     }
     "the hash contains some fields" should {
@@ -340,7 +340,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hSet("LIST")("foo", "bar") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hSet("LIST")("foo", "bar").! }
       }
     }
     "the hash already exists and does not contain the field" should {
@@ -367,7 +367,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hSetNX("LIST")("foo", "bar") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hSetNX("LIST")("foo", "bar").! }
       }
     }
     "the hash already exists and does not contain the field" should {
@@ -393,7 +393,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        evaluating { client.hVals("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hVals("LIST").! }
       }
     }
     "the hash contains some fields" should {
@@ -417,7 +417,7 @@ class HashesCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V280) in {
-        evaluating { client.hScan[String]("LIST")(0) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { client.hScan[String]("LIST")(0).! }
       }
     }
     "the hash contains 5 fields" should {

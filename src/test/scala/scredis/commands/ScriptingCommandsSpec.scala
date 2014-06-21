@@ -54,7 +54,7 @@ class ScriptingCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAf
   "%s %s".format(Script, ScriptLoad) when {
     "the script is invalid" should {
       "return an error" taggedAs (V260) in {
-        evaluating { redis.scriptLoad(InvalidScript) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.scriptLoad(InvalidScript).! }
       }
     }
     "the script is valid" should {
@@ -93,14 +93,14 @@ class ScriptingCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAf
   Eval when {
     "the script is invalid" should {
       "return an error" taggedAs (V260) in {
-        evaluating { redis.eval(InvalidScript)(_.asUnit) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.eval(InvalidScript)(_.asUnit).! }
       }
     }
     "the script is valid but returns an error" should {
       "return an error" taggedAs (V260) in {
-        evaluating {
-          redis.evalWithKeys(ScriptAsInteger)("HASH")(_.asUnit)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.evalWithKeys(ScriptAsInteger)("HASH")(_.asUnit).!
+        }
       }
     }
     "the script is a valid Lua script" should {
@@ -157,9 +157,9 @@ class ScriptingCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAf
     "the script is valid but returns an error" should {
       "return an error" taggedAs (V260) in {
         val sha1 = redis.scriptLoad(ScriptAsInteger).!
-        evaluating {
-          redis.evalShaWithKeys(sha1)("HASH")(_.asUnit)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.evalShaWithKeys(sha1)("HASH")(_.asUnit).!
+        }
       }
     }
     "the script is a valid Lua script" should {

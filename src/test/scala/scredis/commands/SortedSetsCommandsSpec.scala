@@ -49,7 +49,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zAdd("HASH", ("hello", 1)) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zAdd("HASH", ("hello", 1)).! }
       }
     }
     "the sorted set contains some elements" should {
@@ -74,17 +74,17 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "providing an empty map" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zAddFromMap("SET", Map()) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zAddFromMap("SET", Map()).! }
       }
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating {
-          redis.zAddFromMap("HASH", Map("hello" -> 1, "asd" -> 2))
-        } must produce[RedisCommandException]
-        evaluating {
-          redis.zAdd("HASH", ("hello", 1), ("asd", 2))
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.zAddFromMap("HASH", Map("hello" -> 1, "asd" -> 2)).!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          redis.zAdd("HASH", ("hello", 1), ("asd", 2)).!
+        }
       }
     }
     "the sorted set contains some elements" should {
@@ -108,7 +108,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zCard("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zCard("HASH").! }
       }
     }
     "the sorted set contains some elements" should {
@@ -130,9 +130,9 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
-        evaluating {
-          redis.zCount("HASH", Infinity, Infinity)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.zCount("HASH", Infinity, Infinity).!
+        }
       }
     }
     "the sorted set contains some elements" should {
@@ -166,7 +166,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zIncrBy("HASH", "A", 1.5) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zIncrBy("HASH", "A", 1.5).! }
       }
     }
     "the sorted set contains some elements" should {
@@ -198,8 +198,8 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "at least one of the source key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
-        evaluating { redis.zInterStore("SET")("HASH") } must produce[RedisCommandException]
-        evaluating { redis.zInterStore("SET")("HASH", "SET2") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zInterStore("SET")("HASH").! }
+        an [RedisCommandException] must be thrownBy { redis.zInterStore("SET")("HASH", "SET2").! }
       }
     }
     "the sorted sets contain some elements" should {
@@ -346,9 +346,9 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "at least one of the source key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
-        evaluating { redis.zUnionStore("SET")("HASH") } must produce[RedisCommandException]
-        evaluating { redis.zUnionStore("SET")("HASH", "SET2") } must produce[RedisCommandException]
-        evaluating { redis.zUnionStore("SET")("SET1", "HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zUnionStore("SET")("HASH").! }
+        an [RedisCommandException] must be thrownBy { redis.zUnionStore("SET")("HASH", "SET2").! }
+        an [RedisCommandException] must be thrownBy { redis.zUnionStore("SET")("SET1", "HASH").! }
       }
     }
     "the sorted sets contain some elements" should {
@@ -517,8 +517,8 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zRange("HASH") } must produce[RedisCommandException]
-        evaluating { redis.zRangeWithScores("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zRange("HASH").! }
+        an [RedisCommandException] must be thrownBy { redis.zRangeWithScores("HASH").! }
       }
     }
     "the sorted set contains some elements" should {
@@ -576,12 +576,12 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V220) in {
-        evaluating {
-          redis.zRangeByScore("HASH", Infinity, Infinity)
-        } must produce[RedisCommandException]
-        evaluating {
-          redis.zRangeByScoreWithScores("HASH", Infinity, Infinity)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.zRangeByScore("HASH", Infinity, Infinity).!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          redis.zRangeByScoreWithScores("HASH", Infinity, Infinity).!
+        }
       }
     }
     "the sorted set contains some elements" should {
@@ -663,7 +663,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
-        evaluating { redis.zRank("HASH", "hello") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zRank("HASH", "hello").! }
       }
     }
     "the sorted set does not contain the member" should {
@@ -690,7 +690,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zRem("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zRem("HASH", "A").! }
       }
     }
     "the sorted set does not contain the element" should {
@@ -719,7 +719,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zRem("HASH", "A", "B") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zRem("HASH", "A", "B").! }
       }
     }
     "the sorted set does not contain the element" should {
@@ -749,7 +749,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
-        evaluating { redis.zRemRangeByRank("HASH", 0, -1) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zRemRangeByRank("HASH", 0, -1).! }
       }
     }
     "the sorted set contains some element" should {
@@ -780,9 +780,9 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating {
-          redis.zRemRangeByScore("HASH", Infinity, Infinity)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.zRemRangeByScore("HASH", Infinity, Infinity).!
+        }
       }
     }
     "the sorted set contains some element" should {
@@ -814,8 +814,8 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zRevRange("HASH") } must produce[RedisCommandException]
-        evaluating { redis.zRevRangeWithScores("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zRevRange("HASH").! }
+        an [RedisCommandException] must be thrownBy { redis.zRevRangeWithScores("HASH").! }
       }
     }
     "the sorted set contains some elements" should {
@@ -875,12 +875,12 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V220) in {
-        evaluating {
-          redis.zRevRangeByScore("HASH", Infinity, Infinity)
-        } must produce[RedisCommandException]
-        evaluating {
-          redis.zRevRangeByScoreWithScores("HASH", Infinity, Infinity)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.zRevRangeByScore("HASH", Infinity, Infinity).!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          redis.zRevRangeByScoreWithScores("HASH", Infinity, Infinity).!
+        }
       }
     }
     "the sorted set contains some elements" should {
@@ -976,7 +976,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
-        evaluating { redis.zRevRank("HASH", "hello") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zRevRank("HASH", "hello").! }
       }
     }
     "the sorted set does not contain the member" should {
@@ -1003,7 +1003,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.zScore("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zScore("HASH", "A").! }
       }
     }
     "the sorted set does not contain the member" should {
@@ -1034,7 +1034,7 @@ class SortedSetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V280) in {
-        evaluating { redis.zScan[String]("HASH")(0) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.zScan[String]("HASH")(0).! }
       }
     }
     "the sorted set contains 5 elements" should {
