@@ -14,7 +14,7 @@
  */
 package scredis.commands
 
-import org.scalatest.{ConfigMap, WordSpec, GivenWhenThen, BeforeAndAfterAll}
+import org.scalatest.{ ConfigMap, WordSpec, GivenWhenThen, BeforeAndAfterAll }
 import org.scalatest.MustMatchers._
 
 import scredis.{ Redis, Condition }

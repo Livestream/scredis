@@ -16,7 +16,7 @@ Scredis is an advanced [Redis](http://redis.io) client entirely written in Scala
 ## Getting started
 
 ### Binaries
-Scredis is compatible with Scala 2.9.x and 2.10.x. Binary releases are hosted on the Sonatype Central Repository.
+Scredis is compatible with Scala 2.9.x, 2.10 and 2.11. Binary releases are hosted on the Sonatype Central Repository.
 
 ```scala
 resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases/"

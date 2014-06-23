@@ -17,7 +17,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-lang3" % "3.1",
   "commons-pool" % "commons-pool" % "1.6",
   "com.typesafe" % "config" % "1.2.0",
-  "org.scalatest" %% "scalatest" % "2.1.7" % "test"
+  "org.scalatest" %% "scalatest" % "2.2.0" % "test"
 )
 
 publishTo <<= version { (v: String) =>
