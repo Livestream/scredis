@@ -167,7 +167,7 @@ trait KeysCommands extends Async {
     host: String,
     port: Int = 6379,
     database: Int = 0,
-    timeout: FiniteDuration = 2 seconds,
+    timeout: FiniteDuration = 2.seconds,
     copy: Boolean = false,
     replace: Boolean = false
   )(implicit opts: CommandOptions = DefaultCommandOptions): Future[Unit] =

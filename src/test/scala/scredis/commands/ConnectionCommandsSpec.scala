@@ -15,7 +15,7 @@
 package scredis.commands
 
 import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll }
-import org.scalatest.matchers.MustMatchers._
+import org.scalatest.MustMatchers._
 
 import scredis.{ Redis, Client }
 import scredis.exceptions.{ RedisCommandException, RedisConnectionException }
@@ -33,12 +33,12 @@ class ConnectionCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
   Auth when {
     "the server has no password" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.auth("foo") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.auth("foo").! }
       }
     }
     "the password is invalid" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redisWithPassword.auth("foo") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redisWithPassword.auth("foo").! }
       }
     }
     "the password is correct" should {
@@ -49,7 +49,7 @@ class ConnectionCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
     }
     "re-authenticating with a wrong password" should {
       "return an error and unauthenticate the redis" taggedAs (V100) in {
-        evaluating { redisWithPassword.auth("foo") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redisWithPassword.auth("foo").! }
         redisWithPassword.ping() must be("PONG")
       }
     }
@@ -91,14 +91,14 @@ class ConnectionCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndA
   Select when {
     "database index is negative" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.select(-1) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.select(-1).! }
       }
     }
     "database index is too large" should {
       "return an error" taggedAs (V100) in {
-        evaluating {
-          redis.select(Integer.MAX_VALUE)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.select(Integer.MAX_VALUE).!
+        }
       }
     }
     "database index is valid" should {

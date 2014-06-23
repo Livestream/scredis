@@ -66,5 +66,6 @@ object LinkedHashSet extends ImmutableSetFactory[LinkedHashSet] {
   override def newBuilder[A]: Builder[A, LinkedHashSet[A]] =
     new LinkedHashSetBuilder[A](MLinkedHashSet.empty)
   override def empty[A]: LinkedHashSet[A] = new LinkedHashSet[A]
+  def emptyInstance = new LinkedHashSet[Any]
 }
 

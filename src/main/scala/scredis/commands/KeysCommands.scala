@@ -195,7 +195,7 @@ trait KeysCommands { self: Protocol =>
     timeout: FiniteDuration = if (connection.timeout.isFinite) {
       connection.timeout.asInstanceOf[FiniteDuration]
     } else {
-      2 seconds
+      2.seconds
     },
     copy: Boolean = false,
     replace: Boolean = false
@@ -469,7 +469,7 @@ trait KeysCommands { self: Protocol =>
     } else if (x == -1) {
       Left(true)
     } else {
-      Right(x milliseconds)
+      Right(x.milliseconds)
     }
   })
 

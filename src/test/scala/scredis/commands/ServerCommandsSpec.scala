@@ -15,7 +15,7 @@
 package scredis.commands
 
 import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll, OneInstancePerTest }
-import org.scalatest.matchers.MustMatchers._
+import org.scalatest.MustMatchers._
 
 import scredis.{ Redis, Client }
 import scredis.exceptions._
@@ -47,19 +47,19 @@ class ServerCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     }
     "already running" should {
       "return an error" taggedAs (V100) in {
-        evaluating {
-          redis.bgSave()
-          redis.bgSave()
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy {
+          redis.bgSave().!
+          redis.bgSave().!
+        }
         Thread.sleep(500)
       }
     }
     "%s is already running".format(BgRewriteAOF) should {
       "return an error" taggedAs (V100) in {
-        evaluating {
-          redis.bgRewriteAOF()
-          redis.bgSave()
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy {
+          redis.bgRewriteAOF().!
+          redis.bgSave().!
+        }
       }
     }
   }
@@ -142,14 +142,14 @@ class ServerCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
   "%s %s".format(Names.Client, ClientKill) when {
     "providing invalid ip and port" should {
       "return an error" taggedAs (V240) in {
-        evaluating { redis.clientKillFromIpPort("lol", -1) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.clientKillFromIpPort("lol", -1).! }
       }
     }
     "killing a non-existing client" should {
       "return an error" taggedAs (V240) in {
-        evaluating {
-          redis.clientKillFromIpPort("110.44.56.127", 53655)
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.clientKillFromIpPort("110.44.56.127", 53655).!
+        }
       }
     }
     "killing a connected client" should {
@@ -197,15 +197,15 @@ class ServerCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
   "%s %s".format(Config, ConfigSet) when {
     "providing an non-existent key" should {
       "return an error" taggedAs (V200) in {
-        evaluating {
-          redis.configSet("thiskeywillneverexist", "foo")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.configSet("thiskeywillneverexist", "foo").!
+        }
       }
     }
     "changing the password" should {
       "succeed" taggedAs (V200) in {
         redis.configSet("requirepass", "guessit")
-        evaluating { redis.ping() } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.ping().! }
         redis.auth("guessit").!
         redis.configGet("requirepass").map(_.get("requirepass").get) must be("guessit")
         redis.configSet("requirepass", "")

@@ -19,9 +19,10 @@ import scredis.parsing._
 import scredis.parsing.Implicits._
 import scredis.protocol.Protocol
 import scredis.exceptions.RedisCommandException
-import scredis.Score._
 import scredis.Aggregate._
 import scredis.util.LinkedHashSet
+
+import scala.language.implicitConversions
 
 /**
  * This trait implements sorted sets commands.
@@ -36,7 +37,7 @@ trait SortedSetsCommands { self: Protocol =>
   protected val Limit = "LIMIT"
 
   import Names._
-  
+
   private implicit def stringToDouble(str: String): Double = augmentString(str).toDouble
 
   /**

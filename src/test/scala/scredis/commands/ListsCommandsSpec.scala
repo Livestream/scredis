@@ -15,7 +15,7 @@
 package scredis.commands
 
 import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll }
-import org.scalatest.matchers.MustMatchers._
+import org.scalatest.MustMatchers._
 
 import scredis.Redis
 import scredis.exceptions.RedisCommandException
@@ -43,13 +43,13 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     "the first existing key is not of type list" should {
       "return an error" taggedAs (V200) in {
         redis.rPush("LIST", "A").!
-        evaluatingSync {
+        an [RedisCommandException] must be thrownBy {
           redis.sync(_.blPop(1, "HASH", "LIST"))
-        } must produce[RedisCommandException]
+        }
         redis.del("LIST").!
-        evaluatingSync {
+        an [RedisCommandException] must be thrownBy  {
           redis.sync(_.blPop(1, "LIST", "HASH"))
-        } must produce[RedisCommandException]
+        }
       }
     }
     "the keys do not exist or are empty" should {
@@ -101,13 +101,13 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     "the first existing key is not of type list" should {
       "return an error" taggedAs (V200) in {
         redis.lPush("LIST", "A").!
-        evaluatingSync {
+        an [RedisCommandException] must be thrownBy {
           redis.sync(_.brPop(1, "HASH", "LIST"))
-        } must produce[RedisCommandException]
+        }
         redis.del("LIST").!
-        evaluatingSync {
+        an [RedisCommandException] must be thrownBy {
           redis.sync(_.brPop(1, "LIST", "HASH"))
-        } must produce[RedisCommandException]
+        }
       }
     }
     "the keys do not exist or are empty" should {
@@ -163,17 +163,17 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the source key does not contain a list" should {
       "return an error" taggedAs (V220) in {
-        evaluatingSync {
+        an [RedisCommandException] must be thrownBy {
           redis.sync(_.brPopLPush("HASH", "LIST", 1))
-        } must produce[RedisCommandException]
+        }
       }
     }
     "the dest key does not contain a list" should {
       "return an error" taggedAs (V220) in {
         redis.lPush("LIST", "A").!
-        evaluatingSync {
+        an [RedisCommandException] must be thrownBy {
           redis.sync(_.brPopLPush("LIST", "HASH", 1))
-        } must produce[RedisCommandException]
+        }
       }
     }
     "the source and dest keys are correct" should {
@@ -205,7 +205,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lIndex("HASH", 0) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lIndex("HASH", 0).! }
       }
     }
     "the index is out of range" should {
@@ -240,7 +240,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V220) in {
-        evaluating { redis.lInsert("HASH", "A", SomeValue) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lInsert("HASH", "A", SomeValue).! }
       }
     }
     "the pivot is not in the list" should {
@@ -271,7 +271,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lLen("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lLen("HASH").! }
       }
     }
     "the list contains some elements" should {
@@ -292,7 +292,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lPop("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lPop("HASH").! }
       }
     }
     "the list contains some elements" should {
@@ -314,7 +314,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.rPop("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.rPop("HASH").! }
       }
     }
     "the list contains some elements" should {
@@ -338,7 +338,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lPush("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lPush("HASH", "A").! }
       }
     }
     "the list contains some elements" should {
@@ -360,7 +360,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V240) in {
-        evaluating { redis.lPush("HASH", "A", "B") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lPush("HASH", "A", "B").! }
       }
     }
     "the list contains some elements" should {
@@ -382,7 +382,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.rPush("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.rPush("HASH", "A").! }
       }
     }
     "the list contains some elements" should {
@@ -404,7 +404,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V240) in {
-        evaluating { redis.rPush("HASH", "A", "B") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.rPush("HASH", "A", "B").! }
       }
     }
     "the list contains some elements" should {
@@ -426,7 +426,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V220) in {
-        evaluating { redis.lPushX("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lPushX("HASH", "A").! }
       }
     }
     "the list contains some elements" should {
@@ -450,7 +450,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V220) in {
-        evaluating { redis.rPushX("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.rPushX("HASH", "A").! }
       }
     }
     "the list contains some elements" should {
@@ -472,7 +472,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lRange("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lRange("HASH").! }
       }
     }
     "the list contains some elements" should {
@@ -504,7 +504,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lRem("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lRem("HASH", "A").! }
       }
     }
     "the list contains some elements" should {
@@ -545,15 +545,15 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
   LSet when {
     "the key does not exist" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lSet("LIST", 0, "A") } must produce[RedisCommandException]
-        evaluating { redis.lSet("LIST", 1, "A") } must produce[RedisCommandException]
-        evaluating { redis.lSet("LIST", -1, "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lSet("LIST", 0, "A").! }
+        an [RedisCommandException] must be thrownBy { redis.lSet("LIST", 1, "A").! }
+        an [RedisCommandException] must be thrownBy { redis.lSet("LIST", -1, "A").! }
         redis.lRange("LIST") must be('empty)
       }
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lSet("HASH", 0, "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lSet("HASH", 0, "A").! }
       }
     }
     "the list contains some elements" should {
@@ -562,9 +562,9 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
         redis.rPush("LIST", "A")
         redis.rPush("LIST", "B")
         redis.rPush("LIST", "C")
-        evaluating { redis.lSet("LIST", 3, "X") } must produce[RedisCommandException]
-        evaluating { redis.lSet("LIST", -4, "X") } must produce[RedisCommandException]
-        evaluating { redis.lSet("LIST", 55, "X") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lSet("LIST", 3, "X").! }
+        an [RedisCommandException] must be thrownBy { redis.lSet("LIST", -4, "X").! }
+        an [RedisCommandException] must be thrownBy { redis.lSet("LIST", 55, "X").! }
         redis.lRange("LIST") must be(List("A", "B", "C"))
       }
       Given("the index is correct")
@@ -591,7 +591,7 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.lTrim("HASH", 0, -1) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.lTrim("HASH", 0, -1).! }
       }
     }
     "the list contains some elements" should {
@@ -652,8 +652,8 @@ class ListsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterA
     }
     "one of the keys does not contain a list" should {
       "return an error" taggedAs (V120) in {
-        evaluating { redis.rPopLPush("HASH", "LIST") } must produce[RedisCommandException]
-        evaluating { redis.rPopLPush("LIST2", "HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.rPopLPush("HASH", "LIST").! }
+        an [RedisCommandException] must be thrownBy { redis.rPopLPush("LIST2", "HASH").! }
       }
     }
     "both lists contain some elements" should {
