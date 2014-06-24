@@ -421,7 +421,7 @@ final class Redis private[scredis] (
    * 
    * @since 1.0.0
    */
-  def quit(awaitTerminationOpt: Option[Duration] = Some(1 second)): Unit = synchronized {
+  def quit(awaitTerminationOpt: Option[Duration] = Some(1.second)): Unit = synchronized {
     shouldShutdown = true
     flushAutomaticPipeline()
     while (this.commands.size > 1) {

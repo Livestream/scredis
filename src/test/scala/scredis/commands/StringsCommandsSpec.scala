@@ -14,8 +14,8 @@
  */
 package scredis.commands
 
-import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll }
-import org.scalatest.matchers.MustMatchers._
+import org.scalatest.{ ConfigMap, WordSpec, GivenWhenThen, BeforeAndAfterAll }
+import org.scalatest.MustMatchers._
 
 import scredis.{ Redis, Condition }
 import scredis.exceptions.RedisCommandException
@@ -39,7 +39,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
   Append when {
     "the key does not contain a string" should {
       "return an error" taggedAs (V200) in {
-        evaluating { redis.append("LIST", "a") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.append("LIST", "a").! }
       }
     }
     "appending the empty string" should {
@@ -79,7 +79,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key exists but does not contain a string" should {
       "return an error" taggedAs (V260) in {
-        evaluating { redis.bitCount("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.bitCount("LIST").! }
       }
     }
     "the string is empty" should {
@@ -112,10 +112,10 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
   BitOp when {
     "performing bitwise operations on keys that do not contain string values" should {
       "return an error" taggedAs (V260) in {
-        evaluating { redis.bitOpAnd("LIST", "A", "B") } must produce[RedisCommandException]
-        evaluating { redis.bitOpOr("LIST", "A", "B") } must produce[RedisCommandException]
-        evaluating { redis.bitOpXor("LIST", "A", "B") } must produce[RedisCommandException]
-        evaluating { redis.bitOpNot("LIST", "B") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.bitOpAnd("LIST", "A", "B").! }
+        an [RedisCommandException] must be thrownBy { redis.bitOpOr("LIST", "A", "B").! }
+        an [RedisCommandException] must be thrownBy { redis.bitOpXor("LIST", "A", "B").! }
+        an [RedisCommandException] must be thrownBy { redis.bitOpNot("LIST", "B").! }
       }
     }
     "performing bitwise operations with non-existent keys" should {
@@ -149,13 +149,13 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
   Decr when {
     "the value is not a string" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.decr("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.decr("LIST").! }
       }
     }
     "the value is a string but is not an integer value" should {
       "return an error" taggedAs (V100) in {
         redis.set("DECR", "hello")
-        evaluating { redis.decr("DECR") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.decr("DECR").! }
         redis.del("DECR")
       }
     }
@@ -174,13 +174,13 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
   DecrBy when {
     "the value is not a string" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.decrBy("LIST", 1) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.decrBy("LIST", 1).! }
       }
     }
     "the value is a string but is not an integer value" should {
       "return an error" taggedAs (V100) in {
         redis.set("DECR", "hello")
-        evaluating { redis.decrBy("DECR", 5) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.decrBy("DECR", 5).! }
         redis.del("DECR")
       }
     }
@@ -204,7 +204,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key exists but sotred value is not a string" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.get("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.get("LIST").! }
       }
     }
     "the key contains a string" should {
@@ -223,13 +223,13 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key exists but the value is not a string" should {
       "return an error" taggedAs (V220) in {
-        evaluating { redis.getBit("LIST", 0) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.getBit("LIST", 0).! }
       }
     }
     "the key exists but the offset is out of bound" should {
       "return an error" taggedAs (V220) in {
         redis.set("DOLLAR", "$")
-        evaluating { redis.getBit("DOLLAR", -1) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.getBit("DOLLAR", -1).! }
       }
     }
     "the key exists" should {
@@ -258,7 +258,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key exists but does not contain a string" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.substr("LIST", 0, 0) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.substr("LIST", 0, 0).! }
       }
     }
     "the key exists and contains an empty string" should {
@@ -290,7 +290,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key exists but does not contain a string" should {
       "return an error" taggedAs (V240) in {
-        evaluating { redis.getRange("LIST", 0, 0) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.getRange("LIST", 0, 0).! }
       }
     }
     "the key exists and contains an empty string" should {
@@ -324,7 +324,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key exists but does not contain a string" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.getSet("LIST", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.getSet("LIST", "A").! }
       }
     }
     "the key exists and has a string value" should {
@@ -338,13 +338,13 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
   Incr when {
     "the value is not a string" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.incr("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.incr("LIST").! }
       }
     }
     "the value is a string but is not an integer value" should {
       "return an error" taggedAs (V100) in {
         redis.set("INCR", "hello")
-        evaluating { redis.incr("INCR") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.incr("INCR").! }
         redis.del("INCR")
       }
     }
@@ -363,13 +363,13 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
   IncrBy when {
     "the value is not a string" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.incrBy("LIST", 1) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.incrBy("LIST", 1).! }
       }
     }
     "the value is a string but is not an integer value" should {
       "return an error" taggedAs (V100) in {
         redis.set("INCR", "hello")
-        evaluating { redis.incrBy("INCR", 5) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.incrBy("INCR", 5).! }
         redis.del("INCR")
       }
     }
@@ -388,13 +388,13 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
   IncrByFloat when {
     "the value is not a string" should {
       "return an error" taggedAs (V260) in {
-        evaluating { redis.incrByFloat("LIST", 1.0) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.incrByFloat("LIST", 1.0).! }
       }
     }
     "the value is a string but is not an integer value" should {
       "return an error" taggedAs (V260) in {
         redis.set("INCR", "hello")
-        evaluating { redis.incrByFloat("INCR", 1.2) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.incrByFloat("INCR", 1.2).! }
         redis.del("INCR")
       }
     }
@@ -574,7 +574,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key does not contain a string" should {
       "return an error" taggedAs (V220) in {
-        evaluating { redis.setBit("LIST", 0, true) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.setBit("LIST", 0, true).! }
       }
     }
     "the key exists" should {
@@ -694,7 +694,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key does not contain a string" should {
       "return an error" taggedAs (V220) in {
-        evaluating { redis.setRange("LIST", 5, "YES") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.setRange("LIST", 5, "YES").! }
       }
     }
     "the key already exists" should {
@@ -714,7 +714,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
     "the key does not contain a string" should {
       "return an error" taggedAs (V220) in {
-        evaluating { redis.strLen("LIST") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.strLen("LIST").! }
       }
     }
     "the key contains a string" should {
@@ -727,7 +727,7 @@ class StringsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfte
     }
   }
 
-  override def afterAll(configMap: Map[String, Any]) {
+  override def afterAll(configMap: ConfigMap) {
     redis.flushAll().!
     redis.quit()
   }

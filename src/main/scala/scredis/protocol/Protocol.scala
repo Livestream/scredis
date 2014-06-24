@@ -15,6 +15,8 @@ import scala.concurrent.{ ExecutionContext, Future, Promise }
 import java.nio.{ ByteBuffer, CharBuffer }
 import java.util.concurrent.Semaphore
 
+import scala.language.higherKinds
+
 /**
  * This object implements various aspects of the `Redis` protocol.
  */

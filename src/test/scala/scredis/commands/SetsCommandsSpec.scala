@@ -15,7 +15,7 @@
 package scredis.commands
 
 import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll }
-import org.scalatest.matchers.MustMatchers._
+import org.scalatest.MustMatchers._
 
 import scredis.Redis
 import scredis.exceptions.RedisCommandException
@@ -46,7 +46,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sAdd("HASH", "hello") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sAdd("HASH", "hello").! }
       }
     }
     "the set contains some elements" should {
@@ -69,7 +69,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sAdd("HASH", "hello", "asd") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sAdd("HASH", "hello", "asd").! }
       }
     }
     "the set contains some elements" should {
@@ -93,7 +93,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sCard("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sCard("HASH").! }
       }
     }
     "the set contains some elements" should {
@@ -121,9 +121,9 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sDiff("HASH", "SET1", "SET2") } must produce[RedisCommandException]
-        evaluating { redis.sDiff("SET1", "HASH", "SET2") } must produce[RedisCommandException]
-        evaluating { redis.sDiff("SET1", "SET2", "HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sDiff("HASH", "SET1", "SET2").! }
+        an [RedisCommandException] must be thrownBy { redis.sDiff("SET1", "HASH", "SET2").! }
+        an [RedisCommandException] must be thrownBy { redis.sDiff("SET1", "SET2", "HASH").! }
       }
     }
     "the sets contain some elements" should {
@@ -163,15 +163,15 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating {
-          redis.sDiffStore("SET")("HASH", "SET2", "SET3")
-        } must produce[RedisCommandException]
-        evaluating {
-          redis.sDiffStore("SET")("SET1", "HASH", "SET3")
-        } must produce[RedisCommandException]
-        evaluating {
-          redis.sDiffStore("SET")("SET1", "SET2", "HASH")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.sDiffStore("SET")("HASH", "SET2", "SET3").!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          redis.sDiffStore("SET")("SET1", "HASH", "SET3").!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          redis.sDiffStore("SET")("SET1", "SET2", "HASH").!
+        }
       }
     }
     "the sets contain some elements" should {
@@ -216,10 +216,10 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sInter("HASH", "SET1", "SET2") } must produce[RedisCommandException]
-        evaluating { redis.sInter("SET1", "HASH", "SET2") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sInter("HASH", "SET1", "SET2").! }
+        an [RedisCommandException] must be thrownBy { redis.sInter("SET1", "HASH", "SET2").! }
         redis.sAdd("SET2", "A")
-        evaluating { redis.sInter("SET1", "SET2", "HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sInter("SET1", "SET2", "HASH").! }
         redis.del("SET2")
       }
     }
@@ -261,16 +261,16 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating {
-          redis.sInterStore("SET")("HASH", "SET2", "SET3")
-        } must produce[RedisCommandException]
-        evaluating {
-          redis.sInterStore("SET")("SET1", "HASH", "SET3")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.sInterStore("SET")("HASH", "SET2", "SET3").!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          redis.sInterStore("SET")("SET1", "HASH", "SET3").!
+        }
         redis.sAdd("SET2", "A")
-        evaluating {
-          redis.sInterStore("SET")("SET1", "SET2", "HASH")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.sInterStore("SET")("SET1", "SET2", "HASH").!
+        }
         redis.del("SET2")
       }
     }
@@ -317,9 +317,9 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sUnion("HASH", "SET1", "SET2") } must produce[RedisCommandException]
-        evaluating { redis.sUnion("SET1", "HASH", "SET2") } must produce[RedisCommandException]
-        evaluating { redis.sUnion("SET1", "SET2", "HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sUnion("HASH", "SET1", "SET2").! }
+        an [RedisCommandException] must be thrownBy { redis.sUnion("SET1", "HASH", "SET2").! }
+        an [RedisCommandException] must be thrownBy { redis.sUnion("SET1", "SET2", "HASH").! }
       }
     }
     "the sets contain some elements" should {
@@ -363,15 +363,15 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating {
-          redis.sUnionStore("SET")("HASH", "SET2", "SET3")
-        } must produce[RedisCommandException]
-        evaluating {
-          redis.sUnionStore("SET")("SET1", "HASH", "SET3")
-        } must produce[RedisCommandException]
-        evaluating {
-          redis.sUnionStore("SET")("SET1", "SET2", "HASH")
-        } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { 
+          redis.sUnionStore("SET")("HASH", "SET2", "SET3").!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          redis.sUnionStore("SET")("SET1", "HASH", "SET3").!
+        }
+        an [RedisCommandException] must be thrownBy { 
+          redis.sUnionStore("SET")("SET1", "SET2", "HASH").!
+        }
       }
     }
     "the sets contain some elements" should {
@@ -418,7 +418,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sIsMember("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sIsMember("HASH", "A").! }
       }
     }
     "the set contains some elements" should {
@@ -443,7 +443,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sMembers("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sMembers("HASH").! }
       }
     }
     "the set contains some elements" should {
@@ -466,9 +466,9 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sMove("HASH", "A")("SET") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sMove("HASH", "A")("SET").! }
         redis.sAdd("SET", "A")
-        evaluating { redis.sMove("SET", "A")("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sMove("SET", "A")("HASH").! }
         redis.del("SET")
       }
     }
@@ -494,7 +494,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sPop("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sPop("HASH").! }
       }
     }
     "the set contains some elements" should {
@@ -528,7 +528,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sRandMember("HASH") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sRandMember("HASH").! }
       }
     }
     "the set contains some elements" should {
@@ -555,7 +555,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sRem("HASH", "A") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sRem("HASH", "A").! }
       }
     }
     "the set contains some elements" should {
@@ -587,7 +587,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        evaluating { redis.sRem("HASH", "A", "B") } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sRem("HASH", "A", "B").! }
       }
     }
     "the set contains some elements" should {
@@ -617,7 +617,7 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V280) in {
-        evaluating { redis.sScan[String]("HASH")(0) } must produce[RedisCommandException]
+        an [RedisCommandException] must be thrownBy { redis.sScan[String]("HASH")(0).! }
       }
     }
     "the set contains 5 elements" should {
