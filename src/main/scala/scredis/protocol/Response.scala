@@ -15,7 +15,9 @@ case class ErrorResponse(value: String) extends Response
 
 case class SimpleStringResponse(value: String) extends Response
 
-case class IntegerResponse(value: Long) extends Response
+case class IntegerResponse(value: Long) extends Response {
+  def toBoolean: Boolean = value > 0
+}
 
 case class BulkStringResponse(valueOpt: Option[Array[Byte]]) extends Response {
   def parsed[A](implicit parser: Parser[A]): Option[A] = valueOpt.map(parser.parse)
@@ -30,15 +32,36 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     val builder = cbf()
     var i = 0
     while (i < length) {
-      val reply = Protocol.decode(buffer)
-      if (parsePf.isDefinedAt(reply)) {
-        builder += parsePf.apply(reply)
+      val response = Protocol.decode(buffer)
+      if (parsePf.isDefinedAt(response)) {
+        builder += parsePf.apply(response)
       } else {
-        throw new IllegalArgumentException(s"Does not know how to parse reply: $reply")
+        throw new IllegalArgumentException(s"Does not know how to parse response: $response")
       }
       i += 1
     }
     builder.result()
+  }
+  
+  def parsedAsScanResponse[A, CC[X] <: Traversable[X]](
+    parsePf: PartialFunction[Response, CC[A]]
+  ): (Long, CC[A]) = {
+    if (length != 2) {
+      throw RedisProtocolException(s"Unexpected length for scan-like array response: $length")
+    }
+    
+    val nextCursor = Protocol.decode(buffer) match {
+      case IntegerResponse(cursor) => cursor
+      case x => throw RedisProtocolException(s"Unexpected response for scan cursor: $x")
+    }
+    
+    Protocol.decode(buffer) match {
+      case a: ArrayResponse if parsePf.isDefinedAt(a) => (nextCursor, parsePf.apply(a))
+      case a: ArrayResponse => throw new IllegalArgumentException(
+        s"Does not know how to parse response: $a"
+      )
+      case x => throw RedisProtocolException(s"Unexpected response for scan elements: $x")
+    }
   }
   
   def parsed[CC[X] <: Traversable[X]](parsers: Traversable[PartialFunction[Response, Any]])(
@@ -48,9 +71,9 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     var i = 0
     val parsersIterator = parsers.toIterator
     while (i < length) {
-      val reply = Protocol.decode(buffer)
+      val response = Protocol.decode(buffer)
       val parser = parsersIterator.next()
-      val result = reply match {
+      val result = response match {
         case ErrorResponse(message) => Failure(RedisErrorResponseException(message))
         case reply => if (parser.isDefinedAt(reply)) {
           try {
