@@ -51,7 +51,7 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
       val reply = Protocol.decode(buffer)
       val parser = parsersIterator.next()
       val result = reply match {
-        case ErrorResponse(message) => Failure(RedisCommandException(message))
+        case ErrorResponse(message) => Failure(RedisErrorResponseException(message))
         case reply => if (parser.isDefinedAt(reply)) {
           try {
             Success(parser.apply(reply))

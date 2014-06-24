@@ -5,7 +5,7 @@ import scredis.parsing.Parser
 
 import scala.util.Try
 
-object Multi extends NullaryCommand("MULTI")
+object Multi extends ZeroArgCommand("MULTI")
 
 case class Multi() extends Request[Unit](Multi) {
   override def decode = {
@@ -13,10 +13,10 @@ case class Multi() extends Request[Unit](Multi) {
   }
 }
 
-object Exec extends NullaryCommand("EXEC")
+object Exec extends ZeroArgCommand("EXEC")
 
 case class Exec(
-  parsers: Traversable[PartialFunction[Reply, Any]]
+  parsers: Traversable[PartialFunction[Response, Any]]
 ) extends Request[IndexedSeq[Try[Any]]](Multi) {
   override def decode = {
     case a: ArrayResponse => a.parsed[IndexedSeq](parsers)
