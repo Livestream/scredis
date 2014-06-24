@@ -27,8 +27,8 @@ class DecoderActor extends Actor {
       val buffer = data.asByteBuffer
       val decode = decodeTimer.time()
       while (requests.hasNext) {
-        val reply = Protocol.decode(buffer)
-        requests.next().complete(reply)
+        val response = Protocol.decode(buffer)
+        requests.next().complete(response)
         count += 1
         if (count % 100000 == 0) println(count)
       }

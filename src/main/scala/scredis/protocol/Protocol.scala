@@ -8,9 +8,10 @@ import akka.actor.ActorRef
 import scredis.exceptions._
 import scredis.util.BufferPool
 
-import scala.collection.mutable.{ ArrayBuilder, ListBuffer }
+import scala.collection.mutable.{ ArrayBuilder, ListBuffer, Stack }
 import scala.util.{ Try, Success, Failure }
 import scala.concurrent.{ ExecutionContext, Future, Promise }
+import scala.annotation.tailrec
 
 import java.nio.{ ByteBuffer, CharBuffer }
 import java.util.concurrent.Semaphore
@@ -21,6 +22,14 @@ import scala.language.higherKinds
  * This object implements various aspects of the `Redis` protocol.
  */
 object Protocol {
+  
+  private case class ArrayState(
+    val size: Int,
+    var count: Int
+  ) {
+    def increment(): Unit = count += 1
+    def isCompleted = (count == size)
+  }
   
   private[scredis] val metrics = new MetricRegistry()
   private val reporter = JmxReporter.forRegistry(metrics).build()
@@ -173,19 +182,21 @@ object Protocol {
     var char: Byte = 0
     var requests = 0
     var position = -1
-    var arrayCount = 0
     var arrayPosition = -1
+    val arrayStack = Stack[ArrayState]()
     var isFragmented = false
     
-    @inline
-    def incr(): Unit = if (arrayCount > 0) {
-      arrayCount -= 1
-      if (arrayCount == 0) {
-        requests += 1
-        arrayPosition = -1
-      }
-    } else {
+    @inline @tailrec
+    def increment(): Unit = if (arrayStack.isEmpty) {
+      arrayPosition = -1
       requests += 1
+    } else {
+      val array = arrayStack.top
+      array.increment()
+      if (array.isCompleted) {
+        arrayStack.pop()
+        increment()
+      }
     }
     
     @inline
@@ -203,7 +214,7 @@ object Protocol {
           char = buffer.get()
         }
         if (char == '\n') {
-          incr()
+          increment()
         } else {
           stop()
         }
@@ -216,7 +227,7 @@ object Protocol {
           }
           if (buffer.remaining >= length) {
             buffer.position(buffer.position + length)
-            incr()
+            increment()
           } else {
             stop()
           }
@@ -224,13 +235,15 @@ object Protocol {
           case e: java.nio.BufferUnderflowException => stop()
         }
       } else if (char == ArrayResponseByte) {
-        arrayPosition = buffer.position - 1
+        if (arrayStack.isEmpty) {
+          arrayPosition = buffer.position - 1
+        }
         try {
           val length = parseInt(buffer)
           if (length <= 0) {
-            incr()
+            increment()
           } else {
-            arrayCount = length
+            arrayStack.push(ArrayState(length, 0))
           }
         } catch {
           case e: java.nio.BufferUnderflowException => stop()

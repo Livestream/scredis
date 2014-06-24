@@ -18,13 +18,15 @@ abstract class Request[A](command: Command, args: Any*) {
   
   private[scredis] def encoded: ByteBuffer = _encoded
   
-  private[scredis] def complete(reply: Response): Unit = {
-    reply match {
-      case ErrorResponse(message) => promise.failure(RedisCommandException(message))
-      case reply => try {
-        promise.success(decode(reply))
+  private[scredis] def complete(response: Response): Unit = {
+    response match {
+      case ErrorResponse(message) => promise.failure(RedisErrorResponseException(message))
+      case response => try {
+        promise.success(decode(response))
       } catch {
-        case e: Throwable => promise.failure(RedisProtocolException(s"Unexpected reply: $reply", e))
+        case e: Throwable => promise.failure(
+          RedisProtocolException(s"Unexpected response: $response", e)
+        )
       }
     }
     Protocol.release()

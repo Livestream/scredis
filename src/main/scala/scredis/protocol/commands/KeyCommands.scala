@@ -28,10 +28,10 @@ object KeyCommands {
   object Rename extends Command("RENAME")
   object RenameNX extends Command("RENAMENX")
   object Restore extends Command("RESTORE")
+  object Scan extends Command("SCAN")
   object Sort extends Command("SORT")
   object TTL extends Command("TTL")
   object Type extends Command("TYPE")
-  object Scan extends Command("SCAN")
   
   protected def generateSortArgs(
     key: String,
