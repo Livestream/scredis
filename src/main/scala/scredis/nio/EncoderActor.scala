@@ -1,5 +1,5 @@
 package scredis.nio
-
+/*
 import com.codahale.metrics.MetricRegistry
 
 import akka.actor.{ Actor, ActorRef }
@@ -31,4 +31,4 @@ class EncoderActor(decoderActor: ActorRef) extends Actor {
     }
   }
   
-}
+}*/

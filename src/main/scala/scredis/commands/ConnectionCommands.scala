@@ -1,7 +1,7 @@
 package scredis.commands
 
 import scredis.protocol.Protocol
-import scredis.protocol.commands.ConnectionCommands._
+import scredis.protocol.requests.ConnectionRequests._
 
 import scala.concurrent.Future
 

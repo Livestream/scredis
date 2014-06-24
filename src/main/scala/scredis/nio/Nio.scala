@@ -4,9 +4,8 @@ import akka.actor._
 import akka.routing._
 
 import scredis._
-import scredis.util.Logger
-import scredis.protocol.{ NioProtocol }
-import scredis.protocol.commands._
+import scredis.protocol._
+import scredis.protocol.requests._
 import scredis.parsing.Implicits.stringParser
 
 import scala.util.{ Try, Success, Failure }
@@ -17,8 +16,6 @@ import java.net.InetSocketAddress
 
 object Nio {
   
-  private val logger = Logger(getClass)
-  
   private val range = (1 to 3000000).toList
   
   private def run(target: ActorRef)(implicit ec: ExecutionContext): Long = {
@@ -26,7 +23,7 @@ object Nio {
     
     val start = System.currentTimeMillis
     val f = Future.traverse(range)(i => {
-      NioProtocol.send(LRange("list", 0, -1))(target)
+      Protocol.send(LRange("list", 0, -1))(target)
     })(List.canBuildFrom, ec)
     println("QUEUING DONE")
     Await.ready(
@@ -50,14 +47,10 @@ object Nio {
       Props(classOf[PartitionerActor], ioActor).withDispatcher("scredis.partitioner-dispatcher")
     )
     
-    val encoderActor = system.actorOf(
-      Props(classOf[EncoderActor], partitionerActor).withDispatcher("scredis.encoder-dispatcher")
-    )
-    
     ioActor ! partitionerActor
     
     implicit val dispatcher: ExecutionContext = system.dispatcher
-    val target: ActorRef = encoderActor
+    val target: ActorRef = partitionerActor
     
     
     

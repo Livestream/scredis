@@ -1,4 +1,4 @@
-package scredis.protocol.commands
+package scredis.protocol.requests
 
 import scredis.protocol._
 import scredis.parsing.Parser
@@ -7,31 +7,31 @@ import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.FiniteDuration
 
-object KeyCommands {
+object KeyRequests {
   
   import scredis.parsing.Implicits.stringParser
   
-  object Del extends Command("DEL")
-  object Dump extends Command("DUMP")
-  object Exists extends Command("EXISTS")
-  object Expire extends Command("EXPIRE")
-  object ExpireAt extends Command("EXPIREAT")
-  object Keys extends Command("KEYS")
-  object Migrate extends Command("MIGRATE")
-  object Move extends Command("MOVE")
-  object Object extends Command("OBJECT")
-  object Persist extends Command("PERSIST")
-  object PExpire extends Command("PEXPIRE")
-  object PExpireAt extends Command("PEXPIREAT")
-  object PTTL extends Command("PTTL")
-  object RandomKey extends ZeroArgCommand("RANDOMKEY")
-  object Rename extends Command("RENAME")
-  object RenameNX extends Command("RENAMENX")
-  object Restore extends Command("RESTORE")
-  object Scan extends Command("SCAN")
-  object Sort extends Command("SORT")
-  object TTL extends Command("TTL")
-  object Type extends Command("TYPE")
+  private object Del extends Command("DEL")
+  private object Dump extends Command("DUMP")
+  private object Exists extends Command("EXISTS")
+  private object Expire extends Command("EXPIRE")
+  private object ExpireAt extends Command("EXPIREAT")
+  private object Keys extends Command("KEYS")
+  private object Migrate extends Command("MIGRATE")
+  private object Move extends Command("MOVE")
+  private object Object extends Command("OBJECT")
+  private object Persist extends Command("PERSIST")
+  private object PExpire extends Command("PEXPIRE")
+  private object PExpireAt extends Command("PEXPIREAT")
+  private object PTTL extends Command("PTTL")
+  private object RandomKey extends ZeroArgCommand("RANDOMKEY")
+  private object Rename extends Command("RENAME")
+  private object RenameNX extends Command("RENAMENX")
+  private object Restore extends Command("RESTORE")
+  private object Scan extends Command("SCAN")
+  private object Sort extends Command("SORT")
+  private object TTL extends Command("TTL")
+  private object Type extends Command("TYPE")
   
   protected def generateSortArgs(
     key: String,
