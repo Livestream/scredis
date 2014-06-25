@@ -43,6 +43,64 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     builder.result()
   }
   
+  def parsedAsPairs[A, B, CC[X] <: Traversable[X]](
+    parseFirstPf: PartialFunction[Response, A]
+  )(
+    parseSecondPf: PartialFunction[Response, B]
+  )(implicit cbf: CanBuildFrom[Nothing, (A, B), CC[(A, B)]]): CC[(A, B)] = {
+    val builder = cbf()
+    var i = 0
+    while (i < length) {
+      val firstResponse = Protocol.decode(buffer)
+      val firstValue = if (parseFirstPf.isDefinedAt(firstResponse)) {
+        parseFirstPf.apply(firstResponse)
+      } else {
+        throw new IllegalArgumentException(
+          s"Does not know how to parse first response: $firstResponse"
+        )
+      }
+      val secondResponse = Protocol.decode(buffer)
+      val secondValue = if (parseSecondPf.isDefinedAt(secondResponse)) {
+        parseSecondPf.apply(secondResponse)
+      } else {
+        throw new IllegalArgumentException(
+          s"Does not know how to parse second response: $secondResponse"
+        )
+      }
+      i += 2
+    }
+    builder.result()
+  }
+  
+  def parsedAsPairsMap[A, B, CC[X, Y] <: collection.Map[X, Y]](
+    parseFirstPf: PartialFunction[Response, A]
+  )(
+    parseSecondPf: PartialFunction[Response, B]
+  )(implicit cbf: CanBuildFrom[Nothing, (A, B), CC[A, B]]): CC[A, B] = {
+    val builder = cbf()
+    var i = 0
+    while (i < length) {
+      val firstResponse = Protocol.decode(buffer)
+      val firstValue = if (parseFirstPf.isDefinedAt(firstResponse)) {
+        parseFirstPf.apply(firstResponse)
+      } else {
+        throw new IllegalArgumentException(
+          s"Does not know how to parse first response: $firstResponse"
+        )
+      }
+      val secondResponse = Protocol.decode(buffer)
+      val secondValue = if (parseSecondPf.isDefinedAt(secondResponse)) {
+        parseSecondPf.apply(secondResponse)
+      } else {
+        throw new IllegalArgumentException(
+          s"Does not know how to parse second response: $secondResponse"
+        )
+      }
+      i += 2
+    }
+    builder.result()
+  }
+  
   def parsedAsScanResponse[A, CC[X] <: Traversable[X]](
     parsePf: PartialFunction[Response, CC[A]]
   ): (Long, CC[A]) = {

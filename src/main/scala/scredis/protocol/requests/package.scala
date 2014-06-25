@@ -7,8 +7,8 @@ package object requests {
   private[requests] def generateScanLikeArgs(
     keyOpt: Option[String],
     cursor: Long,
-    countOpt: Option[Int],
-    matchOpt: Option[String]
+    matchOpt: Option[String],
+    countOpt: Option[Int]
   ): List[Any] = {
     val args = ListBuffer[Any]()
     keyOpt.foreach {
