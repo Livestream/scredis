@@ -25,7 +25,7 @@ object StringRequests {
   private object Incr extends Command("INCR")
   private object IncrBy extends Command("INCRBY")
   private object IncrByFloat extends Command("INCRBYFLOAT")
-  private object MGet extends ZeroArgCommand("MGET")
+  private object MGet extends Command("MGET")
   private object MSet extends Command("MSET")
   private object MSetNX extends Command("MSETNX")
   private object PSetEX extends Command("PSETEX")
