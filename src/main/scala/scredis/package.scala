@@ -36,6 +36,23 @@ package object scredis {
   }
   
   /**
+   * Base class of a BITOP operation
+   */
+  sealed abstract class BitOp(val name: String) {
+    override def toString = name
+  }
+  
+  /**
+   * Contains all available BITOP operations, i.e. AND, OR, XOR and NOT
+   */
+  object BitOp {
+    case object And extends BitOp("AND")
+    case object Or extends BitOp("OR")
+    case object Xor extends BitOp("XOR")
+    case object Not extends BitOp("NOT")
+  }
+  
+  /**
    * Represents the aggregation function to be used for aggregating scores when computing the
    * union or intersection of sorted sets
    */
@@ -110,7 +127,7 @@ package object scredis {
   /**
    * Represents a condition that can be passed to some Redis command, e.g. SET
    */
-  sealed abstract class Condition(name: String) {
+  sealed abstract class Condition(val name: String) {
     override def toString = name
   }
   
@@ -121,11 +138,11 @@ package object scredis {
     /**
      * Execute a command only if the value does not exist yet
      */
-    case object IfDoesNotExist extends Condition("NX")
+    case object NX extends Condition("NX")
     /**
      * Execute a command only if the value already exists
      */
-    case object IfAlreadyExists extends Condition("XX")
+    case object XX extends Condition("XX")
   }
   
 }
