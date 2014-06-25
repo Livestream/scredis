@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.Logging
 import com.codahale.metrics._
 
 import akka.actor.ActorRef
+import akka.util.ByteString
 
 import scredis.exceptions._
 import scredis.util.BufferPool
@@ -141,7 +142,13 @@ object Protocol {
   
   private[scredis] def releaseBuffer(buffer: ByteBuffer): Unit = bufferPool.release(buffer)
   
-  private[scredis] def encode(command: String): ByteBuffer = encode(Seq[Any](command))
+  private[scredis] def encode(command: String): Array[Byte] = {
+    val buffer = encode(Seq[Any](command))
+    val bytes = new Array[Byte](buffer.remaining)
+    buffer.get(bytes)
+    bufferPool.release(buffer)
+    bytes
+  }
   
   private[scredis] def encode(args: Seq[Any]): ByteBuffer = {
     val argsSize = args.size.toString.getBytes(Encoding)

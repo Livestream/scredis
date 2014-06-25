@@ -7,6 +7,5 @@ abstract class Command(val name: String) {
 }
 
 abstract class ZeroArgCommand(name: String) extends Command(name) {
-  private val encoded = Protocol.encode(name)
-  override def encode(args: List[Any]): ByteBuffer = encoded
+  private[protocol] val encoded: Array[Byte] = Protocol.encode(name)
 }

@@ -68,17 +68,23 @@ class IOActor(remote: InetSocketAddress) extends Actor with Logging {
     while (!requests.isEmpty && i < 5000) {
       val request = requests.dequeue()
       request.encode()
-      length += request.encoded.remaining
+      length += {
+        request.encoded match {
+          case Left(bytes) => bytes.length
+          case Right(buffer) => buffer.remaining
+        }
+      }
       batch += request
       i += 1
     }
     val buffer = bufferPool.acquire(length)
     batch.foreach { r =>
-      buffer.put(r.encoded)
-      if (r.hasArguments) {
-        Protocol.releaseBuffer(r.encoded)
-      } else {
-        r.encoded.rewind()
+      r.encoded match {
+        case Left(bytes) => buffer.put(bytes)
+        case Right(buff) => {
+          buffer.put(buff)
+          Protocol.releaseBuffer(buff)
+        }
       }
     }
     buffer.flip()
