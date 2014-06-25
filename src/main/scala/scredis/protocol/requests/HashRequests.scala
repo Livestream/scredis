@@ -1,15 +1,15 @@
 package scredis.protocol.requests
 
 import scredis.protocol._
-import scredis.parsing.Parser
+import scredis.serialization.{ Reader, Writer }
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ListBuffer
 
 object HashRequests {
   
-  import scredis.parsing.Implicits.stringParser
-  import scredis.parsing.Implicits.doubleParser
+  import scredis.serialization.Implicits.stringReader
+  import scredis.serialization.Implicits.doubleReader
   
   private object HDel extends Command("HDEL")
   private object HExists extends Command("HEXISTS")
@@ -38,22 +38,20 @@ object HashRequests {
     }
   }
   
-  case class HGet[A](key: String, field: String)(
-    implicit parser: Parser[A]
-  ) extends Request[Option[A]](HGet, key, field) {
+  case class HGet[R: Reader](key: String, field: String) extends Request[Option[R]](
+    HGet, key, field
+  ) {
     override def decode = {
-      case b: BulkStringResponse => b.parsed[A]
+      case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class HGetAll[A](key: String)(
-    implicit parser: Parser[A]
-  ) extends Request[Map[String, A]](HGetAll, key) {
+  case class HGetAll[R: Reader](key: String) extends Request[Map[String, R]](HGetAll, key) {
     override def decode = {
-      case a: ArrayResponse => a.parsedAsPairsMap[String, A, Map] {
+      case a: ArrayResponse => a.parsedAsPairsMap[String, R, Map] {
         case b: BulkStringResponse => b.flattened[String]
       } {
-        case b: BulkStringResponse => b.flattened[A]
+        case b: BulkStringResponse => b.flattened[R]
       }
     }
   }
@@ -88,23 +86,23 @@ object HashRequests {
     }
   }
   
-  case class HMGet[A, CC[X] <: Traversable[X]](key: String, fields: String*)(
-    implicit parser: Parser[A], cbf: CanBuildFrom[Nothing, Option[A], CC[Option[A]]]
-  ) extends Request[CC[Option[A]]](HMGet, key, fields: _*) {
+  case class HMGet[R: Reader, CC[X] <: Traversable[X]](key: String, fields: String*)(
+    implicit cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
+  ) extends Request[CC[Option[R]]](HMGet, key, fields: _*) {
     override def decode = {
-      case a: ArrayResponse => a.parsed[Option[A], CC] {
-        case b: BulkStringResponse => b.parsed[A]
+      case a: ArrayResponse => a.parsed[Option[R], CC] {
+        case b: BulkStringResponse => b.parsed[R]
       }
     }
   }
   
-  case class HMGetAsMap[A, CC[X] <: Traversable[X]](key: String, fields: String*)(
-    implicit parser: Parser[A], cbf: CanBuildFrom[Nothing, Option[A], CC[Option[A]]]
-  ) extends Request[Map[String, A]](HMGet, key, fields: _*) {
+  case class HMGetAsMap[R: Reader, CC[X] <: Traversable[X]](key: String, fields: String*)(
+    implicit cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
+  ) extends Request[Map[String, R]](HMGet, key, fields: _*) {
     override def decode = {
       case a: ArrayResponse => {
-        val values = a.parsed[Option[A], List] {
-          case b: BulkStringResponse => b.parsed[A]
+        val values = a.parsed[Option[R], List] {
+          case b: BulkStringResponse => b.parsed[R]
         }
         fields.zip(values).flatMap {
           case (key, Some(value)) => Some((key, value))
@@ -114,22 +112,28 @@ object HashRequests {
     }
   }
   
-  case class HMSet(key: String, fieldValuePairs: (String, Any)*) extends Request[Unit](
-    HMSet, key, unpair(fieldValuePairs): _*
+  case class HMSet[W: Writer](key: String, fieldValuePairs: (String, W)*) extends Request[Unit](
+    HMSet,
+    key,
+    unpair(
+      fieldValuePairs.map {
+        case (field, value) => (field, implicitly[Writer[W]].write(value))
+      }
+    ): _*
   ) {
     override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
-  case class HScan[A, CC[X] <: Traversable[X]](
+  case class HScan[R: Reader, CC[X] <: Traversable[X]](
     key: String,
     cursor: Long,
     matchOpt: Option[String],
     countOpt: Option[Int]
   )(
-    implicit parser: Parser[A], cbf: CanBuildFrom[Nothing, (String, A), CC[(String, A)]]
-  ) extends Request[(Long, CC[(String, A)])](
+    implicit cbf: CanBuildFrom[Nothing, (String, R), CC[(String, R)]]
+  ) extends Request[(Long, CC[(String, R)])](
     HScan,
     generateScanLikeArgs(
       keyOpt = Some(key),
@@ -139,38 +143,38 @@ object HashRequests {
     )
   ) {
     override def decode = {
-      case a: ArrayResponse => a.parsedAsScanResponse[(String, A), CC] {
-        case a: ArrayResponse => a.parsedAsPairs[String, A, CC] {
+      case a: ArrayResponse => a.parsedAsScanResponse[(String, R), CC] {
+        case a: ArrayResponse => a.parsedAsPairs[String, R, CC] {
           case b: BulkStringResponse => b.flattened[String]
         } {
-          case b: BulkStringResponse => b.flattened[A]
+          case b: BulkStringResponse => b.flattened[R]
         }
       }
     }
   }
   
-  case class HSet(key: String, field: String, value: Any) extends Request[Boolean](
-    HSet, key, field, value
+  case class HSet[W: Writer](key: String, field: String, value: W) extends Request[Boolean](
+    HSet, key, field, implicitly[Writer[W]].write(value)
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class HSetNX(key: String, field: String, value: Any) extends Request[Boolean](
-    HSetNX, key, field, value
+  case class HSetNX[W: Writer](key: String, field: String, value: W) extends Request[Boolean](
+    HSetNX, key, field, implicitly[Writer[W]].write(value)
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class HVals[A, CC[X] <: Traversable[X]](key: String)(
-    implicit parser: Parser[A], cbf: CanBuildFrom[Nothing, A, CC[A]]
-  ) extends Request[CC[A]](HVals, key) {
+  case class HVals[R: Reader, CC[X] <: Traversable[X]](key: String)(
+    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](HVals, key) {
     override def decode = {
-      case a: ArrayResponse => a.parsed[A, CC] {
-        case b: BulkStringResponse => b.flattened[A]
+      case a: ArrayResponse => a.parsed[R, CC] {
+        case b: BulkStringResponse => b.flattened[R]
       }
     }
   }

@@ -1,7 +1,7 @@
 package scredis.protocol.requests
 
 import scredis.protocol._
-import scredis.parsing.Parser
+import scredis.serialization.{ Reader, Writer }
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ListBuffer
@@ -9,7 +9,7 @@ import scala.concurrent.duration.FiniteDuration
 
 object KeyRequests {
   
-  import scredis.parsing.Implicits.stringParser
+  import scredis.serialization.Implicits.stringReader
   
   private object Del extends Command("DEL")
   private object Dump extends Command("DUMP")
@@ -71,9 +71,9 @@ object KeyRequests {
     }
   }
   
-  case class Dump(key: String) extends Request[Option[Array[Byte]]](Dump, key) {
+  case class Dump[R: Reader](key: String) extends Request[Option[R]](Dump, key) {
     override def decode = {
-      case BulkStringResponse(valueOpt) => valueOpt
+      case b: BulkStringResponse => b.parsed[R]
     }
   }
   
@@ -187,9 +187,11 @@ object KeyRequests {
     }
   }
   
-  case class Restore(
-    key: String, value: Array[Byte], ttlOpt: Option[FiniteDuration]
-  ) extends Request[Unit](Restore, ttlOpt.map(_.toMillis).getOrElse(0), value) {
+  case class Restore[W: Writer](
+    key: String, value: W, ttlOpt: Option[FiniteDuration]
+  ) extends Request[Unit](
+    Restore, ttlOpt.map(_.toMillis).getOrElse(0), implicitly[Writer[W]].write(value)
+  ) {
     override def decode = {
       case s: SimpleStringResponse => ()
     }
@@ -215,7 +217,7 @@ object KeyRequests {
     }
   }
   
-  case class Sort[A, CC[X] <: Traversable[X]](
+  case class Sort[R: Reader, CC[X] <: Traversable[X]](
     key: String,
     byOpt: Option[String],
     limitOpt: Option[(Long, Long)],
@@ -223,15 +225,14 @@ object KeyRequests {
     desc: Boolean,
     alpha: Boolean
   )(
-    implicit parser: Parser[A],
-    cbf: CanBuildFrom[Nothing, Option[A], CC[Option[A]]]
-  ) extends Request[CC[Option[A]]](
+    implicit cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
+  ) extends Request[CC[Option[R]]](
     Sort,
     generateSortArgs(key, byOpt, limitOpt, get, desc, alpha, None): _*
   ) {
     override def decode = {
-      case a: ArrayResponse => a.parsed[Option[A], CC] {
-        case b: BulkStringResponse => b.parsed[A]
+      case a: ArrayResponse => a.parsed[Option[R], CC] {
+        case b: BulkStringResponse => b.parsed[R]
       }
     }
   }

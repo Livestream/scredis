@@ -1,7 +1,7 @@
 package scredis.protocol
 
 import scredis.exceptions._
-import scredis.parsing.Parser
+import scredis.serialization.Reader
 
 import scala.util.{ Try, Success, Failure }
 import scala.collection.generic.CanBuildFrom
@@ -20,15 +20,15 @@ case class IntegerResponse(value: Long) extends Response {
 }
 
 case class BulkStringResponse(valueOpt: Option[Array[Byte]]) extends Response {
-  def parsed[A](implicit parser: Parser[A]): Option[A] = valueOpt.map(parser.parse)
-  def flattened[A](implicit parser: Parser[A]): A = parsed[A].get
+  def parsed[R](implicit reader: Reader[R]): Option[R] = valueOpt.map(reader.read)
+  def flattened[R](implicit reader: Reader[R]): R = parsed[R].get
 }
 
 case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
   
-  def parsed[A, CC[X] <: Traversable[X]](parsePf: PartialFunction[Response, A])(
-    implicit cbf: CanBuildFrom[Nothing, A, CC[A]]
-  ): CC[A] = {
+  def parsed[R, CC[X] <: Traversable[X]](parsePf: PartialFunction[Response, R])(
+    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ): CC[R] = {
     val builder = cbf()
     var i = 0
     while (i < length) {
@@ -43,11 +43,11 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     builder.result()
   }
   
-  def parsedAsPairs[A, B, CC[X] <: Traversable[X]](
-    parseFirstPf: PartialFunction[Response, A]
+  def parsedAsPairs[R1, R2, CC[X] <: Traversable[X]](
+    parseFirstPf: PartialFunction[Response, R1]
   )(
-    parseSecondPf: PartialFunction[Response, B]
-  )(implicit cbf: CanBuildFrom[Nothing, (A, B), CC[(A, B)]]): CC[(A, B)] = {
+    parseSecondPf: PartialFunction[Response, R2]
+  )(implicit cbf: CanBuildFrom[Nothing, (R1, R2), CC[(R1, R2)]]): CC[(R1, R2)] = {
     val builder = cbf()
     var i = 0
     while (i < length) {
@@ -72,11 +72,11 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     builder.result()
   }
   
-  def parsedAsPairsMap[A, B, CC[X, Y] <: collection.Map[X, Y]](
-    parseFirstPf: PartialFunction[Response, A]
+  def parsedAsPairsMap[R1, R2, CC[X, Y] <: collection.Map[X, Y]](
+    parseFirstPf: PartialFunction[Response, R1]
   )(
-    parseSecondPf: PartialFunction[Response, B]
-  )(implicit cbf: CanBuildFrom[Nothing, (A, B), CC[A, B]]): CC[A, B] = {
+    parseSecondPf: PartialFunction[Response, R2]
+  )(implicit cbf: CanBuildFrom[Nothing, (R1, R2), CC[R1, R2]]): CC[R1, R2] = {
     val builder = cbf()
     var i = 0
     while (i < length) {
@@ -101,9 +101,9 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     builder.result()
   }
   
-  def parsedAsScanResponse[A, CC[X] <: Traversable[X]](
-    parsePf: PartialFunction[Response, CC[A]]
-  ): (Long, CC[A]) = {
+  def parsedAsScanResponse[R, CC[X] <: Traversable[X]](
+    parsePf: PartialFunction[Response, CC[R]]
+  ): (Long, CC[R]) = {
     if (length != 2) {
       throw RedisProtocolException(s"Unexpected length for scan-like array response: $length")
     }
