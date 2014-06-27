@@ -124,6 +124,23 @@ package object scredis {
   }
   
   /**
+   * Represents one end of a lexical interval as defined by sorted set commands
+   */
+  abstract class LexicalScoreLimit(val stringValue: String) {
+    override def toString: String = stringValue
+  }
+  
+  /**
+   * Contains all possible lexical score limits, i.e. -, +, inclusive value and exclusive value
+   */
+  object LexicalScoreLimit {
+    case object MinusInfinity extends ScoreLimit("-")
+    case object PlusInfinity extends ScoreLimit("+")
+    case class Inclusive(value: String) extends ScoreLimit("[" + value)
+    case class Exclusive(value: String) extends ScoreLimit("(" + value)
+  }
+  
+  /**
    * Represents a condition that can be passed to some Redis command, e.g. SET
    */
   sealed abstract class Condition(val name: String) {
