@@ -4,7 +4,6 @@ import scredis.protocol._
 import scredis.serialization.{ Reader, Writer }
 
 import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.ListBuffer
 
 object HashRequests {
   
