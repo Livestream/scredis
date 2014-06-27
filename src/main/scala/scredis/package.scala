@@ -53,6 +53,21 @@ package object scredis {
   }
   
   /**
+   * Base class of a position used for the LINSERT command
+   */
+  sealed abstract class Position(val name: String) {
+    override def toString = name
+  }
+  
+  /**
+   * Contains all available positions, i.e. BEFORE and AFTER
+   */
+  object Position {
+    case object Before extends BitOp("BEFORE")
+    case object After extends BitOp("AFTER")
+  }
+  
+  /**
    * Represents the aggregation function to be used for aggregating scores when computing the
    * union or intersection of sorted sets
    */

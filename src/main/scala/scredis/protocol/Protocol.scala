@@ -11,7 +11,8 @@ import scredis.util.BufferPool
 
 import scala.collection.mutable.{ ArrayBuilder, ListBuffer, Stack }
 import scala.util.{ Try, Success, Failure }
-import scala.concurrent.{ ExecutionContext, Future, Promise }
+import scala.concurrent.{ ExecutionContext, Future, Promise, Await }
+import scala.concurrent.duration.Duration
 import scala.annotation.tailrec
 
 import java.nio.{ ByteBuffer, CharBuffer }
@@ -338,7 +339,14 @@ trait Protocol extends Logging {
   
   protected def send[A](request: Request[A]): Future[A] = {
     logger.debug(s"Sending request: $request")
-    null
+    // TODO: send
+    request.future
+  }
+  
+  protected def sendBlocking[A](request: Request[A]): A = {
+    logger.debug(s"Sending blocking request: $request")
+    // TODO: send
+    Await.result(request.future, Duration.Inf)
   }
   
 }
