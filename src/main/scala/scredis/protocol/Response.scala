@@ -26,15 +26,15 @@ case class BulkStringResponse(valueOpt: Option[Array[Byte]]) extends Response {
 
 case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
   
-  def parsed[R, CC[X] <: Traversable[X]](parsePf: PartialFunction[Response, R])(
+  def parsed[R, CC[X] <: Traversable[X]](decoder: Decoder[R])(
     implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
   ): CC[R] = {
     val builder = cbf()
     var i = 0
     while (i < length) {
       val response = Protocol.decode(buffer)
-      if (parsePf.isDefinedAt(response)) {
-        builder += parsePf.apply(response)
+      if (decoder.isDefinedAt(response)) {
+        builder += decoder.apply(response)
       } else {
         throw new IllegalArgumentException(s"Does not know how to parse response: $response")
       }
@@ -44,24 +44,24 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
   }
   
   def parsedAsPairs[R1, R2, CC[X] <: Traversable[X]](
-    parseFirstPf: PartialFunction[Response, R1]
+    firstDecoder: Decoder[R1]
   )(
-    parseSecondPf: PartialFunction[Response, R2]
+    secondDecoder: Decoder[R2]
   )(implicit cbf: CanBuildFrom[Nothing, (R1, R2), CC[(R1, R2)]]): CC[(R1, R2)] = {
     val builder = cbf()
     var i = 0
     while (i < length) {
       val firstResponse = Protocol.decode(buffer)
-      val firstValue = if (parseFirstPf.isDefinedAt(firstResponse)) {
-        parseFirstPf.apply(firstResponse)
+      val firstValue = if (firstDecoder.isDefinedAt(firstResponse)) {
+        firstDecoder.apply(firstResponse)
       } else {
         throw new IllegalArgumentException(
           s"Does not know how to parse first response: $firstResponse"
         )
       }
       val secondResponse = Protocol.decode(buffer)
-      val secondValue = if (parseSecondPf.isDefinedAt(secondResponse)) {
-        parseSecondPf.apply(secondResponse)
+      val secondValue = if (secondDecoder.isDefinedAt(secondResponse)) {
+        secondDecoder.apply(secondResponse)
       } else {
         throw new IllegalArgumentException(
           s"Does not know how to parse second response: $secondResponse"
@@ -73,24 +73,24 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
   }
   
   def parsedAsPairsMap[R1, R2, CC[X, Y] <: collection.Map[X, Y]](
-    parseFirstPf: PartialFunction[Response, R1]
+    firstDecoder: Decoder[R1]
   )(
-    parseSecondPf: PartialFunction[Response, R2]
+    secondDecoder: Decoder[R2]
   )(implicit cbf: CanBuildFrom[Nothing, (R1, R2), CC[R1, R2]]): CC[R1, R2] = {
     val builder = cbf()
     var i = 0
     while (i < length) {
       val firstResponse = Protocol.decode(buffer)
-      val firstValue = if (parseFirstPf.isDefinedAt(firstResponse)) {
-        parseFirstPf.apply(firstResponse)
+      val firstValue = if (firstDecoder.isDefinedAt(firstResponse)) {
+        firstDecoder.apply(firstResponse)
       } else {
         throw new IllegalArgumentException(
           s"Does not know how to parse first response: $firstResponse"
         )
       }
       val secondResponse = Protocol.decode(buffer)
-      val secondValue = if (parseSecondPf.isDefinedAt(secondResponse)) {
-        parseSecondPf.apply(secondResponse)
+      val secondValue = if (secondDecoder.isDefinedAt(secondResponse)) {
+        secondDecoder.apply(secondResponse)
       } else {
         throw new IllegalArgumentException(
           s"Does not know how to parse second response: $secondResponse"
@@ -102,7 +102,7 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
   }
   
   def parsedAsScanResponse[R, CC[X] <: Traversable[X]](
-    parsePf: PartialFunction[Response, CC[R]]
+    decoder: Decoder[CC[R]]
   ): (Long, CC[R]) = {
     if (length != 2) {
       throw RedisProtocolException(s"Unexpected length for scan-like array response: $length")
@@ -114,7 +114,7 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     }
     
     Protocol.decode(buffer) match {
-      case a: ArrayResponse if parsePf.isDefinedAt(a) => (nextCursor, parsePf.apply(a))
+      case a: ArrayResponse if decoder.isDefinedAt(a) => (nextCursor, decoder.apply(a))
       case a: ArrayResponse => throw new IllegalArgumentException(
         s"Does not know how to parse response: $a"
       )
@@ -122,20 +122,20 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     }
   }
   
-  def parsed[CC[X] <: Traversable[X]](parsers: Traversable[PartialFunction[Response, Any]])(
+  def parsed[CC[X] <: Traversable[X]](decoders: Traversable[Decoder[Any]])(
     implicit cbf: CanBuildFrom[Nothing, Try[Any], CC[Try[Any]]]
   ): CC[Try[Any]] = {
     val builder = cbf()
     var i = 0
-    val parsersIterator = parsers.toIterator
+    val decodersIterator = decoders.toIterator
     while (i < length) {
       val response = Protocol.decode(buffer)
-      val parser = parsersIterator.next()
+      val decoder = decodersIterator.next()
       val result = response match {
         case ErrorResponse(message) => Failure(RedisErrorResponseException(message))
-        case reply => if (parser.isDefinedAt(reply)) {
+        case reply => if (decoder.isDefinedAt(reply)) {
           try {
-            Success(parser.apply(reply))
+            Success(decoder.apply(reply))
           } catch {
             case e: Throwable => Failure(RedisProtocolException("", e))
           }

@@ -45,7 +45,6 @@ abstract class Request[A](command: Command, args: Any*) {
     Protocol.release()
   }
   
-  def decode: PartialFunction[Response, A]
-  def hasArguments = args.size > 0
+  def decode: Decoder[A]
   
 }
