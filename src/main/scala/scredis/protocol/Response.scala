@@ -26,6 +26,20 @@ case class BulkStringResponse(valueOpt: Option[Array[Byte]]) extends Response {
 
 case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
   
+  def headOpt[R](decoder: Decoder[R]): Option[R] = if (length > 0) {
+    val position = buffer.position
+    val response = Protocol.decode(buffer)
+    if (decoder.isDefinedAt(response)) {
+      val decoded = decoder.apply(response)
+      buffer.position(position)
+      Some(decoded)
+    } else {
+      throw new IllegalArgumentException(s"Does not know how to parse response: $response")
+    }
+  } else {
+    None
+  }
+  
   def parsed[R, CC[X] <: Traversable[X]](decoder: Decoder[R])(
     implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
   ): CC[R] = {

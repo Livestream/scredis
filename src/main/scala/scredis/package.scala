@@ -161,4 +161,20 @@ package object scredis {
     case object XX extends Condition("XX")
   }
   
+  /**
+   * Represents the type of a connected client
+   */
+  sealed abstract class ClientType(val name: String) {
+    override def toString = name
+  }
+  
+  /**
+   * Contains all available client types, i.e. normal, slave, pubsub
+   */
+  object ClientType {
+    case object Normal extends Type("normal")
+    case object Slave extends Type("slave")
+    case object PubSub extends Type("pubsub")
+  }
+  
 }

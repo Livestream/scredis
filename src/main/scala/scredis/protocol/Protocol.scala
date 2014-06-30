@@ -125,7 +125,7 @@ object Protocol {
   
   private def decodeBulkStringResponse(buffer: ByteBuffer): BulkStringResponse = {
     val length = parseInt(buffer)
-    val valueOpt = if (length > 0) {
+    val valueOpt = if (length >= 0) {
       val array = new Array[Byte](length)
       buffer.get(array)
       buffer.get()
