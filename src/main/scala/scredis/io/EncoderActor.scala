@@ -1,4 +1,4 @@
-package scredis.nio
+package scredis.io
 /*
 import com.codahale.metrics.MetricRegistry
 

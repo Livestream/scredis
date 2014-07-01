@@ -1,4 +1,4 @@
-package scredis.nio
+package scredis.io
 
 import com.codahale.metrics.MetricRegistry
 
@@ -18,7 +18,7 @@ class DecoderActor extends Actor {
   
   private var count = 0
   
-  private val decodeTimer = scredis.protocol.NioProtocol.metrics.timer(
+  private val decodeTimer = scredis.protocol.Protocol.metrics.timer(
     MetricRegistry.name(getClass, "decodeTimer")
   )
   

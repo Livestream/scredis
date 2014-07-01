@@ -5,9 +5,9 @@ import scredis.serialization.Writer
 
 object HyperLogLogRequests {
   
-  private object PFAdd extends Command("PFADD")
-  private object PFCount extends Command("PFCOUNT")
-  private object PFMerge extends Command("PFMERGE")
+  object PFAdd extends Command("PFADD")
+  object PFCount extends Command("PFCOUNT")
+  object PFMerge extends Command("PFMERGE")
   
   case class PFAdd[W: Writer](key: String, elements: W*) extends Request[Int](
     PFAdd, key, elements.map(implicitly[Writer[W]].write): _*

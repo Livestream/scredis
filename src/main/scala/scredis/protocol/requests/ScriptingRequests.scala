@@ -7,12 +7,12 @@ object ScriptingRequests {
   
   import scredis.serialization.Implicits.stringReader
   
-  private object Eval extends Command("EVAL")
-  private object EvalSHA extends Command("EVALSHA")
-  private object ScriptExists extends Command("SCRIPT EXISTS")
-  private object ScriptFlush extends ZeroArgCommand("SCRIPT FLUSH")
-  private object ScriptKill extends ZeroArgCommand("SCRIPT KILL")
-  private object ScriptLoad extends Command("SCRIPT LOAD")
+  object Eval extends Command("EVAL")
+  object EvalSHA extends Command("EVALSHA")
+  object ScriptExists extends Command("SCRIPT EXISTS")
+  object ScriptFlush extends ZeroArgCommand("SCRIPT FLUSH")
+  object ScriptKill extends ZeroArgCommand("SCRIPT KILL")
+  object ScriptLoad extends Command("SCRIPT LOAD")
   
   case class Eval[R, W1: Writer, W2: Writer](
     script: String, keys: Seq[W1], args: Seq[W2]

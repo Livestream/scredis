@@ -1,12 +1,12 @@
-package scredis.nio
-
+package scredis.io
+/*
 import akka.actor._
 import akka.routing._
 
 import scredis._
 import scredis.protocol._
 import scredis.protocol.requests._
-import scredis.parsing.Implicits.stringParser
+import scredis.serialization.Implicits.stringReader
 
 import scala.util.{ Try, Success, Failure }
 import scala.concurrent.{ ExecutionContext, Future, Await }
@@ -67,4 +67,4 @@ object Nio {
     system.shutdown()
   }
   
-}
+}*/

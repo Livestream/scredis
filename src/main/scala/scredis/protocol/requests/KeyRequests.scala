@@ -11,27 +11,29 @@ object KeyRequests {
   
   import scredis.serialization.Implicits.stringReader
   
-  private object Del extends Command("DEL")
-  private object Dump extends Command("DUMP")
-  private object Exists extends Command("EXISTS")
-  private object Expire extends Command("EXPIRE")
-  private object ExpireAt extends Command("EXPIREAT")
-  private object Keys extends Command("KEYS")
-  private object Migrate extends Command("MIGRATE")
-  private object Move extends Command("MOVE")
-  private object Object extends Command("OBJECT")
-  private object Persist extends Command("PERSIST")
-  private object PExpire extends Command("PEXPIRE")
-  private object PExpireAt extends Command("PEXPIREAT")
-  private object PTTL extends Command("PTTL")
-  private object RandomKey extends ZeroArgCommand("RANDOMKEY")
-  private object Rename extends Command("RENAME")
-  private object RenameNX extends Command("RENAMENX")
-  private object Restore extends Command("RESTORE")
-  private object Scan extends Command("SCAN")
-  private object Sort extends Command("SORT")
-  private object TTL extends Command("TTL")
-  private object Type extends Command("TYPE")
+  object Del extends Command("DEL")
+  object Dump extends Command("DUMP")
+  object Exists extends Command("EXISTS")
+  object Expire extends Command("EXPIRE")
+  object ExpireAt extends Command("EXPIREAT")
+  object Keys extends Command("KEYS")
+  object Migrate extends Command("MIGRATE")
+  object Move extends Command("MOVE")
+  object ObjectRefCount extends Command("OBJECT REFCOUNT")
+  object ObjectEncoding extends Command("OBJECT ENCODING")
+  object ObjectIdleTime extends Command("OBJECT IDLETIME")
+  object Persist extends Command("PERSIST")
+  object PExpire extends Command("PEXPIRE")
+  object PExpireAt extends Command("PEXPIREAT")
+  object PTTL extends Command("PTTL")
+  object RandomKey extends ZeroArgCommand("RANDOMKEY")
+  object Rename extends Command("RENAME")
+  object RenameNX extends Command("RENAMENX")
+  object Restore extends Command("RESTORE")
+  object Scan extends Command("SCAN")
+  object Sort extends Command("SORT")
+  object TTL extends Command("TTL")
+  object Type extends Command("TYPE")
   
   protected def generateSortArgs(
     key: String,
@@ -99,9 +101,11 @@ object KeyRequests {
     }
   }
   
-  case class Keys(pattern: String) extends Request[Set[String]](Keys, pattern) {
+  case class Keys[CC[X] <: Traversable[X]](pattern: String)(
+    implicit cbf: CanBuildFrom[Nothing, String, CC[String]]
+  ) extends Request[CC[String]](Keys, pattern) {
     override def decode = {
-      case a: ArrayResponse => a.parsed[String, Set] {
+      case a: ArrayResponse => a.parsed[String, CC] {
         case b: BulkStringResponse => b.flattened[String]
       }
     }
@@ -136,6 +140,26 @@ object KeyRequests {
   case class Move(key: String, database: Int) extends Request[Boolean](Move, key, database) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
+    }
+  }
+  
+  case class ObjectRefCount(key: String) extends Request[Option[Long]](ObjectRefCount, key) {
+    override def decode = {
+      case IntegerResponse(value)   => Some(value)
+      case BulkStringResponse(None) => None
+    }
+  }
+  
+  case class ObjectEncoding(key: String) extends Request[Option[String]](ObjectEncoding, key) {
+    override def decode = {
+      case b: BulkStringResponse => b.parsed[String]
+    }
+  }
+  
+  case class ObjectIdleTime(key: String) extends Request[Option[Long]](ObjectIdleTime, key) {
+    override def decode = {
+      case IntegerResponse(value)   => Some(value)
+      case BulkStringResponse(None) => None
     }
   }
   
@@ -197,9 +221,9 @@ object KeyRequests {
     }
   }
   
-  case class Scan(
+  case class Scan[CC[X] <: Traversable[X]](
     cursor: Long, matchOpt: Option[String], countOpt: Option[Int]
-  ) extends Request[(Long, Set[String])](
+  )(implicit cbf: CanBuildFrom[Nothing, String, CC[String]]) extends Request[(Long, CC[String])](
     Scan,
     generateScanLikeArgs(
       keyOpt = None,
@@ -209,8 +233,8 @@ object KeyRequests {
     ): _*
   ) {
     override def decode = {
-      case a: ArrayResponse => a.parsedAsScanResponse[String, Set] {
-        case a: ArrayResponse => a.parsed[String, Set] {
+      case a: ArrayResponse => a.parsedAsScanResponse[String, CC] {
+        case a: ArrayResponse => a.parsed[String, CC] {
           case b: BulkStringResponse => b.flattened[String]
         }
       }

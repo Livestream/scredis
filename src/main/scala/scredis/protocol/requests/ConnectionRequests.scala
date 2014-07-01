@@ -4,11 +4,11 @@ import scredis.protocol._
 
 object ConnectionRequests {
   
-  private object Auth extends Command("AUTH")
-  private object Echo extends Command("ECHO")
-  private object Ping extends ZeroArgCommand("PING")
-  private object Quit extends ZeroArgCommand("QUIT")
-  private object Select extends Command("SELECT")
+  object Auth extends Command("AUTH")
+  object Echo extends Command("ECHO")
+  object Ping extends ZeroArgCommand("PING")
+  object Quit extends ZeroArgCommand("QUIT")
+  object Select extends Command("SELECT")
   
   case class Auth(password: String) extends Request[Unit](Auth, password) {
     override def decode = {  

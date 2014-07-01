@@ -7,21 +7,21 @@ import scala.collection.generic.CanBuildFrom
 
 object SetRequests {
   
-  private object SAdd extends Command("SADD")
-  private object SCard extends Command("SCARD")
-  private object SDiff extends Command("SDIFF")
-  private object SDiffStore extends Command("SDIFFSTORE")
-  private object SInter extends Command("SINTER")
-  private object SInterStore extends Command("SINTERSTORE")
-  private object SIsMember extends Command("SISMEMBER")
-  private object SMembers extends Command("SMEMBERS")
-  private object SMove extends Command("SMOVE")
-  private object SPop extends Command("SPOP")
-  private object SRandMember extends Command("SRANDMEMBER")
-  private object SRem extends Command("SREM")
-  private object SScan extends Command("SSCAN")
-  private object SUnion extends Command("SUNION")
-  private object SUnionStore extends Command("SUNIONSTORE")
+  object SAdd extends Command("SADD")
+  object SCard extends Command("SCARD")
+  object SDiff extends Command("SDIFF")
+  object SDiffStore extends Command("SDIFFSTORE")
+  object SInter extends Command("SINTER")
+  object SInterStore extends Command("SINTERSTORE")
+  object SIsMember extends Command("SISMEMBER")
+  object SMembers extends Command("SMEMBERS")
+  object SMove extends Command("SMOVE")
+  object SPop extends Command("SPOP")
+  object SRandMember extends Command("SRANDMEMBER")
+  object SRem extends Command("SREM")
+  object SScan extends Command("SSCAN")
+  object SUnion extends Command("SUNION")
+  object SUnionStore extends Command("SUNIONSTORE")
   
   case class SAdd[W: Writer](key: String, members: W*) extends Request[Long](
     SAdd, key, members.map(implicitly[Writer[W]].write): _*

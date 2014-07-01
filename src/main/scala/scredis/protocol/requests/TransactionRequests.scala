@@ -6,11 +6,11 @@ import scala.util.Try
 
 object TransactionRequests {
   
-  private object Discard extends ZeroArgCommand("DISCARD")
-  private object Exec extends ZeroArgCommand("EXEC")
-  private object Multi extends ZeroArgCommand("MULTI")
-  private object Unwatch extends ZeroArgCommand("UNWATCH")
-  private object Watch extends Command("WATCH")
+  object Discard extends ZeroArgCommand("DISCARD")
+  object Exec extends ZeroArgCommand("EXEC")
+  object Multi extends ZeroArgCommand("MULTI")
+  object Unwatch extends ZeroArgCommand("UNWATCH")
+  object Watch extends Command("WATCH")
   
   case class Discard() extends Request[Unit](Discard) {
     override def decode = {  

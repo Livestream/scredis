@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.protocol.Protocol
+import scredis.AbstractClient
 import scredis.protocol.requests.ConnectionRequests._
 
 import scala.concurrent.Future
@@ -9,8 +9,11 @@ import scala.concurrent.Future
  * This trait implements connection commands.
  *
  * @define e [[scredis.exceptions.RedisErrorResponseException]]
+ * @define none `None`
+ * @define true '''true'''
+ * @define false '''false'''
  */
-trait ConnectionCommands { self: Protocol =>
+trait ConnectionCommands { self: AbstractClient =>
 
   /**
    * Authenticates to the server.
@@ -23,7 +26,7 @@ trait ConnectionCommands { self: Protocol =>
    * @since 1.0.0
    */
   def auth(password: String): Future[Unit] = send(Auth(password))
-
+  
   /**
    * Echoes the given string on the server.
    *

@@ -1,4 +1,4 @@
-package scredis.nio
+package scredis.io
 
 import com.codahale.metrics.MetricRegistry
 
@@ -15,13 +15,15 @@ import java.nio.ByteBuffer
 
 class PartitionerActor(ioActor: ActorRef) extends Actor {
   
+  import DecoderActor.Partition
+  
   private val requests = MQueue[Request[_]]()
   
   private val decoders = context.actorOf(
     SmallestMailboxPool(3).props(Props[DecoderActor]).withDispatcher("scredis.decoder-dispatcher")
   )
   
-  private val tellTimer = scredis.protocol.NioProtocol.metrics.timer(
+  private val tellTimer = scredis.protocol.Protocol.metrics.timer(
     MetricRegistry.name(getClass, "tellTimer")
   )
   

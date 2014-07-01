@@ -10,28 +10,28 @@ object HashRequests {
   import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.doubleReader
   
-  private object HDel extends Command("HDEL")
-  private object HExists extends Command("HEXISTS")
-  private object HGet extends Command("HGET")
-  private object HGetAll extends Command("HGETALL")
-  private object HIncrBy extends Command("HINCRBY")
-  private object HIncrByFloat extends Command("HINCRBYFLOAT")
-  private object HKeys extends Command("HKEYS")
-  private object HLen extends Command("HLEN")
-  private object HMGet extends Command("HMGET")
-  private object HMSet extends Command("HMSET")
-  private object HScan extends Command("HSCAN")
-  private object HSet extends Command("HSET")
-  private object HSetNX extends Command("HSETNX")
-  private object HVals extends Command("HVALS")
+  object HDel extends Command("HDEL")
+  object HExists extends Command("HEXISTS")
+  object HGet extends Command("HGET")
+  object HGetAll extends Command("HGETALL")
+  object HIncrBy extends Command("HINCRBY")
+  object HIncrByFloat extends Command("HINCRBYFLOAT")
+  object HKeys extends Command("HKEYS")
+  object HLen extends Command("HLEN")
+  object HMGet extends Command("HMGET")
+  object HMSet extends Command("HMSET")
+  object HScan extends Command("HSCAN")
+  object HSet extends Command("HSET")
+  object HSetNX extends Command("HSETNX")
+  object HVals extends Command("HVALS")
   
-  case class HDel(keys: String*) extends Request[Long](HDel, keys: _*) {
+  case class HDel(key: String, fields: String*) extends Request[Long](HDel, key, fields: _*) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class HExists(key: String) extends Request[Boolean](HExists, key) {
+  case class HExists(key: String, field: String) extends Request[Boolean](HExists, key, field) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -71,9 +71,11 @@ object HashRequests {
     }
   }
   
-  case class HKeys(key: String) extends Request[Set[String]](HKeys, key) {
+  case class HKeys[CC[X] <: Traversable[X]](key: String)(
+    implicit cbf: CanBuildFrom[Nothing, String, CC[String]]
+  ) extends Request[CC[String]](HKeys, key) {
     override def decode = {
-      case a: ArrayResponse => a.parsed[String, Set] {
+      case a: ArrayResponse => a.parsed[String, CC] {
         case b: BulkStringResponse => b.flattened[String]
       }
     }
@@ -95,9 +97,9 @@ object HashRequests {
     }
   }
   
-  case class HMGetAsMap[R: Reader, CC[X] <: Traversable[X]](key: String, fields: String*)(
-    implicit cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
-  ) extends Request[Map[String, R]](HMGet, key, fields: _*) {
+  case class HMGetAsMap[R: Reader](key: String, fields: String*) extends Request[Map[String, R]](
+    HMGet, key, fields: _*
+  ) {
     override def decode = {
       case a: ArrayResponse => {
         val values = a.parsed[Option[R], List] {
