@@ -1,26 +1,29 @@
 package scredis.commands
 
-import scredis.CommandOptions
-import scredis.protocol.Protocol
-import scredis.parsing.Implicits._
+import scredis.AbstractClient
+import scredis.protocol.requests.ServerRequests._
+import scredis.serialization.{ Reader, Writer }
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 /**
  * This trait implements server commands.
  *
+ * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define none `None`
- * @define e [[scredis.exceptions.RedisCommandException]]
+ * @define true '''true'''
+ * @define false '''false'''
  */
-trait ServerCommands { self: Protocol =>
-  import Names._
-
+trait ServerCommands { self: AbstractClient =>
+  
   /**
    * Asynchronously rewrites the append-only file.
    *
    * @since 1.0.0
    */
-  def bgRewriteAOF()(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(BgRewriteAOF)(asUnit)
-
+  def bgRewriteAOF(): Future[Unit] = send(BGRewriteAOF())
+  
   /**
    * Asynchronously saves the dataset to disk.
    *
@@ -28,8 +31,8 @@ trait ServerCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def bgSave()(implicit opts: CommandOptions = DefaultCommandOptions): Unit = send(BgSave)(asUnit)
-
+  def bgSave(): Future[Unit] = send(BGSave())
+  
   /**
    * Get the current client name.
    *
@@ -37,62 +40,57 @@ trait ServerCommands { self: Protocol =>
    *
    * @since 2.6.9
    */
-  def clientGetName()(implicit opts: CommandOptions = DefaultCommandOptions): Option[String] =
-    send(Client, ClientGetName)(asBulk[String])
-
+  def clientGetName(): Future[Option[String]] = send(ClientGetName())
+  
   /**
    * Kills the connection of a client.
    *
-   * @param addr string containing ip and port separated by colon, i.e. "ip:port"
-   * @throws  RedisCommandException if the the client does not exist
+   * @param ip ip address of the client to kill
+   * @param port port of the client to kill
+   * @throws $e if the the client does not exist
    *
    * @since 2.4.0
    */
-  def clientKill(addr: String)(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(Client, ClientKill, addr)(asUnit)
-
+  def clientKill(ip: String, port: Int): Future[Unit] = send(ClientKill(ip, port))
+  
   /**
-   * Kills the connection of a client.
+   * Kills the connection of potentially multiple clients satisfying various filters.
    *
-   * @param ip ip address of the target client
-   * @param port port of the target client
-   * @throws  RedisCommandException if the the client does not exist
+   * @param addrs address(es) of the client(s) to be kill, in the form of (ip, port) pairs
+   * @param ids id(s) of the client(s) to kill
+   * @param types type(s) of the client(s) to kill, namely `normal`, `slave` or `pubsub`
+   * @param skipMe when $true, the calling client will not be killed, when $false, the latter can
+   * be killed
+   * @return the number of killed client(s)
    *
-   * @since 2.4.0
+   * @since 2.8.12
    */
-  def clientKillFromIpPort(ip: String, port: Int)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = clientKill("%s:%d".format(ip, port))
-
+  def clientKillWithFilters(
+    addrs: Seq[(String, Int)] = Nil,
+    ids: Seq[Long] = Nil,
+    types: Seq[scredis.ClientType] = Nil,
+    skipMe: Boolean = true
+  ): Future[Long] = send(ClientKillWithFilters(addrs, ids, types, skipMe))
+  
   /**
-   * Gets the list of client connections.
-   *
-   * @return raw string containing the list of clients as returned by Redis
-   *
-   * @since 2.4.0
-   */
-  def clientListRaw()(implicit opts: CommandOptions = DefaultCommandOptions): String =
-    send(Client, ClientList)(asBulk[String, String](flatten))
-
-  /**
-   * Gets the list of client connections.
+   * Lists all client connections.
    *
    * @return list of clients
    *
    * @since 2.4.0
    */
-  def clientList()(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): List[Map[String, String]] = send(Client, ClientList)(
-    asBulk[String, List[Map[String, String]]](string => {
-      string.get.split("\n").map(_.split(" ").flatMap(p => {
-        val split = p.split("=")
-        if (split.size == 2) Some((split(0) -> split(1)))
-        else None
-      }).toMap).toList
-    })
-  )
-
+  def clientList(): Future[List[Map[String, String]]] = send(ClientList())
+  
+  /**
+   * Suspends all clients for the specified amount of time.
+   *
+   * @param timeoutMillis the amount of time in milliseconds for which clients should be suspended
+   * @throws $e if the timeout is invalid
+   *
+   * @since 2.9.50
+   */
+  def clientPause(timeoutMillis: Long): Future[Unit] = send(ClientPause(timeoutMillis))
+  
   /**
    * Sets the current client name. If the empty string is provided, the name will be unset.
    *
@@ -100,9 +98,8 @@ trait ServerCommands { self: Protocol =>
    *
    * @since 2.6.9
    */
-  def clientSetName(name: String)(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(Client, ClientSetName, name)(asUnit)
-
+  def clientSetName(name: String): Future[Unit] = send(ClientSetName(name))
+  
   /**
    * Gets the value of a configuration parameter.
    *
@@ -111,37 +108,39 @@ trait ServerCommands { self: Protocol =>
    *
    * @since 2.0.0
    */
-  def configGet(pattern: String = "*")(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Option[Map[String, Option[String]]] = send(Config, ConfigGet, pattern)(
-    asMultiBulk[List, Option[Map[String, Option[String]]]](x =>
-      toOptionalMap[String, String](x).map(_.collect {
-        case (key, value) => if (value.isEmpty) (key, None) else (key, Some(value))
-      })
-    )
-  )
-
+  def configGet(pattern: String = "*"): Future[Map[String, String]] = send(ConfigGet(pattern))
+  
   /**
    * Resets the stats returned by INFO.
    *
    * @since 2.0.0
    */
-  def configResetStat()(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(Config, ConfigResetStat)(asUnit)
-
+  def configResetStat(): Future[Unit] = send(ConfigResetStat())
+  
+  /**
+   * Rewrites the redis.conf file the server was started with, applying the minimal changes
+   * needed to make it reflect the configuration currently used by the server, which may be
+   * different compared to the original one because of the use of the CONFIG SET command.
+   *
+   * @throws $e if the configuration file was not properly written
+   * 
+   * @since 2.8.0
+   */
+  def configRewrite(): Future[Unit] = send(ConfigRewrite())
+  
   /**
    * Sets a configuration parameter to the given value.
    *
-   * @param key parameter's name
+   * @param parameter parameter's name
    * @param value value to set parameter to
    * @throws $e if the parameter could not be set
    *
    * @since 2.0.0
    */
-  def configSet(key: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = send(Config, ConfigSet, key, value)(asUnit)
-
+  def configSet[W: Writer](parameter: String, value: W): Future[Unit] = send(
+    ConfigSet(parameter, value)
+  )
+  
   /**
    * Return the number of keys in the selected database.
    *
@@ -149,94 +148,42 @@ trait ServerCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def dbSize()(implicit opts: CommandOptions = DefaultCommandOptions): Long =
-    send(DbSize)(asInteger)
-
+  def dbSize(): Future[Long] = send(DBSize())
+  
   /**
    * Removes all keys from all databases.
    *
    * @since 1.0.0
    */
-  def flushAll()(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(FlushAll)(asUnit)
-
+  def flushAll(): Future[Unit] = send(FlushAll())
+  
   /**
    * Removes all keys from the current database.
    *
    * @since 1.0.0
    */
-  def flushDb()(implicit opts: CommandOptions = DefaultCommandOptions): Unit = send(FlushDb)(asUnit)
-
-  /**
-   * Gets information and statistics about the server.
-   *
-   * @return raw string containing lines of field:value pairs as returned by Redis
-   *
-   * @since 1.0.0
-   */
-  def infoRaw()(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): String = send(Info)(asBulk[String, String](flatten))
+  def flushDB(): Future[Unit] = send(FlushDB())
   
   /**
    * Gets information and statistics about the server.
    *
-   * @param section name of the section for which data should be retrieved
-   * @return raw string containing lines of field:value pairs that match the specified section,
-   * as returned by Redis, or an empty string if the section does not exist
-   *
-   * @since 2.6.0
-   */
-  def infoBySectionRaw(section: String = "default")(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): String = send(Info, section)(asBulk[String, String](flatten))
-
-  /**
-   * Gets information and statistics about the server.
-   *
-   * @return map of field -> value pairs
-   *
-   * @since 1.0.0
-   */
-  def info()(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Map[String, String] = send(Info)(asBulk[String, Map[String, String]](option => {
-    option.get.split("\r\n").withFilter(s => {
-      s.isEmpty == false && s.startsWith("#") == false
-    }).map(p => {
-      val split = p.split(":")
-      if (split.length > 1) {
-        (split(0) -> split(1))
-      } else {
-        (split(0) -> "")
-      }
-    }).toMap
-  }))
-  
-  /**
-   * Gets information and statistics about the server.
-   *
+   * @note The section can additionally take the following values: `all` and `default`.
+   * 
    * @param section name of the section for which data should be retrieved
    * @return map of field -> value pairs that match the specified section, or an empty map
    * if the section does not exist
    *
-   * @since 2.6.0
+   * @since 1.0.0
    */
-  def infoBySection(section: String = "default")(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Map[String, String] = send(Info, section)(asBulk[String, Map[String, String]](option => {
-    option.get.split("\r\n").withFilter(s => {
-      s.isEmpty == false && s.startsWith("#") == false
-    }).map(p => {
-      val split = p.split(":")
-      if (split.length > 1) {
-        (split(0) -> split(1))
-      } else {
-        (split(0) -> "")
-      }
-    }).toMap
-  }))
-
+  def info(section: String = "default"): Future[Map[String, String]] = {
+    val sectionOpt = if (section != "default") {
+      Some(section)
+    } else {
+      None
+    }
+    send(Info(sectionOpt))
+  }
+  
   /**
    * Gets the UNIX timestamp of the last successful save to disk.
    *
@@ -244,16 +191,91 @@ trait ServerCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def lastSave()(implicit opts: CommandOptions = DefaultCommandOptions): Long =
-    send(LastSave)(asInteger)
-
+  def lastSave(): Future[Long] = send(LastSave())
+  
+  /**
+   * Provides information on the role of a Redis instance in the context of replication,
+   * by returing if the instance is currently a master, slave, or sentinel.
+   * 
+   * @note The command also returns additional information about the state of the replication
+   * (if the role is master or slave) or the list of monitored master names (if the role is
+   * sentinel).
+   *
+   * @return the [[scredis.Role]] of the `Redis` instance
+   *
+   * @since 2.8.12
+   */
+  def role(): Future[scredis.Role] = send(Role())
+  
   /**
    * Synchronously saves the dataset to disk.
    *
    * @since 1.0.0
    */
-  def save()(implicit opts: CommandOptions = DefaultCommandOptions): Unit = send(Save)(asUnit)
-
+  def save(): Future[Unit] = send(Save())
+  
+  /**
+   * Gracefully shuts down a `Redis` server.
+   *
+   * @note The command performs the following operations:
+   * - Stops all the clients
+   * - Performs a blocking `SAVE` if at least one '''save point''' is configured
+   * - Flushes the Append Only File if AOF is enabled
+   * - Quits the server
+   * 
+   * @param modifierOpt optional [[scredis.ShutdownModifier]]
+   * 
+   * @since 1.0.0
+   */
+  def shutdown(modifierOpt: Option[scredis.ShutdownModifier] = None): Future[Unit] = send(
+    Shutdown(modifierOpt)
+  )
+  
+  /**
+   * Configures the current `Redis` instance as a slave of another `Redis` instance.
+   * 
+   * @param host the host of the master instance
+   * @param port the port of the master instance
+   *
+   * @since 1.0.0
+   */
+  def slaveOf(host: String, port: Int): Future[Unit] = send(SlaveOf(host, port))
+  
+  /**
+   * Breaks the replication of a slave `instance`, turning it back into a master instance.
+   *
+   * @since 1.0.0
+   */
+  def slaveOfNoOne(): Future[Unit] = send(SlaveOfNoOne())
+  
+  /**
+   * Retieves entries from the slowlog.
+   * 
+   * @param countOpt optionally limits the number of retrieved entries
+   * @return list of slowlog entries
+   * 
+   * @since 2.2.12
+   */
+  def slowLogGet(countOpt: Option[Int] = None): Future[List[scredis.SlowLogEntry]] = send(
+    SlowLogGet[List](countOpt)
+  )
+  
+  /**
+   * Returns the number of entries in the slowlog.
+   * 
+   * @return number of entries in the slowlog
+   * 
+   * @since 2.2.12
+   */
+  def slowLogLen(): Future[Long] = send(SlowLogLen())
+  
+  /**
+   * Resets the slowlog.
+   * 
+   * @since 2.2.12
+   */
+  def slowLogReset(): Future[Unit] = send(SlowLogReset())
+  
   /**
    * Returns the current server time.
    *
@@ -261,10 +283,6 @@ trait ServerCommands { self: Protocol =>
    *
    * @since 2.6.0
    */
-  def time()(implicit opts: CommandOptions = DefaultCommandOptions): (Long, Long) = send(Time)(
-    asMultiBulk[Long, Long, List, (Long, Long)](asBulk[Long, Long](flatten))(
-      list => (list(0), list(1))
-    )
-  )
-
+  def time(): Future[(Long, Long)] = send(Time())
+  
 }

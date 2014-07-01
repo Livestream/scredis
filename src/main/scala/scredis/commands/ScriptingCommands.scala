@@ -1,171 +1,75 @@
 package scredis.commands
 
-import scredis.CommandOptions
-import scredis.protocol.{ Protocol, As }
-import scredis.parsing.Implicits._
+import scredis.AbstractClient
+import scredis.protocol.Decoder
+import scredis.protocol.requests.ScriptingRequests._
+import scredis.serialization.{ Reader, Writer }
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 /**
  * This trait implements scripting commands.
- * 
- * @define e [[scredis.exceptions.RedisCommandException]]
+ *
+ * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define p [[scredis.exceptions.RedisProtocolException]]
+ * @define none `None`
+ * @define true '''true'''
+ * @define false '''false'''
  */
-trait ScriptingCommands { self: Protocol =>
-  import Names._
+trait ScriptingCommands { self: AbstractClient =>
   
-  protected val as = new As(this)
-
   /**
    * Executes a Lua script that does not require any keys or arguments.
    *
-   * @param script set key
-   * @param as result handler
-   * @throws $e if an error occurs while running the script
-   * @throws $p if the value returned by the script does not match with the result handler
-   *
-   * @since 2.6.0
-   */
-  def eval[A](script: String)(as: As => (Char, Array[Byte]) => A)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): A = send(Eval, script, 0)(as(this.as))
-
-  /**
-   * Executes a Lua script with keys parameter.
-   *
-   * @param script set key
-   * @param keys keys to be used in the script
-   * @param as result handler
-   * @throws $e if an error occurs while running the script
-   * @throws $p if the value returned by the script does not match with the result handler
-   *
-   * @since 2.6.0
-   */
-  def evalWithKeys[A](script: String)(keys: String*)(as: As => (Char, Array[Byte]) => A)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): A = send(Eval :: script :: keys.size :: keys.toList: _*)(as(this.as))
-
-  /**
-   * Executes a Lua script with arguments.
-   *
-   * @param script set key
-   * @param args arguments to be used in the script
-   * @param as result handler
-   * @throws $e if an error occurs while running the script
-   * @throws $p if the value returned by the script does not match with the result handler
-   *
-   * @since 2.6.0
-   */
-  def evalWithArgs[A](script: String)(args: Any*)(as: As => (Char, Array[Byte]) => A)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): A = send(Eval :: script :: 0 :: args.toList: _*)(as(this.as))
-
-  /**
-   * Executes a Lua script with keys and arguments.
-   *
-   * @param script set key
+   * @param script the LUA script
    * @param keys keys to be used in the script
    * @param args arguments to be used in the script
-   * @param as result handler
    * @throws $e if an error occurs while running the script
-   * @throws $p if the value returned by the script does not match with the result handler
-   *
+   * @throws $p if the result could not be decoded by provided `Decoder`
+   * 
    * @since 2.6.0
    */
-  def evalWithKeysAndArgs[A](script: String)(keys: String*)(args: Any*)(
-    as: As => (Char, Array[Byte]) => A
-  )(implicit opts: CommandOptions = DefaultCommandOptions): A = send(
-    Eval :: script :: keys.size :: keys.toList ::: args.toList: _*
-  )(as(this.as))
+  def eval[R: Decoder, W1: Writer, W2: Writer](
+    script: String, keys: Seq[W1], args: Seq[W2]
+  ): Future[R] = send(Eval(script, keys, args))
 
   /**
    * Executes a cached Lua script that does not require any keys or arguments by its SHA1 digest.
    *
    * @param sha1 the SHA1 digest
-   * @param as result handler
-   * @throws $e if there is no script corresponding to the provided SHA1 digest or if an error
-   * occurs while running the script
-   * @throws $p if the value returned by the script does not match with the result handler
-   *
-   * @since 2.6.0
-   */
-  def evalSha[A](sha1: String)(as: As => (Char, Array[Byte]) => A)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): A = send(EvalSha, sha1, 0)(as(this.as))
-
-  /**
-   * Executes a cached Lua script with keys parameter by its SHA1 digest.
-   *
-   * @param sha1 the SHA1 digest
-   * @param keys keys to be used in the script
-   * @param as result handler
-   * @throws $e if there is no script corresponding to the provided SHA1 digest or if an error
-   * occurs while running the script
-   * @throws $p if the value returned by the script does not match with the result handler
-   *
-   * @since 2.6.0
-   */
-  def evalShaWithKeys[A](sha1: String)(keys: String*)(as: As => (Char, Array[Byte]) => A)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): A = send(EvalSha :: sha1 :: keys.size :: keys.toList: _*)(as(this.as))
-
-  /**
-   * Executes a cached Lua script with arguments by its SHA1 digest.
-   *
-   * @param sha1 the SHA1 digest
-   * @param args arguments to be used in the script
-   * @param as result handler
-   * @throws $e if there is no script corresponding to the provided SHA1 digest or if an error
-   * occurs while running the script
-   * @throws $p if the value returned by the script does not match with the result handler
-   *
-   * @since 2.6.0
-   */
-  def evalShaWithArgs[A](sha1: String)(args: Any*)(as: As => (Char, Array[Byte]) => A)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): A = send(EvalSha :: sha1 :: 0 :: args.toList: _*)(as(this.as))
-
-  /**
-   * Executes a cached Lua script with keys and arguments by its SHA1 digest.
-   *
-   * @param sha1 the SHA1 digest
    * @param keys keys to be used in the script
    * @param args arguments to be used in the script
-   * @param as result handler
    * @throws $e if there is no script corresponding to the provided SHA1 digest or if an error
    * occurs while running the script
-   * @throws $p if the value returned by the script does not match with the result handler
+   * @throws $p if the result could not be decoded by provided `Decoder`
    *
    * @since 2.6.0
    */
-  def evalShaWithKeysAndArgs[A](sha1: String)(keys: String*)(args: Any*)(
-    as: As => (Char, Array[Byte]) => A
-  )(implicit opts: CommandOptions = DefaultCommandOptions): A = send(
-    EvalSha :: sha1 :: keys.size :: keys.toList ::: args.toList: _*
-  )(as(this.as))
-
+  def evalSHA[R: Decoder, W1: Writer, W2: Writer](
+    sha1: String, keys: Seq[W1], args: Seq[W2]
+  ): Future[R] = send(EvalSHA(sha1, keys, args))
+  
   /**
    * Checks existence of scripts in the script cache.
    *
-   * @param sha1 the SHA1 digest to check for
-   * @param sha1s additional digests to check for
-   * @return indexed sequence of booleans where true means the script is in the cache
+   * @param sha1s SHA1 digest(s) to check for existence
+   * @return SHA1 -> Boolean `Map` where $true means the script associated to the sha1 exists
+   * in the cache
    *
    * @since 2.6.0
    */
-  def scriptExists(sha1: String, sha1s: String*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): IndexedSeq[Boolean] = send(Script :: ScriptExists :: sha1 :: sha1s.toList: _*)(
-    asMultiBulk[Long, Boolean, IndexedSeq](asInteger(x => x > 0))
+  def scriptExists(sha1s: String*): Future[Map[String, Boolean]] = send(
+    ScriptExists(sha1s: _*)
   )
-
+  
   /**
    * Removes all the scripts from the script cache.
    *
    * @since 2.6.0
    */
-  def scriptFlush()(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(Script, ScriptFlush)(asUnit)
-
+  def scriptFlush(): Future[Unit] = send(ScriptFlush())
+  
   /**
    * Kills the currently executing Lua script, assuming no write operation was yet performed by
    * the script.
@@ -177,9 +81,8 @@ trait ScriptingCommands { self: Protocol =>
    *
    * @since 2.6.0
    */
-  def scriptKill()(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(Script, ScriptKill)(asUnit)
-
+  def scriptKill(): Future[Unit] = send(ScriptKill())
+  
   /**
    * Loads or stores the specified Lua script into the script cache.
    *
@@ -192,7 +95,6 @@ trait ScriptingCommands { self: Protocol =>
    *
    * @since 2.6.0
    */
-  def scriptLoad(script: String)(implicit opts: CommandOptions = DefaultCommandOptions): String =
-    send(Script, ScriptLoad, script)(asBulk[String, String](flatten))
-
+  def scriptLoad(script: String): Future[String] = send(ScriptLoad(script))
+  
 }

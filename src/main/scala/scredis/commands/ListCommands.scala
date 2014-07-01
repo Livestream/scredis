@@ -1,69 +1,52 @@
 package scredis.commands
 
-import scredis.CommandOptions
-import scredis.parsing._
-import scredis.parsing.Implicits._
-import scredis.protocol.Protocol
+import scredis.AbstractClient
+import scredis.protocol.requests.ListRequests._
+import scredis.serialization.{ Reader, Writer }
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
- * This trait implements lists commands.
+ * This trait implements list commands.
  *
- * @define e [[scredis.exceptions.RedisCommandException]]
+ * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define none `None`
+ * @define true '''true'''
+ * @define false '''false'''
  */
-trait ListCommands { self: Protocol =>
-  import Names._
-
+trait ListCommands { self: AbstractClient =>
+  
   /**
    * Removes and returns the first element in a list, or block until one is available.
    *
    * @param timeoutSeconds timeout in seconds, if zero, the command blocks indefinitely until
    * an element is available
-   * @param key list key
-   * @param keys additional list keys
+   * @param keys list key(s)
    * @return list of key to popped element pair, or $none if timeout occurs
    * @throws $e if key contains a non-list value
    *
    * @since 2.0.0
    */
-  def blPop[A](timeoutSeconds: Int, key: String, keys: String*)(
-    implicit parser: Parser[A] = StringParser
-  ): Option[(String, A)] = {
-    connection.setTimeout(Duration.Inf)
-    val result = send((Seq(BLPop, key) ++ keys :+ timeoutSeconds): _*)(
-      asMultiBulk[Option[(String, A)]](
-        x => toOptionalPairsList[String, A](x).map(_.head))
-      )(DefaultCommandOptions, false)
-    connection.restoreDefaultTimeout()
-    result
-  }
-
+  def blPop[R: Reader](timeoutSeconds: Int, keys: String*): Option[(String, R)] = sendBlocking(
+    BLPop(timeoutSeconds, keys: _*)
+  )
+  
   /**
    * Removes and returns the last element in a list, or block until one is available.
    *
    * @param timeoutSeconds timeout in seconds, if zero, the command blocks indefinitely until
    * an element is available in at least one of the provided lists
-   * @param key list key
-   * @param keys additional list keys
+   * @param keys list key(s)
    * @return list of key to popped element pair, or $none if timeout occurs
    * @throws $e if key contains a non-list value
    *
    * @since 2.0.0
    */
-  def brPop[A](timeoutSeconds: Int, key: String, keys: String*)(
-    implicit parser: Parser[A] = StringParser
-  ): Option[(String, A)] = {
-    connection.setTimeout(Duration.Inf)
-    val result = send((Seq(BRPop, key) ++ keys :+ timeoutSeconds): _*)(
-      asMultiBulk[Option[(String, A)]](
-        x => toOptionalPairsList[String, A](x).map(_.head))
-      )(DefaultCommandOptions, false)
-    connection.restoreDefaultTimeout()
-    result
-  }
-
+  def brPop[R: Reader](timeoutSeconds: Int, keys: String*): Option[(String, R)] = sendBlocking(
+    BRPop(timeoutSeconds, keys: _*)
+  )
+  
   /**
    * Pops a value from a list, pushes it to another list and returns it, or block until one is
    * available.
@@ -78,17 +61,10 @@ trait ListCommands { self: Protocol =>
    *
    * @since 2.2.0
    */
-  def brPopLPush[A](sourceKey: String, destKey: String, timeoutSeconds: Int)(
-    implicit parser: Parser[A] = StringParser
-  ): Option[A] = {
-    connection.setTimeout(Duration.Inf)
-    val result = send(BRPopLPush, sourceKey, destKey, timeoutSeconds)(
-      asBulkOrNullMultiBulkReply[A]
-    )(DefaultCommandOptions, false)
-    connection.restoreDefaultTimeout()
-    result
-  }
-
+  def brPopLPush[R: Reader](
+    sourceKey: String, destKey: String, timeoutSeconds: Int
+  ): Option[R] = sendBlocking(BRPopLPush(sourceKey, destKey, timeoutSeconds))
+  
   /**
    * Returns an element from a list by its index.
    *
@@ -103,11 +79,8 @@ trait ListCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def lIndex[A](key: String, index: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): Option[A] = send(LIndex, key, index)(asBulk[A])
-
+  def lIndex[R: Reader](key: String, index: Long): Future[Option[R]] = send(LIndex(key, index))
+  
   /**
    * Inserts an element before or after another element in a list.
    *
@@ -121,42 +94,13 @@ trait ListCommands { self: Protocol =>
    *
    * @since 2.2.0
    */
-  def lInsert(key: String, pivot: String, value: Any, after: Boolean = true)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Option[Long] = send(LInsert, key, (if (after) "AFTER" else "BEFORE"), pivot, value)(
-    asInteger(toOptionalLong)
-  )
-
-  /**
-   * Inserts an element before another element in a list.
-   *
-   * @param key list key
-   * @param pivot value after/before which the element should be inserted
-   * @param value element to be inserted
-   * @return the length of the list after the insert operation, or None if the index is out of range
-   * @throws $e if key contains a non-list value
-   *
-   * @since 2.2.0
-   */
-  def lInsertBefore(key: String, pivot: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Option[Long] = lInsert(key, pivot, value, false)
-
-  /**
-   * Inserts an element after another element in a list.
-   *
-   * @param key list key
-   * @param pivot value after/before which the element should be inserted
-   * @param value element to be inserted
-   * @return the length of the list after the insert operation, or None if the index is out of range
-   * @throws $e if key contains a non-list value
-   *
-   * @since 2.2.0
-   */
-  def lInsertAfter(key: String, pivot: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Option[Long] = lInsert(key, pivot, value, true)
-
+  def lInsert[W1: Writer, W2: Writer](
+    key: String,
+    position: scredis.Position,
+    pivot: W1,
+    value: W2
+  ): Future[Option[Long]] = send(LInsert(key, position, pivot, value))
+  
   /**
    * Returns the length of a list.
    *
@@ -166,9 +110,8 @@ trait ListCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def lLen(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
-    send(LLen, key)(asInteger)
-
+  def lLen(key: String): Future[Long] = send(LLen(key))
+  
   /**
    * Removes and returns the first element of a list.
    *
@@ -178,25 +121,8 @@ trait ListCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def lPop[A](key: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): Option[A] = send(LPop, key)(asBulk[A])
-
-  /**
-   * Removes and returns the last element of a list.
-   *
-   * @param key list key
-   * @return the popped element, or $none if the key does not exist
-   * @throws $e if key contains a non-list value
-   *
-   * @since 1.0.0
-   */
-  def rPop[A](key: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): Option[A] = send(RPop, key)(asBulk[A])
-
+  def lPop[R: Reader](key: String): Future[Option[R]] = send(LPop(key))
+  
   /**
    * Prepends one or multiple values to a list.
    *
@@ -204,35 +130,14 @@ trait ListCommands { self: Protocol =>
    * Redis versions older than 2.4 can only push one value per call.
    *
    * @param key list key
-   * @param value value to prepend
-   * @param values additional values to prepend (only works with Redis >= 2.4)
+   * @param values value(s) to prepend
    * @return the length of the list after the push operations
    * @throws $e if key contains a non-list value
    *
    * @since 1.0.0
    */
-  def lPush(key: String, value: Any, values: Any*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send((Seq(LPush, key, value) ++ values): _*)(asInteger)
-
-  /**
-   * Appends one or multiple values to a list.
-   *
-   * @note If key does not exist, it is created as empty list before performing the push operation.
-   * Redis versions older than 2.4 can only push one value per call.
-   *
-   * @param key list key
-   * @param value value to prepend
-   * @param values additional values to prepend (only works with Redis >= 2.4)
-   * @return the length of the list after the push operations
-   * @throws $e if key contains a non-list value
-   *
-   * @since 1.0.0
-   */
-  def rPush(key: String, value: Any, values: Any*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send((Seq(RPush, key, value) ++ values): _*)(asInteger)
-
+  def lPush[W: Writer](key: String, values: W*): Future[Long] = send(LPush(key, values: _*))
+  
   /**
    * Prepends a value to a list, only if the list exists.
    *
@@ -243,24 +148,8 @@ trait ListCommands { self: Protocol =>
    *
    * @since 2.2.0
    */
-  def lPushX(key: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(LPushX, key, value)(asInteger)
-
-  /**
-   * Appends a value to a list, only if the list exists.
-   *
-   * @param key list key
-   * @param value value to prepend
-   * @return the length of the list after the push operation
-   * @throws $e if key contains a non-list value
-   *
-   * @since 2.2.0
-   */
-  def rPushX(key: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(RPushX, key, value)(asInteger)
-
+  def lPushX[W: Writer](key: String, value: W): Future[Long] = send(LPushX(key, value))
+  
   /**
    * Returns a range of elements from a list.
    *
@@ -272,20 +161,17 @@ trait ListCommands { self: Protocol =>
    *
    * @param key list key
    * @param start start offset (inclusive)
-   * @param end end offset (inclusive)
+   * @param stop stop offset (inclusive)
    * @return list of elements in the specified range, or the empty list if there are no such
    * elements or the key does not exist
    * @throws $e if key contains a non-list value
    *
    * @since 1.0.0
    */
-  def lRange[A](key: String, start: Long = 0, end: Long = -1)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): List[A] = send(LRange, key, start, end)(
-    asMultiBulk[A, A, List](asBulk[A, A](flatten))
+  def lRange[R: Reader](key: String, start: Long = 0, stop: Long = -1): Future[List[R]] = send(
+    LRange[R, List](key, start, stop)
   )
-
+  
   /**
    * Removes the first count occurrences of elements equal to value from the list stored at key.
    *
@@ -304,10 +190,10 @@ trait ListCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def lRem(key: String, value: Any, count: Long = 0)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(LRem, key, count, value)(asInteger)
-
+  def lRem[W: Writer](key: String, value: W, count: Int = 0): Future[Long] = send(
+    LRem(key, count, value)
+  )
+  
   /**
    * Sets the value of an element in a list by its index.
    *
@@ -318,10 +204,10 @@ trait ListCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def lSet(key: String, index: Long, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = send(LSet, key, index, value)(asUnit)
-
+  def lSet[W: Writer](key: String, index: Long, value: W): Future[Unit] = send(
+    LSet(key, index, value)
+  )
+  
   /**
    * Trims a list to the specified range.
    *
@@ -331,15 +217,26 @@ trait ListCommands { self: Protocol =>
    *
    * @param key list key
    * @param start start offset (inclusive)
-   * @param end end offset (inclusive)
+   * @param stop stop offset (inclusive)
    * @throws $e if key contains a non-list value
    *
    * @since 1.0.0
    */
-  def lTrim(key: String, start: Long, end: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = send(LTrim, key, start, end)(asUnit)
-
+  def lTrim(key: String, start: Long, stop: Long): Future[Unit] = send(
+    LTrim(key, start, stop)
+  )
+  
+  /**
+   * Removes and returns the last element of a list.
+   *
+   * @param key list key
+   * @return the popped element, or $none if the key does not exist
+   * @throws $e if key contains a non-list value
+   *
+   * @since 1.0.0
+   */
+  def rPop[R: Reader](key: String): Future[Option[R]] = send(RPop(key))
+  
   /**
    * Removes the last element in a list, appends it to another list and returns it.
    *
@@ -350,9 +247,37 @@ trait ListCommands { self: Protocol =>
    *
    * @since 1.2.0
    */
-  def rPopLPush[A](sourceKey: String, destKey: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): Option[A] = send(RPopLPush, sourceKey, destKey)(asBulk[A])
-
+  def rPopLPush[R: Reader](sourceKey: String, destKey: String): Future[Option[R]] = send(
+    RPopLPush(sourceKey, destKey)
+  )
+  
+  /**
+   * Appends one or multiple values to a list.
+   *
+   * @note If key does not exist, it is created as empty list before performing the push operation.
+   * Redis versions older than 2.4 can only push one value per call.
+   *
+   * @param key list key
+   * @param values value(s) to prepend
+   * @return the length of the list after the push operations
+   * @throws $e if key contains a non-list value
+   *
+   * @since 1.0.0
+   */
+  def rPush[W: Writer](key: String, values: W*): Future[Long] = send(
+    RPush(key, values: _*)
+  )
+  
+  /**
+   * Appends a value to a list, only if the list exists.
+   *
+   * @param key list key
+   * @param value value to prepend
+   * @return the length of the list after the push operation
+   * @throws $e if key contains a non-list value
+   *
+   * @since 2.2.0
+   */
+  def rPushX[W: Writer](key: String, value: W): Future[Long] = send(RPushX(key, value))
+  
 }

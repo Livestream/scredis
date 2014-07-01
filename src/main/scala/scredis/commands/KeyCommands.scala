@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
- * This trait implements hash commands.
+ * This trait implements key commands.
  *
  * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define none `None`
