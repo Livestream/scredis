@@ -1,3 +1,5 @@
+import scala.concurrent.duration.FiniteDuration
+
 package object scredis {
   private var poolNumber = 0
   
@@ -176,5 +178,79 @@ package object scredis {
     case object Slave extends Type("slave")
     case object PubSub extends Type("pubsub")
   }
+  
+  /**
+   * Represents the role of a `Redis` instance as returned by the ROLE command
+   */
+  sealed abstract class Role(val name: String)
+  
+  /**
+   * Contains all available roles, i.e. master, slave, sentinel
+   */
+  object Role {
+    
+    case class SlaveInfo(ip: String, port: Int, replicationOffset: Long)
+    
+    abstract class ReplicationState(val name: String) {
+      override def toString = name
+    }
+    
+    object ReplicationState {
+      case object Connect extends ReplicationState("connect")
+      case object Connecting extends ReplicationState("connecting")
+      case object Sync extends ReplicationState("sync")
+      case object Connected extends ReplicationState("connected")
+      
+      def apply(name: String): ReplicationState = name match {
+        case Connect.name => Connect
+        case Connecting.name => Connecting
+        case Sync.name => Sync
+        case Connected.name => Connected
+        case x => throw new IllegalArgumentException(s"Unknown replication state: $x")
+      }
+    }
+    
+    case class Master(
+      replicationOffset: Long,
+      connectedSlaves: Seq[SlaveInfo]
+    ) extends Role("master")
+    
+    case class Slave(
+      masterIp: String,
+      masterPort: Int,
+      replicationState: ReplicationState,
+      replicationOffset: Long
+    ) extends Role("slave")
+    
+    case class Sentinel(
+      monitoredMasterNames: Seq[String]
+    ) extends Role("sentinel")
+    
+  }
+  
+  /**
+   * Represents a modifier that can be used with the SHUTDOWN command
+   */
+  sealed abstract class ShutdownModifier(val name: String) {
+    override def toString = name
+  }
+  
+  /**
+   * Contains all available SHUTDOWN modifier, i.e. SAVE, NO SAVE
+   */
+  object ShutdownModifier {
+    case object Save extends ShutdownModifier("SAVE")
+    case object NoSave extends ShutdownModifier("NO SAVE")
+  }
+  
+  /**
+   * Represents an entry returned by the SLOWLOG GET command
+   */
+  final case class SlowLogEntry(
+    uid: Long,
+    timestampSeconds: Long,
+    executionTime: FiniteDuration,
+    command: Seq[String]
+  )
   
 }

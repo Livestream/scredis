@@ -4,7 +4,9 @@ import scredis.protocol._
 import scredis.exceptions.RedisProtocolException
 import scredis.serialization.Writer
 
+import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration._
 
 object ServerRequests {
   
@@ -199,21 +201,123 @@ object ServerRequests {
           val data = a.parsed[Any, IndexedSeq] {
             case b: BulkStringResponse => b.flattened[String]
             case IntegerResponse(value) => value
-            case a: ArrayResponse => {
-              val slaveData = a.parsed[String, IndexedSeq] {
-                case b: BulkStringResponse => b.flattened[String]
+            case a: ArrayResponse => a.parsed[scredis.Role.SlaveInfo, List] {
+              case a: ArrayResponse => {
+                val slaveData = a.parsed[String, IndexedSeq] {
+                  case b: BulkStringResponse => b.flattened[String]
+                }
+                scredis.Role.SlaveInfo(
+                  ip = slaveData(0),
+                  port = slaveData(1).toInt,
+                  replicationOffset = slaveData(2).toLong
+                )
               }
-              val ip = slaveData(0)
-              val port = slaveData(1).toInt
-              val replicationOffset = slaveData(2).toLong
             }
           }
-          // TODO:
+          scredis.Role.Master(
+            replicationOffset = data(1).toString.toLong,
+            connectedSlaves = data(2).asInstanceOf[List[scredis.Role.SlaveInfo]]
+          )
         }
-        case Some("slave") =>
-        case Some("sentinel") =>
+        case Some("slave") => {
+          val data = a.parsed[Any, IndexedSeq] {
+            case b: BulkStringResponse => b.flattened[String]
+            case IntegerResponse(value) => value
+          }
+          scredis.Role.Slave(
+            masterIp = data(1).toString,
+            masterPort = data(2).toString.toInt,
+            replicationState = scredis.Role.ReplicationState(data(3).toString),
+            replicationOffset = data(4).toString.toLong
+          )
+        }
+        case Some("sentinel") => {
+          val data = a.parsed[Any, IndexedSeq] {
+            case b: BulkStringResponse => b.flattened[String]
+            case a: ArrayResponse => a.parsed[String, List] {
+              case b: BulkStringResponse => b.flattened[String]
+            }
+          }
+          scredis.Role.Sentinel(
+            monitoredMasterNames = data(1).asInstanceOf[List[String]]
+          )
+        }
         case Some(x) => throw RedisProtocolException(s"Unexpected role: $x")
         case None => throw RedisProtocolException(s"Unexpected empty array for role")
+      }
+    }
+  }
+  
+  case class Save() extends Request[Unit](Save) {
+    override def decode = {  
+      case SimpleStringResponse(_) => ()
+    }
+  }
+  
+  case class Shutdown(modifierOpt: Option[scredis.ShutdownModifier]) extends Request[Unit](
+    Shutdown, modifierOpt.map(_.name).toSeq: _*
+  ) {
+    override def decode = {  
+      case SimpleStringResponse(_) => ()
+    }
+  }
+  
+  case class SlaveOf(host: String, port: Int) extends Request[Unit](SlaveOf, host, port) {
+    override def decode = {  
+      case SimpleStringResponse(_) => ()
+    }
+  }
+  
+  case class SlaveOfNoOne() extends Request[Unit](SlaveOf, "NO", "ONE") {
+    override def decode = {  
+      case SimpleStringResponse(_) => ()
+    }
+  }
+  
+  case class SlowLogGet[CC[X] <: Traversable[X]](countOpt: Option[Int])(
+    implicit cbf: CanBuildFrom[Nothing, scredis.SlowLogEntry, CC[scredis.SlowLogEntry]]
+  ) extends Request[CC[scredis.SlowLogEntry]](
+    SlowLogGet, countOpt.toSeq: _*
+  ) {
+    override def decode = {  
+      case a: ArrayResponse => a.parsed[scredis.SlowLogEntry, CC] {
+        case a: ArrayResponse => {
+          val data = a.parsed[Any, IndexedSeq] {
+            case IntegerResponse(value) => value
+            case a: ArrayResponse => a.parsed[String, List] {
+              case b: BulkStringResponse => b.flattened[String]
+            }
+          }
+          scredis.SlowLogEntry(
+            uid = data(0).toString.toLong,
+            timestampSeconds = data(1).toString.toLong,
+            executionTime = (data(2).toString.toLong microseconds),
+            command = data(3).asInstanceOf[List[String]]
+          )
+        }
+      }
+    }
+  }
+  
+  case class SlowLogLen() extends Request[Long](SlowLogLen) {
+    override def decode = {  
+      case IntegerResponse(value) => value
+    }
+  }
+  
+  case class SlowLogReset() extends Request[Unit](SlowLogReset) {
+    override def decode = {  
+      case SimpleStringResponse(_) => ()
+    }
+  }
+  
+  case class Time() extends Request[(Long, Long)](Time) {
+    override def decode = {  
+      case a: ArrayResponse => {
+        val array = a.parsed[Long, IndexedSeq] {
+          case IntegerResponse(value) => value
+        }
+        (array(0), array(1))
       }
     }
   }
