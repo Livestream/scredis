@@ -35,7 +35,7 @@ object SortedSetRequests {
   private val Weights = "WEIGHTS"
   private val Aggregate = "AGGREGATE"
   
-  case class ZAdd[W: Writer](key: String, members: (W, scredis.Score)*) extends Request[Long](
+  case class ZAdd[W: Writer](key: String, members: Map[W, scredis.Score]) extends Request[Long](
     ZAdd,
     key,
     unpair(
@@ -72,7 +72,7 @@ object SortedSetRequests {
   }
   
   case class ZInterStore(
-    destination: String, aggregate: scredis.Aggregate, keys: String*
+    destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
     ZInterStore, destination, keys.size, keys: _*, Aggregate, aggregate.name
   ) {
@@ -82,7 +82,7 @@ object SortedSetRequests {
   }
   
   case class ZInterStoreWeighted(
-    destination: String, aggregate: scredis.Aggregate, keyWeightPairs: (String, Double)*
+    destination: String, keyWeightPairs: Map[String, Double], aggregate: scredis.Aggregate
   ) extends Request[Long](
     ZInterStore,
     destination,
@@ -344,7 +344,7 @@ object SortedSetRequests {
   }
   
   case class ZUnionStore(
-    destination: String, aggregate: scredis.Aggregate, keys: String*
+    destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
     ZUnionStore, destination, keys.size, keys: _*, Aggregate, aggregate.name
   ) {
@@ -354,7 +354,7 @@ object SortedSetRequests {
   }
   
   case class ZUnionStoreWeighted(
-    destination: String, aggregate: scredis.Aggregate, keyWeightPairs: (String, Double)*
+    destination: String, keyWeightPairs: Map[String, Double], aggregate: scredis.Aggregate
   ) extends Request[Long](
     ZUnionStore,
     destination,

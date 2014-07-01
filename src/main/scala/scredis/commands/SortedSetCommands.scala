@@ -1,52 +1,42 @@
 package scredis.commands
 
-import scredis.{ Score, Aggregate, CommandOptions }
-import scredis.parsing._
-import scredis.parsing.Implicits._
-import scredis.protocol.Protocol
-import scredis.exceptions.RedisCommandException
-import scredis.Aggregate._
+import scredis.AbstractClient
+import scredis.protocol.requests.SortedSetRequests._
+import scredis.serialization.{ Reader, Writer }
 import scredis.util.LinkedHashSet
 
-import scala.language.implicitConversions
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 /**
- * This trait implements sorted sets commands.
+ * This trait implements sorted set commands.
  *
- * @define e [[scredis.exceptions.RedisCommandException]]
+ * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define none `None`
+ * @define true '''true'''
+ * @define false '''false'''
  */
-trait SortedSetCommands { self: Protocol =>
-  protected val Aggregate = "AGGREGATE"
-  protected val Weights = "WEIGHTS"
-  protected val WithScores = "WITHSCORES"
-  protected val Limit = "LIMIT"
-
-  import Names._
-
-  private implicit def stringToDouble(str: String): Double = augmentString(str).toDouble
-
+trait SortedSetCommands { self: AbstractClient =>
+  
   /**
-   * Adds one or more members to a sorted set, or update its score if it already exists.
+   * Adds a member to a sorted set, or update its score if it already exists.
    *
    * @note If a specified member is already a member of the sorted set, the score is updated and
    * the element reinserted at the right position to ensure the correct ordering.
    *
    * @param key sorted set key
-   * @param memberScoreMap member-score pairs to be added (adding several members at once only works
-   * with Redis >= 2.4)
-   * @return the number of elements added to the sorted sets, not including elements already
-   * existing for which the score was updated
-   * @throws $e if memberScoreMap is empty or key contains a value that is not a sorted set
+   * @param member member to add
+   * @param score score of the member to add
+   * @return $true if the member was added, or $false if the member already exists
+   * @throws $e if key contains a value that is not a sorted set
    *
    * @since 1.2.0
    */
-  def zAddFromMap(key: String, memberScoreMap: Map[Any, Double])(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = if(memberScoreMap.isEmpty) {
-    throw RedisCommandException("ZADD: memberScoreMap cannot be empty")
-  } else {
-    send(flattenValueKeyMap(List(ZAdd, key), memberScoreMap): _*)(asInteger)
+  def zAdd[W: Writer](key: String, member: W, score: scredis.Score): Future[Boolean] = send(
+    ZAdd(key, Map(member -> score))
+  ).map {
+    case 0 => false
+    case x => true
   }
 
   /**
@@ -56,21 +46,17 @@ trait SortedSetCommands { self: Protocol =>
    * the element reinserted at the right position to ensure the correct ordering.
    *
    * @param key sorted set key
-   * @param memberScorePair member-score pair to be added
-   * @param memberScorePairs additional member-score pairs to be added (adding several members at
-   * once only works with Redis >= 2.4)
+   * @param members member-score pairs to be added
    * @return the number of elements added to the sorted sets, not including elements already
    * existing for which the score was updated
-   * @throws $e if key contains a value that is not a sorted set
+   * @throws $e if key contains a value that is not a sorted set or if members is empty
    *
-   * @since 1.2.0
+   * @since 2.4
    */
-  def zAdd(key: String, memberScorePair: (Any, Double), memberScorePairs: (Any, Double)*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = zAddFromMap(key, (memberScorePair :: memberScorePairs.toList).map {
-    case (member, score) => (member, score)
-  }.toMap)
-
+  def zAdd[W: Writer](key: String, members: Map[W, scredis.Score]): Future[Long] = send(
+    ZAdd(key, members)
+  )
+  
   /**
    * Returns the number of members in a sorted set.
    *
@@ -80,9 +66,8 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @since 1.2.0
    */
-  def zCard(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
-    send(ZCard, key)(asInteger)
-
+  def zCard(key: String): Future[Long] = send(ZCard(key))
+  
   /**
    * Returns the number of elements of a sorted set belonging to a given score range.
    *
@@ -94,125 +79,77 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @since 2.0.0
    */
-  def zCount(key: String, min: Score, max: Score)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(ZCount, key, min.asMin, max.asMax)(asInteger)
-
+  def zCount(key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit): Future[Long] = send(
+    ZCount(key, min, max)
+  )
+  
   /**
    * Increments the score of a member in a sorted set.
    *
    * @param key sorted set key
    * @param member member whose score needs to be incremented
-   * @param count the increment
+   * @param increment the increment
    * @return the new score of member
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 1.2.0
    */
-  def zIncrBy(key: String, member: Any, count: Double)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Double = send(ZIncrBy, key, count,member)(asBulk(toDouble))
-
+  def zIncrBy[W: Writer](key: String, member: W, increment: Double): Future[Double] = send(
+    ZIncrBy(key, increment, member)
+  )
+  
   /**
    * Intersects multiple sorted sets and stores the resulting sorted set in a new key.
    *
    * @param destKey sorted set key
+   * @param keys keys of sorted sets to intersect
    * @param aggregate aggregation function (default is Sum)
-   * @param key key of first sorted set
-   * @param keys additional keys of sorted sets
    * @return the number of elements in the resulting sorted set stored at destKey
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 2.0.0
    */
-  def zInterStore(destKey: String, aggregate: Aggregate = Sum)(key: String, keys: String*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = {
-    val count = keys.size + 1
-    send((
-      ZInterStore :: destKey :: count :: key :: keys.toList ::: Aggregate :: aggregate :: Nil
-    ): _*)(asInteger)
-  }
-
+  def zInterStore(
+    destKey: String,
+    keys: Seq[String],
+    aggregate: scredis.Aggregate = scredis.Aggregate.Sum
+  ): Future[Long] = send(ZInterStore(destKey, keys, aggregate))
+  
   /**
    * Intersects multiple sorted sets and stores the resulting sorted set in a new key.
    *
    * @param destKey sorted set key
+   * @param keysWeightPairs key to weight pairs
    * @param aggregate aggregation function (default is Sum)
-   * @param keyWeightPair first sorted set key to weight pair
-   * @param keyWeightPairs additional sorted set key to weight pairs
    * @return the number of elements in the resulting sorted set stored at destKey
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 2.0.0
    */
-  def zInterStoreWeighted(destKey: String, aggregate: Aggregate = Sum)(
-    keyWeightPair: (String, Int), keyWeightPairs: (String, Int)*
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Long = {
-    val (keys, weights) = (keyWeightPair :: keyWeightPairs.toList).unzip
-    send((
-      ZInterStore ::
-      destKey ::
-      keys.size ::
-      keys :::
-      Weights ::
-      weights :::
-      Aggregate ::
-      aggregate ::
-      Nil
-    ): _*)(asInteger)
-  }
-
+  def zInterStoreWeighted(
+    destKey: String,
+    keysWeightPairs: Map[String, Double],
+    aggregate: scredis.Aggregate = scredis.Aggregate.Sum
+  ): Future[Long] = send(ZInterStoreWeighted(destKey, keysWeightPairs, aggregate))
+  
   /**
-   * Computes the union of multiple sorted sets and stores the resulting sorted set in a new key.
-   *
-   * @param destKey sorted set key
-   * @param aggregate aggregation function (default is Sum)
-   * @param key key of first sorted set
-   * @param keys additional keys of sorted sets
-   * @return the number of elements in the resulting sorted set stored at destKey
+   * Returns the number of elements of a sorted set belonging to a given lexical score range.
+   * 
+   * @note Lexical ordering only applies when all the elements in a sorted set are inserted
+   * with the same score
+   * 
+   * @param key sorted set key
+   * @param min lexical score lower bound
+   * @param max lexical score upper bound
+   * @return the number of elements in the specified lexical score range
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 2.0.0
    */
-  def zUnionStore(destKey: String, aggregate: Aggregate = Sum)(key: String, keys: String*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = {
-    val count = keys.size + 1
-    send((
-      ZUnionStore :: destKey :: count :: key :: keys.toList ::: Aggregate :: aggregate :: Nil
-    ): _*)(asInteger)
-  }
-
-  /**
-   * Computes the union of multiple sorted sets and stores the resulting sorted set in a new key.
-   *
-   * @param destKey sorted set key
-   * @param aggregate aggregation function (default is Sum)
-   * @param keyWeightPair first sorted set key to weight pair
-   * @param keyWeightPairs additional sorted set key to weight pairs
-   * @return the number of elements in the resulting sorted set stored at destKey
-   * @throws $e if key contains a value that is not a sorted set
-   *
-   * @since 2.0.0
-   */
-  def zUnionStoreWeighted(destKey: String, aggregate: Aggregate = Sum)(
-    keyWeightPair: (String, Int), keyWeightPairs: (String, Int)*
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Long = {
-    val (keys, weights) = (keyWeightPair :: keyWeightPairs.toList).unzip
-    send((
-      ZUnionStore ::
-      destKey ::
-      keys.size ::
-      keys :::
-      Weights ::
-      weights :::
-      Aggregate ::
-      aggregate ::
-      Nil
-    ): _*)(asInteger)
-  }
-
+  def zLexCount(
+    key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
+  ): Future[Long] = send(ZLexCount(key, min, max))
+  
   /**
    * Returns a range of members in a sorted set, by index.
    *
@@ -226,20 +163,17 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @param key sorted set key
    * @param start start offset (inclusive)
-   * @param end end offset (inclusive)
+   * @param stop stop offset (inclusive)
    * @return the set of ascendingly ordered elements in the specified range, or the empty set if
    * key does not exist
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 1.2.0
    */
-  def zRange[A](key: String, start: Long = 0, end: Long = -1)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): LinkedHashSet[A] = send(ZRange, key, start, end)(
-    asMultiBulk[A, A, LinkedHashSet](asBulk[A, A](flatten))
-  )
-
+  def zRange[R: Reader](
+    key: String, start: Long = 0, stop: Long = -1
+  ): Future[LinkedHashSet[R]] = send(ZRange[R, LinkedHashSet](key, start, stop))
+  
   /**
    * Returns a range of members with associated scores in a sorted set, by index.
    *
@@ -253,20 +187,35 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @param key sorted set key
    * @param start start offset (inclusive)
-   * @param end end offset (inclusive)
+   * @param stop end offset (inclusive)
    * @return the set of ascendingly ordered elements-score pairs in the specified range, or the
    * empty set if key does not exist
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 1.2.0
    */
-  def zRangeWithScores[A](key: String, start: Long = 0, end: Long = -1)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): LinkedHashSet[(A, Double)] = send(ZRange, key, start, end, WithScores)(
-    asMultiBulk[List, LinkedHashSet[(A, Double)]](toPairsLinkedHashSet[A, Double])
+  def zRangeWithScores[R: Reader](
+    key: String, start: Long = 0, stop: Long = -1
+  ): Future[LinkedHashSet[(R, scredis.Score)]] = send(
+    ZRangeWithScores[R, LinkedHashSet](key, start, stop)
   )
-
+  
+  /**
+   * Returns a range of members in a sorted set, by index.
+   *
+   * @param key sorted set key
+   * @param start start offset (inclusive)
+   * @param stop stop offset (inclusive)
+   * @return the set of ascendingly ordered elements in the specified range, or the empty set if
+   * key does not exist
+   * @throws $e if key contains a value that is not a sorted set
+   *
+   * @since 1.2.0
+   */
+  def zRangeByLex[R: Reader](
+    key: String, start: Long = 0, stop: Long = -1
+  ): Future[LinkedHashSet[R]] = send(ZRangeByLex[R, LinkedHashSet](key, start, stop))
+  
   /**
    * Returns a range of members in a sorted set, by score.
    *
@@ -284,20 +233,15 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @since 2.2.0
    */
-  def zRangeByScore[A](
+  def zRangeByScore[R: Reader](
     key: String,
-    min: Score,
-    max: Score,
-    limit: Option[(Long, Long)] = None
-  )(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): LinkedHashSet[A] = {
-    val params = collection.mutable.MutableList[Any](ZRangeByScore, key, min.asMin, max.asMax)
-    if (limit.isDefined) params ++= Limit :: limit.get._1 :: limit.get._2 :: Nil
-    send(params: _*)(asMultiBulk[A, A, LinkedHashSet](asBulk[A, A](flatten)))
-  }
-
+    min: scredis.ScoreLimit,
+    max: scredis.ScoreLimit,
+    limitOpt: Option[(Long, Int)] = None
+  ): Future[LinkedHashSet[R]] = send(
+    ZRangeByScore[R, LinkedHashSet](key, min, max, limitOpt)
+  )
+  
   /**
    * Returns a range of members with associated scores in a sorted set, by score.
    *
@@ -315,24 +259,15 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @since 2.0.0
    */
-  def zRangeByScoreWithScores[A](
+  def zRangeByScoreWithScores[R: Reader](
     key: String,
-    min: Score,
-    max: Score,
-    limit: Option[(Long, Long)] = None
-  )(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): LinkedHashSet[(A, Double)] = {
-    val params = collection.mutable.MutableList[Any](
-      ZRangeByScore, key, min.asMin, max.asMax, WithScores
-    )
-    if (limit.isDefined) params ++= Limit :: limit.get._1 :: limit.get._2 :: Nil
-    send(params: _*)(
-      asMultiBulk[List, LinkedHashSet[(A, Double)]](toPairsLinkedHashSet[A, Double])
-    )
-  }
-
+    min: scredis.ScoreLimit,
+    max: scredis.ScoreLimit,
+    limitOpt: Option[(Long, Int)] = None
+  ): Future[LinkedHashSet[(R, scredis.Score)]] = send(
+    ZRangeByScoreWithScores[R, LinkedHashSet](key, min, max, limitOpt)
+  )
+  
   /**
    * Determines the index of a member in a sorted set.
    *
@@ -375,13 +310,13 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @param key sorted set key
    * @param start the start offset or index (inclusive)
-   * @param end the end offset or index (inclusive)
+   * @param stop the stop offset or index (inclusive)
    * @return the number of members removed
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 2.0.0
    */
-  def zRemRangeByRank(key: String, start: Long, end: Long)(
+  def zRemRangeByRank(key: String, start: Long, stop: Long)(
     implicit opts: CommandOptions = DefaultCommandOptions
   ): Long = send(ZRemRangeByRank, key, start, end)(asInteger)
 
@@ -409,14 +344,14 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @param key sorted set key
    * @param start start offset (inclusive)
-   * @param end end offset (inclusive)
+   * @param stop stop offset (inclusive)
    * @return the set of descendingly ordered elements in the specified range, or the empty set if
    * key does not exist
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 1.2.0
    */
-  def zRevRange[A](key: String, start: Long = 0, end: Long = -1)(
+  def zRevRange[A](key: String, start: Long = 0, stop: Long = -1)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
   ): LinkedHashSet[A] = send(ZRevRange, key, start, end)(
@@ -430,14 +365,14 @@ trait SortedSetCommands { self: Protocol =>
    *
    * @param key sorted set key
    * @param start start offset (inclusive)
-   * @param end end offset (inclusive)
+   * @param stop stop offset (inclusive)
    * @return the set of descendingly ordered elements-score pairs in the specified range, or the
    * empty set if key does not exist
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 1.2.0
    */
-  def zRevRangeWithScores[A](key: String, start: Long = 0, end: Long = -1)(
+  def zRevRangeWithScores[A](key: String, start: Long = 0, stop: Long = -1)(
     implicit opts: CommandOptions = DefaultCommandOptions,
     parser: Parser[A] = StringParser
   ): LinkedHashSet[(A, Double)] = send(ZRevRange, key, start, end, WithScores)(
@@ -556,5 +491,39 @@ trait SortedSetCommands { self: Protocol =>
   ): (Long, LinkedHashSet[(A, Double)]) = send(
     generateScanLikeArgs(ZScan, Some(key), cursor, countOpt, matchOpt): _*
   )(asScanMultiBulk[LinkedHashSet[(A, Double)]](toPairsLinkedHashSet))
+  
+  /**
+   * Computes the union of multiple sorted sets and stores the resulting sorted set in a new key.
+   *
+   * @param destKey sorted set key
+   * @param keys keys of sorted sets
+   * @param aggregate aggregation function (default is Sum)
+   * @return the number of elements in the resulting sorted set stored at destKey
+   * @throws $e if key contains a value that is not a sorted set
+   *
+   * @since 2.0.0
+   */
+  def zUnionStore(
+    destKey: String,
+    keys: Seq[String],
+    aggregate: scredis.Aggregate = scredis.Aggregate.Sum
+  ): Future[Long] = send(ZUnionStore(destKey, keys, aggregate))
+  
+  /**
+   * Computes the union of multiple sorted sets and stores the resulting sorted set in a new key.
+   *
+   * @param destKey sorted set key
+   * @param keyWeightPairs key to weight pairs
+   * @param aggregate aggregation function (default is Sum)
+   * @return the number of elements in the resulting sorted set stored at destKey
+   * @throws $e if key contains a value that is not a sorted set
+   *
+   * @since 2.0.0
+   */
+  def zUnionStoreWeighted(
+    destKey: String,
+    keysWeightPairs: Map[String, Double],
+    aggregate: scredis.Aggregate = scredis.Aggregate.Sum
+  ): Future[Long] = send(ZInterStoreWeighted(destKey, keysWeightPairs, aggregate))
   
 }

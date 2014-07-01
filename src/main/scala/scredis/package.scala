@@ -90,6 +90,7 @@ package object scredis {
    * Represents the score of sorted set member
    */
   abstract class Score(val stringValue: String) {
+    def doubleValue: Double
     override def toString: String = stringValue
   }
   
@@ -97,9 +98,15 @@ package object scredis {
    * Contains all possible score values, i.e. -inf, +inf or value
    */
   object Score {
-    case object MinusInfinity extends Score("-inf")
-    case object PlusInfinity extends Score("+inf")
-    case class Value(value: Double) extends Score(value.toString)
+    case object MinusInfinity extends Score("-inf") {
+      override def doubleValue = Double.MinValue
+    }
+    case object PlusInfinity extends Score("+inf") {
+      override def doubleValue = Double.MaxValue
+    }
+    case class Value(value: Double) extends Score(value.toString) {
+      override def doubleValue: Double = value
+    }
     
     def apply(stringValue: String): Score = stringValue.toLowerCase() match {
       case MinusInfinity.stringValue | "inf"  => MinusInfinity
