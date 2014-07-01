@@ -299,6 +299,34 @@ object SortedSetRequests {
     }
   }
   
+  case class ZRevRangeByScoreWithScores[R: Reader, CC[X] <: Traversable[X]](
+    key: String,
+    max: scredis.ScoreLimit,
+    min: scredis.ScoreLimit,
+    limitOpt: Option[(Long, Int)]
+  )(
+    implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
+  ) extends Request[CC[(R, scredis.Score)]](
+    ZRevRangeByScore,
+    key,
+    max.stringValue,
+    min.stringValue,
+    {
+      limitOpt match {
+        case Some((offset, count)) => Seq(offset, count)
+        case None => Seq.empty
+      }
+    }: _*
+  ) {
+    override def decode = {
+      case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
+        case b: BulkStringResponse => b.flattened[R]
+      } {
+        case b: BulkStringResponse => scredis.Score(b.flattened[String])
+      }
+    }
+  }
+  
   case class ZRevRank[W: Writer](key: String, member: W) extends Request[Option[Long]](
     ZRevRank, key, implicitly[Writer[W]].write(member)
   ) {

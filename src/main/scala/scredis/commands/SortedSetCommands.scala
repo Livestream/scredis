@@ -144,7 +144,7 @@ trait SortedSetCommands { self: AbstractClient =>
    * @return the number of elements in the specified lexical score range
    * @throws $e if key contains a value that is not a sorted set
    *
-   * @since 2.0.0
+   * @since 2.8.9
    */
   def zLexCount(
     key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
@@ -201,20 +201,27 @@ trait SortedSetCommands { self: AbstractClient =>
   )
   
   /**
-   * Returns a range of members in a sorted set, by index.
+   * Returns a range of members in a sorted set, by lexical score.
    *
+   * @note Lexical ordering only applies when all the elements in a sorted set are inserted
+   * with the same score
+   * 
    * @param key sorted set key
-   * @param start start offset (inclusive)
-   * @param stop stop offset (inclusive)
-   * @return the set of ascendingly ordered elements in the specified range, or the empty set if
-   * key does not exist
+   * @param min lexical score lower bound
+   * @param max lexical score upper bound
+   * @param limitOpt optional offset and count pair used to limit the number of matching elements
+   * @return the set of ascendingly ordered elements in the specified lexical range, or the empty
+   * set if key does not exist
    * @throws $e if key contains a value that is not a sorted set
    *
-   * @since 1.2.0
+   * @since 2.8.9
    */
   def zRangeByLex[R: Reader](
-    key: String, start: Long = 0, stop: Long = -1
-  ): Future[LinkedHashSet[R]] = send(ZRangeByLex[R, LinkedHashSet](key, start, stop))
+    key: String,
+    min: scredis.LexicalScoreLimit,
+    max: scredis.LexicalScoreLimit,
+    limitOpt: Option[(Long, Int)] = None
+  ): Future[LinkedHashSet[R]] = send(ZRangeByLex[R, LinkedHashSet](key, min, max, limitOpt))
   
   /**
    * Returns a range of members in a sorted set, by score.
@@ -226,7 +233,7 @@ trait SortedSetCommands { self: AbstractClient =>
    * @param key sorted set key
    * @param min score lower bound
    * @param max score upper bound
-   * @param limit optional offset and count pair used to limit the number of matching elements
+   * @param limitOpt optional offset and count pair used to limit the number of matching elements
    * @return the set of ascendingly ordered elements in the specified score range, or the empty set
    * if key does not exist
    * @throws $e if key contains a value that is not a sorted set
@@ -252,7 +259,7 @@ trait SortedSetCommands { self: AbstractClient =>
    * @param key sorted set key
    * @param min score lower bound
    * @param max score upper bound
-   * @param limit optional offset and count pair used to limit the number of matching elements
+   * @param limitOpt optional offset and count pair used to limit the number of matching elements
    * @return the set of ascendingly ordered element-score pairs in the specified score range, or
    * the empty set if key does not exist
    * @throws $e if key contains a value that is not a sorted set
@@ -279,10 +286,10 @@ trait SortedSetCommands { self: AbstractClient =>
    *
    * @since 2.0.0
    */
-  def zRank(key: String, member: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Option[Long] = send(ZRank, key,member)(asIntegerOrNullBulkReply)
-
+  def zRank[W: Writer](key: String, member: W): Future[Option[Long]] = send(
+    ZRank(key, member)
+  )
+  
   /**
    * Removes one or more members from a sorted set.
    *
@@ -296,10 +303,30 @@ trait SortedSetCommands { self: AbstractClient =>
    *
    * @since 2.0.0
    */
-  def zRem(key: String, member: Any, members: Any*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(ZRem :: key ::member ::members.toList: _*)(asInteger)
-
+  def zRem[W: Writer](key: String, members: W*): Future[Long] = send(
+    ZRem(key, members: _*)
+  )
+  
+  /**
+   * Removes all members in a sorted set within the given lexical range.
+   *
+   * @note Lexical ordering only applies when all the elements in a sorted set are inserted
+   * with the same score
+   * 
+   * @param key sorted set key
+   * @param min lexical score lower bound
+   * @param max lexical score upper bound
+   * @return the number of removed elements
+   * @throws $e if key contains a value that is not a sorted set
+   *
+   * @since 2.8.9
+   */
+  def zRemRangeByLex(
+    key: String,
+    min: scredis.LexicalScoreLimit,
+    max: scredis.LexicalScoreLimit
+  ): Future[Long] = send(ZRemRangeByLex(key, min, max))
+  
   /**
    * Removes all members in a sorted set within the given indexes.
    *
@@ -316,10 +343,10 @@ trait SortedSetCommands { self: AbstractClient =>
    *
    * @since 2.0.0
    */
-  def zRemRangeByRank(key: String, start: Long, stop: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(ZRemRangeByRank, key, start, end)(asInteger)
-
+  def zRemRangeByRank(key: String, start: Long, stop: Long): Future[Long] = send(
+    ZRemRangeByRank(key, start, stop)
+  )
+  
   /**
    * Removes all members in a sorted set within the given scores range.
    *
@@ -333,10 +360,12 @@ trait SortedSetCommands { self: AbstractClient =>
    *
    * @since 1.2.0
    */
-  def zRemRangeByScore(key: String, min: Score, max: Score)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(ZRemRangeByScore, key, min.asMin, max.asMax)(asInteger)
-
+  def zRemRangeByScore(
+    key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit
+  ): Future[Long] = send(
+    ZRemRangeByScore(key, min, max)
+  )
+  
   /**
    * Returns a range of members in a sorted set, by index, with scores ordered from high to low.
    *
@@ -351,17 +380,17 @@ trait SortedSetCommands { self: AbstractClient =>
    *
    * @since 1.2.0
    */
-  def zRevRange[A](key: String, start: Long = 0, stop: Long = -1)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): LinkedHashSet[A] = send(ZRevRange, key, start, end)(
-    asMultiBulk[A, A, LinkedHashSet](asBulk[A, A](flatten))
+  def zRevRange[R: Reader](
+    key: String, start: Long = 0, stop: Long = -1
+  ): Future[LinkedHashSet[R]] = send(
+    ZRevRange[R, LinkedHashSet](key, start, stop)
   )
-
+  
   /**
    * Returns a range of members in a sorted set, by index, with scores ordered from high to low.
    *
-   * @note Apart from the reversed ordering, ZREVRANGE is similar to ZRANGE.
+   * @note Apart from the reversed ordering, ZREVRANGE is similar to ZRANGE. The elements having
+   * the same score are returned in reverse lexicographical order.
    *
    * @param key sorted set key
    * @param start start offset (inclusive)
@@ -372,76 +401,63 @@ trait SortedSetCommands { self: AbstractClient =>
    *
    * @since 1.2.0
    */
-  def zRevRangeWithScores[A](key: String, start: Long = 0, stop: Long = -1)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): LinkedHashSet[(A, Double)] = send(ZRevRange, key, start, end, WithScores)(
-    asMultiBulk[List, LinkedHashSet[(A, Double)]](toPairsLinkedHashSet[A, Double])
+  def zRevRangeWithScores[R: Reader](
+    key: String, start: Long = 0, stop: Long = -1
+  ): Future[LinkedHashSet[(R, scredis.Score)]] = send(
+    ZRevRangeWithScores[R, LinkedHashSet](key, start, stop)
   )
-
+  
   /**
    * Returns a range of members in a sorted set, by score, with scores ordered from high to low.
    *
-   * @note Apart from the reversed ordering, ZREVRANGEBYSCORE is similar to ZRANGEBYSCORE.
+   * @note Apart from the reversed ordering, ZREVRANGEBYSCORE is similar to ZRANGEBYSCORE. The
+   * elements having the same score are returned in reverse lexicographical order.
    *
    * @param key sorted set key
    * @param max score upper bound
    * @param min score lower bound
-   * @param limit optional offset and count pair used to limit the number of matching elements
+   * @param limitOpt optional offset and count pair used to limit the number of matching elements
    * @return the set of descendingly ordered elements in the specified score range, or the empty
    * set if key does not exist
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 2.2.0
    */
-  def zRevRangeByScore[A](
+  def zRevRangeByScore[R: Reader](
     key: String,
-    max: Score,
-    min: Score,
-    limit: Option[(Long, Long)] = None
-  )(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): LinkedHashSet[A] = {
-    val params = collection.mutable.MutableList[Any](ZRevRangeByScore, key, max.asMax, min.asMin)
-    if (limit.isDefined) params ++= Limit :: limit.get._1 :: limit.get._2 :: Nil
-    send(params: _*)(asMultiBulk[A, A, LinkedHashSet](asBulk[A, A](flatten)))
-  }
-
+    max: scredis.ScoreLimit,
+    min: scredis.ScoreLimit,
+    limitOpt: Option[(Long, Int)] = None
+  ): Future[LinkedHashSet[R]] = send(
+    ZRevRangeByScore[R, LinkedHashSet](key, max, min, limitOpt)
+  )
+  
   /**
    * Return a range of members with associated scores in a sorted set, by score, with scores
    * ordered from high to low.
    *
-   * @note Apart from the reversed ordering, ZREVRANGEBYSCORE is similar to ZRANGEBYSCORE.
+   * @note Apart from the reversed ordering, ZREVRANGEBYSCORE is similar to ZRANGEBYSCORE. The
+   * elements having the same score are returned in reverse lexicographical order.
    *
    * @param key sorted set key
    * @param max score upper bound
    * @param min score lower bound
-   * @param limit optional offset and count pair used to limit the number of matching elements
+   * @param limitOpt optional offset and count pair used to limit the number of matching elements
    * @return the set of descendingly ordered elements in the specified score range, or the empty
    * set if key does not exist
    * @throws $e if key contains a value that is not a sorted set
    *
-   * @since 2.0.0
+   * @since 2.2.0
    */
-  def zRevRangeByScoreWithScores[A](
+  def zRevRangeByScoreWithScores[R: Reader](
     key: String,
-    max: Score,
-    min: Score,
-    limit: Option[(Long, Long)] = None
-  )(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): LinkedHashSet[(A, Double)] = {
-    val params = collection.mutable.MutableList[Any](
-      ZRevRangeByScore, key, max.asMax, min.asMin, WithScores
-    )
-    if (limit.isDefined) params ++= Limit :: limit.get._1 :: limit.get._2 :: Nil
-    send(params: _*)(
-      asMultiBulk[List, LinkedHashSet[(A, Double)]](toPairsLinkedHashSet[A, Double])
-    )
-  }
-
+    max: scredis.ScoreLimit,
+    min: scredis.ScoreLimit,
+    limitOpt: Option[(Long, Int)] = None
+  ): Future[LinkedHashSet[(R, scredis.Score)]] = send(
+    ZRevRangeByScoreWithScores[R, LinkedHashSet](key, max, min, limitOpt)
+  )
+  
   /**
    * Determine the index of a member in a sorted set, with scores ordered from high to low.
    *
@@ -453,10 +469,35 @@ trait SortedSetCommands { self: AbstractClient =>
    *
    * @since 2.0.0
    */
-  def zRevRank(key: String, member: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Option[Long] = send(ZRevRank, key,member)(asIntegerOrNullBulkReply)
-
+  def zRevRank[W: Writer](key: String, member: W): Future[Option[Long]] = send(
+    ZRevRank(key, member)
+  )
+  
+  /**
+   * Incrementally iterates the elements (value-score pairs) of a sorted set.
+   *
+   * @param cursor the offset
+   * @param matchOpt when defined, the command only returns elements matching the pattern
+   * @param countOpt when defined, provides a hint of how many elements should be returned
+   * @return a pair containing the next cursor as its first element and the sorted set of
+   * elements (value-score pairs) as its second element
+   *
+   * @since 2.8.0
+   */
+  def zScan[R: Reader](
+    key: String,
+    cursor: Long,
+    matchOpt: Option[String] = None,
+    countOpt: Option[Int] = None
+  ): Future[(Long, LinkedHashSet[(R, scredis.Score)])] = send(
+    ZScan[R, LinkedHashSet](
+      key = key,
+      cursor = cursor,
+      matchOpt = matchOpt,
+      countOpt = countOpt
+    )
+  )
+  
   /**
    * Returns the score associated with the given member in a sorted set.
    *
@@ -468,29 +509,9 @@ trait SortedSetCommands { self: AbstractClient =>
    *
    * @since 1.2.0
    */
-  def zScore(key: String, member: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Option[Double] = send(ZScore, key,member)(asBulk[Double])
-  
-  /**
-   * Incrementally iterates the elements (value-score pairs) of a sorted set.
-   *
-   * @param cursor the offset
-   * @param countOpt when defined, provides a hint of how many elements should be returned
-   * @param matchOpt when defined, the command only returns elements matching the pattern
-   * @return a pair containing the next cursor as its first element and the sorted set of
-   * elements (value-score pairs) as its second element
-   *
-   * @since 2.8.0
-   */
-  def zScan[A](key: String)(
-    cursor: Long, countOpt: Option[Int] = None, matchOpt: Option[String] = None
-  )(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): (Long, LinkedHashSet[(A, Double)]) = send(
-    generateScanLikeArgs(ZScan, Some(key), cursor, countOpt, matchOpt): _*
-  )(asScanMultiBulk[LinkedHashSet[(A, Double)]](toPairsLinkedHashSet))
+  def zScore[W: Writer](key: String, member: W): Future[Option[scredis.Score]] = send(
+    ZScore(key, member)
+  )
   
   /**
    * Computes the union of multiple sorted sets and stores the resulting sorted set in a new key.
