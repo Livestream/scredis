@@ -158,7 +158,7 @@ object StringRequests {
     }
   }
   
-  case class MSet[W: Writer](keyValuePairs: (String, W)*) extends Request[Unit](
+  case class MSet[W: Writer](keyValuePairs: Map[String, W]) extends Request[Unit](
     MSet,
     unpair(
       keyValuePairs.map {
@@ -171,7 +171,7 @@ object StringRequests {
     }
   }
   
-  case class MSetNX[W: Writer](keyValuePairs: (String, W)*) extends Request[Boolean](
+  case class MSetNX[W: Writer](keyValuePairs: Map[String, W]) extends Request[Boolean](
     MSetNX,
     unpair(
       keyValuePairs.map {

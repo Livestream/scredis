@@ -1,27 +1,23 @@
 package scredis.commands
 
-import scredis.{ CommandOptions, Condition }
-import scredis.parsing._
-import scredis.parsing.Implicits._
-import scredis.protocol.Protocol
-import scredis.exceptions.RedisCommandException
+import scredis.AbstractClient
+import scredis.protocol.requests.StringRequests._
+import scredis.serialization.{ Reader, Writer }
+import scredis.util.LinkedHashSet
 
-import scala.collection.mutable.ListBuffer
-import scala.concurrent.duration.{ Duration, FiniteDuration }
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 /**
- * This trait implements strings commands.
+ * This trait implements string commands.
  *
- * @define e [[scredis.exceptions.RedisCommandException]]
+ * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define none `None`
+ * @define true '''true'''
+ * @define false '''false'''
  */
-trait StringCommands { self: Protocol =>
-  import Names._
-
-  private def bitOpBinary(op: String)(key1: String, key2: String, destKey: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(BitOp, op, destKey, key1, key2)(asInteger)
-
+trait StringCommands { self: AbstractClient =>
+  
   /**
    * Appends a value to a key.
    *
@@ -32,119 +28,84 @@ trait StringCommands { self: Protocol =>
    *
    * @since 2.0.0
    */
-  def append(key: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(Append, key,value)(asInteger)
-
+  def append[W: Writer](key: String, value: W): Future[Long] = send(Append(key, value))
+  
   /**
-   * Counts the number of bits set to 1 in a string.
+   * Counts the number of bits set to 1 in a string from start offset to stop offset.
    *
    * @note Non-existent keys are treated as empty strings, so the command will return zero.
    *
    * @param key the key for which the bitcount should be returned
-   * @return the number of bits set to 1
-   * @throws $e if the value stored at key is not of type string
-   *
-   * @since 2.6.0
-   */
-  def bitCount(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
-    send(BitCount, key)(asInteger)
-
-  /**
-   * Counts the number of bits set to 1 in a string from start offset to end offset.
-   *
-   * @note Non-existent keys are treated as empty strings, so the command will return zero.
-   *
-   * @param key the key for which the bitcount should be returned
-   * @param start start offset in bytes
-   * @param end end offset in bytes
+   * @param start start offset (defaults to 0)
+   * @param stop stop offset (defaults to -1)
    * @return the number of bits set to 1 in the specified interval
    * @throws $e if the value stored at key is not of type string
    *
    * @since 2.6.0
    */
-  def bitCountInRange(key: String, start: Long, end: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(BitCount, key, start, end)(asInteger)
-
+  def bitCount(key: String, start: Long = 0, stop: Long = -1): Future[Long] = send(
+    BitCount(key, start, stop)
+  )
+  
   /**
-   * Performs bitwise AND operation between two strings.
+   * Performs a bitwise operation between multiple strings.
    *
    * @note When an operation is performed between strings having different lengths, all the strings
    * shorter than the longest string in the set are treated as if they were zero-padded up to the
    * length of the longest string. The same holds true for non-existent keys, that are considered
    * as a stream of zero bytes up to the length of the longest string.
    *
-   * @param key1	left operand
-   * @param key2	right operand
-   * @param destKey	key where the result of the operation will be stored
+   * @param operation [[scredis.BitOp]] to perform
+   * @param destKey	destination key where the result of the operation will be stored
+   * @param keys keys to perform the operation upon
    * @return the size of the string stored in the destination key, that is equal to the size of
    * the longest input string
-   * @throws $e if the value stored at key is not of type string
+   * @throws $e if at least one of the values stored at keys is not of type string
    *
    * @since 2.6.0
    */
-  def bitOpAnd(key1: String, key2: String, destKey: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = bitOpBinary("AND")(key1, key2, destKey)
-
+  def bitOp(operation: scredis.BitOp, destKey: String, keys: String*): Future[Long] = send(
+    BitOp(operation, destKey, keys: _*)
+  )
+  
   /**
-   * Performs bitwise OR operation between two strings.
+   * Return the position of the first bit set to 1 or 0 in a string.
    *
-   * @note When an operation is performed between strings having different lengths, all the strings
-   * shorter than the longest string in the set are treated as if they were zero-padded up to the
-   * length of the longest string. The same holds true for non-existent keys, that are considered
-   * as a stream of zero bytes up to the length of the longest string.
+   * @note The position is returned thinking at the string as an array of bits from left to right
+   * where the first byte most significant bit is at position 0, the second byte most significant
+   * big is at position 8 and so forth.
+   * 
+   * The range is interpreted as a range of bytes and not a range of bits, so start=0 and end=2
+   * means to look at the first three bytes.
+   * 
+   * If we look for set bits (the bit argument is 1) and the string is empty or composed of just
+   * zero bytes, -1 is returned.
+   * 
+   * If we look for clear bits (the bit argument is 0) and the string only contains bit set to 1,
+   * the function returns the first bit not part of the string on the right. So if the string is
+   * tree bytes set to the value 0xff the command BITPOS key 0 will return 24, since up to bit 23
+   * all the bits are 1.
+   * 
+   * Basically the function consider the right of the string as padded with zeros if you look for
+   * clear bits and specify no range or the start argument '''only'''.
+   * 
+   * However this behavior changes if you are looking for clear bits and specify a range with both
+   * start and stop. If no clear bit is found in the specified range, the function returns -1 as
+   * the user specified a clear range and there are no 0 bits in that range.
    *
-   * @param key1	left operand
-   * @param key2	right operand
-   * @param destKey	key where the result of the operation will be stored
-   * @return the size of the string stored in the destination key, that is equal to the size of
-   * the longest input string
-   * @throws $e if the value stored at key is not of type string
+   * @param key string key
+   * @param bit provide $true to look for 1s and $false to look for 0s
+   * @param start start offset, in bytes
+   * @param stop stop offset, in bytes
+   * @return the position of the first bit set to 1 or 0, according to the request
+   * @throws $e if key is not of type string
    *
-   * @since 2.6.0
+   * @since 2.8.7
    */
-  def bitOpOr(key1: String, key2: String, destKey: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = bitOpBinary("OR")(key1, key2, destKey)
-
-  /**
-   * Performs bitwise XOR operation between two strings.
-   *
-   * @note When an operation is performed between strings having different lengths, all the strings
-   * shorter than the longest string in the set are treated as if they were zero-padded up to the
-   * length of the longest string. The same holds true for non-existent keys, that are considered
-   * as a stream of zero bytes up to the length of the longest string.
-   *
-   * @param key1	left operand
-   * @param key2	right operand
-   * @param destKey	key where the result of the operation will be stored
-   * @return the size of the string stored in the destination key, that is equal to the size of
-   * the longest input string
-   * @throws $e if the value stored at key is not of type string
-   *
-   * @since 2.6.0
-   */
-  def bitOpXor(key1: String, key2: String, destKey: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = bitOpBinary("XOR")(key1, key2, destKey)
-
-  /**
-   * Performs bitwise NOT operation on a given string.
-   *
-   * @param key the source key
-   * @param destKey	key where the result of the operation will be stored
-   * @return the size of the string stored in the destination key, that is equal to the size of
-   * the longest input string
-   * @throws $e if the value stored at key is not of type string
-   *
-   * @since 2.6.0
-   */
-  def bitOpNot(key: String, destKey: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(BitOp, "NOT", destKey, key)(asInteger)
-
+  def bitPos(key: String, bit: Boolean, start: Long = 0, stop: Long = -1): Future[Long] = send(
+    BitPos(key, bit, start, stop)
+  )
+  
   /**
    * Decrements the integer value of a key by one.
    *
@@ -157,26 +118,23 @@ trait StringCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def decr(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
-    send(Decr, key)(asInteger)
-
+  def decr(key: String): Future[Long] = send(Decr(key))
+  
   /**
    * Decrements the integer value of a key by the given amount.
    *
    * @note If the key does not exist, it is set to 0 before performing the operation.
    *
    * @param key the key to decrement
-   * @param count the decrement
+   * @param decrement the decrement
    * @return the value of key after the decrement
    * @throws $e if the key contains a value of the wrong type or contains
    * a string that cannot be represented as integer
    *
    * @since 1.0.0
    */
-  def decrBy(key: String, count: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(DecrBy, key, count)(asInteger)
-
+  def decrBy(key: String, decrement: Long): Future[Long] = send(DecrBy(key, decrement))
+  
   /**
    * Returns the value stored at key.
    *
@@ -186,64 +144,39 @@ trait StringCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def get[A](key: String)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): Option[A] = send(Get, key)(asBulk[A])
-
+  def get[R: Reader](key: String): Future[Option[R]] = send(Get(key))
+  
   /**
    * Returns the bit value at offset in the string value stored at key.
    *
    * @param key the target key
    * @param offset the position in the string
-   * @return true if the bit is set to 1, false otherwise
+   * @return $true if the bit is set to 1, $false otherwise
    * @throws $e if the value stored at key is not of type string
    *
    * @since 2.2.0
    */
-  def getBit(key: String, offset: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Boolean = send(GetBit, key, offset)(asInteger(toBoolean))
-
+  def getBit(key: String, offset: Long): Future[Boolean] = send(GetBit(key, offset))
+  
   /**
    * Returns a substring of the string stored at a key.
    *
-   * @note Both offsets are inclusive, i.e. [start, end]. The function handles out of range
+   * @note Both offsets are inclusive, i.e. [start, stop]. The function handles out of range
    * requests by limiting the resulting range to the actual length of the string.
    *
    * @param key the target key
    * @param start the start offset (inclusive)
-   * @param end the end offset (inclusive)
-   * @return the substring determined by the specified offsets
-   * @throws $e if the value stored at key is not of type string
-   *
-   * @since 1.0.0
-   */
-  @deprecated("SUBSTR has been renamed to GETRANGE in Redis versions > 2.0.0", "2.0.1")
-  def substr[A](key: String, start: Long, end: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): A = send(Substr, key, start, end)(asBulk[A, A](flatten))
-
-  /**
-   * Returns a substring of the string stored at a key.
-   *
-   * @note Both offsets are inclusive, i.e. [start, end]. The function handles out of range
-   * requests by limiting the resulting range to the actual length of the string.
-   *
-   * @param key the target key
-   * @param start the start offset (inclusive)
-   * @param end the end offset (inclusive)
-   * @return the substring determined by the specified offsets
+   * @param stop the stop offset (inclusive)
+   * @return the substring determined by the specified offsets, or the empty string if the key
+   * does not exist
    * @throws $e if the value stored at key is not of type string
    *
    * @since 2.4.0
    */
-  def getRange[A](key: String, start: Long, end: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): A = send(GetRange, key, start, end)(asBulk[A, A](flatten))
-
+  def getRange[R: Reader](key: String, start: Long, stop: Long): Future[R] = send(
+    GetRange(key, start, stop)
+  )
+  
   /**
    * Sets the string value of a key and return its old value.
    *
@@ -254,11 +187,10 @@ trait StringCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def getSet[A](key: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): Option[A] = send(GetSet, key,value)(asBulk[A])
-
+  def getSet[R: Reader, W: Writer](key: String, value: W): Future[Option[R]] = send(
+    GetSet(key, value)
+  )
+  
   /**
    * Increments the integer value of a key by one.
    *
@@ -271,234 +203,92 @@ trait StringCommands { self: Protocol =>
    *
    * @since 1.0.0
    */
-  def incr(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
-    send(Incr, key)(asInteger)
-
+  def incr(key: String): Future[Long] = send(Incr(key))
+  
   /**
    * Increments the integer value of a key by the given amount.
    *
    * @note If the key does not exist, it is set to 0 before performing the operation.
    *
    * @param key the key to increment
-   * @param count the increment
+   * @param increment the increment
    * @return the value of key after the decrement
    * @throws $e if the key contains a value of the wrong type or contains
    * a string that cannot be represented as integer
    *
    * @since 1.0.0
    */
-  def incrBy(key: String, count: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(IncrBy, key, count)(asInteger)
-
+  def incrBy(key: String, increment: Long): Future[Long] = send(IncrBy(key, increment))
+  
   /**
    * Increment the float value of a key by the given amount.
    *
    * @note If the key does not exist, it is set to 0 before performing the operation.
    *
    * @param key the key to increment
-   * @param count the increment
+   * @param increment the increment
    * @return the value of key after the decrement
    * @throws $e if the key contains a value of the wrong type, the current key content or the
    * specified increment are not parseable as a double precision floating point number
    *
    * @since 2.6.0
    */
-  def incrByFloat(key: String, count: Double)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Double = send(IncrByFloat, key, count)(asBulk[Double, Double](flatten))
-
+  def incrByFloat(key: String, increment: Double): Future[Double] = send(
+    IncrByFloat(key, increment)
+  )
+  
   /**
    * Returns the values of all specified keys.
    *
    * @note For every key that does not hold a string value or does not exist, $none is returned.
    * Because of this, the operation never fails.
    *
-   * @param key the target key
-   * @param keys additional keys
+   * @param keys the keys to fetch
    * @return list of value(s) stored at the specified key(s)
    *
    * @since 1.0.0
    */
-  def mGet[A](key: String, keys: String*)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): List[Option[A]] = send((Seq(MGet, key) ++ keys): _*)(asMultiBulk[A, List])
-
+  def mGet[R: Reader](keys: String*): Future[List[Option[R]]] = send(MGet[R, List](keys: _*))
+  
   /**
    * Returns a `Map` containing the specified key(s) paired to their respective value(s).
    *
    * @note Every key that does not hold a string value or does not exist will be removed from the
    * resulting `Map`.
    *
-   * @param key the target key
-   * @param keys additional keys
+   * @param keys the keys to fetch
    * @return map of key-value pairs
    *
    * @since 1.0.0
    */
-  def mGetAsMap[A](key: String, keys: String*)(
-    implicit opts: CommandOptions = DefaultCommandOptions,
-    parser: Parser[A] = StringParser
-  ): Map[String, A] = send((Seq(MGet, key) ++ keys): _*)(
-    asMultiBulk[List, Map[String, A]](toMapWithKeys[String, A](key :: keys.toList))
-  )
-
-  /**
-   * Atomically sets multiple keys to multiple values.
-   *
-   * @note MSET replaces existing values with new values, just as regular SET.
-   *
-   * @param keyValueMap key-value pairs to be set
-   * @throws $e if the provided keyValueMap is empty
-   *
-   * @since 1.0.1
-   */
-  def mSetFromMap(keyValueMap: Map[String, Any])(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = if(keyValueMap.isEmpty) {
-    throw RedisCommandException("MSET: keyValueMap cannot be empty")
-  } else {
-    send(flattenKeyValueMap(List(MSet), keyValueMap): _*)(asUnit)
-  }
-
-  /**
-   * Atomically sets multiple keys to multiple values.
-   *
-   * @note MSET replaces existing values with new values, just as regular SET.
-   *
-   * @param keyValuePair key-value pair to be set
-   * @param keyValuePairs additional key-value pairs to be set
-   *
-   * @since 1.0.1
-   */
-  def mSet(keyValuePair: (String, Any), keyValuePairs: (String, Any)*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = mSetFromMap((keyValuePair :: keyValuePairs.toList).toMap)
-
-  /**
-   * Atomically sets multiple keys to multiple values, only if none of the keys exist.
-   *
-   * @note MSETNX will not perform any operation at all even if just a single key already exists.
-   *
-   * @param keyValueMap key-value pairs to be set
-   * @throws $e if the provided keyValueMap is empty
-   *
-   * @since 1.0.1
-   */
-  def mSetNXFromMap(keyValueMap: Map[String, Any])(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Boolean = if(keyValueMap.isEmpty) {
-    throw RedisCommandException("MSETNX: keyValueMap cannot be empty")
-  } else {
-    send(flattenKeyValueMap(List(MSetNX), keyValueMap): _*)(asInteger(toBoolean))
-  }
-
-  /**
-   * Atomically sets multiple keys to multiple values, only if none of the keys exist.
-   *
-   * @note MSETNX will not perform any operation at all even if just a single key already exists.
-   *
-   * @param keyValuePair key-value pair to be set
-   * @param keyValuePairs additional key-value pairs to be set
-   *
-   * @since 1.0.1
-   */
-  def mSetNX(keyValuePair: (String, Any), keyValuePairs: (String, Any)*)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Boolean = mSetNXFromMap((keyValuePair :: keyValuePairs.toList).toMap)
-
-  /**
-   * Sets the string value of a key.
-   *
-   * @note If key already holds a value, it is overwritten, regardless of its type. Any previous
-   * time to live associated with the key is discarded on successful SET operation.
-   *
-   * @param key target key to set
-   * @param value value to be stored at key
-   *
-   * @since 1.0.0
-   */
-  def set(key: String, value: Any)(implicit opts: CommandOptions = DefaultCommandOptions): Unit =
-    send(Set, key, value)(asUnit)
+  def mGetAsMap[R: Reader](keys: String*): Future[Map[String, R]] = send(MGetAsMap[R](keys: _*))
   
   /**
-   * Sets the string value of a key, optionally using a condition and/or expiring it.
+   * Atomically sets multiple keys to multiple values.
    *
-   * @note If key already holds a value, it is overwritten, regardless of its type. Any previous
-   * time to live associated with the key is discarded on successful SET operation.
+   * @note MSET replaces existing values with new values, just as regular SET.
    *
-   * @param key target key to set
-   * @param value value to be stored at key
-   * @param expireAfter when defined, sets an expiration time on the value
-   * @param condition when defined, only set the value if the condition is verified
-   * @return `true` if the value was set, `false` if the operation was not performed because the
-   * provided condition was not met
+   * @param keyValuePairs map of key-value pairs to set
    *
-   * @since 2.6.12
+   * @since 1.0.1
    */
-  def setWithOptions(
-    key: String,
-    value: Any,
-    expireAfter: Option[FiniteDuration] = None,
-    condition: Option[Condition] = None
-  )(implicit opts: CommandOptions = DefaultCommandOptions): Boolean = {
-    val arguments = ListBuffer[Any](Set, key, value)
-    expireAfter.foreach { d =>
-      arguments += "PX"
-      arguments += d.toMillis
-    }
-    condition.foreach(arguments += _)
-    send(arguments: _*)(asOkStatusOrNullBulkReply)
-  }
-
+  def mSet[W: Writer](keyValuePairs: Map[String, W]): Future[Unit] = send(MSet(keyValuePairs))
+  
   /**
-   * Sets or clears the bit at offset in the string value stored at key.
+   * Atomically sets multiple keys to multiple values, only if none of the keys exist.
    *
-   * @note When key does not exist, a new string value is created. The string is grown to make sure
-   * it can hold a bit at offset. When the string at key is grown, added bits are set to 0.
+   * @note MSETNX will not perform any operation at all even if just a single key already exists.
    *
-   * @param key key for which the bit should be set
-   * @param offset position where the bit should be set
-   * @param bit true sets the bit to 1, false sets it to 0
-   * @throws $e if the key contains a value of the wrong type
+   * @param keyValuePairs map of key-value pairs to set
+   * @return $true if all the keys were set, $false if at least one key already existed and thus
+   * no operation was performed.
    *
-   * @since 2.2.0
+   * @since 1.0.1
    */
-  def setBit(key: String, offset: Long, bit: Boolean)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Boolean = send(SetBit, key, offset, if (bit) 1 else 0)(asInteger(toBoolean))
-
-  /**
-   * Sets the value and expiration of a key.
-   *
-   * @note If key already holds a value, it is overwritten, regardless of its type.
-   *
-   * @param key target key to set
-   * @param value value to be stored at key
-   * @param ttl time-to-live, up to milliseconds precision
-   *
-   * @since 2.6.0
-   */
-  def setEXDuration(key: String, value: Any, ttl: FiniteDuration)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = send(PSetEX, key, ttl.toMillis, value)(asUnit)
-
-  /**
-   * Sets the value and expiration in seconds of a key.
-   *
-   * @note If key already holds a value, it is overwritten, regardless of its type.
-   *
-   * @param key target key to set
-   * @param value value to be stored at key
-   * @param ttlSeconds time-to-live in seconds
-   *
-   * @since 2.0.0
-   */
-  def setEX(key: String, value: Any, ttlSeconds: Int)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = send(SetEX, key, ttlSeconds,value)(asUnit)
-
+  def mSetNX[W: Writer](keyValuePairs: Map[String, W]): Future[Boolean] = send(
+    MSetNX(keyValuePairs)
+  )
+  
   /**
    * Sets the value and expiration in milliseconds of a key.
    *
@@ -510,23 +300,83 @@ trait StringCommands { self: Protocol =>
    *
    * @since 2.6.0
    */
-  def pSetEX(key: String, value: Any, ttlMillis: Long)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Unit = send(PSetEX, key, ttlMillis,value)(asUnit)
-
+  def pSetEX[W: Writer](key: String, value: W, ttlMillis: Long): Future[Unit] = send(
+    PSetEX(key, ttlMillis, value)
+  )
+  
+  /**
+   * Sets the string value of a key.
+   *
+   * @note If key already holds a value, it is overwritten, regardless of its type. Any previous
+   * time to live associated with the key is discarded on successful SET operation.
+   * 
+   * The ttlOpt and conditionOpt parameters can only be used with `Redis` >= 2.6.12
+   * 
+   * @param key target key to set
+   * @param value value to be stored at key
+   * @param ttlOpt optional time-to-live (up to milliseconds precision)
+   * @param conditionOpt optional condition to be met for the value to be set
+   * @return $true if the value was set correctly, $false if a condition was specified but not met
+   *
+   * @since 1.0.0
+   */
+  def set[W: Writer](
+    key: String,
+    value: W,
+    ttlOpt: Option[FiniteDuration] = None,
+    conditionOpt: Option[scredis.Condition] = None
+  ): Future[Boolean] = send(
+    Set(
+      key = key,
+      value = value,
+      ttlOpt = ttlOpt,
+      conditionOpt = conditionOpt
+    )
+  )
+  
+  /**
+   * Sets or clears the bit at offset in the string value stored at key.
+   *
+   * @note When key does not exist, a new string value is created. The string is grown to make sure
+   * it can hold a bit at offset. When the string at key is grown, added bits are set to 0.
+   *
+   * @param key key for which the bit should be set
+   * @param offset position where the bit should be set
+   * @param bit $true sets the bit to 1, $false sets it to 0
+   * @throws $e if the key contains a value of the wrong type
+   *
+   * @since 2.2.0
+   */
+  def setBit(key: String, offset: Long, bit: Boolean): Future[Boolean] = send(
+    SetBit(key, offset, bit)
+  )
+  
+  /**
+   * Sets the value and expiration in seconds of a key.
+   *
+   * @note If key already holds a value, it is overwritten, regardless of its type.
+   *
+   * @param key target key to set
+   * @param value value to be stored at key
+   * @param ttlSeconds time-to-live in seconds
+   *
+   * @since 2.0.0
+   */
+  def setEX[W: Writer](key: String, value: W, ttlSeconds: Int): Future[Unit] = send(
+    SetEX(key, ttlSeconds, value)
+  )
+  
   /**
    * Sets the value of a key, only if the key does not exist.
    *
    * @param key target key to set
    * @param value value to be stored at key
-   * @return true if the key was set, false otherwise
+   * @return $true if the key was set, $false otherwise
    *
    * @since 1.0.0
    */
-  def setNX(key: String, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Boolean = send(SetNX, key,value)(asInteger(toBoolean))
-
+  def setNX[W: Writer](key: String, value: W): Future[Boolean] = send(SetNX(key, value))
+  
   /**
    * Overwrites part of a string at key starting at the specified offset.
    *
@@ -543,10 +393,10 @@ trait StringCommands { self: Protocol =>
    *
    * @since 2.2.0
    */
-  def setRange(key: String, offset: Long, value: Any)(
-    implicit opts: CommandOptions = DefaultCommandOptions
-  ): Long = send(SetRange, key, offset,value)(asInteger)
-
+  def setRange[W: Writer](key: String, offset: Long, value: W): Future[Long] = send(
+    SetRange(key, offset, value)
+  )
+  
   /**
    * Returns the length of the string value stored in a key.
    *
@@ -556,7 +406,6 @@ trait StringCommands { self: Protocol =>
    *
    * @since 2.2.0
    */
-  def strLen(key: String)(implicit opts: CommandOptions = DefaultCommandOptions): Long =
-    send(StrLen, key)(asInteger)
-
+  def strLen(key: String): Future[Long] = send(StrLen(key))
+  
 }
