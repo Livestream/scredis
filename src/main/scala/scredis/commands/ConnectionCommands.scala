@@ -14,7 +14,7 @@ import scala.concurrent.Future
  * @define false '''false'''
  */
 trait ConnectionCommands { self: AbstractClient =>
-
+  
   /**
    * Authenticates to the server.
    * 

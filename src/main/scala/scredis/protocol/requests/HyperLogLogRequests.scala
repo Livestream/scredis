@@ -9,11 +9,11 @@ object HyperLogLogRequests {
   object PFCount extends Command("PFCOUNT")
   object PFMerge extends Command("PFMERGE")
   
-  case class PFAdd[W: Writer](key: String, elements: W*) extends Request[Int](
+  case class PFAdd[W: Writer](key: String, elements: W*) extends Request[Boolean](
     PFAdd, key, elements.map(implicitly[Writer[W]].write): _*
   ) {
     override def decode = {  
-      case IntegerResponse(value) => value.toInt
+      case i: IntegerResponse => i.toBoolean
     }
   }
   

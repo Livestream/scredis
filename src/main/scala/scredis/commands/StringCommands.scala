@@ -3,7 +3,6 @@ package scredis.commands
 import scredis.AbstractClient
 import scredis.protocol.requests.StringRequests._
 import scredis.serialization.{ Reader, Writer }
-import scredis.util.LinkedHashSet
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
