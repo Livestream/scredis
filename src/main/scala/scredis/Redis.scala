@@ -1,5 +1,5 @@
 package scredis
-
+/*
 import com.typesafe.config.Config
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
@@ -616,4 +616,4 @@ object Redis {
     new Redis(RedisConfig(configName, path), Some(ec))
   
 }
-
+*/

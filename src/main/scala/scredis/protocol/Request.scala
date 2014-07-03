@@ -3,6 +3,7 @@ package scredis.protocol
 import akka.util.ByteString
 
 import scredis.exceptions._
+import scredis.serialization.UTF8StringReader
 
 import scala.util.{ Try, Success, Failure }
 import scala.concurrent.Promise
@@ -15,9 +16,11 @@ abstract class Request[A](command: Command, args: Any*) {
   private var _bytes: Array[Byte] = null
   val future = promise.future
   
-  private[scredis] def encode(): Unit = command match {
-    case x: ZeroArgCommand  => _bytes = x.encoded
-    case _                  => _buffer = command.encode(args.toList)
+  private[scredis] def encode(): Unit = if (_buffer == null && _bytes == null) {
+    command match {
+      case x: ZeroArgCommand  => _bytes = x.encoded
+      case _                  => _buffer = command.encode(args.toList)
+    }
   }
   
   private[scredis] def encoded: Either[Array[Byte], ByteBuffer] = if (_bytes != null) {
@@ -46,5 +49,10 @@ abstract class Request[A](command: Command, args: Any*) {
   }
   
   def decode: Decoder[A]
+  
+  override def toString = (command +: args).map {
+    case bytes: Array[Byte] => UTF8StringReader.read(bytes)
+    case x                  => x.toString
+  }.mkString(" ")
   
 }

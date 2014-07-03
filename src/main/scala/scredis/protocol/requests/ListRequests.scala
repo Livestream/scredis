@@ -29,7 +29,7 @@ object ListRequests {
   
   case class BLPop[R: Reader](
     timeoutSeconds: Int, keys: String*
-  ) extends Request[Option[(String, R)]](BLPop, keys: _*, timeoutSeconds) {
+  ) extends Request[Option[(String, R)]](BLPop, keys :+ timeoutSeconds: _*) {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[String, R, List] {
         case b: BulkStringResponse => b.flattened[String]
@@ -41,7 +41,7 @@ object ListRequests {
   
   case class BRPop[R: Reader](
     timeoutSeconds: Int, keys: String*
-  ) extends Request[Option[(String, R)]](BRPop, keys: _*, timeoutSeconds) {
+  ) extends Request[Option[(String, R)]](BRPop, keys :+ timeoutSeconds: _*) {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[String, R, List] {
         case b: BulkStringResponse => b.flattened[String]
@@ -94,8 +94,8 @@ object ListRequests {
     }
   }
   
-  case class LPush[W: Writer](key: String, values: W*) extends Request[Long](
-    LPush, key, values.map(implicitly[Writer[W]].write): _*
+  case class LPush[W](key: String, values: W*)(implicit writer: Writer[W]) extends Request[Long](
+    LPush, key +: values.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(x) => x
@@ -158,8 +158,8 @@ object ListRequests {
     }
   }
   
-  case class RPush[W: Writer](key: String, values: W*) extends Request[Long](
-    RPush, key, values.map(implicitly[Writer[W]].write): _*
+  case class RPush[W](key: String, values: W*)(implicit writer: Writer[W]) extends Request[Long](
+    RPush, key +: values.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(x) => x

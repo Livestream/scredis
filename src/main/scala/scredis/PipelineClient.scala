@@ -1,5 +1,5 @@
 package scredis
-
+/*
 import scredis.commands.async._
 import scredis.exceptions._
 
@@ -38,4 +38,4 @@ final class PipelineClient private[scredis] (client: Client) extends QueuingClie
    */
   def sync()(implicit opts: CommandOptions = DefaultCommandOptions): IndexedSeq[Try[Any]] = run()
 
-}
+}*/

@@ -14,26 +14,18 @@ object ScriptingRequests {
   object ScriptKill extends ZeroArgCommand("SCRIPT KILL")
   object ScriptLoad extends Command("SCRIPT LOAD")
   
-  case class Eval[R, W1: Writer, W2: Writer](
-    script: String, keys: Seq[W1], args: Seq[W2]
-  )(implicit decoder: Decoder[R]) extends Request[R](
-    Eval,
-    script,
-    keys.size,
-    keys.map(implicitly[Writer[W1]].write): _*,
-    args.map(implicitly[Writer[W2]].write): _*
+  case class Eval[R, W1: Writer, W2: Writer](script: String, keys: Seq[W1], args: Seq[W2])(
+    implicit decoder: Decoder[R], keysWriter: Writer[W1], argsWriter: Writer[W2]
+  ) extends Request[R](
+    Eval, script +: keys.size +: keys.map(keysWriter.write) :+ args.map(argsWriter.write): _*
   ) {
     override def decode = decoder
   }
   
-  case class EvalSHA[R, W1: Writer, W2: Writer](
-    sha1: String, keys: Seq[W1], args: Seq[W2]
-  )(implicit decoder: Decoder[R]) extends Request[R](
-    EvalSHA,
-    sha1,
-    keys.size,
-    keys.map(implicitly[Writer[W1]].write): _*,
-    args.map(implicitly[Writer[W2]].write): _*
+  case class EvalSHA[R, W1: Writer, W2: Writer](sha1: String, keys: Seq[W1], args: Seq[W2])(
+    implicit decoder: Decoder[R], keysWriter: Writer[W1], argsWriter: Writer[W2]
+  ) extends Request[R](
+    EvalSHA, sha1 +: keys.size +: keys.map(keysWriter.write) :+ args.map(argsWriter.write): _*
   ) {
     override def decode = decoder
   }

@@ -5,5 +5,5 @@ package scredis.exceptions
  */
 final case class RedisIOException(
   message: String = null,
-  cause: Throwable
+  cause: Throwable = null
 ) extends RedisException(message, cause)

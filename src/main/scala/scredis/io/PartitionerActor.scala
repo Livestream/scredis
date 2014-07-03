@@ -1,5 +1,7 @@
 package scredis.io
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
+
 import com.codahale.metrics.MetricRegistry
 
 import akka.actor.{ Actor, ActorRef, Props }
@@ -13,8 +15,9 @@ import scala.collection.mutable.{ Queue => MQueue, ListBuffer }
 
 import java.nio.ByteBuffer
 
-class PartitionerActor(ioActor: ActorRef) extends Actor {
+class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
   
+  import PartitionerActor._
   import DecoderActor.Partition
   
   private val requests = MQueue[Request[_]]()
@@ -28,13 +31,22 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
   )
   
   private var remainingByteStringOpt: Option[ByteString] = None
+  private var skip = 0
   
   def receive: Receive = {
     case request: Request[_] => {
       requests.enqueue(request)
       ioActor ! request
     }
+    case Remove(count) => {
+      println(s"Removing $count request(s)")
+      for (i <- 1 to count) {
+        requests.dequeue()
+      }
+    }
+    case Skip(count) => skip += count
     case data: ByteString => {
+      logger.debug(s"Received data: ${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}")
       val completedData = remainingByteStringOpt match {
         case Some(remains) => {
           remainingByteStringOpt = None
@@ -46,6 +58,8 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
       val buffer = completedData.asByteBuffer
       val repliesCount = Protocol.count(buffer)
       val position = buffer.position
+      val skipCount = math.min(skip, repliesCount)
+      skip -= skipCount
       
       val trimmedData = if (buffer.remaining > 0) {
         remainingByteStringOpt = Some(ByteString(buffer))
@@ -59,8 +73,13 @@ class PartitionerActor(ioActor: ActorRef) extends Actor {
         requests += this.requests.dequeue()
       }
       
-      decoders ! Partition(trimmedData, requests.toList.iterator)
+      decoders ! Partition(trimmedData, requests.toList.iterator, skipCount)
     }
   }
   
+}
+
+object PartitionerActor {
+  case class Remove(count: Int)
+  case class Skip(count: Int)
 }

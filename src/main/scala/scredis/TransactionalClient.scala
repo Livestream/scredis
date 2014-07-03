@@ -1,5 +1,5 @@
 package scredis
-
+/*
 import scredis.commands.async._
 import scredis.parsing.LongParser
 import scredis.exceptions._
@@ -64,4 +64,4 @@ final class TransactionalClient private[scredis] (client: Client) extends Queuin
    */
   def exec()(implicit opts: CommandOptions = DefaultCommandOptions): IndexedSeq[Try[Any]] = run()
 
-}
+}*/

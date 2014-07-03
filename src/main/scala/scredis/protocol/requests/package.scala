@@ -24,7 +24,7 @@ package object requests {
     args.toList
   }
   
-  private[requests] def unpair[A, B, CC[X] <: Traversable[X]](pairs: CC[(A, B)]): Seq[Any] = {
+  private[requests] def unpair[A, B, CC[X] <: Traversable[X]](pairs: CC[(A, B)]): List[Any] = {
     val unpaired = ListBuffer[Any]()
     pairs.foreach {
       case (a, b) => unpaired += a += b

@@ -23,8 +23,8 @@ object SetRequests {
   object SUnion extends Command("SUNION")
   object SUnionStore extends Command("SUNIONSTORE")
   
-  case class SAdd[W: Writer](key: String, members: W*) extends Request[Long](
-    SAdd, key, members.map(implicitly[Writer[W]].write): _*
+  case class SAdd[W](key: String, members: W*)(implicit writer: Writer[W]) extends Request[Long](
+    SAdd, key +: members.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -48,7 +48,7 @@ object SetRequests {
   }
   
   case class SDiffStore(destination: String, keys: String*) extends Request[Long](
-    SDiffStore, destination, keys: _*
+    SDiffStore, destination +: keys: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -66,7 +66,7 @@ object SetRequests {
   }
   
   case class SInterStore(destination: String, keys: String*) extends Request[Long](
-    SInterStore, destination, keys: _*
+    SInterStore, destination +: keys: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -123,8 +123,8 @@ object SetRequests {
     }
   }
   
-  case class SRem[W: Writer](key: String, members: W*) extends Request[Long](
-    SRem, key, members.map(implicitly[Writer[W]].write): _*
+  case class SRem[W](key: String, members: W*)(implicit writer: Writer[W]) extends Request[Long](
+    SRem, key +: members.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -165,7 +165,7 @@ object SetRequests {
   }
   
   case class SUnionStore(destination: String, keys: String*) extends Request[Long](
-    SUnionStore, destination, keys: _*
+    SUnionStore, destination +: keys: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value

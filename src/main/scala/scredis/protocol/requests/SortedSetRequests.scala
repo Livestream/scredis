@@ -35,12 +35,12 @@ object SortedSetRequests {
   private val Weights = "WEIGHTS"
   private val Aggregate = "AGGREGATE"
   
-  case class ZAdd[W: Writer](key: String, members: Map[W, scredis.Score]) extends Request[Long](
-    ZAdd,
-    key,
-    unpair(
+  case class ZAdd[W](key: String, members: Map[W, scredis.Score])(
+    implicit writer: Writer[W]
+  ) extends Request[Long](
+    ZAdd, key +: unpair(
       members.map {
-        case (member, score) => (score.stringValue, implicitly[Writer[W]].write(member))
+        case (member, score) => (score.stringValue, writer.write(member))
       }
     ): _*
   ) {
@@ -74,7 +74,7 @@ object SortedSetRequests {
   case class ZInterStore(
     destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
-    ZInterStore, destination, keys.size, keys: _*, Aggregate, aggregate.name
+    ZInterStore, destination +: keys.size +: keys :+ Aggregate :+ aggregate.name: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -84,12 +84,9 @@ object SortedSetRequests {
   case class ZInterStoreWeighted(
     destination: String, keyWeightPairs: Map[String, Double], aggregate: scredis.Aggregate
   ) extends Request[Long](
-    ZInterStore,
-    destination,
-    keyWeightPairs.size,
-    {
+    ZInterStore, destination +: keyWeightPairs.size +: {
       val (keys, weights) = keyWeightPairs.toList.unzip
-      keys ::: Weights :: weights ::: Aggregate :: aggregate.name :: Nil
+      keys :+ Weights :+ weights :+ Aggregate :+ aggregate.name
     }: _*
   ) {
     override def decode = {
@@ -135,11 +132,7 @@ object SortedSetRequests {
     max: scredis.LexicalScoreLimit,
     limitOpt: Option[(Long, Int)]
   )(implicit cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
-    ZRangeByLex,
-    key,
-    min.stringValue,
-    max.stringValue,
-    {
+    ZRangeByLex, key +: min.stringValue +: max.stringValue +: {
       limitOpt match {
         case Some((offset, count)) => Seq(offset, count)
         case None => Seq.empty
@@ -159,11 +152,7 @@ object SortedSetRequests {
     max: scredis.ScoreLimit,
     limitOpt: Option[(Long, Int)]
   )(implicit cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
-    ZRangeByScore,
-    key,
-    min.stringValue,
-    max.stringValue,
-    {
+    ZRangeByScore, key +: min.stringValue +: max.stringValue +: {
       limitOpt match {
         case Some((offset, count)) => Seq(offset, count)
         case None => Seq.empty
@@ -185,12 +174,7 @@ object SortedSetRequests {
   )(
     implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
   ) extends Request[CC[(R, scredis.Score)]](
-    ZRangeByScore,
-    key,
-    min.stringValue,
-    max.stringValue,
-    WithScores,
-    {
+    ZRangeByScore, key +: min.stringValue +: max.stringValue +: WithScores +: {
       limitOpt match {
         case Some((offset, count)) => Seq(offset, count)
         case None => Seq.empty
@@ -215,8 +199,8 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRem[W: Writer](key: String, members: W*) extends Request[Long](
-    ZRem, key, members.map(implicitly[Writer[W]].write): _*
+  case class ZRem[W](key: String, members: W*)(implicit writer: Writer[W]) extends Request[Long](
+    ZRem, key +: members.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -281,11 +265,7 @@ object SortedSetRequests {
     min: scredis.ScoreLimit,
     limitOpt: Option[(Long, Int)]
   )(implicit cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
-    ZRevRangeByScore,
-    key,
-    max.stringValue,
-    min.stringValue,
-    {
+    ZRevRangeByScore, key +: max.stringValue +: min.stringValue +: {
       limitOpt match {
         case Some((offset, count)) => Seq(offset, count)
         case None => Seq.empty
@@ -307,11 +287,7 @@ object SortedSetRequests {
   )(
     implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
   ) extends Request[CC[(R, scredis.Score)]](
-    ZRevRangeByScore,
-    key,
-    max.stringValue,
-    min.stringValue,
-    {
+    ZRevRangeByScore, key +: max.stringValue +: min.stringValue +: WithScores +: {
       limitOpt match {
         case Some((offset, count)) => Seq(offset, count)
         case None => Seq.empty
@@ -374,7 +350,7 @@ object SortedSetRequests {
   case class ZUnionStore(
     destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
-    ZUnionStore, destination, keys.size, keys: _*, Aggregate, aggregate.name
+    ZUnionStore, destination +: keys.size +: keys :+ Aggregate :+ aggregate.name: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -384,12 +360,9 @@ object SortedSetRequests {
   case class ZUnionStoreWeighted(
     destination: String, keyWeightPairs: Map[String, Double], aggregate: scredis.Aggregate
   ) extends Request[Long](
-    ZUnionStore,
-    destination,
-    keyWeightPairs.size,
-    {
+    ZUnionStore, destination +: keyWeightPairs.size +: {
       val (keys, weights) = keyWeightPairs.toList.unzip
-      keys ::: Weights :: weights ::: Aggregate :: aggregate.name :: Nil
+      keys :+ Weights :+ weights :+ Aggregate :+ aggregate.name
     }: _*
   ) {
     override def decode = {

@@ -1,5 +1,5 @@
 package scredis
-
+/*
 import scredis.util.Pattern.retry
 import scredis.util.Logger
 import scredis.exceptions._
@@ -84,4 +84,4 @@ abstract class QueuingClient(client: Client) {
    */
   def isClosed: Boolean = !results.isEmpty && results.forall(_.isCompleted)
 
-}
+}*/

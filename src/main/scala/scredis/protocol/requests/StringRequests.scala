@@ -54,7 +54,7 @@ object StringRequests {
   
   case class BitOp(
     operation: scredis.BitOp, destKey: String, keys: String*
-  ) extends Request[Long](BitOp, operation.name, destKey, keys: _*) {
+  ) extends Request[Long](BitOp, operation.name +: destKey +: keys: _*) {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -192,16 +192,13 @@ object StringRequests {
     }
   }
   
-  case class Set[W: Writer](
+  case class Set[W](
     key: String,
     value: W,
     ttlOpt: Option[FiniteDuration],
     conditionOpt: Option[scredis.Condition]
-  ) extends Request[Boolean](
-    Set,
-    key,
-    implicitly[Writer[W]].write(value),
-    {
+  )(implicit writer: Writer[W]) extends Request[Boolean](
+    Set, key +: writer.write(value) +: {
       val args = ListBuffer[Any]()
       ttlOpt.foreach { ttl =>
         args += "PX" += ttl.toMillis

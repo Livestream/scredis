@@ -53,7 +53,7 @@ trait SetCommands { self: AbstractClient =>
    * @since 1.0.0
    */
   def sDiff[R: Reader](key: String, keys: String*): Future[Set[R]] = send(
-    SDiff[R, Set](key, keys: _*)
+    SDiff[R, Set](key +: keys: _*)
   )
   
   /**
@@ -71,7 +71,7 @@ trait SetCommands { self: AbstractClient =>
    * @since 1.0.0
    */
   def sDiffStore(destKey: String, key: String, keys: String*): Future[Long] = send(
-    SDiffStore(destKey, key, keys: _*)
+    SDiffStore(destKey, key +: keys: _*)
   )
   
   /**

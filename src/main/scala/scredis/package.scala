@@ -8,8 +8,6 @@ package object scredis {
     poolNumber
   }
   
-  val DefaultCommandOptions = CommandOptions()
-  
   /**
    * Represents the type of a `Redis` key
    */

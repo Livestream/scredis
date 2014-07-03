@@ -1,5 +1,5 @@
 package scredis
-
+/*
 import com.typesafe.config.Config
 
 import org.apache.commons.pool.BasePoolableObjectFactory
@@ -389,4 +389,4 @@ object ClientPool {
    */
   def apply(configName: String, path: String): ClientPool = new ClientPool(configName, path)
   
-}
+}*/

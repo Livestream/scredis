@@ -25,7 +25,9 @@ object HashRequests {
   object HSetNX extends Command("HSETNX")
   object HVals extends Command("HVALS")
   
-  case class HDel(key: String, fields: String*) extends Request[Long](HDel, key, fields: _*) {
+  case class HDel(key: String, fields: String*) extends Request[Long](
+    HDel, key +: fields: _*
+  ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -89,7 +91,7 @@ object HashRequests {
   
   case class HMGet[R: Reader, CC[X] <: Traversable[X]](key: String, fields: String*)(
     implicit cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
-  ) extends Request[CC[Option[R]]](HMGet, key, fields: _*) {
+  ) extends Request[CC[Option[R]]](HMGet, key +: fields: _*) {
     override def decode = {
       case a: ArrayResponse => a.parsed[Option[R], CC] {
         case b: BulkStringResponse => b.parsed[R]
@@ -98,7 +100,7 @@ object HashRequests {
   }
   
   case class HMGetAsMap[R: Reader](key: String, fields: String*) extends Request[Map[String, R]](
-    HMGet, key, fields: _*
+    HMGet, key +: fields: _*
   ) {
     override def decode = {
       case a: ArrayResponse => {
@@ -113,12 +115,13 @@ object HashRequests {
     }
   }
   
-  case class HMSet[W: Writer](key: String, fieldValuePairs: (String, W)*) extends Request[Unit](
+  case class HMSet[W](key: String, fieldValuePairs: (String, W)*)(
+    implicit writer: Writer[W]
+  ) extends Request[Unit](
     HMSet,
-    key,
-    unpair(
+    key :: unpair(
       fieldValuePairs.map {
-        case (field, value) => (field, implicitly[Writer[W]].write(value))
+        case (field, value) => (field, writer.write(value))
       }
     ): _*
   ) {

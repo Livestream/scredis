@@ -163,7 +163,7 @@ object Protocol {
         case x => arg.toString.getBytes(Encoding)
       }
       val serializedArgSize = serializedArg.length.toString.getBytes(Encoding)
-      length += BulkStringResponseLength +
+      length += ArrayResponseLength +
         serializedArgSize.length +
         CrLfLength +
         serializedArg.length +
@@ -172,7 +172,7 @@ object Protocol {
     }
     
     val buffer = bufferPool.acquire(length)
-    buffer.put(BulkStringResponseByte).put(argsSize).put(CrLf)
+    buffer.put(ArrayResponseByte).put(argsSize).put(CrLf)
     for ((serializedArg, serializedArgSize) <- serializedArgs) {
       buffer
         .put(BulkStringResponseByte)

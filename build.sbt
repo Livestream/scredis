@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.2.0",
   "com.typesafe.akka" %% "akka-actor" % "2.3.3",
   "com.codahale.metrics" % "metrics-core" % "3.0.1",
-  "org.scalatest" %% "scalatest" % "2.2.0" % "test"
+  "org.scalatest" %% "scalatest" % "2.2.0" % "test",
+  "org.slf4j" % "slf4j-simple" % "1.7.7"
 )
 
 publishTo <<= version { (v: String) =>
