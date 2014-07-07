@@ -1,5 +1,7 @@
 import scala.concurrent.duration.FiniteDuration
 
+import scredis.serialization._
+
 package object scredis {
   private var poolNumber = 0
   
@@ -7,6 +9,17 @@ package object scredis {
     poolNumber += 1
     poolNumber
   }
+  
+  implicit val stringReader: Reader[String] = UTF8StringReader
+  
+  implicit val bytesWriter: Writer[Array[Byte]] = BytesWriter
+  implicit val stringWriter: Writer[String] = UTF8StringWriter
+  implicit val booleanWriter: Writer[Boolean] = BooleanWriter
+  implicit val shortWriter: Writer[Short] = ShortWriter
+  implicit val intWriter: Writer[Int] = IntWriter
+  implicit val longWriter: Writer[Long] = LongWriter
+  implicit val floatWriter: Writer[Float] = FloatWriter
+  implicit val doubleWriter: Writer[Double] = DoubleWriter
   
   /**
    * Represents the type of a `Redis` key

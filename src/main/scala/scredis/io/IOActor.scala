@@ -9,6 +9,8 @@ import akka.util.ByteString
 import akka.event.LoggingReceive
 
 import scredis.protocol.{ Protocol, Request }
+import scredis.protocol.requests.ConnectionRequests.Quit
+import scredis.protocol.requests.ServerRequests.Shutdown
 import scredis.exceptions.RedisIOException
 
 import scala.util.Failure
@@ -63,6 +65,7 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
   private var retries: Int = 0
   private var isConnecting: Boolean = false
   private var timeoutCancellableOpt: Option[Cancellable] = None
+  private var isClosing: Boolean = false
   
   private def incrementWriteId(): Unit = {
     if (writeId == Integer.MAX_VALUE) {
@@ -109,6 +112,7 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
   
   private def stop(): Unit = {
     logger.trace("Stopping Actor...")
+    partitionerActor ! PoisonPill
     context.stop(self)
   }
   
@@ -181,13 +185,29 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       isConnecting = false
       canWrite = true
       write()
-      //context.watch(connection)
-      context.become(connected)
+      // TODO: context.watch(connection)
+      if (isClosing) {
+        context.become(closing)
+      } else {
+        context.become(connected)
+      }
     }
     case CommandFailed(_: Connect) => {
       logger.error(s"Could not connect to $remote")
       failAllQueuedRequests(RedisIOException(s"Could not connect to $remote"))
       isConnecting = false
+    }
+    case request @ Quit() => {
+      request.success(())
+      partitionerActor ! Remove(1)
+      failAllQueuedRequests(RedisIOException(s"Connection has been closed with QUIT command"))
+      stop()
+    }
+    case request @ Shutdown(_) => {
+      request.success(())
+      partitionerActor ! Remove(1)
+      failAllQueuedRequests(RedisIOException(s"Connection has been closed by SHUTDOWN command"))
+      stop()
     }
     case request: Request[_] => {
       requests.addLast(request)
@@ -205,6 +225,22 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       if (canWrite) {
         write()
       }
+    }
+    case request @ Quit() => {
+      requests.addLast(request)
+      if (canWrite) {
+        write()
+      }
+      isClosing = true
+      context.become(closing)
+    }
+    case request @ Shutdown(_) => {
+      requests.addLast(request)
+      if (canWrite) {
+        write()
+      }
+      isClosing = true
+      context.become(closing)
     }
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
@@ -230,16 +266,11 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       if (retries >= 5) {
         failBatch(RedisIOException("Could not send requests"))
         retries = 0
-        canWrite = true
+        write()
       } else {
         scheduler.scheduleOnce(retries * 1 seconds, connection, cmd)
         retries += 1
       }
-    }
-    case Shutdown => {
-      logger.trace(s"Closing connection...")
-      connection ! Close
-      context.become(closing)
     }
     case _: ConnectionClosed => {
       logger.info(s"Connection has been closed by the server")
@@ -254,27 +285,40 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     case x => logger.error(s"Invalid message received from: $sender: $x")
   }
   
-  def aborting: Receive = LoggingReceive {
-    case Aborted => {
-      logger.info(s"ABORT: Connection has been closed by the server")
-      connect()
-      context.become(connecting)
-    }
-    case request: Request[_] => requests.addLast(request)
-    /*
-    case _: ConnectionClosed => {
-      logger.info(s"Connection has been closed by the server")
-      connect()
-      context.become(connecting)
-    }
-    case Terminated(connection) => {
-      logger.info(s"Connection has been shutdown")
-      connect()
-      context.become(connecting)
-    }*/
-  }
-  
   def closing: Receive = LoggingReceive {
+    case Received(data) => {
+      logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
+      //val ctx = tellTimer.time()
+      partitionerActor ! data
+      //ctx.stop()
+    }
+    case WriteAck => {
+      //waitTimerContext.stop()
+      retries = 0
+      batch = Nil
+      timeoutCancellableOpt.foreach(_.cancel())
+      write()
+    }
+    case WriteTimeout(writeId) => if (writeId == this.writeId) {
+      failBatch(RedisIOException("Timeout"))
+      connection ! Abort
+      context.become(aborting)
+    }
+    case CommandFailed(cmd @ Write(x, _)) => {
+      logger.error(s"Command failed: $cmd")
+      timeoutCancellableOpt.foreach(_.cancel())
+      if (retries >= 5) {
+        failBatch(RedisIOException("Could not send request"))
+        retries = 0
+        write()
+        if (canWrite) {
+          connection ! Close
+        }
+      } else {
+        scheduler.scheduleOnce(retries * 1 seconds, connection, cmd)
+        retries += 1
+      }
+    }
     case Closed => {
       logger.info(s"Connection has been closed")
       stop()
@@ -294,10 +338,34 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     }
   }
   
+  def aborting: Receive = LoggingReceive {
+    case Aborted => {
+      logger.info(s"ABORT: Connection has been closed by the server")
+      connect()
+      context.become(connecting)
+    }
+    case request: Request[_] => if (isClosing) {
+      request.failure(ClosingException)
+      partitionerActor ! Remove(1)
+    } else {
+      requests.addLast(request)
+    }
+    /*
+    case _: ConnectionClosed => {
+      logger.info(s"Connection has been closed by the server")
+      connect()
+      context.become(connecting)
+    }
+    case Terminated(connection) => {
+      logger.info(s"Connection has been shutdown")
+      connect()
+      context.become(connecting)
+    }*/
+  }
+  
 }
 
 object IOActor {
   object WriteAck extends Tcp.Event
   case class WriteTimeout(writeId: Int)
-  case object Shutdown
 }

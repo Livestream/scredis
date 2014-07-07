@@ -1,103 +1,108 @@
 package scredis.commands
 
-import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll }
-import org.scalatest.MustMatchers._
+import org.scalatest._
+import org.scalatest.concurrent._
 
-import scredis.{ Redis, Client }
-import scredis.exceptions.{ RedisCommandException, RedisConnectionException }
+import scredis._
+import scredis.protocol.requests.ConnectionRequests._
+import scredis.exceptions._
 import scredis.tags._
+import scredis.util.TestUtils._
 
-class ConnectionCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAll {
-  private val client = Client()
-  private val redis = Redis()
-  private val redisWithPassword = Redis("application.conf", "unauthenticated.scredis")
+class ConnectionCommandsSpec extends WordSpec
+  with GivenWhenThen
+  with BeforeAndAfterAll
+  with Matchers
+  with ScalaFutures {
+  
+  private val redis = Client()
+  private val redisToQuit = Client()
+  private val redisWithPassword = Client("application.conf", "unauthenticated.scredis")
   private val CorrectPassword = "foobar"
-    
-  import Names._
-  import scredis.util.TestUtils._
-
-  Auth when {
+  
+  Auth.name when {
     "the server has no password" should {
       "return an error" taggedAs (V100) in {
-        an [RedisCommandException] must be thrownBy { redis.auth("foo").! }
+        a [RedisErrorResponseException] should be thrownBy {
+          redis.auth("foo").futureValue
+        }
       }
     }
     "the password is invalid" should {
       "return an error" taggedAs (V100) in {
-        an [RedisCommandException] must be thrownBy { redisWithPassword.auth("foo").! }
+        a [RedisErrorResponseException] should be thrownBy {
+          redisWithPassword.auth("foo").futureValue
+        }
       }
     }
     "the password is correct" should {
       "authenticate to the server" taggedAs (V100) in {
-        redisWithPassword.auth(CorrectPassword).!
-        redisWithPassword.ping() must be("PONG")
+        redisWithPassword.auth(CorrectPassword).futureValue should be (())
+        redisWithPassword.ping().futureValue should be("PONG")
       }
     }
     "re-authenticating with a wrong password" should {
       "return an error and unauthenticate the redis" taggedAs (V100) in {
-        an [RedisCommandException] must be thrownBy { redisWithPassword.auth("foo").! }
-        redisWithPassword.ping() must be("PONG")
+        a [RedisErrorResponseException] should be thrownBy {
+          redisWithPassword.auth("foo").futureValue
+        }
+        redisWithPassword.ping().futureValue should be("PONG")
       }
     }
     "re-authenticating with a correct password" should {
       "authenticate back to the server" taggedAs (V100) in {
-        redisWithPassword.auth(CorrectPassword).!
-        redisWithPassword.ping() must be("PONG")
+        redisWithPassword.auth(CorrectPassword).futureValue should be (())
+        redisWithPassword.ping().futureValue should be("PONG")
       }
     }
   }
 
-  Echo should {
+  Echo.name should {
     "echo back the message" taggedAs (V100) in {
-      redis.echo("Hello World -> 虫àéç蟲") must be("Hello World -> 虫àéç蟲")
+      redis.echo("Hello World -> 虫àéç蟲").futureValue should be("Hello World -> 虫àéç蟲")
     }
   }
 
-  Ping should {
+  Ping.name should {
     "receive PONG" taggedAs (V100) in {
-      redis.ping() must be("PONG")
+      redis.ping().futureValue should be("PONG")
     }
   }
 
-  Quit when {
+  Quit.name when {
     "quiting" should {
       "close the connection" taggedAs (V100) in {
-        client.quit()
-        client.isConnected must be(false)
-      }
-    }
-    "issuing a command on a disconnected redis" should {
-      "reconnect and succeed" taggedAs (V100) in {
-        client.ping() must be("PONG")
-        client.isConnected must be(true)
+        redisToQuit.quit().futureValue should be (())
+        a [RedisIOException] should be thrownBy {
+          redisToQuit.ping().futureValue
+        }
       }
     }
   }
 
-  Select when {
+  Select.name when {
     "database index is negative" should {
       "return an error" taggedAs (V100) in {
-        an [RedisCommandException] must be thrownBy { redis.select(-1).! }
+        a [RedisErrorResponseException] should be thrownBy { redis.select(-1).futureValue }
       }
     }
     "database index is too large" should {
       "return an error" taggedAs (V100) in {
-        an [RedisCommandException] must be thrownBy { 
-          redis.select(Integer.MAX_VALUE).!
+        a [RedisErrorResponseException] should be thrownBy { 
+          redis.select(Integer.MAX_VALUE).futureValue
         }
       }
     }
     "database index is valid" should {
       "succeed" taggedAs (V100) in {
-        redis.select(1).! must be(())
+        redis.select(1).futureValue should be(())
       }
     }
   }
 
   override def afterAll() {
-    client.quit()
-    redis.quit()
-    redisWithPassword.quit()
+    redis.quit().futureValue
+    redisWithPassword.quit().futureValue
   }
-
+  
 }

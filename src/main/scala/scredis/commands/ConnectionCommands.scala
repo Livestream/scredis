@@ -52,9 +52,7 @@ trait ConnectionCommands { self: AbstractClient =>
    *
    * @since 1.0.0
    */
-  def quit(): Future[Unit] = send(Quit()).map {
-    _ => // TODO: shutdown IO
-  }
+  def quit(): Future[Unit] = send(Quit())
 
   /**
    * Changes the selected database on the current connection.

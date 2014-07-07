@@ -43,6 +43,11 @@ abstract class Request[A](command: Command, args: Any*) {
     Protocol.release()
   }
   
+  private[scredis] def success(value: A): Unit = {
+    promise.success(value)
+    Protocol.release()
+  }
+  
   private[scredis] def failure(throwable: Throwable): Unit = {
     promise.failure(throwable)
     Protocol.release()
