@@ -76,8 +76,8 @@ package object scredis {
    * Contains all available positions, i.e. BEFORE and AFTER
    */
   object Position {
-    case object Before extends BitOp("BEFORE")
-    case object After extends BitOp("AFTER")
+    case object Before extends Position("BEFORE")
+    case object After extends Position("AFTER")
   }
   
   /**
