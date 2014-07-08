@@ -307,7 +307,9 @@ class ListCommandsSpec extends WordSpec
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { client.lPush("HASH", "A").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.lPush("HASH", "A").futureValue
+        }
       }
     }
     "the list contains some elements" should {

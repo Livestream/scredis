@@ -31,7 +31,7 @@ trait ScriptingCommands { self: AbstractClient =>
    * @since 2.6.0
    */
   def eval[R: Decoder, W1: Writer, W2: Writer](
-    script: String, keys: Seq[W1], args: Seq[W2]
+    script: String, keys: Seq[W1] = Nil, args: Seq[W2] = Nil
   ): Future[R] = send(Eval(script, keys, args))
 
   /**
@@ -47,7 +47,7 @@ trait ScriptingCommands { self: AbstractClient =>
    * @since 2.6.0
    */
   def evalSHA[R: Decoder, W1: Writer, W2: Writer](
-    sha1: String, keys: Seq[W1], args: Seq[W2]
+    sha1: String, keys: Seq[W1] = Nil, args: Seq[W2] = Nil
   ): Future[R] = send(EvalSHA(sha1, keys, args))
   
   /**

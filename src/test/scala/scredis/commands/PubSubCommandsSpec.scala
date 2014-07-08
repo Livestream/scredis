@@ -1,17 +1,22 @@
 package scredis.commands
 
-import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll }
-import org.scalatest.matchers.MustMatchers._
+import org.scalatest._
+import org.scalatest.concurrent._
 
-import scredis.{ Redis, Client }
-import scredis.pubsub._
-import scredis.exceptions.RedisCommandException
+import scredis._
+import scredis.protocol.requests.PubSubRequests._
+import scredis.exceptions._
 import scredis.tags._
+import scredis.util.TestUtils._
 
-import scala.collection.mutable.ListBuffer
-import java.util.concurrent.{ CountDownLatch, TimeUnit }
-
-class PubSubCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAll {
+import scala.concurrent.duration._
+/*
+class PubSubCommandsSpec extends WordSpec
+  with GivenWhenThen
+  with BeforeAndAfterAll
+  with Matchers
+  with ScalaFutures {
+  
   private val redis = Redis()
   private val client = Client()
   private val client2 = Client()
@@ -257,4 +262,4 @@ class PubSubCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfter
     client4.quit()
   }
 
-}
+}*/
