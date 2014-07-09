@@ -176,7 +176,7 @@ trait SetCommands { self: AbstractClient =>
    * @return set of random members, or the empty set if key does not exist
    * @throws $e if key contains a value that is not a set
    *
-   * @since 1.0.0
+   * @since 2.6.0
    */
   def sRandMembers[R: Reader](key: String, count: Int = 1): Future[Set[R]] = send(
     SRandMembers[R, Set](key, count)

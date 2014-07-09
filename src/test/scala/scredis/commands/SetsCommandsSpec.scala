@@ -1,72 +1,78 @@
 package scredis.commands
 
-import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll }
-import org.scalatest.MustMatchers._
+import org.scalatest._
+import org.scalatest.concurrent._
 
-import scredis.Redis
-import scredis.exceptions.RedisErrorResponseException
+import scredis._
+import scredis.protocol.requests.SetRequests._
+import scredis.exceptions._
 import scredis.tags._
+import scredis.util.TestUtils._
 
-import scala.collection.mutable.{ Set => MutableSet }
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration._
 
-import java.util.concurrent.Executors
-
-class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAll {
-  private val redis = Redis()
+class SetCommandsSpec extends WordSpec
+  with GivenWhenThen
+  with BeforeAndAfterAll
+  with Matchers
+  with ScalaFutures {
+  
+  private val client = Client()
   private val SomeValue = "HelloWorld!虫àéç蟲"
 
   override def beforeAll(): Unit = {
-    redis.hSet("HASH")("FIELD", SomeValue)
+    client.hSet("HASH", "FIELD", SomeValue).!
   }
-
-  import Names._
-  import scredis.util.TestUtils._
-  import redis.ec
 
   SAdd.name when {
     "the key does not exist" should {
       "create a set and add the member to it" taggedAs (V100) in {
-        redis.sAdd("SET", SomeValue).futureValue should be (1)
-        redis.sMembers("SET").futureValue should contain(SomeValue)
+        client.sAdd("SET", SomeValue).futureValue should be (1)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(SomeValue)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sAdd("HASH", "hello").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sAdd("HASH", "hello").futureValue
+        }
       }
     }
     "the set contains some elements" should {
       "add the provided member only if it is not already contained in the set" taggedAs (V100) in {
-        redis.sAdd("SET", SomeValue).futureValue should be (0)
-        redis.sMembers("SET").futureValue should contain(SomeValue)
-        redis.sAdd("SET", "A").futureValue should be (1)
-        redis.sMembers("SET").futureValue should (contain(SomeValue) and contain("A"))
-        redis.del("SET")
+        client.sAdd("SET", SomeValue).futureValue should be (0)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(SomeValue)
+        client.sAdd("SET", "A").futureValue should be (1)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(SomeValue, "A")
+        client.del("SET")
       }
     }
   }
 
-  "%s-2.4".format(SAdd).name when {
+  s"${SAdd.name}-2.4" when {
     "the key does not exist" should {
-      "create a set and add the members to it" taggedAs (V100) in {
-        redis.sAdd("SET", SomeValue, "A").futureValue should be (2)
-        redis.sMembers("SET").futureValue should (contain(SomeValue) and contain("A"))
+      "create a set and add the members to it" taggedAs (V240) in {
+        client.sAdd("SET", SomeValue, "A").futureValue should be (2)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(SomeValue, "A")
       }
     }
     "the key does not contain a set" should {
-      "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sAdd("HASH", "hello", "asd").futureValue }
+      "return an error" taggedAs (V240) in {
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sAdd("HASH", "hello", "asd").futureValue
+        }
       }
     }
     "the set contains some elements" should {
-      "add the provided members only if it is not already contained in the set" taggedAs (V100) in {
-        redis.sAdd("SET", SomeValue, "A").futureValue should be (0)
-        redis.sMembers("SET").futureValue should (contain(SomeValue) and contain("A"))
-        redis.sAdd("SET", "B", "C").futureValue should be (2)
-        redis.sMembers("SET").futureValue should (
-          contain(SomeValue) and contain("A") and contain("B") and contain("C")
+      "add the provided members only if it is not already contained in the set" taggedAs (V240) in {
+        client.sAdd("SET", SomeValue, "A").futureValue should be (0)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(SomeValue, "A")
+        client.sAdd("SET", "B", "C").futureValue should be (2)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          SomeValue, "A", "B", "C"
         )
-        redis.del("SET")
+        client.del("SET")
       }
     }
   }
@@ -74,21 +80,23 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SCard.name when {
     "the key does not exist" should {
       "return 0" taggedAs (V100) in {
-        redis.sCard("SET").futureValue should be (0)
+        client.sCard("SET").futureValue should be (0)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sCard("HASH").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sCard("HASH").futureValue
+        }
       }
     }
     "the set contains some elements" should {
       "return the number of element in the set" taggedAs (V100) in {
-        redis.sAdd("SET", "1")
-        redis.sAdd("SET", "2")
-        redis.sAdd("SET", "3")
-        redis.sCard("SET").futureValue should be (3)
-        redis.del("SET")
+        client.sAdd("SET", "1")
+        client.sAdd("SET", "2")
+        client.sAdd("SET", "3")
+        client.sCard("SET").futureValue should be (3)
+        client.del("SET")
       }
     }
   }
@@ -96,39 +104,51 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SDiff.name when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
-        redis.sDiff("SET1", "SET2", "SET3").futureValue should be (empty)
+        client.sDiff("SET1", "SET2", "SET3").futureValue should be (empty)
       }
     }
     "some keys do not exist" should {
       "assume empty sets and return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "A")
-        redis.sDiff("SET1", "SET2", "SET3").futureValue should contain("A")
+        client.sAdd("SET1", "A")
+        client.sDiff("SET1", "SET2", "SET3").futureValue should contain theSameElementsAs List("A")
       }
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sDiff("HASH", "SET1", "SET2").futureValue }
-        a [RedisErrorResponseException] should be thrownBy { redis.sDiff("SET1", "HASH", "SET2").futureValue }
-        a [RedisErrorResponseException] should be thrownBy { redis.sDiff("SET1", "SET2", "HASH").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sDiff("HASH", "SET1", "SET2").futureValue
+        }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sDiff("SET1", "HASH", "SET2").futureValue
+        }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sDiff("SET1", "SET2", "HASH").futureValue
+        }
       }
     }
     "the sets contain some elements" should {
       "return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "B")
-        redis.sAdd("SET1", "C")
-        redis.sAdd("SET1", "D")
+        client.sAdd("SET1", "B")
+        client.sAdd("SET1", "C")
+        client.sAdd("SET1", "D")
 
-        redis.sAdd("SET2", "C")
+        client.sAdd("SET2", "C")
 
-        redis.sAdd("SET3", "A")
-        redis.sAdd("SET3", "C")
-        redis.sAdd("SET3", "E")
+        client.sAdd("SET3", "A")
+        client.sAdd("SET3", "C")
+        client.sAdd("SET3", "E")
 
-        redis.sDiff("SET1", "SET1").futureValue should be (empty)
-        redis.sDiff("SET1", "SET2").futureValue should (contain("A") and contain("B") and contain("D"))
-        redis.sDiff("SET1", "SET3").futureValue should (contain("B") and contain("D"))
-        redis.sDiff("SET1", "SET2", "SET3").futureValue should (contain("B") and contain("D"))
-        redis.del("SET1", "SET2", "SET3")
+        client.sDiff("SET1", "SET1").futureValue should be (empty)
+        client.sDiff("SET1", "SET2").futureValue should contain theSameElementsAs List(
+          "A", "B", "D"
+        )
+        client.sDiff("SET1", "SET3").futureValue should contain theSameElementsAs List(
+          "B", "D"
+        )
+        client.sDiff("SET1", "SET2", "SET3").futureValue should contain theSameElementsAs List(
+          "B", "D"
+        )
+        client.del("SET1", "SET2", "SET3")
       }
     }
   }
@@ -136,54 +156,60 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SDiffStore.name when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
-        redis.sDiffStore("SET")("SET1", "SET2", "SET3").futureValue should be (0)
-        redis.sCard("SET").futureValue should be (0)
+        client.sDiffStore("SET", "SET1", "SET2", "SET3").futureValue should be (0)
+        client.sCard("SET").futureValue should be (0)
       }
     }
     "some keys do not exist" should {
       "assume empty sets and return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "A")
-        redis.sDiffStore("SET")("SET1", "SET2", "SET3").futureValue should be (1)
-        redis.sMembers("SET").futureValue should contain("A")
+        client.sAdd("SET1", "A")
+        client.sDiffStore("SET", "SET1", "SET2", "SET3").futureValue should be (1)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List("A")
       }
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          redis.sDiffStore("SET")("HASH", "SET2", "SET3").futureValue
+          client.sDiffStore("SET", "HASH", "SET2", "SET3").futureValue
         }
         a [RedisErrorResponseException] should be thrownBy { 
-          redis.sDiffStore("SET")("SET1", "HASH", "SET3").futureValue
+          client.sDiffStore("SET", "SET1", "HASH", "SET3").futureValue
         }
         a [RedisErrorResponseException] should be thrownBy { 
-          redis.sDiffStore("SET")("SET1", "SET2", "HASH").futureValue
+          client.sDiffStore("SET", "SET1", "SET2", "HASH").futureValue
         }
       }
     }
     "the sets contain some elements" should {
       "store resulting set at destKey" taggedAs (V100) in {
-        redis.sAdd("SET1", "B")
-        redis.sAdd("SET1", "C")
-        redis.sAdd("SET1", "D")
+        client.sAdd("SET1", "B")
+        client.sAdd("SET1", "C")
+        client.sAdd("SET1", "D")
 
-        redis.sAdd("SET2", "C")
+        client.sAdd("SET2", "C")
 
-        redis.sAdd("SET3", "A")
-        redis.sAdd("SET3", "C")
-        redis.sAdd("SET3", "E")
+        client.sAdd("SET3", "A")
+        client.sAdd("SET3", "C")
+        client.sAdd("SET3", "E")
 
-        redis.sDiffStore("SET")("SET1", "SET1").futureValue should be (0)
-        redis.sMembers("SET").futureValue should be (empty)
+        client.sDiffStore("SET", "SET1", "SET1").futureValue should be (0)
+        client.sMembers("SET").futureValue should be (empty)
 
-        redis.sDiffStore("SET")("SET1", "SET2").futureValue should be (3)
-        redis.sMembers("SET").futureValue should (contain("A") and contain("B") and contain("D"))
+        client.sDiffStore("SET", "SET1", "SET2").futureValue should be (3)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "A", "B", "D"
+        )
 
-        redis.sDiffStore("SET")("SET1", "SET3").futureValue should be (2)
-        redis.sMembers("SET").futureValue should (contain("B") and contain("D"))
+        client.sDiffStore("SET", "SET1", "SET3").futureValue should be (2)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "B", "D"
+        )
 
-        redis.sDiffStore("SET")("SET1", "SET2", "SET3").futureValue should be (2)
-        redis.sMembers("SET").futureValue should (contain("B") and contain("D"))
-        redis.del("SET", "SET1", "SET2", "SET3")
+        client.sDiffStore("SET", "SET1", "SET2", "SET3").futureValue should be (2)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "B", "D"
+        )
+        client.del("SET", "SET1", "SET2", "SET3")
       }
     }
   }
@@ -191,42 +217,55 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SInter.name when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
-        redis.sInter("SET1", "SET2", "SET3").futureValue should be (empty)
+        client.sInter("SET1", "SET2", "SET3").futureValue should be (empty)
       }
     }
     "some keys do not exist" should {
       "assume empty sets and return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "A")
-        redis.sInter("SET1", "SET2", "SET3").futureValue should be (empty)
+        client.sAdd("SET1", "A")
+        client.sInter("SET1", "SET2", "SET3").futureValue should be (empty)
       }
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sInter("HASH", "SET1", "SET2").futureValue }
-        a [RedisErrorResponseException] should be thrownBy { redis.sInter("SET1", "HASH", "SET2").futureValue }
-        redis.sAdd("SET2", "A")
-        a [RedisErrorResponseException] should be thrownBy { redis.sInter("SET1", "SET2", "HASH").futureValue }
-        redis.del("SET2")
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sInter("HASH", "SET1", "SET2").futureValue
+        }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sInter("SET1", "HASH", "SET2").futureValue
+        }
+        client.sAdd("SET2", "A")
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sInter("SET1", "SET2", "HASH").futureValue
+        }
+        client.del("SET2")
       }
     }
     "the sets contain some elements" should {
       "return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "B")
-        redis.sAdd("SET1", "C")
-        redis.sAdd("SET1", "D")
+        client.sAdd("SET1", "B")
+        client.sAdd("SET1", "C")
+        client.sAdd("SET1", "D")
 
-        redis.sAdd("SET2", "C")
+        client.sAdd("SET2", "C")
 
-        redis.sAdd("SET3", "A")
-        redis.sAdd("SET3", "C")
-        redis.sAdd("SET3", "E")
+        client.sAdd("SET3", "A")
+        client.sAdd("SET3", "C")
+        client.sAdd("SET3", "E")
 
-        redis.sInter("SET1", "SET1").futureValue should (contain("A") and contain("B") and contain("C") and
-          contain("D"))
-        redis.sInter("SET1", "SET2").futureValue should contain("C")
-        redis.sInter("SET1", "SET3").futureValue should (contain("A") and contain("C"))
-        redis.sInter("SET1", "SET2", "SET3").futureValue should contain("C")
-        redis.del("SET1", "SET2", "SET3")
+        client.sInter("SET1", "SET1").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D"
+        )
+        client.sInter("SET1", "SET2").futureValue should contain theSameElementsAs List(
+          "C"
+        )
+        client.sInter("SET1", "SET3").futureValue should contain theSameElementsAs List(
+          "A", "C"
+        )
+        client.sInter("SET1", "SET2", "SET3").futureValue should contain theSameElementsAs List(
+          "C"
+        )
+        client.del("SET1", "SET2", "SET3")
       }
     }
   }
@@ -234,164 +273,64 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SInterStore.name when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
-        redis.sInterStore("SET")("SET1", "SET2", "SET3").futureValue should be (0)
-        redis.sCard("SET").futureValue should be (0)
+        client.sInterStore("SET", "SET1", "SET2", "SET3").futureValue should be (0)
+        client.sCard("SET").futureValue should be (0)
       }
     }
     "some keys do not exist" should {
       "assume empty sets and return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "A")
-        redis.sInterStore("SET")("SET1", "SET2", "SET3").futureValue should be (0)
-        redis.sMembers("SET").futureValue should be (empty)
+        client.sAdd("SET1", "A")
+        client.sInterStore("SET", "SET1", "SET2", "SET3").futureValue should be (0)
+        client.sMembers("SET").futureValue should be (empty)
       }
     }
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          redis.sInterStore("SET")("HASH", "SET2", "SET3").futureValue
+          client.sInterStore("SET", "HASH", "SET2", "SET3").futureValue
         }
         a [RedisErrorResponseException] should be thrownBy { 
-          redis.sInterStore("SET")("SET1", "HASH", "SET3").futureValue
+          client.sInterStore("SET", "SET1", "HASH", "SET3").futureValue
         }
-        redis.sAdd("SET2", "A")
+        client.sAdd("SET2", "A")
         a [RedisErrorResponseException] should be thrownBy { 
-          redis.sInterStore("SET")("SET1", "SET2", "HASH").futureValue
+          client.sInterStore("SET", "SET1", "SET2", "HASH").futureValue
         }
-        redis.del("SET2")
+        client.del("SET2")
       }
     }
     "the sets contain some elements" should {
       "store resulting set at destKey" taggedAs (V100) in {
-        redis.sAdd("SET1", "B")
-        redis.sAdd("SET1", "C")
-        redis.sAdd("SET1", "D")
+        client.sAdd("SET1", "B")
+        client.sAdd("SET1", "C")
+        client.sAdd("SET1", "D")
 
-        redis.sAdd("SET2", "C")
+        client.sAdd("SET2", "C")
 
-        redis.sAdd("SET3", "A")
-        redis.sAdd("SET3", "C")
-        redis.sAdd("SET3", "E")
+        client.sAdd("SET3", "A")
+        client.sAdd("SET3", "C")
+        client.sAdd("SET3", "E")
 
-        redis.sInterStore("SET")("SET1", "SET1").futureValue should be (4)
-        redis.sMembers("SET").futureValue should (contain("A") and contain("B") and contain("C") and
-          contain("D"))
-
-        redis.sInterStore("SET")("SET1", "SET2").futureValue should be (1)
-        redis.sMembers("SET").futureValue should contain("C")
-
-        redis.sInterStore("SET")("SET1", "SET3").futureValue should be (2)
-        redis.sMembers("SET").futureValue should (contain("A") and contain("C"))
-
-        redis.sInterStore("SET")("SET1", "SET2", "SET3").futureValue should be (1)
-        redis.sMembers("SET").futureValue should contain("C")
-        redis.del("SET", "SET1", "SET2", "SET3")
-      }
-    }
-  }
-
-  SUnion.name when {
-    "all keys do not exist" should {
-      "return None" taggedAs (V100) in {
-        redis.sUnion("SET1", "SET2", "SET3").futureValue should be (empty)
-      }
-    }
-    "some keys do not exist" should {
-      "assume empty sets and return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "A")
-        redis.sUnion("SET1", "SET2", "SET3").futureValue should contain("A")
-      }
-    }
-    "at least one key does not contain a set" should {
-      "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sUnion("HASH", "SET1", "SET2").futureValue }
-        a [RedisErrorResponseException] should be thrownBy { redis.sUnion("SET1", "HASH", "SET2").futureValue }
-        a [RedisErrorResponseException] should be thrownBy { redis.sUnion("SET1", "SET2", "HASH").futureValue }
-      }
-    }
-    "the sets contain some elements" should {
-      "return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "B")
-        redis.sAdd("SET1", "C")
-        redis.sAdd("SET1", "D")
-
-        redis.sAdd("SET2", "C")
-
-        redis.sAdd("SET3", "A")
-        redis.sAdd("SET3", "C")
-        redis.sAdd("SET3", "E")
-
-        redis.sUnion("SET1", "SET1").futureValue should (contain("A") and contain("B") and contain("C") and
-          contain("D"))
-        redis.sUnion("SET1", "SET2").futureValue should (contain("A") and contain("B") and contain("C") and
-          contain("D"))
-        redis.sUnion("SET1", "SET3").futureValue should (contain("A") and contain("B") and contain("C") and
-          contain("D") and contain("E"))
-        redis.sUnion("SET1", "SET2", "SET3").futureValue should (contain("A") and contain("B") and
-          contain("C") and contain("D") and contain("E"))
-        redis.del("SET1", "SET2", "SET3")
-      }
-    }
-  }
-
-  SUnionStore.name when {
-    "all keys do not exist" should {
-      "return None" taggedAs (V100) in {
-        redis.sUnionStore("SET")("SET1", "SET2", "SET3").futureValue should be (0)
-        redis.sCard("SET").futureValue should be (0)
-      }
-    }
-    "some keys do not exist" should {
-      "assume empty sets and return the resulting set" taggedAs (V100) in {
-        redis.sAdd("SET1", "A")
-        redis.sUnionStore("SET")("SET1", "SET2", "SET3").futureValue should be (1)
-        redis.sMembers("SET").futureValue should contain("A")
-      }
-    }
-    "at least one key does not contain a set" should {
-      "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { 
-          redis.sUnionStore("SET")("HASH", "SET2", "SET3").futureValue
-        }
-        a [RedisErrorResponseException] should be thrownBy { 
-          redis.sUnionStore("SET")("SET1", "HASH", "SET3").futureValue
-        }
-        a [RedisErrorResponseException] should be thrownBy { 
-          redis.sUnionStore("SET")("SET1", "SET2", "HASH").futureValue
-        }
-      }
-    }
-    "the sets contain some elements" should {
-      "store resulting set at destKey" taggedAs (V100) in {
-        redis.sAdd("SET1", "B")
-        redis.sAdd("SET1", "C")
-        redis.sAdd("SET1", "D")
-
-        redis.sAdd("SET2", "C")
-
-        redis.sAdd("SET3", "A")
-        redis.sAdd("SET3", "C")
-        redis.sAdd("SET3", "E")
-
-        redis.sUnionStore("SET")("SET1", "SET1").futureValue should be (4)
-        redis.sMembers("SET").futureValue should (
-          contain("A") and contain("B") and contain("C") and contain("D")
+        client.sInterStore("SET", "SET1", "SET1").futureValue should be (4)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D"
         )
 
-        redis.sUnionStore("SET")("SET1", "SET2").futureValue should be (4)
-        redis.sMembers("SET").futureValue should (
-          contain("A") and contain("B") and contain("C") and contain("D")
+        client.sInterStore("SET", "SET1", "SET2").futureValue should be (1)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "C"
         )
 
-        redis.sUnionStore("SET")("SET1", "SET3").futureValue should be (5)
-        redis.sMembers("SET").futureValue should (
-          contain("A") and contain("B") and contain("C") and contain("D") and contain("E")
+        client.sInterStore("SET", "SET1", "SET3").futureValue should be (2)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "A", "C"
         )
 
-        redis.sUnionStore("SET")("SET1", "SET2", "SET3").futureValue should be (5)
-        redis.sMembers("SET").futureValue should (
-          contain("A") and contain("B") and contain("C") and contain("D") and contain("E")
+        client.sInterStore("SET", "SET1", "SET2", "SET3").futureValue should be (1)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "C"
         )
-        redis.del("SET", "SET1", "SET2", "SET3")
+        client.del("SET", "SET1", "SET2", "SET3")
       }
     }
   }
@@ -399,24 +338,26 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SIsMember.name when {
     "the key does not exist" should {
       "return false" taggedAs (V100) in {
-        redis.sIsMember("SET", "A").futureValue should be (false)
+        client.sIsMember("SET", "A").futureValue should be (false)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sIsMember("HASH", "A").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sIsMember("HASH", "A").futureValue
+        }
       }
     }
     "the set contains some elements" should {
       "return the correct value" taggedAs (V100) in {
-        redis.sAdd("SET", "1")
-        redis.sAdd("SET", "2")
-        redis.sAdd("SET", "3")
-        redis.sIsMember("SET", "A").futureValue should be (false)
-        redis.sIsMember("SET", "1").futureValue should be (true)
-        redis.sIsMember("SET", "2").futureValue should be (true)
-        redis.sIsMember("SET", "3").futureValue should be (true)
-        redis.del("SET")
+        client.sAdd("SET", "1")
+        client.sAdd("SET", "2")
+        client.sAdd("SET", "3")
+        client.sIsMember("SET", "A").futureValue should be (false)
+        client.sIsMember("SET", "1").futureValue should be (true)
+        client.sIsMember("SET", "2").futureValue should be (true)
+        client.sIsMember("SET", "3").futureValue should be (true)
+        client.del("SET")
       }
     }
   }
@@ -424,21 +365,23 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SMembers.name when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
-        redis.sMembers("SET").futureValue should be (empty)
+        client.sMembers("SET").futureValue should be (empty)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sMembers("HASH").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sMembers("HASH").futureValue
+        }
       }
     }
     "the set contains some elements" should {
       "return the correct value" taggedAs (V100) in {
-        redis.sAdd("SET", "1")
-        redis.sAdd("SET", "2")
-        redis.sAdd("SET", "3")
-        redis.sMembers("SET").futureValue should (contain("1") and contain("2") and contain("3"))
-        redis.del("SET")
+        client.sAdd("SET", "1")
+        client.sAdd("SET", "2")
+        client.sAdd("SET", "3")
+        client.sMembers("SET").futureValue should contain theSameElementsAs List("1", "2", "3")
+        client.del("SET")
       }
     }
   }
@@ -446,28 +389,32 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SMove.name when {
     "the key does not exist" should {
       "return false" taggedAs (V100) in {
-        redis.sMove("SET1", "A")("SET2").futureValue should be (false)
-        redis.sIsMember("SET2", "A").futureValue should be (false)
+        client.sMove("SET1", "SET2", "A").futureValue should be (false)
+        client.sIsMember("SET2", "A").futureValue should be (false)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sMove("HASH", "A")("SET").futureValue }
-        redis.sAdd("SET", "A")
-        a [RedisErrorResponseException] should be thrownBy { redis.sMove("SET", "A")("HASH").futureValue }
-        redis.del("SET")
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sMove("HASH", "SET", "A").futureValue
+        }
+        client.sAdd("SET", "A")
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sMove("SET", "HASH", "A").futureValue
+        }
+        client.del("SET")
       }
     }
     "the set contains some elements" should {
       "move the member from one set to another" taggedAs (V100) in {
-        redis.sAdd("SET1", "A")
-        redis.sAdd("SET1", "B")
-        redis.sAdd("SET1", "C")
+        client.sAdd("SET1", "A")
+        client.sAdd("SET1", "B")
+        client.sAdd("SET1", "C")
 
-        redis.sMove("SET1", "B")("SET2").futureValue should be (true)
-        redis.sMembers("SET1").futureValue should (contain("A") and contain("C") and not contain ("B"))
-        redis.sIsMember("SET2", "B").futureValue should be (true)
-        redis.del("SET1", "SET2")
+        client.sMove("SET1", "SET2", "B").futureValue should be (true)
+        client.sMembers("SET1").futureValue should contain theSameElementsAs List("A", "C")
+        client.sIsMember("SET2", "B").futureValue should be (true)
+        client.del("SET1", "SET2")
       }
     }
   }
@@ -475,33 +422,38 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SPop.name when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
-        redis.sPop("SET").futureValue should be (empty)
+        client.sPop("SET").futureValue should be (empty)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sPop("HASH").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sPop("HASH").futureValue
+        }
       }
     }
     "the set contains some elements" should {
       "return a random member and remove it" taggedAs (V100) in {
-        redis.sAdd("SET", "A")
-        redis.sAdd("SET", "B")
-        redis.sAdd("SET", "C")
+        client.sAdd("SET", "A")
+        client.sAdd("SET", "B")
+        client.sAdd("SET", "C")
 
-        val member1 = redis.sPop("SET").futureValue.get
-        member1 should (be ("A") or be ("B") or be ("C"))
-        redis.sIsMember("SET", member1).futureValue should be (false)
+        val member1 = client.sPop("SET").!.get
+        member1 shouldBe oneOf ("A", "B", "C")
+        client.sIsMember("SET", member1).futureValue should be (false)
 
-        val member2 = redis.sPop("SET").futureValue.get
-        member2 should ((not be (member1)) and (be ("A") or be ("B") or be ("C")))
-        redis.sIsMember("SET", member2).futureValue should be (false)
+        val member2 = client.sPop("SET").!.get
+        member2 shouldBe oneOf ("A", "B", "C")
+        member2 should not be (member1)
+        client.sIsMember("SET", member2).futureValue should be (false)
 
-        val member3 = redis.sPop("SET").futureValue.get
-        member3 should ((not be (member1) and not be (member2)) and (be ("A") or be ("B") or be ("C")))
-        redis.sIsMember("SET", member3).futureValue should be (false)
+        val member3 = client.sPop("SET").!.get
+        member3 shouldBe oneOf ("A", "B", "C")
+        member3 should not be (member1)
+        member3 should not be (member2)
+        client.sIsMember("SET", member3).futureValue should be (false)
 
-        redis.sPop("SET").futureValue should be (empty)
+        client.sPop("SET").futureValue should be (empty)
       }
     }
   }
@@ -509,26 +461,54 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SRandMember.name when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
-        redis.sRandMember("SET").futureValue should be (empty)
+        client.sRandMember("SET").futureValue should be (empty)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sRandMember("HASH").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sRandMember("HASH").futureValue
+        }
       }
     }
     "the set contains some elements" should {
-      "return a random member and remove it" taggedAs (V100) in {
-        redis.sAdd("SET", "A")
-        redis.sAdd("SET", "B")
-        redis.sAdd("SET", "C")
+      "return a random member but do not remove it" taggedAs (V100) in {
+        client.sAdd("SET", "A")
+        client.sAdd("SET", "B")
+        client.sAdd("SET", "C")
 
-        val member = redis.sRandMember("SET").futureValue.get
-        member should (be ("A") or be ("B") or be ("C"))
-        redis.sIsMember("SET", member).futureValue should be (true)
-        redis.sCard("SET").futureValue should be (3)
+        client.sRandMember("SET").futureValue should contain oneOf ("A", "B", "C")
+        client.sCard("SET").futureValue should be (3)
+        client.del("SET")
+      }
+    }
+  }
+  
+  s"${SRandMember.name}-2.6" when {
+    "the key does not exist" should {
+      "return None" taggedAs (V260) in {
+        client.sRandMembers("SET", 3).futureValue should be (empty)
+      }
+    }
+    "the key does not contain a set" should {
+      "return an error" taggedAs (V260) in {
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sRandMembers("HASH", 3).futureValue
+        }
+      }
+    }
+    "the set contains some elements" should {
+      "return count random members and do not remove them" taggedAs (V260) in {
+        client.sAdd("SET", "A")
+        client.sAdd("SET", "B")
+        client.sAdd("SET", "C")
+        client.sAdd("SET", "D")
 
-        redis.del("SET")
+        val members = client.sRandMembers("SET", 3).!
+        members should have size (3)
+        members should contain atMostOneOf ("A", "B", "C", "D")
+        client.sCard("SET").futureValue should be (4)
+        client.del("SET")
       }
     }
   }
@@ -536,59 +516,63 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SRem.name when {
     "the key does not exist" should {
       "return 0" taggedAs (V100) in {
-        redis.sRem("SET", "A").futureValue should be (0)
+        client.sRem("SET", "A").futureValue should be (0)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sRem("HASH", "A").futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sRem("HASH", "A").futureValue
+        }
       }
     }
     "the set contains some elements" should {
       "remove the member and return 1" taggedAs (V100) in {
-        redis.sAdd("SET", "A")
-        redis.sAdd("SET", "B")
-        redis.sAdd("SET", "C")
+        client.sAdd("SET", "A")
+        client.sAdd("SET", "B")
+        client.sAdd("SET", "C")
 
-        redis.sRem("SET", "B").futureValue should be (1)
-        redis.sMembers("SET").futureValue should (contain("A") and contain("C") and not contain ("B"))
+        client.sRem("SET", "B").futureValue should be (1)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List("A", "C")
 
-        redis.sRem("SET", "B").futureValue should be (0)
-        redis.sMembers("SET").futureValue should (contain("A") and contain("C") and not contain ("B"))
+        client.sRem("SET", "B").futureValue should be (0)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List("A", "C")
 
-        redis.sRem("SET", "A").futureValue should be (1)
-        redis.sMembers("SET").futureValue should (contain("C") and not contain ("A") and not contain ("B"))
+        client.sRem("SET", "A").futureValue should be (1)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List("C")
 
-        redis.sRem("SET", "C").futureValue should be (1)
-        redis.sMembers("SET").futureValue should be (empty)
+        client.sRem("SET", "C").futureValue should be (1)
+        client.sMembers("SET").futureValue should be (empty)
       }
     }
   }
 
-  "%s-2.4".format(SRem).name when {
+  s"${SRem.name}-2.4" when {
     "the key does not exist" should {
-      "return 0" taggedAs (V100) in {
-        redis.sRem("SET", "A", "B").futureValue should be (0)
+      "return 0" taggedAs (V240) in {
+        client.sRem("SET", "A", "B").futureValue should be (0)
       }
     }
     "the key does not contain a set" should {
-      "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sRem("HASH", "A", "B").futureValue }
+      "return an error" taggedAs (V240) in {
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sRem("HASH", "A", "B").futureValue
+        }
       }
     }
     "the set contains some elements" should {
-      "remove the members and return the number of members that were removed" taggedAs (V100) in {
-        redis.sAdd("SET", "A")
-        redis.sAdd("SET", "B")
-        redis.sAdd("SET", "C")
+      "remove the members and return the number of members that were removed" taggedAs (V240) in {
+        client.sAdd("SET", "A")
+        client.sAdd("SET", "B")
+        client.sAdd("SET", "C")
 
-        redis.sRem("SET", "B", "C").futureValue should be (2)
-        redis.sMembers("SET").futureValue should (contain("A") and not contain ("B") and not contain ("C"))
+        client.sRem("SET", "B", "C").futureValue should be (2)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List("A")
 
-        redis.sRem("SET", "A", "B", "C").futureValue should be (1)
-        redis.sMembers("SET").futureValue should be (empty)
+        client.sRem("SET", "A", "B", "C").futureValue should be (1)
+        client.sMembers("SET").futureValue should be (empty)
 
-        redis.sRem("SET", "A", "B", "C").futureValue should be (0)
+        client.sRem("SET", "A", "B", "C").futureValue should be (0)
       }
     }
   }
@@ -596,90 +580,204 @@ class SetsCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAl
   SScan.name when {
     "the key does not exist" should {
       "return an empty set" taggedAs (V280) in {
-        val (next, set) = redis.sScan[String]("NONEXISTENTKEY")(0).futureValue
+        val (next, set) = client.sScan[String]("NONEXISTENTKEY", 0).!
         next should be (0)
         set should be (empty)
       }
     }
     "the key does not contain a set" should {
       "return an error" taggedAs (V280) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.sScan[String]("HASH")(0).futureValue }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sScan[String]("HASH", 0).futureValue
+        }
       }
     }
     "the set contains 5 elements" should {
       "return all elements" taggedAs (V280) in {
         for (i <- 1 to 5) {
-          redis.sAdd("SSET", "value" + i).futureValue
+          client.sAdd("SSET", "value" + i)
         }
-        val (next, set) = redis.sScan[String]("SSET")(0).futureValue
+        val (next, set) = client.sScan[String]("SSET", 0).!
         next should be (0)
-        set should (
-          contain("value1") and
-          contain("value2") and
-          contain("value3") and
-          contain("value4") and
-          contain("value5")
-        )
+        set should contain theSameElementsAs List("value1", "value2", "value3", "value4", "value5")
         for (i <- 1 to 10) {
-          redis.sAdd("SSET", "foo" + i).futureValue
+          client.sAdd("SSET", "foo" + i)
         }
       }
     }
     "the set contains 15 elements" should {
-      val full = MutableSet[String]()
+      val full = ListBuffer[String]()
       for (i <- 1 to 5) {
         full += ("value" + i)
       }
       for (i <- 1 to 10) {
         full += ("foo" + i)
       }
-      val fullSet = full.toSet
+      val fullList = full.toList
       
       Given("that no pattern is set")
       "return all elements" taggedAs (V280) in {
-        val elements = MutableSet[String]()
+        val elements = ListBuffer[String]()
         var cursor = 0L
         do {
-          val (next, set) = redis.sScan[String]("SSET")(cursor).futureValue
+          val (next, set) = client.sScan[String]("SSET", cursor).!
           elements ++= set
           cursor = next
-        }
-        while (cursor > 0)
-        elements.toSet should be (fullSet)
+        } while (cursor > 0)
+        elements.toList should contain theSameElementsAs fullList
       }
       Given("that a pattern is set")
       "return all matching elements" taggedAs (V280) in {
-        val elements = MutableSet[String]()
+        val elements = ListBuffer[String]()
         var cursor = 0L
         do {
-          val (next, set) = redis.sScan[String]("SSET")(cursor, matchOpt = Some("foo*")).futureValue
+          val (next, set) = client.sScan[String]("SSET", cursor, matchOpt = Some("foo*")).!
           elements ++= set
           cursor = next
-        }
-        while (cursor > 0)
-        elements.toSet should be (fullSet.filter(_.startsWith("foo")))
+        } while (cursor > 0)
+        elements.toList should contain theSameElementsAs fullList.filter(_.startsWith("foo"))
       }
       Given("that a pattern is set and count is set to 100")
       "return all matching elements in one iteration" taggedAs (V280) in {
-        val elements = MutableSet[String]()
+        val elements = ListBuffer[String]()
         var cursor = 0L
         do {
-          val (next, set) = redis.sScan[String]("SSET")(
-            cursor, matchOpt = Some("foo*"), countOpt = Some(100)
-          ).futureValue
+          val (next, set) = client.sScan[String](
+            "SSET", cursor, matchOpt = Some("foo*"), countOpt = Some(100)
+          ).!
           set.size should be (10)
           elements ++= set
           cursor = next
+        } while (cursor > 0)
+        elements.toList should contain theSameElementsAs fullList.filter(_.startsWith("foo"))
+      }
+    }
+  }
+  
+  SUnion.name when {
+    "all keys do not exist" should {
+      "return None" taggedAs (V100) in {
+        client.sUnion("SET1", "SET2", "SET3").futureValue should be (empty)
+      }
+    }
+    "some keys do not exist" should {
+      "assume empty sets and return the resulting set" taggedAs (V100) in {
+        client.sAdd("SET1", "A")
+        client.sUnion("SET1", "SET2", "SET3").futureValue should contain theSameElementsAs List(
+          "A"
+        )
+      }
+    }
+    "at least one key does not contain a set" should {
+      "return an error" taggedAs (V100) in {
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sUnion("HASH", "SET1", "SET2").futureValue
         }
-        while (cursor > 0)
-        elements.toSet should be (fullSet.filter(_.startsWith("foo")))
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sUnion("SET1", "HASH", "SET2").futureValue
+        }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.sUnion("SET1", "SET2", "HASH").futureValue
+        }
+      }
+    }
+    "the sets contain some elements" should {
+      "return the resulting set" taggedAs (V100) in {
+        client.sAdd("SET1", "B")
+        client.sAdd("SET1", "C")
+        client.sAdd("SET1", "D")
+
+        client.sAdd("SET2", "C")
+
+        client.sAdd("SET3", "A")
+        client.sAdd("SET3", "C")
+        client.sAdd("SET3", "E")
+
+        client.sUnion("SET1", "SET1").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D"
+        )
+        client.sUnion("SET1", "SET2").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D"
+        )
+        client.sUnion("SET1", "SET3").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D", "E"
+        )
+        client.sUnion("SET1", "SET2", "SET3").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D", "E"
+        )
+        client.del("SET1", "SET2", "SET3")
+      }
+    }
+  }
+
+  SUnionStore.name when {
+    "all keys do not exist" should {
+      "return None" taggedAs (V100) in {
+        client.sUnionStore("SET", "SET1", "SET2", "SET3").futureValue should be (0)
+        client.sCard("SET").futureValue should be (0)
+      }
+    }
+    "some keys do not exist" should {
+      "assume empty sets and return the resulting set" taggedAs (V100) in {
+        client.sAdd("SET1", "A")
+        client.sUnionStore("SET", "SET1", "SET2", "SET3").futureValue should be (1)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "A"
+        )
+      }
+    }
+    "at least one key does not contain a set" should {
+      "return an error" taggedAs (V100) in {
+        a [RedisErrorResponseException] should be thrownBy { 
+          client.sUnionStore("SET", "HASH", "SET2", "SET3").futureValue
+        }
+        a [RedisErrorResponseException] should be thrownBy { 
+          client.sUnionStore("SET", "SET1", "HASH", "SET3").futureValue
+        }
+        a [RedisErrorResponseException] should be thrownBy { 
+          client.sUnionStore("SET", "SET1", "SET2", "HASH").futureValue
+        }
+      }
+    }
+    "the sets contain some elements" should {
+      "store resulting set at destKey" taggedAs (V100) in {
+        client.sAdd("SET1", "B")
+        client.sAdd("SET1", "C")
+        client.sAdd("SET1", "D")
+
+        client.sAdd("SET2", "C")
+
+        client.sAdd("SET3", "A")
+        client.sAdd("SET3", "C")
+        client.sAdd("SET3", "E")
+
+        client.sUnionStore("SET", "SET1", "SET1").futureValue should be (4)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D"
+        )
+
+        client.sUnionStore("SET", "SET1", "SET2").futureValue should be (4)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D"
+        )
+
+        client.sUnionStore("SET", "SET1", "SET3").futureValue should be (5)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D", "E"
+        )
+
+        client.sUnionStore("SET", "SET1", "SET2", "SET3").futureValue should be (5)
+        client.sMembers("SET").futureValue should contain theSameElementsAs List(
+          "A", "B", "C", "D", "E"
+        )
+        client.del("SET", "SET1", "SET2", "SET3")
       }
     }
   }
 
   override def afterAll() {
-    redis.flushDb().futureValue
-    redis.quit()
+    client.flushDB().!
+    client.quit().!
   }
 
 }
