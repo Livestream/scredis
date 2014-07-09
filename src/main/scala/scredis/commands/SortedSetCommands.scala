@@ -49,13 +49,17 @@ trait SortedSetCommands { self: AbstractClient =>
    * @param members member-score pairs to be added
    * @return the number of elements added to the sorted sets, not including elements already
    * existing for which the score was updated
-   * @throws $e if key contains a value that is not a sorted set or if members is empty
+   * @throws $e if key contains a value that is not a sorted set
    *
    * @since 2.4
    */
-  def zAdd[W: Writer](key: String, members: Map[W, scredis.Score]): Future[Long] = send(
-    ZAdd(key, members)
-  )
+  def zAdd[W: Writer](key: String, members: Map[W, scredis.Score]): Future[Long] = {
+    if (members.isEmpty) {
+      Future.successful(0)
+    } else {
+      send(ZAdd(key, members))
+    }
+  }
   
   /**
    * Returns the number of members in a sorted set.

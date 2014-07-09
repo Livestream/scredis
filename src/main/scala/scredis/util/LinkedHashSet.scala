@@ -1,6 +1,6 @@
 package scredis.util
 
-import scala.collection.SetLike
+import scala.collection.{ SetLike, GenSeq }
 import scala.collection.generic._
 import scala.collection.mutable.{ Builder, LinkedHashSet => MLinkedHashSet }
 
@@ -9,6 +9,7 @@ import scala.collection.mutable.{ Builder, LinkedHashSet => MLinkedHashSet }
  */
 class LinkedHashSet[A](elems: A*) extends Set[A]
   with GenericSetTemplate[A, LinkedHashSet]
+  with GenSeq[A]
   with SetLike[A, LinkedHashSet[A]]
   with Serializable {
 

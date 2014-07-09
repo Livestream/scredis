@@ -21,6 +21,12 @@ package object scredis {
   implicit val floatWriter: Writer[Float] = FloatWriter
   implicit val doubleWriter: Writer[Double] = DoubleWriter
   
+  implicit def shortToScoreValue(value: Short): Score.Value = Score.Value(value)
+  implicit def intToScoreValue(value: Int): Score.Value = Score.Value(value)
+  implicit def longToScoreValue(value: Long): Score.Value = Score.Value(value)
+  implicit def floatToScoreValue(value: Float): Score.Value = Score.Value(value)
+  implicit def doubleToScoreValue(value: Double): Score.Value = Score.Value(value)
+  
   /**
    * Represents the type of a `Redis` key
    */
@@ -154,10 +160,10 @@ package object scredis {
    * Contains all possible lexical score limits, i.e. -, +, inclusive value and exclusive value
    */
   object LexicalScoreLimit {
-    case object MinusInfinity extends ScoreLimit("-")
-    case object PlusInfinity extends ScoreLimit("+")
-    case class Inclusive(value: String) extends ScoreLimit("[" + value)
-    case class Exclusive(value: String) extends ScoreLimit("(" + value)
+    case object MinusInfinity extends LexicalScoreLimit("-")
+    case object PlusInfinity extends LexicalScoreLimit("+")
+    case class Inclusive(value: String) extends LexicalScoreLimit("[" + value)
+    case class Exclusive(value: String) extends LexicalScoreLimit("(" + value)
   }
   
   /**
