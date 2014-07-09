@@ -192,9 +192,9 @@ package object scredis {
    * Contains all available client types, i.e. normal, slave, pubsub
    */
   object ClientType {
-    case object Normal extends Type("normal")
-    case object Slave extends Type("slave")
-    case object PubSub extends Type("pubsub")
+    case object Normal extends ClientType("normal")
+    case object Slave extends ClientType("slave")
+    case object PubSub extends ClientType("pubsub")
   }
   
   /**

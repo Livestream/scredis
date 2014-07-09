@@ -1,315 +1,416 @@
 package scredis.commands
 
-import org.scalatest.{ WordSpec, GivenWhenThen, BeforeAndAfterAll, OneInstancePerTest }
-import org.scalatest.MustMatchers._
+import org.scalatest._
+import org.scalatest.concurrent._
 
-import scredis.{ Redis, Client }
+import scredis._
+import scredis.protocol.requests.ServerRequests._
 import scredis.exceptions._
 import scredis.tags._
+import scredis.util.TestUtils._
 
-class ServerCommandsSpec extends WordSpec with GivenWhenThen with BeforeAndAfterAll {
-  private val redis = Redis()
+import scala.concurrent.duration._
+
+class ServerCommandsSpec extends WordSpec
+  with GivenWhenThen
+  with BeforeAndAfterAll
+  with Matchers
+  with Inside
+  with ScalaFutures {
+  
+  private val client = Client()
   private val client1 = Client(port = 6380, password = Some("foobar"))
   private val client2 = Client(port = 6380, password = Some("foobar"))
   private val client3 = Client(port = 6380, password = Some("foobar"))
-
-  import Names._
-  import scredis.util.TestUtils._
-  import redis.ec
-
-  BgRewriteAOF should {
+  
+  BGRewriteAOF.name should {
     "succeed" taggedAs (V100) in {
-      redis.bgRewriteAOF().!
-      Thread.sleep(500)
+      client.bgRewriteAOF().futureValue should be (())
     }
   }
 
-  BgSave when {
+  BGSave.name when {
     "not already running" should {
       "succeed" taggedAs (V100) in {
-        redis.bgSave().!
-        Thread.sleep(500)
-      }
-    }
-    "already running" should {
-      "return an error" taggedAs (V100) in {
-        an [RedisCommandException] must be thrownBy {
-          redis.bgSave().!
-          redis.bgSave().!
-        }
-        Thread.sleep(500)
-      }
-    }
-    "%s is already running".format(BgRewriteAOF) should {
-      "return an error" taggedAs (V100) in {
-        an [RedisCommandException] must be thrownBy {
-          redis.bgRewriteAOF().!
-          redis.bgSave().!
-        }
+        client.bgSave().futureValue should be (())
       }
     }
   }
 
-  "%s %s".format(Names.Client, ClientGetName) when {
+  ClientGetName.name when {
     "client has no name" should {
       "return None" taggedAs (V269) in {
-        redis.clientGetName() must be('empty)
+        client.clientGetName().futureValue should be (empty)
       }
     }
     "client has a name" should {
       "return client's name" taggedAs (V269) in {
-        redis.clientSetName("foo")
-        redis.clientGetName() must be(Some("foo"))
+        client.clientSetName("foo")
+        client.clientGetName().futureValue should contain ("foo")
       }
     }
   }
-
-  "%s %s".format(Names.Client, ClientSetName) when {
-    "name is not empty" should {
-      "set the specified name" taggedAs (V269) in {
-        redis.clientSetName("bar")
-        redis.clientGetName() must be(Some("bar"))
-      }
-    }
-    "name is the empty string" should {
-      "unset client's name" taggedAs (V269) in {
-        redis.clientSetName("")
-        redis.clientGetName() must be('empty)
-      }
-    }
-  }
-
-  "%s %s".format(Names.Client, ClientList) when {
-    "async" should {
-      "suceed" taggedAs (V240) in {
-        redis.clientListRaw() must not be('empty)
-        redis.clientList() must not be('empty)
-      }
-    }
-    "3 clients are connected" should {
-      "list the 3 clients" taggedAs (V240) in {
-        client1.clientListRaw().split("\\n") must have size (3)
-        val clients = client1.clientList()
-        clients must have size (3)
-        clients.foreach(data => {
-          data.contains("addr") must be(true)
-          data.contains("fd") must be(true)
-          data.contains("age") must be(true)
-          data.contains("idle") must be(true)
-          data.contains("flags") must be(true)
-          data.contains("db") must be(true)
-          data.contains("sub") must be(true)
-          data.contains("psub") must be(true)
-          data.contains("multi") must be(true)
-          data.contains("qbuf") must be(true)
-          data.contains("qbuf-free") must be(true)
-          data.contains("obl") must be(true)
-          data.contains("oll") must be(true)
-          data.contains("omem") must be(true)
-          data.contains("events") must be(true)
-          data.contains("cmd") must be(true)
-        })
-      }
-    }
-    "2 clients are connected" should {
-      "list the 2 clients" taggedAs (V240) in {
-        client3.quit()
-        client1.clientList() must have size (2)
-      }
-    }
-    "no other clients are connected" should {
-      "list the calling client" taggedAs (V240) in {
-        client2.quit()
-        client1.clientList() must have size (1)
-      }
-    }
-  }
-
-  "%s %s".format(Names.Client, ClientKill) when {
+  
+  ClientKill.name when {
     "providing invalid ip and port" should {
       "return an error" taggedAs (V240) in {
-        an [RedisCommandException] must be thrownBy { redis.clientKillFromIpPort("lol", -1).! }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.clientKill("lol", -1).futureValue
+        }
       }
     }
     "killing a non-existing client" should {
       "return an error" taggedAs (V240) in {
-        an [RedisCommandException] must be thrownBy { 
-          redis.clientKillFromIpPort("110.44.56.127", 53655).!
+        a [RedisErrorResponseException] should be thrownBy { 
+          client.clientKill("110.44.56.127", 53655).futureValue
         }
       }
     }
     "killing a connected client" should {
       "succeed" taggedAs (V240) in {
-        client2.ping() must be("PONG")
-        val client2Data = client1.clientList().reduceLeft((c1, c2) => {
+        client2.ping().futureValue should be ("PONG")
+        val client2Data = client1.clientList().!.reduceLeft((c1, c2) => {
           if (c1("age").toInt < c2("age").toInt) c1
           else c2
         })
-        client1.clientKill(client2Data("addr"))
-        client1.clientList() must have size (1)
+        val (ip, port) = {
+          val split = client2Data("addr").split(":")
+          (split(0), split(1).toInt)
+        }
+        client1.clientKill(ip, port)
+        client1.clientList().futureValue should have size (1)
       }
     }
     "killing self" should {
       "succeed" taggedAs (V240) in {
-        val clientData = client1.clientList()()(0)
-        client1.clientKill(clientData("addr"))
+        val clientData = client1.clientList().futureValue.head
+        val (ip, port) = {
+          val split = clientData("addr").split(":")
+          (split(0), split(1).toInt)
+        }
+        client1.clientKill(ip, port)
+      }
+    }
+  }
+  
+  s"${ClientKill.name}-2.8.12" when {
+    "killing by addresses" should {
+      "succeed" taggedAs (V2812) in {
+        client2.clientSetName("client2").!
+        client3.clientSetName("client3").!
+        val clients = client1.clientList().!
+        val client2Addr = clients.filter { map =>
+          map("name") == "client2"
+        }.head("addr")
+        val client3Addr = clients.filter { map =>
+          map("name") == "client3"
+        }.head("addr")
+        val (ip2, port2) = {
+          val split = client2Addr.split(":")
+          (split(0), split(1).toInt)
+        }
+        val (ip3, port3) = {
+          val split = client3Addr.split(":")
+          (split(0), split(1).toInt)
+        }
+        client1.clientKillWithFilters(
+          addrs = Seq((ip2, port2), (ip3, port3))
+        ).futureValue should be (2)
+      }
+    }
+    "killing by ids" should {
+      "succeed" taggedAs (V2812) in {
+        client2.clientSetName("client2").!
+        client3.clientSetName("client3").!
+        val clients = client1.clientList().!
+        val client2Id = clients.filter { map =>
+          map("name") == "client2"
+        }.head("id").toInt
+        val client3Id = clients.filter { map =>
+          map("name") == "client3"
+        }.head("id").toInt
+        client1.clientKillWithFilters(
+          ids = Seq(client2Id, client3Id)
+        ).futureValue should be (2)
+      }
+    }
+    "killing by type" should {
+      Given("that skipMe is true")
+      "kill all clients except self" taggedAs (V2812) in {
+        client2.clientSetName("client2").!
+        client3.clientSetName("client3").!
+        client1.clientKillWithFilters(
+          types = Seq(ClientType.Normal), skipMe = true
+        ).futureValue should be (2)
+      }
+      Given("that skipMe is false")
+      "kill all clients including self" taggedAs (V2812) in {
+        client2.clientSetName("client2").!
+        client3.clientSetName("client3").!
+        client1.clientKillWithFilters(
+          types = Seq(ClientType.Normal), skipMe = false
+        ) should be (3)
       }
     }
   }
 
-  "%s %s".format(Config, ConfigGet) when {
+  ClientList.name when {
+    "3 clients are connected" should {
+      "list the 3 clients" taggedAs (V240) in {
+        client2.clientSetName("client2").!
+        client3.clientSetName("client3").!
+        client1.clientList().futureValue should have size (3)
+      }
+    }
+    "2 clients are connected" should {
+      "list the 2 clients" taggedAs (V240) in {
+        client3.quit().!
+        client1.clientList().futureValue should have size (2)
+      }
+    }
+    "no other clients are connected" should {
+      "list the calling client" taggedAs (V240) in {
+        client2.quit().!
+        client1.clientList().futureValue should have size (1)
+      }
+    }
+  }
+  
+  /* FIXME: add when redis 3.0.0 is out
+  ClientPause.name should {
+    "succeed" taggedAs (V2950) in {
+      client.clientPause(500).futureValue should be (())
+    }
+  }*/
+  
+  ClientSetName.name when {
+    "name is not empty" should {
+      "set the specified name" taggedAs (V269) in {
+        client.clientSetName("bar")
+        client.clientGetName().futureValue should contain ("bar")
+      }
+    }
+    "name is the empty string" should {
+      "unset client's name" taggedAs (V269) in {
+        client.clientSetName("")
+        client.clientGetName().futureValue should be (empty)
+      }
+    }
+  }
+
+  ConfigGet.name when {
     "providing an non-existent key" should {
       "return None" taggedAs (V200) in {
-        redis.configGet("thiskeywillneverexist") must be('empty)
+        client.configGet("thiskeywillneverexist").futureValue should be (empty)
       }
     }
     "not providing any pattern" should {
       "use * and return all" taggedAs (V200) in {
-        redis.configGet().map(_.get.size) must be > (1)
+        client.configGet().futureValue should not be (empty)
       }
     }
     "providing a valid key that is empty" should {
       "return a None value" taggedAs (V200) in {
-        redis.configGet("requirepass").map(_.get("requirepass")) must be('empty)
+        client.configGet("requirepass").!("requirepass") should be (empty)
       }
     }
     "providing a valid key that is not empty" should {
       "return the key's value" taggedAs (V200) in {
-        redis.configGet("port").map(_.get("port").get.toInt) must be(6379)
+        client.configGet("port").!("port") should be ("6379")
       }
     }
   }
+  
+  ConfigResetStat.name should {
+    "reset stats" taggedAs (V200) in {
+      client.info().!("total_commands_processed").toInt should be > (1)
+      client.configResetStat().futureValue should be (())
+      client.info().!("total_commands_processed").toInt should be (1)
+    }
+  }
+  
+  ConfigRewrite.name should {
+    "succeed" taggedAs (V280) in {
+      client.configRewrite().futureValue should be (())
+    }
+  }
 
-  "%s %s".format(Config, ConfigSet) when {
-    "providing an non-existent key" should {
+  ConfigSet.name when {
+    "providing a non-existent key" should {
       "return an error" taggedAs (V200) in {
-        an [RedisCommandException] must be thrownBy { 
-          redis.configSet("thiskeywillneverexist", "foo").!
+        a [RedisErrorResponseException] should be thrownBy { 
+          client.configSet("thiskeywillneverexist", "foo").futureValue
         }
       }
     }
     "changing the password" should {
       "succeed" taggedAs (V200) in {
-        redis.configSet("requirepass", "guessit")
-        an [RedisCommandException] must be thrownBy { redis.ping().! }
-        redis.auth("guessit").!
-        redis.configGet("requirepass").map(_.get("requirepass").get) must be("guessit")
-        redis.configSet("requirepass", "")
-        redis.configGet("requirepass").map(_.get("requirepass")) must be('empty)
-        redis.auth("").!
+        client.configSet("requirepass", "guessit").!
+        a [RedisErrorResponseException] should be thrownBy {
+          client.ping().futureValue
+        }
+        client.auth("guessit").futureValue should be (())
+        client.configGet("requirepass").!("requirepass") should be ("guessit")
+        client.configSet("requirepass", "") should be (())
+        client.configGet("requirepass").!("requirepass") should be (empty)
+        client.auth("").futureValue should be (())
       }
     }
   }
 
-  "%s %s".format(Config, ConfigResetStat) should {
-    "reset stats" taggedAs (V200) in {
-      redis.info()().map(_("total_commands_processed").toInt) must be > (1)
-      redis.configResetStat().!
-      redis.info()().map(_("total_commands_processed").toInt) must be(1)
-    }
-  }
-
-  DbSize should {
+  DBSize.name should {
     "return the size of the current database" taggedAs (V100) in {
-      redis.select(0).!
-      redis.flushDb().!
-      redis.set("SOMEKEY", "SOMEVALUE").!
-      redis.dbSize() must be(1)
-      redis.select(1).!
-      redis.dbSize() must be(0)
-      redis.set("SOMEKEY", "SOMEVALUE").!
-      redis.set("SOMEKEY2", "SOMEVALUE2").!
-      redis.dbSize() must be(2)
+      client.select(0).futureValue should be (())
+      client.flushDB().futureValue should be (())
+      client.set("SOMEKEY", "SOMEVALUE")
+      client.dbSize().futureValue should be (1)
+      client.select(1).futureValue should be (())
+      client.dbSize().futureValue should be (0)
+      client.set("SOMEKEY", "SOMEVALUE")
+      client.set("SOMEKEY2", "SOMEVALUE2")
+      client.dbSize().futureValue should be (2)
     }
   }
-
-  FlushDb should {
-    "flush the current database only" taggedAs (V100) in {
-      redis.select(0).!
-      redis.flushDb().!
-      redis.dbSize() must be(0)
-      redis.select(1).!
-      redis.dbSize() must be(2)
-    }
-  }
-
-  FlushAll should {
+  
+  FlushAll.name should {
     "flush all databases" taggedAs (V100) in {
-      redis.select(0).!
-      redis.set("SOMEKEY", "SOMEVALUE").!
-      redis.flushAll().!
-      redis.dbSize() must be(0)
-      redis.select(1).!
-      redis.dbSize() must be(0)
+      client.select(0).futureValue should be (())
+      client.set("SOMEKEY", "SOMEVALUE")
+      client.select(1).futureValue should be (())
+      client.set("SOMEKEY", "SOMEVALUE")
+      client.flushAll().futureValue should be (())
+      client.dbSize().futureValue should be (0)
+      client.select(0).futureValue should be (())
+      client.dbSize().futureValue should be (0)
     }
   }
 
-  Info when {
+  FlushDB.name should {
+    "flush the current database only" taggedAs (V100) in {
+      client.select(0).futureValue should be (())
+      client.set("SOMEKEY", "SOMEVALUE")
+      client.select(1).futureValue should be (())
+      client.set("SOMEKEY", "SOMEVALUE")
+      client.dbSize().futureValue should be (1)
+      client.flushDB().futureValue should be (())
+      client.dbSize().futureValue should be (0)
+      client.select(0).futureValue should be (())
+      client.dbSize().futureValue should be (1)
+    }
+  }
+
+  Info.name when {
     "not provided with any section" should {
       "return the default section" taggedAs (V100) in {
-        val str = redis.infoRaw().!
-        str.contains("# Server") must be(true)
-        str.contains("# Clients") must be(true)
-        str.contains("# Memory") must be(true)
-        str.contains("# Persistence") must be(true)
-        str.contains("# Stats") must be(true)
-        str.contains("# Replication") must be(true)
-        str.contains("# CPU") must be(true)
-        str.contains("# Keyspace") must be(true)
-
-        val map = redis.info().!
-        map.contains("redis_version") must be(true)
-        map.contains("connected_clients") must be(true)
-        map.contains("used_memory") must be(true)
-        map.contains("loading") must be(true)
-        map.contains("total_connections_received") must be(true)
-        map.contains("role") must be(true)
-        map.contains("used_cpu_sys") must be(true)
+        val map = client.info().!
+        map.contains("redis_version") should be (true)
+        map.contains("connected_clients") should be (true)
+        map.contains("used_memory") should be (true)
+        map.contains("loading") should be (true)
+        map.contains("total_connections_received") should be (true)
+        map.contains("role") should be (true)
+        map.contains("used_cpu_sys") should be (true)
       }
     }
     "provided with a non-existent section" should {
       "return an empty string/map" taggedAs (V260) in {
-        redis.infoBySectionRaw("YOU BET") must be('empty)
-        redis.infoBySection("YOU BET") must be('empty)
+        client.info("YOU BET").futureValue should be (empty)
       }
     }
     "provided with a valid section" should {
       "only return the selected section" taggedAs (V260) in {
-        val str = redis.infoBySectionRaw("server").!
-        str.contains("redis_version") must be(true)
-        str.contains("connected_clients") must be(false)
-        val map = redis.infoBySection("server").!
-        map.contains("redis_version") must be(true)
-        map.contains("connected_clients") must be(false)
+        val map = client.info("server").!
+        map.contains("redis_version") should be (true)
+        map.contains("connected_clients") should be (false)
       }
     }
   }
 
-  LastSave should {
+  LastSave.name should {
     "return the UNIX timestamp of the last database save" taggedAs (V100) in {
-      redis.lastSave().!
+      client.lastSave().futureValue shouldBe > (0)
+    }
+  }
+  
+  scredis.protocol.requests.ServerRequests.Role.name when {
+    "querying a master database" should {
+      "return the master role" taggedAs (V2812) in {
+        client1.slaveOf("127.0.0.1", 6379).futureValue should be (())
+        val role = client.role().!
+        role shouldBe a [scredis.Role.Master]
+        inside(role) {
+          case scredis.Role.Master(offset, slaves) => inside(slaves) {
+            case scredis.Role.SlaveInfo(ip, port, offset) :: Nil => {
+              ip should be ("127.0.0.1")
+              port should be (6380)
+            }
+          }
+        }
+      }
+    }
+    "querying a slave database" should {
+      "return the slave role" taggedAs (V2812) in {
+        val role = client1.role().!
+        role shouldBe a [scredis.Role.Slave]
+        inside(role) {
+          case scredis.Role.Slave(masterIp, masterPort, state, offset) => {
+            masterIp should be ("127.0.0.1")
+            masterPort should be (6379)
+          }
+        }
+        client1.slaveOfNoOne() should be (())
+        client1.role().futureValue shouldBe a [scredis.Role.Master]
+      }
     }
   }
 
-  Save should {
+  Save.name should {
     "save the database" taggedAs (V100) in {
-      redis.save().!
+      client.save().futureValue should be (())
+    }
+  }
+  
+  SlowLogGet.name when {
+    "count is not specified" should {
+      "return all slowlog entries" taggedAs (V2212) in {
+        val entries = client.slowLogGet().!
+        entries.size shouldBe >= (0)
+      }
+    }
+    "count is specified" should {
+      "return at most count slowlog entries" taggedAs (V2212) in {
+        val entries = client.slowLogGet(countOpt = Some(3)).!
+        entries.size shouldBe >= (0)
+        entries.size shouldBe <= (3)
+      }
+    }
+  }
+  
+  SlowLogLen.name should {
+    "return the size of the slowlog" taggedAs (V2212) in {
+      client.slowLogLen().futureValue shouldBe >= (0)
+    }
+  }
+  
+  SlowLogReset.name should {
+    "succeed" taggedAs (V2212) in {
+      client.slowLogReset().futureValue should be (())
     }
   }
 
-  Time should {
+  Time.name should {
     "return the current server UNIX timestamp with microseconds" taggedAs (V260) in {
-      redis.time().!
+      client.time().futureValue shouldBe > (0)
     }
   }
 
   override def afterAll(): Unit = {
-    redis.flushAll().!
-    redis.quit()
-    client1.flushAll()
-    client1.quit()
-    client2.quit()
-    client3.quit()
+    client.flushAll().!
+    client.quit().!
+    client1.flushAll().!
+    client1.quit().!
+    client2.quit().!
+    client3.quit().!
   }
 
 }

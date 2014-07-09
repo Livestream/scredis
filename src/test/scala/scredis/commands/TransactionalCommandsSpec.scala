@@ -18,7 +18,7 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
   private val client = Client()
   private val client2 = Client()
   private val SomeValue = "HelloWorld!虫àéç蟲"
-  private val RedisException = RedisCommandException(
+  private val RedisException = RedisErrorResponseException(
     "WRONGTYPE Operation against a key holding the wrong kind of value"
   )
   private val Result = List(Success(), Success(Some(SomeValue)), Failure(RedisException))
@@ -33,26 +33,26 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
   import Names._
   import scredis.util.TestUtils.futureToRichFuture
 
-  "Pipelining" when {
+  "Pipelining".name when {
     "using pipeline()" should {
       "work as epected" taggedAs (V100) in {
         val p = client.pipeline()
         val set = p.set("STR", SomeValue)
         val get = p.get("STR")
         val error = p.get("LIST")
-        evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-        evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-        evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-        p.sync().toList must be(Result)
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        evaluating { p.sync() } must produce[RedisProtocolException]
+        evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+        evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+        evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
+        p.sync().toList should be (Result)
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        evaluating { p.sync() } should produce[RedisProtocolException]
 
         val p1 = client.pipeline()
         val p2 = client.pipeline()
-        p1.sync() must be('empty)
-        p2.sync() must be('empty)
+        p1.sync().futureValue should be (empty)
+        p2.sync().futureValue should be (empty)
         client.del("STR")
       }
     }
@@ -65,17 +65,17 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           set = p.set("STR", SomeValue)
           get = p.get("STR")
           error = p.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
         }
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        result.toList must be(Result)
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        result.toList should be (Result)
         client.del("STR")
         
-        redis.pipelined(_.ping()).! must be(PingResult)
+        redis.pipelined(_.ping()).futureValue should be (PingResult)
       }
     }
     "using pipelined1()" should {
@@ -87,34 +87,34 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           set = p.set("STR", SomeValue)
           get = p.get("STR")
           error = p.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
           get
         }
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        result must be(Some(SomeValue))
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        result should be (Some(SomeValue))
         client.del("STR")
 
         val result2 = client.pipelined1 { p =>
           set = p.set("STR", SomeValue)
           get = p.get("STR")
           error = p.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-          p.sync().toList must be(Result)
-          Await.result(set, 100 milliseconds) must be()
-          Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-          evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
+          p.sync().toList should be (Result)
+          Await.result(set, 100 milliseconds).futureValue should be ()
+          Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+          evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
           get
         }
-        result2 must be(Some(SomeValue))
+        result2 should be (Some(SomeValue))
         client.del("STR")
         
-        redis.pipelined1(_.ping()).! must be("PONG")
+        redis.pipelined1(_.ping()).futureValue should be ("PONG")
       }
     }
     "using pipelinedN()" should {
@@ -126,15 +126,15 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           set = p.set("STR", SomeValue)
           get = p.get("STR")
           error = p.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
           List(get, p.exists("STR"))
         }
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        result.toList must be(List(Some(SomeValue), true))
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        result.toList should be (List(Some(SomeValue), true))
         client.del("STR")
 
         val result2 = client.pipelinedN { p =>
@@ -142,19 +142,19 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           get = p.get("STR")
           error = p.get("LIST")
           val exists = p.exists("STR")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-          p.sync().toList must be(Result ::: List(Success(true)))
-          Await.result(set, 100 milliseconds) must be()
-          Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-          evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
+          p.sync().toList should be (Result ::: List(Success(true)))
+          Await.result(set, 100 milliseconds).futureValue should be ()
+          Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+          evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
           List(get, exists)
         }
-        result2.toList must be(List(Some(SomeValue), true))
+        result2.toList should be (List(Some(SomeValue), true))
         client.del("STR")
         
-        redis.pipelinedN(p => List(p.ping(), p.ping())).! must be(List("PONG", "PONG"))
+        redis.pipelinedN(p => List(p.ping(), p.ping())).futureValue should be (List("PONG", "PONG"))
       }
     }
     "using pipelinedM()" should {
@@ -166,15 +166,15 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           set = p.set("STR", SomeValue)
           get = p.get("STR")
           error = p.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
           Map("get" -> get, "exists" -> p.exists("STR"))
         }
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        result must be(Map("get" -> Some(SomeValue), "exists" -> true))
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        result should be (Map("get" -> Some(SomeValue), "exists" -> true))
         client.del("STR")
 
         val result2 = client.pipelinedM { p =>
@@ -182,26 +182,26 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           get = p.get("STR")
           error = p.get("LIST")
           val exists = p.exists("STR")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-          p.sync().toList must be(Result ::: List(Success(true)))
-          Await.result(set, 100 milliseconds) must be()
-          Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-          evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
+          p.sync().toList should be (Result ::: List(Success(true)))
+          Await.result(set, 100 milliseconds).futureValue should be ()
+          Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+          evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
           Map("get" -> get, "exists" -> exists)
         }
-        result2 must be(Map("get" -> Some(SomeValue), "exists" -> true))
+        result2 should be (Map("get" -> Some(SomeValue), "exists" -> true))
         client.del("STR")
         
-        redis.pipelinedM(p => Map("p1" -> p.ping(), "p2" -> p.ping())).! must be(
+        redis.pipelinedM(p => Map("p1" -> p.ping(), "p2" -> p.ping())).futureValue should be (
           Map("p1" -> "PONG", "p2" -> "PONG")
         )
       }
     }
   }
 
-  "Transactions" when {
+  "Transactions".name when {
     "using multi()" should {
       Given("that nothing is watched and discard() is not called")
       "work as epected" taggedAs (V200) in {
@@ -209,18 +209,18 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
         val set = m.set("STR", SomeValue)
         val get = m.get("STR")
         val error = m.get("LIST")
-        evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-        evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-        evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-        m.exec().toList must be(Result)
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        evaluating { m.exec() } must produce[RedisProtocolException]
+        evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+        evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+        evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
+        m.exec().toList should be (Result)
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        evaluating { m.exec() } should produce[RedisProtocolException]
 
         val m1 = client.multi()
-        evaluating { client.multi() } must produce[RedisCommandException]
-        m1.exec() must be('empty)
+        evaluating { client.multi() } should produce[RedisErrorResponseException]
+        m1.exec().futureValue should be (empty)
         client.del("STR")
       }
       Given("that discard() is called before the end of the transaction")
@@ -228,9 +228,9 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
         val m = client.multi()
         val set = m.set("STR", SomeValue)
         m.discard()
-        evaluating { m.get("STR") } must produce[RedisProtocolException]
-        evaluating { m.exec() } must produce[RedisProtocolException]
-        client.get("STR") must be('empty)
+        evaluating { m.get("STR") } should produce[RedisProtocolException]
+        evaluating { m.exec() } should produce[RedisProtocolException]
+        client.get("STR").futureValue should be (empty)
       }
       Given("that a watched key has been modified")
       "also abort the transaction" taggedAs (V200) in {
@@ -239,8 +239,8 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
         m.set("STR", SomeValue)
         m.get("STR")
         client2.set("STR", "NO!")
-        evaluating { m.exec() } must produce[RedisTransactionException] 
-        client.get("STR") must be(Some("NO!"))
+        evaluating { m.exec() } should produce[RedisTransactionException] 
+        client.get("STR").futureValue should be (Some("NO!"))
         client.del("STR")
       }
       Given("that a watched but then unwatched key has been modified")
@@ -252,8 +252,8 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
         m.get("STR")
         m.get("LIST")
         client2.set("STR", "NO!")
-        m.exec().toList must be(Result)
-        client.get("STR") must be(Some(SomeValue))
+        m.exec().toList should be (Result)
+        client.get("STR").futureValue should be (Some(SomeValue))
         client.del("STR")
       }
     }
@@ -266,17 +266,17 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           set = m.set("STR", SomeValue)
           get = m.get("STR")
           error = m.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
         }
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        result.toList must be(Result)
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        result.toList should be (Result)
         client.del("STR")
         
-        redis.transactional(_.ping()).! must be(PingResult)
+        redis.transactional(_.ping()).futureValue should be (PingResult)
       }
     }
     "using transactional1()" should {
@@ -288,34 +288,34 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           set = m.set("STR", SomeValue)
           get = m.get("STR")
           error = m.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
           get
         }
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        result must be(Some(SomeValue))
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        result should be (Some(SomeValue))
         client.del("STR")
 
         val result2 = client.transactional1 { m =>
           set = m.set("STR", SomeValue)
           get = m.get("STR")
           error = m.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-          m.exec().toList must be(Result)
-          Await.result(set, 100 milliseconds) must be()
-          Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-          evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
+          m.exec().toList should be (Result)
+          Await.result(set, 100 milliseconds).futureValue should be ()
+          Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+          evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
           get
         }
-        result2 must be(Some(SomeValue))
+        result2 should be (Some(SomeValue))
         client.del("STR")
         
-        redis.transactional1(_.ping()).! must be("PONG")
+        redis.transactional1(_.ping()).futureValue should be ("PONG")
       }
     }
     "using transactionalN()" should {
@@ -327,15 +327,15 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           set = m.set("STR", SomeValue)
           get = m.get("STR")
           error = m.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
           List(get, m.exists("STR"))
         }
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        result.toList must be(List(Some(SomeValue), true))
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        result.toList should be (List(Some(SomeValue), true))
         client.del("STR")
 
         val result2 = client.transactionalN { m =>
@@ -343,19 +343,19 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           get = m.get("STR")
           error = m.get("LIST")
           val exists = m.exists("STR")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-          m.exec().toList must be(Result ::: List(Success(true)))
-          Await.result(set, 100 milliseconds) must be()
-          Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-          evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
+          m.exec().toList should be (Result ::: List(Success(true)))
+          Await.result(set, 100 milliseconds).futureValue should be ()
+          Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+          evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
           List(get, exists)
         }
-        result2.toList must be(List(Some(SomeValue), true))
+        result2.toList should be (List(Some(SomeValue), true))
         client.del("STR")
         
-        redis.transactionalN(p => List(p.ping(), p.ping())).! must be(List("PONG", "PONG"))
+        redis.transactionalN(p => List(p.ping(), p.ping())).futureValue should be (List("PONG", "PONG"))
       }
     }
     "using transactionalM()" should {
@@ -367,15 +367,15 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           set = m.set("STR", SomeValue)
           get = m.get("STR")
           error = m.get("LIST")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
           Map("get" -> get, "exists" -> m.exists("STR"))
         }
-        Await.result(set, 100 milliseconds) must be()
-        Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-        evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
-        result must be(Map("get" -> Some(SomeValue), "exists" -> true))
+        Await.result(set, 100 milliseconds).futureValue should be ()
+        Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+        evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
+        result should be (Map("get" -> Some(SomeValue), "exists" -> true))
         client.del("STR")
 
         val result2 = client.transactionalM { m =>
@@ -383,19 +383,19 @@ class TransactionalCommandsSpec extends WordSpec with GivenWhenThen with BeforeA
           get = m.get("STR")
           error = m.get("LIST")
           val exists = m.exists("STR")
-          evaluating { Await.result(set, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(get, 100 milliseconds) } must produce[TimeoutException]
-          evaluating { Await.result(error, 100 milliseconds) } must produce[TimeoutException]
-          m.exec().toList must be(Result ::: List(Success(true)))
-          Await.result(set, 100 milliseconds) must be()
-          Await.result(get, 100 milliseconds) must be(Some(SomeValue))
-          evaluating { Await.result(error, 100 milliseconds) } must produce[RedisException]
+          evaluating { Await.result(set, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(get, 100 milliseconds) } should produce[TimeoutException]
+          evaluating { Await.result(error, 100 milliseconds) } should produce[TimeoutException]
+          m.exec().toList should be (Result ::: List(Success(true)))
+          Await.result(set, 100 milliseconds).futureValue should be ()
+          Await.result(get, 100 milliseconds).futureValue should be (Some(SomeValue))
+          evaluating { Await.result(error, 100 milliseconds) } should produce[RedisException]
           Map("get" -> get, "exists" -> exists)
         }
-        result2 must be(Map("get" -> Some(SomeValue), "exists" -> true))
+        result2 should be (Map("get" -> Some(SomeValue), "exists" -> true))
         client.del("STR")
         
-        redis.transactionalM(m => Map("p1" -> m.ping(), "p2" -> m.ping())).! must be(
+        redis.transactionalM(m => Map("p1" -> m.ping(), "p2" -> m.ping())).futureValue should be (
           Map("p1" -> "PONG", "p2" -> "PONG")
         )
       }
