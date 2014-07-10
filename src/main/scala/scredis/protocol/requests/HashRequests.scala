@@ -144,7 +144,7 @@ object HashRequests {
       cursor = cursor,
       matchOpt = matchOpt,
       countOpt = countOpt
-    )
+    ): _*
   ) {
     override def decode = {
       case a: ArrayResponse => a.parsedAsScanResponse[(String, R), CC] {

@@ -18,7 +18,7 @@ object ConnectionRequests {
   
   case class Echo(message: String) extends Request[String](Echo, message) {
     override def decode = {  
-      case SimpleStringResponse(value) => value
+      case b: BulkStringResponse => b.flattened[String]
     }
   }
   

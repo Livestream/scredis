@@ -33,39 +33,18 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
   
   private val scheduler = context.system.scheduler
   
-  /*
-  private val requestMeter = scredis.protocol.NioProtocol.metrics.meter(
-    MetricRegistry.name(getClass, "requestMeter")
-  )
-  
-  private val bytesMeter = scredis.protocol.NioProtocol.metrics.meter(
-    MetricRegistry.name(getClass, "bytesMeter")
-  )
-  
-  private val writeTimer = scredis.protocol.NioProtocol.metrics.timer(
-    MetricRegistry.name(getClass, "writeTimer")
-  )
-  private val waitTimer = scredis.protocol.NioProtocol.metrics.timer(
-    MetricRegistry.name(getClass, "waitTimer")
-  )
-  private val tellTimer = scredis.protocol.NioProtocol.metrics.timer(
-    MetricRegistry.name(getClass, "tellTimer")
-  )*/
-  
   private val bufferPool = new scredis.util.BufferPool(1)
   private val requests = new LinkedList[Request[_]]()
-  private var batch: List[Request[_]] = Nil
   
-  private var writeId: Int = 0
-  private var canWrite = false
   private var connection: ActorRef = _
   private var partitionerActor: ActorRef = _
-  private var waitTimerContext: com.codahale.metrics.Timer.Context = _
-  
+  private var batch: List[Request[_]] = Nil
+  private var writeId: Int = 0
   private var retries: Int = 0
+  private var canWrite = false
   private var isConnecting: Boolean = false
-  private var timeoutCancellableOpt: Option[Cancellable] = None
   private var isClosing: Boolean = false
+  private var timeoutCancellableOpt: Option[Cancellable] = None
   
   private def incrementWriteId(): Unit = {
     if (writeId == Integer.MAX_VALUE) {
@@ -110,6 +89,14 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     batch = Nil
   }
   
+  private def abortAndReconnect(): Unit = {
+    connection ! Abort
+    timeoutCancellableOpt = Some {
+      scheduler.scheduleOnce(3 seconds, self, AbortTimeout)
+    }
+    context.become(aborting)
+  }
+  
   private def stop(): Unit = {
     logger.trace("Stopping Actor...")
     partitionerActor ! PoisonPill
@@ -125,7 +112,6 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       return
     }
     
-    //val ctx = writeTimer.time()
     var i = 0
     var length = 0
     val batch = ListBuffer[Request[_]]()
@@ -154,8 +140,6 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     buffer.flip()
     val data = ByteString(buffer)
     logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
-    //requestMeter.mark(batch.size)
-    //bytesMeter.mark(length)
     connection ! Write(data, WriteAck)
     bufferPool.release(buffer)
     canWrite = false
@@ -164,8 +148,6 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     timeoutCancellableOpt = Some {
       scheduler.scheduleOnce(5 seconds, self, WriteTimeout(writeId))
     }
-    //ctx.stop()
-    //waitTimerContext = waitTimer.time()
   }
   
   def receive: Receive = {
@@ -184,8 +166,9 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       connection ! Register(self)
       isConnecting = false
       canWrite = true
+      retries = 0
       write()
-      // TODO: context.watch(connection)
+      context.watch(connection)
       if (isClosing) {
         context.become(closing)
       } else {
@@ -206,7 +189,7 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     case request @ Shutdown(_) => {
       request.success(())
       partitionerActor ! Remove(1)
-      failAllQueuedRequests(RedisIOException(s"Connection has been closed by SHUTDOWN command"))
+      failAllQueuedRequests(RedisIOException(s"Connection has been closed with SHUTDOWN command"))
       stop()
     }
     case request: Request[_] => {
@@ -235,8 +218,6 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       context.become(closing)
     }
     case request: Request[_] => {
-      //val data = ByteString(request.encoded)
-      //logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
       requests.addLast(request)
       if (canWrite) {
         write()
@@ -244,32 +225,27 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     }
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
-      //val ctx = tellTimer.time()
       partitionerActor ! data
-      //ctx.stop()
     }
     case WriteAck => {
-      //waitTimerContext.stop()
-      retries = 0
       batch = Nil
+      retries = 0
       timeoutCancellableOpt.foreach(_.cancel())
       write()
     }
     case WriteTimeout(writeId) => if (writeId == this.writeId) {
       failBatch(RedisIOException("Timeout"))
-      connection ! Abort
-      context.become(aborting)
+      abortAndReconnect()
     }
     case CommandFailed(cmd @ Write(x, _)) => {
       logger.error(s"Command failed: $cmd")
       timeoutCancellableOpt.foreach(_.cancel())
-      if (retries >= 5) {
+      if (retries >= 2) {
         failBatch(RedisIOException("Could not send requests"))
-        retries = 0
-        write()
+        abortAndReconnect()
       } else {
-        scheduler.scheduleOnce(retries * 1 seconds, connection, cmd)
         retries += 1
+        write()
       }
     }
     case _: ConnectionClosed => {
@@ -286,14 +262,15 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
   }
   
   def closing: Receive = LoggingReceive {
+    case request: Request[_] => {
+      request.failure(ClosingException)
+      partitionerActor ! Remove(1)
+    }
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
-      //val ctx = tellTimer.time()
       partitionerActor ! data
-      //ctx.stop()
     }
     case WriteAck => {
-      //waitTimerContext.stop()
       retries = 0
       batch = Nil
       timeoutCancellableOpt.foreach(_.cancel())
@@ -301,66 +278,47 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     }
     case WriteTimeout(writeId) => if (writeId == this.writeId) {
       failBatch(RedisIOException("Timeout"))
-      connection ! Abort
-      context.become(aborting)
+      abortAndReconnect()
     }
     case CommandFailed(cmd @ Write(x, _)) => {
       logger.error(s"Command failed: $cmd")
       timeoutCancellableOpt.foreach(_.cancel())
-      if (retries >= 5) {
-        failBatch(RedisIOException("Could not send request"))
-        retries = 0
-        write()
-        if (canWrite) {
-          connection ! Close
-        }
+      if (retries >= 2) {
+        failBatch(RedisIOException("Could not send requests"))
+        abortAndReconnect()
       } else {
-        scheduler.scheduleOnce(retries * 1 seconds, connection, cmd)
         retries += 1
+        write()
       }
-    }
-    case Closed => {
-      logger.info(s"Connection has been closed")
-      stop()
-    }
-    case CommandFailed(c: CloseCommand) => {
-      logger.warn(s"Connection could not be closed. Aborting...")
-      connection ! Tcp.Abort
-      stop()
     }
     case _: ConnectionClosed => {
       logger.info(s"Connection has been closed")
       stop()
-    }
-    case request: Request[_] => {
-      request.failure(ClosingException)
-      partitionerActor ! Remove(1)
     }
   }
   
   def aborting: Receive = LoggingReceive {
-    case Aborted => {
-      logger.info(s"ABORT: Connection has been closed by the server")
-      connect()
-      context.become(connecting)
-    }
-    case request: Request[_] => if (isClosing) {
-      request.failure(ClosingException)
-      partitionerActor ! Remove(1)
-    } else {
-      requests.addLast(request)
-    }
-    /*
     case _: ConnectionClosed => {
-      logger.info(s"Connection has been closed by the server")
+      logger.info(s"Connection has been reset")
       connect()
       context.become(connecting)
     }
     case Terminated(connection) => {
-      logger.info(s"Connection has been shutdown")
+      logger.info(s"Connection has been reset")
       connect()
       context.become(connecting)
-    }*/
+    }
+    case AbortTimeout => {
+      logger.error(s"A timeout occurred while resetting the connection")
+      connect()
+      context.become(connecting)
+    }
+    case request: Request[_] => if (isClosing) {
+      request.failure(RedisIOException("Connection is closing"))
+      partitionerActor ! Remove(1)
+    } else {
+      requests.addLast(request)
+    }
   }
   
 }
@@ -368,4 +326,5 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
 object IOActor {
   object WriteAck extends Tcp.Event
   case class WriteTimeout(writeId: Int)
+  case object AbortTimeout
 }

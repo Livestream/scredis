@@ -40,6 +40,7 @@ final class Client(
   with SetCommands
   with SortedSetCommands
   with ScriptingCommands
+  with HyperLogLogCommands
   with PubSubCommands
   with TransactionCommands {
   

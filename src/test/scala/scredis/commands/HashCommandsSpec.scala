@@ -39,7 +39,7 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash does not contain the field" should {
       "return 0" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD", SomeValue).futureValue should be (())
+        client.hSet("HASH", "FIELD", SomeValue)
         client.hDel("HASH", "FIELD2").futureValue should be (0)
       }
     }
@@ -66,9 +66,9 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash does not contain the fields" should {
       "return 0" taggedAs (V240) in {
-        client.hSet("HASH", "FIELD", SomeValue).futureValue should be (())
-        client.hSet("HASH", "FIELD2", SomeValue).futureValue should be (())
-        client.hSet("HASH", "FIELD3", SomeValue).futureValue should be (())
+        client.hSet("HASH", "FIELD", SomeValue)
+        client.hSet("HASH", "FIELD2", SomeValue)
+        client.hSet("HASH", "FIELD3", SomeValue)
         client.hDel("HASH", "FIELD4", "FIELD5").futureValue should be (0)
       }
     }
@@ -98,7 +98,7 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash does not contain the field" should {
       "return false" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD", SomeValue).futureValue should be (())
+        client.hSet("HASH", "FIELD", SomeValue)
         client.hExists("HASH", "FIELD2").futureValue should be (false)
       }
     }
@@ -125,7 +125,7 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash does not contain the field" should {
       "return None" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD", SomeValue).futureValue should be (())
+        client.hSet("HASH", "FIELD", SomeValue)
         client.hGet("HASH", "FIELD2").futureValue should be (empty)
       }
     }
@@ -152,8 +152,8 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash contains some fields" should {
       "return the stored value" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD1", SomeValue).futureValue should be (())
-        client.hSet("HASH", "FIELD2", "YES").futureValue should be (())
+        client.hSet("HASH", "FIELD1", SomeValue)
+        client.hSet("HASH", "FIELD2", "YES")
         client.hGetAll("HASH").futureValue should contain (
           Map("FIELD1" -> SomeValue, "FIELD2" -> "YES")
         )
@@ -184,7 +184,7 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash contains the field but the latter does not contain an integer" should {
       "return an error" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD3", SomeValue).futureValue should be (())
+        client.hSet("HASH", "FIELD3", SomeValue)
         a [RedisErrorResponseException] should be thrownBy {
           client.hIncrBy("HASH", "FIELD3", 2).!
         }
@@ -221,7 +221,7 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash contains the field but the latter does not contain a floating point number" should {
       "return an error" taggedAs (V260) in {
-        client.hSet("HASH", "FIELD3", SomeValue).futureValue should be (())
+        client.hSet("HASH", "FIELD3", SomeValue)
         a [RedisErrorResponseException] should be thrownBy { 
           client.hIncrByFloat("HASH", "FIELD3", 2.1).!
         }
@@ -249,8 +249,8 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash contains some fields" should {
       "return field names" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD1", SomeValue).futureValue should be (())
-        client.hSet("HASH", "FIELD2", "YES").futureValue should be (())
+        client.hSet("HASH", "FIELD1", SomeValue)
+        client.hSet("HASH", "FIELD2", "YES")
         client.hKeys("HASH").futureValue should contain theSameElementsAs List("FIELD1", "FIELD2")
         client.del("HASH").futureValue should be (1)
       }
@@ -270,8 +270,8 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash contains some fields" should {
       "return the number of fields in the hash" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD1", SomeValue).futureValue should be (())
-        client.hSet("HASH", "FIELD2", "YES").futureValue should be (())
+        client.hSet("HASH", "FIELD1", SomeValue)
+        client.hSet("HASH", "FIELD2", "YES")
         client.hLen("HASH").futureValue should be (2)
         client.del("HASH").futureValue should be (1)
       }
@@ -299,8 +299,8 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash contains some fields" should {
       "return the values" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD", SomeValue).futureValue should be (())
-        client.hSet("HASH", "FIELD2", "YES").futureValue should be (())
+        client.hSet("HASH", "FIELD", SomeValue)
+        client.hSet("HASH", "FIELD2", "YES")
         client.hmGet(
           "HASH", "FIELD", "FIELD2", "FIELD3"
         ).futureValue should contain theSameElementsAs (List(Some(SomeValue), Some("YES"), None))
@@ -326,7 +326,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.hmSet("LIST", Map("FIELD" -> SomeValue, "FIELD2" -> "YES")).futureValue
+          client.hmSet("LIST", Map("FIELD" -> SomeValue, "FIELD2" -> "YES")).!
         }
       }
     }
@@ -361,7 +361,7 @@ class HashCommandsSpec extends WordSpec
     "the hash contains 5 fields" should {
       "return all fields" taggedAs (V280) in {
         for (i <- 1 to 5) {
-          client.hSet("HASH", "key" + i, "value" + i).futureValue should be (())
+          client.hSet("HASH", "key" + i, "value" + i)
         }
         val (next, list) = client.hScan[String]("HASH", 0).!
         next should be (0)
@@ -373,7 +373,7 @@ class HashCommandsSpec extends WordSpec
           ("key5", "value5")
         )
         for (i <- 1 to 10) {
-          client.hSet("HASH", "foo" + i, "foo" + i).futureValue should be (())
+          client.hSet("HASH", "foo" + i, "foo" + i)
         }
       }
     }
@@ -437,7 +437,7 @@ class HashCommandsSpec extends WordSpec
   HSet.toString when {
     "the key does not exist" should {
       "create the hash and set the given field" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD", SomeValue).futureValue should be (())
+        client.hSet("HASH", "FIELD", SomeValue).futureValue should be (true)
         client.hGet("HASH", "FIELD").futureValue should contain (SomeValue)
       }
     }
@@ -450,15 +450,15 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash already exists and does not contain the field" should {
       "set the new field" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD2", "YES").futureValue should be (())
+        client.hSet("HASH", "FIELD2", "YES").futureValue should be (true)
         client.hGet("HASH", "FIELD2").futureValue should contain ("YES")
       }
     }
     "the hash already contains the field" should {
       "overwrite the value" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD", "NEW").futureValue should be (())
+        client.hSet("HASH", "FIELD", "NEW").futureValue should be (false)
         client.hGet("HASH", "FIELD").futureValue should contain ("NEW")
-        client.del("HASH") should be (1)
+        client.del("HASH").futureValue should be (1)
       }
     }
   }
@@ -507,9 +507,9 @@ class HashCommandsSpec extends WordSpec
     }
     "the hash contains some fields" should {
       "return field names" taggedAs (V200) in {
-        client.hSet("HASH", "FIELD1", SomeValue).futureValue should be (())
-        client.hSet("HASH", "FIELD2", "YES").futureValue should be (())
-        client.hSet("HASH", "FIELD3", "YES").futureValue should be (())
+        client.hSet("HASH", "FIELD1", SomeValue)
+        client.hSet("HASH", "FIELD2", "YES")
+        client.hSet("HASH", "FIELD3", "YES")
         client.hVals("HASH").futureValue should contain theSameElementsAs (
           List(SomeValue, "YES", "YES")
         )
@@ -519,8 +519,8 @@ class HashCommandsSpec extends WordSpec
   }
 
   override def afterAll() {
-    client.flushDB().futureValue
-    client.quit().futureValue
+    client.flushDB().!
+    client.quit().!
   }
 
 }

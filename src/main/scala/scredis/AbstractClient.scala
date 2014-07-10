@@ -5,7 +5,10 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import akka.actor._
 
 import scredis.io._
+import scredis.exceptions._
 import scredis.protocol._
+import scredis.protocol.requests.ConnectionRequests.Quit
+import scredis.protocol.requests.ServerRequests.Shutdown
 
 import scala.collection.mutable.{ Map => MMap }
 import scala.concurrent.{ ExecutionContext, Future, Await }
@@ -23,6 +26,8 @@ abstract class AbstractClient(
   port: Int
 ) extends LazyLogging {
   
+  @volatile private var isClosed = false
+  
   private val ioActor = system.actorOf(
     Props(classOf[IOActor], new InetSocketAddress(host, port)).withDispatcher(
       "scredis.io-dispatcher"
@@ -37,9 +42,18 @@ abstract class AbstractClient(
   implicit val dispatcher: ExecutionContext = system.dispatcher
   
   protected def send[A](request: Request[A]): Future[A] = {
-    logger.debug(s"Sending request: $request")
-    partitionerActor ! request
-    request.future
+    if (isClosed) {
+      Future.failed(RedisIOException("Connection has been closed"))
+    } else {
+      logger.debug(s"Sending request: $request")
+      request match {
+        case _: Quit      => isClosed = true
+        case _: Shutdown  => isClosed = true
+        case _            =>
+      }
+      partitionerActor ! request
+      request.future
+    }
   }
   
   protected def sendBlocking[A](request: Request[A]): A = {

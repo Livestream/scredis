@@ -81,6 +81,7 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
           s"Does not know how to parse second response: $secondResponse"
         )
       }
+      builder += ((firstValue, secondValue))
       i += 2
     }
     builder.result()
@@ -110,6 +111,7 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
           s"Does not know how to parse second response: $secondResponse"
         )
       }
+      builder += ((firstValue, secondValue))
       i += 2
     }
     builder.result()
@@ -123,7 +125,7 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     }
     
     val nextCursor = Protocol.decode(buffer) match {
-      case IntegerResponse(cursor) => cursor
+      case b: BulkStringResponse => b.flattened[String].toLong
       case x => throw RedisProtocolException(s"Unexpected response for scan cursor: $x")
     }
     

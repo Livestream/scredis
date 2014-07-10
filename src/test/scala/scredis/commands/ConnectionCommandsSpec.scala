@@ -15,66 +15,68 @@ class ConnectionCommandsSpec extends WordSpec
   with Matchers
   with ScalaFutures {
   
-  private val redis = Client()
-  private val redisToQuit = Client()
-  private val redisWithPassword = Client("application.conf", "unauthenticated.scredis")
+  private val client = Client()
+  private val clientToQuit = Client()
+  private val clientWithPassword = Client("application.conf", "unauthenticated.scredis")
   private val CorrectPassword = "foobar"
   
   Auth.toString when {
     "the server has no password" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          redis.auth("foo").!
+          client.auth("foo").!
         }
       }
     }
     "the password is invalid" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          redisWithPassword.auth("foo").!
+          clientWithPassword.auth("foo").!
         }
       }
     }
     "the password is correct" should {
       "authenticate to the server" taggedAs (V100) in {
-        redisWithPassword.auth(CorrectPassword).futureValue should be (())
-        redisWithPassword.ping().futureValue should be("PONG")
+        clientWithPassword.auth(CorrectPassword).futureValue should be (())
+        clientWithPassword.ping().futureValue should be ("PONG")
       }
     }
     "re-authenticating with a wrong password" should {
-      "return an error and unauthenticate the redis" taggedAs (V100) in {
+      "return an error and unauthenticate the client" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          redisWithPassword.auth("foo").!
+          clientWithPassword.auth("foo").!
         }
-        redisWithPassword.ping().futureValue should be("PONG")
+        a [RedisErrorResponseException] should be thrownBy {
+          clientWithPassword.ping().!
+        }
       }
     }
     "re-authenticating with a correct password" should {
       "authenticate back to the server" taggedAs (V100) in {
-        redisWithPassword.auth(CorrectPassword).futureValue should be (())
-        redisWithPassword.ping().futureValue should be("PONG")
+        clientWithPassword.auth(CorrectPassword).futureValue should be (())
+        clientWithPassword.ping().futureValue should be ("PONG")
       }
     }
   }
 
   Echo.toString should {
     "echo back the message" taggedAs (V100) in {
-      redis.echo("Hello World -> 虫àéç蟲").futureValue should be("Hello World -> 虫àéç蟲")
+      client.echo("Hello World -> 虫àéç蟲").futureValue should be ("Hello World -> 虫àéç蟲")
     }
   }
 
   Ping.toString should {
     "receive PONG" taggedAs (V100) in {
-      redis.ping().futureValue should be("PONG")
+      client.ping().futureValue should be ("PONG")
     }
   }
 
   Quit.toString when {
     "quiting" should {
       "close the connection" taggedAs (V100) in {
-        redisToQuit.quit().futureValue should be (())
+        clientToQuit.quit().futureValue should be (())
         a [RedisIOException] should be thrownBy {
-          redisToQuit.ping().futureValue
+          clientToQuit.ping().!
         }
       }
     }
@@ -83,26 +85,28 @@ class ConnectionCommandsSpec extends WordSpec
   Select.toString when {
     "database index is negative" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.select(-1).! }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.select(-1).!
+        }
       }
     }
     "database index is too large" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          redis.select(Integer.MAX_VALUE).!
+          client.select(Integer.MAX_VALUE).!
         }
       }
     }
     "database index is valid" should {
       "succeed" taggedAs (V100) in {
-        redis.select(1).futureValue should be(())
+        client.select(1).futureValue should be (())
       }
     }
   }
 
   override def afterAll() {
-    redis.quit().futureValue
-    redisWithPassword.quit().futureValue
+    client.quit().!
+    clientWithPassword.quit().!
   }
   
 }
