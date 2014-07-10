@@ -24,7 +24,7 @@ class HashCommandsSpec extends WordSpec
     client.lPush("LIST", "A").futureValue
   }
   
-  HDel.name when {
+  HDel.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V200) in {
         client.hDel("NONEXISTENTKEY", "foo").futureValue should be (0)
@@ -33,7 +33,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hDel("LIST", "foo").futureValue
+          client.hDel("LIST", "foo").!
         }
       }
     }
@@ -51,7 +51,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  s"${HDel.name} >= 2.4" when {
+  s"${HDel.toString} >= 2.4" when {
     "the key does not exist" should {
       "return 0" taggedAs (V240) in {
         client.hDel("NONEXISTENTKEY", "foo", "bar").futureValue should be (0)
@@ -60,7 +60,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hDel("LIST", "foo", "bar").futureValue
+          client.hDel("LIST", "foo", "bar").!
         }
       }
     }
@@ -83,7 +83,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HExists.name when {
+  HExists.toString when {
     "the key does not exist" should {
       "return false" taggedAs (V200) in {
         client.hExists("NONEXISTENTKEY", "foo").futureValue should be (false)
@@ -92,7 +92,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hExists("LIST", "foo").futureValue
+          client.hExists("LIST", "foo").!
         }
       }
     }
@@ -110,7 +110,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HGet.name when {
+  HGet.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V200) in {
         client.hGet("NONEXISTENTKEY", "foo").futureValue should be (empty)
@@ -119,7 +119,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hGet("LIST", "foo").futureValue
+          client.hGet("LIST", "foo").!
         }
       }
     }
@@ -137,7 +137,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HGetAll.name when {
+  HGetAll.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V200) in {
         client.hGetAll("NONEXISTENTKEY").futureValue should be (empty)
@@ -146,7 +146,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hGetAll("LIST").futureValue
+          client.hGetAll("LIST").!
         }
       }
     }
@@ -162,7 +162,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HIncrBy.name when {
+  HIncrBy.toString when {
     "the key does not exist" should {
       "create a hash with the specified field and increment the field" taggedAs (V200) in {
         client.hIncrBy("HASH", "FIELD", 1).futureValue should be (1)
@@ -172,7 +172,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hIncrBy("LIST", "foo", 1).futureValue
+          client.hIncrBy("LIST", "foo", 1).!
         }
       }
     }
@@ -186,7 +186,7 @@ class HashCommandsSpec extends WordSpec
       "return an error" taggedAs (V200) in {
         client.hSet("HASH", "FIELD3", SomeValue).futureValue should be (())
         a [RedisErrorResponseException] should be thrownBy {
-          client.hIncrBy("HASH", "FIELD3", 2).futureValue
+          client.hIncrBy("HASH", "FIELD3", 2).!
         }
       }
     }
@@ -199,7 +199,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HIncrByFloat.name when {
+  HIncrByFloat.toString when {
     "the key does not exist" should {
       "create a hash with the specified field and increment the field" taggedAs (V260) in {
         client.hIncrByFloat("HASH", "FIELD", 1.2).futureValue should be (1.2)
@@ -209,7 +209,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hIncrByFloat("LIST", "foo", 1.2).futureValue
+          client.hIncrByFloat("LIST", "foo", 1.2).!
         }
       }
     }
@@ -223,7 +223,7 @@ class HashCommandsSpec extends WordSpec
       "return an error" taggedAs (V260) in {
         client.hSet("HASH", "FIELD3", SomeValue).futureValue should be (())
         a [RedisErrorResponseException] should be thrownBy { 
-          client.hIncrByFloat("HASH", "FIELD3", 2.1).futureValue
+          client.hIncrByFloat("HASH", "FIELD3", 2.1).!
         }
       }
     }
@@ -236,7 +236,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HKeys.name when {
+  HKeys.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V200) in {
         client.hKeys("NONEXISTENTKEY").futureValue should be (empty)
@@ -244,7 +244,7 @@ class HashCommandsSpec extends WordSpec
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        a [RedisErrorResponseException] should be thrownBy { client.hKeys("LIST").futureValue }
+        a [RedisErrorResponseException] should be thrownBy { client.hKeys("LIST").! }
       }
     }
     "the hash contains some fields" should {
@@ -257,7 +257,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HLen.name when {
+  HLen.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V200) in {
         client.hLen("NONEXISTENTKEY").futureValue should be (0)
@@ -265,7 +265,7 @@ class HashCommandsSpec extends WordSpec
     }
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
-        a [RedisErrorResponseException] should be thrownBy { client.hLen("LIST").futureValue }
+        a [RedisErrorResponseException] should be thrownBy { client.hLen("LIST").! }
       }
     }
     "the hash contains some fields" should {
@@ -278,7 +278,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HMGet.name when {
+  HMGet.toString when {
     "the key does not exist" should {
       "return a list contianing only None" taggedAs (V200) in {
         client.hmGet("NONEXISTENTKEY", "foo", "bar").futureValue should contain theSameElementsAs (
@@ -290,10 +290,10 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hmGet("LIST", "foo", "bar").futureValue
+          client.hmGet("LIST", "foo", "bar").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.hmGetAsMap("LIST", "foo", "bar").futureValue
+          client.hmGetAsMap("LIST", "foo", "bar").!
         }
       }
     }
@@ -312,7 +312,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HMSet.name when {
+  HMSet.toString when {
     "the key does not exist" should {
       "create a hash and set all specified fields" taggedAs (V200) in {
         client.hmSet(
@@ -343,7 +343,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
   
-  HScan.name when {
+  HScan.toString when {
     "the key does not exist" should {
       "return an empty set" taggedAs (V280) in {
         val (next, list) = client.hScan[String]("NONEXISTENTKEY", 0).!
@@ -354,7 +354,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V280) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hScan[String]("LIST", 0).futureValue
+          client.hScan[String]("LIST", 0).!
         }
       }
     }
@@ -434,7 +434,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HSet.name when {
+  HSet.toString when {
     "the key does not exist" should {
       "create the hash and set the given field" taggedAs (V200) in {
         client.hSet("HASH", "FIELD", SomeValue).futureValue should be (())
@@ -444,7 +444,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hSet("LIST", "foo", "bar").futureValue
+          client.hSet("LIST", "foo", "bar").!
         }
       }
     }
@@ -463,7 +463,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HSetNX.name when {
+  HSetNX.toString when {
     "the key does not exist" should {
       "create the hash and set the given field" taggedAs (V200) in {
         client.hSetNX("HASH", "FIELD", SomeValue).futureValue should be (true)
@@ -473,7 +473,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hSetNX("LIST", "foo", "bar").futureValue
+          client.hSetNX("LIST", "foo", "bar").!
         }
       }
     }
@@ -492,7 +492,7 @@ class HashCommandsSpec extends WordSpec
     }
   }
 
-  HVals.name when {
+  HVals.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V200) in {
         client.hVals("NONEXISTENTKEY").futureValue should be (empty)
@@ -501,7 +501,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hVals("LIST").futureValue
+          client.hVals("LIST").!
         }
       }
     }

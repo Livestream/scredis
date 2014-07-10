@@ -26,7 +26,7 @@ class ListCommandsSpec extends WordSpec
   }
   
   /* FIXME:
-  BLPop.name when {
+  BLPop.toString when {
     "the first existing key is not of type list" should {
       "return an error" taggedAs (V200) in {
         client.rPush("LIST", "A").futureValue
@@ -84,7 +84,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  BRPop.name when {
+  BRPop.toString when {
     "the first existing key is not of type list" should {
       "return an error" taggedAs (V200) in {
         client.lPush("LIST", "A").futureValue
@@ -142,7 +142,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  BRPopLPush.name when {
+  BRPopLPush.toString when {
     "the source key does not exist" should {
       "do nothing" taggedAs (V220) in {
         client.sync(_.brPopLPush("LIST", "LIST", 1)).futureValue should be (empty)
@@ -182,7 +182,7 @@ class ListCommandsSpec extends WordSpec
     }
   }*/
 
-  LIndex.name when {
+  LIndex.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         client.lIndex("LIST", 0).futureValue should be (empty)
@@ -192,7 +192,7 @@ class ListCommandsSpec extends WordSpec
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { client.lIndex("HASH", 0).futureValue }
+        a [RedisErrorResponseException] should be thrownBy { client.lIndex("HASH", 0).! }
       }
     }
     "the index is out of range" should {
@@ -218,7 +218,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LInsert.name when {
+  LInsert.toString when {
     "the key does not exist" should {
       "do nothing" taggedAs (V220) in {
         client.lInsert("LIST", Position.Before, "A", SomeValue).futureValue should contain (0)
@@ -228,7 +228,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V220) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lInsert("HASH", Position.Before, "A", SomeValue).futureValue
+          client.lInsert("HASH", Position.Before, "A", SomeValue).!
         }
       }
     }
@@ -254,7 +254,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LLen.name when {
+  LLen.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V100) in {
         client.lLen("LIST").futureValue should be (0)
@@ -262,7 +262,7 @@ class ListCommandsSpec extends WordSpec
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { client.lLen("HASH").futureValue }
+        a [RedisErrorResponseException] should be thrownBy { client.lLen("HASH").! }
       }
     }
     "the list contains some elements" should {
@@ -275,7 +275,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LPop.name when {
+  LPop.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         client.lPop("LIST").futureValue should be (empty)
@@ -283,7 +283,7 @@ class ListCommandsSpec extends WordSpec
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { client.lPop("HASH").futureValue }
+        a [RedisErrorResponseException] should be thrownBy { client.lPop("HASH").! }
       }
     }
     "the list contains some elements" should {
@@ -297,7 +297,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LPush.name when {
+  LPush.toString when {
     "the key does not exist" should {
       "create a list and prepend the value" taggedAs (V100) in {
         client.lPush("LIST", "A").futureValue should be (1)
@@ -308,7 +308,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lPush("HASH", "A").futureValue
+          client.lPush("HASH", "A").!
         }
       }
     }
@@ -324,7 +324,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  s"${LPush.name}-2.4" when {
+  s"${LPush.toString}-2.4" when {
     "the key does not exist" should {
       "create a list and prepend the values" taggedAs (V240) in {
         client.lPush("LIST", "A", "B").futureValue should be (2)
@@ -334,7 +334,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lPush("HASH", "A", "B").futureValue
+          client.lPush("HASH", "A", "B").!
         }
       }
     }
@@ -349,7 +349,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LPushX.name when {
+  LPushX.toString when {
     "the key does not exist" should {
       "do nothing" taggedAs (V220) in {
         client.lPushX("LIST", "A").futureValue should be (0)
@@ -360,7 +360,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V220) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lPushX("HASH", "A").futureValue
+          client.lPushX("HASH", "A").!
         }
       }
     }
@@ -377,7 +377,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LRange.name when {
+  LRange.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         client.lRange("LIST").futureValue should be (empty)
@@ -386,7 +386,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lRange("HASH").futureValue
+          client.lRange("HASH").!
         }
       }
     }
@@ -421,7 +421,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LRem.name when {
+  LRem.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V100) in {
         client.lRem("LIST", "A").futureValue should be (0)
@@ -430,7 +430,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lRem("HASH", "A").futureValue
+          client.lRem("HASH", "A").!
         }
       }
     }
@@ -477,17 +477,17 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LSet.name when {
+  LSet.toString when {
     "the key does not exist" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lSet("LIST", 0, "A").futureValue
+          client.lSet("LIST", 0, "A").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.lSet("LIST", 1, "A").futureValue
+          client.lSet("LIST", 1, "A").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.lSet("LIST", -1, "A").futureValue
+          client.lSet("LIST", -1, "A").!
         }
         client.lRange("LIST").futureValue should be (empty)
       }
@@ -495,7 +495,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lSet("HASH", 0, "A").futureValue
+          client.lSet("HASH", 0, "A").!
         }
       }
     }
@@ -506,13 +506,13 @@ class ListCommandsSpec extends WordSpec
         client.rPush("LIST", "B")
         client.rPush("LIST", "C")
         a [RedisErrorResponseException] should be thrownBy {
-          client.lSet("LIST", 3, "X").futureValue
+          client.lSet("LIST", 3, "X").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.lSet("LIST", -4, "X").futureValue
+          client.lSet("LIST", -4, "X").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.lSet("LIST", 55, "X").futureValue
+          client.lSet("LIST", 55, "X").!
         }
         client.lRange("LIST").futureValue should contain theSameElementsInOrderAs List(
           "A", "B", "C"
@@ -537,7 +537,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  LTrim.name when {
+  LTrim.toString when {
     "the key does not exist" should {
       "do nothing" taggedAs (V100) in {
         client.lTrim("LIST", 0, -1)
@@ -547,7 +547,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.lTrim("HASH", 0, -1).futureValue
+          client.lTrim("HASH", 0, -1).!
         }
       }
     }
@@ -589,7 +589,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
   
-  RPop.name when {
+  RPop.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         client.rPop("LIST").futureValue should be (empty)
@@ -597,7 +597,7 @@ class ListCommandsSpec extends WordSpec
     }
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { client.rPop("HASH").futureValue }
+        a [RedisErrorResponseException] should be thrownBy { client.rPop("HASH").! }
       }
     }
     "the list contains some elements" should {
@@ -611,7 +611,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  RPopLPush.name when {
+  RPopLPush.toString when {
     "the source key does not exist" should {
       "return None and do nothing" taggedAs (V120) in {
         client.rPopLPush("LIST", "LIST2").futureValue should be (empty)
@@ -636,10 +636,10 @@ class ListCommandsSpec extends WordSpec
     "one of the keys does not contain a list" should {
       "return an error" taggedAs (V120) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.rPopLPush("HASH", "LIST").futureValue
+          client.rPopLPush("HASH", "LIST").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.rPopLPush("LIST2", "HASH").futureValue
+          client.rPopLPush("LIST2", "HASH").!
         }
       }
     }
@@ -677,7 +677,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
   
-  RPush.name when {
+  RPush.toString when {
     "the key does not exist" should {
       "create a list and append the value" taggedAs (V100) in {
         client.rPush("LIST", "A").futureValue should be (1)
@@ -688,7 +688,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.rPush("HASH", "A").futureValue
+          client.rPush("HASH", "A").!
         }
       }
     }
@@ -704,7 +704,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
 
-  s"${RPush.name}-2.4" when {
+  s"${RPush.toString}-2.4" when {
     "the key does not exist" should {
       "create a list and append the values" taggedAs (V240) in {
         client.rPush("LIST", "A", "B").futureValue should be (2)
@@ -714,7 +714,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.rPush("HASH", "A", "B").futureValue
+          client.rPush("HASH", "A", "B").!
         }
       }
     }
@@ -729,7 +729,7 @@ class ListCommandsSpec extends WordSpec
     }
   }
   
-  RPushX.name when {
+  RPushX.toString when {
     "the key does not exist" should {
       "do nothing" taggedAs (V220) in {
         client.rPushX("LIST", "A").futureValue should be (0)
@@ -740,7 +740,7 @@ class ListCommandsSpec extends WordSpec
     "the key does not contain a list" should {
       "return an error" taggedAs (V220) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.rPushX("HASH", "A").futureValue
+          client.rPushX("HASH", "A").!
         }
       }
     }

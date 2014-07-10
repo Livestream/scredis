@@ -20,18 +20,18 @@ class ConnectionCommandsSpec extends WordSpec
   private val redisWithPassword = Client("application.conf", "unauthenticated.scredis")
   private val CorrectPassword = "foobar"
   
-  Auth.name when {
+  Auth.toString when {
     "the server has no password" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          redis.auth("foo").futureValue
+          redis.auth("foo").!
         }
       }
     }
     "the password is invalid" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          redisWithPassword.auth("foo").futureValue
+          redisWithPassword.auth("foo").!
         }
       }
     }
@@ -44,7 +44,7 @@ class ConnectionCommandsSpec extends WordSpec
     "re-authenticating with a wrong password" should {
       "return an error and unauthenticate the redis" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          redisWithPassword.auth("foo").futureValue
+          redisWithPassword.auth("foo").!
         }
         redisWithPassword.ping().futureValue should be("PONG")
       }
@@ -57,19 +57,19 @@ class ConnectionCommandsSpec extends WordSpec
     }
   }
 
-  Echo.name should {
+  Echo.toString should {
     "echo back the message" taggedAs (V100) in {
       redis.echo("Hello World -> 虫àéç蟲").futureValue should be("Hello World -> 虫àéç蟲")
     }
   }
 
-  Ping.name should {
+  Ping.toString should {
     "receive PONG" taggedAs (V100) in {
       redis.ping().futureValue should be("PONG")
     }
   }
 
-  Quit.name when {
+  Quit.toString when {
     "quiting" should {
       "close the connection" taggedAs (V100) in {
         redisToQuit.quit().futureValue should be (())
@@ -80,16 +80,16 @@ class ConnectionCommandsSpec extends WordSpec
     }
   }
 
-  Select.name when {
+  Select.toString when {
     "database index is negative" should {
       "return an error" taggedAs (V100) in {
-        a [RedisErrorResponseException] should be thrownBy { redis.select(-1).futureValue }
+        a [RedisErrorResponseException] should be thrownBy { redis.select(-1).! }
       }
     }
     "database index is too large" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          redis.select(Integer.MAX_VALUE).futureValue
+          redis.select(Integer.MAX_VALUE).!
         }
       }
     }

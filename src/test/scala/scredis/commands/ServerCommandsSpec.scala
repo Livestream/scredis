@@ -23,13 +23,14 @@ class ServerCommandsSpec extends WordSpec
   private val client2 = Client(port = 6380, password = Some("foobar"))
   private val client3 = Client(port = 6380, password = Some("foobar"))
   
-  BGRewriteAOF.name should {
+  BGRewriteAOF.toString should {
     "succeed" taggedAs (V100) in {
       client.bgRewriteAOF().futureValue should be (())
+      Thread.sleep(1000)
     }
   }
 
-  BGSave.name when {
+  BGSave.toString when {
     "not already running" should {
       "succeed" taggedAs (V100) in {
         client.bgSave().futureValue should be (())
@@ -37,7 +38,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
 
-  ClientGetName.name when {
+  ClientGetName.toString when {
     "client has no name" should {
       "return None" taggedAs (V269) in {
         client.clientGetName().futureValue should be (empty)
@@ -51,18 +52,18 @@ class ServerCommandsSpec extends WordSpec
     }
   }
   
-  ClientKill.name when {
+  ClientKill.toString when {
     "providing invalid ip and port" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.clientKill("lol", -1).futureValue
+          client.clientKill("lol", -1).!
         }
       }
     }
     "killing a non-existing client" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.clientKill("110.44.56.127", 53655).futureValue
+          client.clientKill("110.44.56.127", 53655).!
         }
       }
     }
@@ -93,7 +94,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
   
-  s"${ClientKill.name}-2.8.12" when {
+  s"${ClientKill.toString}-2.8.12" when {
     "killing by addresses" should {
       "succeed" taggedAs (V2812) in {
         client2.clientSetName("client2").!
@@ -154,7 +155,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
 
-  ClientList.name when {
+  ClientList.toString when {
     "3 clients are connected" should {
       "list the 3 clients" taggedAs (V240) in {
         client2.clientSetName("client2").!
@@ -177,13 +178,13 @@ class ServerCommandsSpec extends WordSpec
   }
   
   /* FIXME: add when redis 3.0.0 is out
-  ClientPause.name should {
+  ClientPause.toString should {
     "succeed" taggedAs (V2950) in {
       client.clientPause(500).futureValue should be (())
     }
   }*/
   
-  ClientSetName.name when {
+  ClientSetName.toString when {
     "name is not empty" should {
       "set the specified name" taggedAs (V269) in {
         client.clientSetName("bar")
@@ -198,7 +199,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
 
-  ConfigGet.name when {
+  ConfigGet.toString when {
     "providing an non-existent key" should {
       "return None" taggedAs (V200) in {
         client.configGet("thiskeywillneverexist").futureValue should be (empty)
@@ -221,7 +222,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
   
-  ConfigResetStat.name should {
+  ConfigResetStat.toString should {
     "reset stats" taggedAs (V200) in {
       client.info().!("total_commands_processed").toInt should be > (1)
       client.configResetStat().futureValue should be (())
@@ -229,17 +230,17 @@ class ServerCommandsSpec extends WordSpec
     }
   }
   
-  ConfigRewrite.name should {
+  ConfigRewrite.toString should {
     "succeed" taggedAs (V280) in {
       client.configRewrite().futureValue should be (())
     }
   }
 
-  ConfigSet.name when {
+  ConfigSet.toString when {
     "providing a non-existent key" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.configSet("thiskeywillneverexist", "foo").futureValue
+          client.configSet("thiskeywillneverexist", "foo").!
         }
       }
     }
@@ -247,7 +248,7 @@ class ServerCommandsSpec extends WordSpec
       "succeed" taggedAs (V200) in {
         client.configSet("requirepass", "guessit").!
         a [RedisErrorResponseException] should be thrownBy {
-          client.ping().futureValue
+          client.ping().!
         }
         client.auth("guessit").futureValue should be (())
         client.configGet("requirepass").!("requirepass") should be ("guessit")
@@ -258,7 +259,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
 
-  DBSize.name should {
+  DBSize.toString should {
     "return the size of the current database" taggedAs (V100) in {
       client.select(0).futureValue should be (())
       client.flushDB().futureValue should be (())
@@ -272,7 +273,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
   
-  FlushAll.name should {
+  FlushAll.toString should {
     "flush all databases" taggedAs (V100) in {
       client.select(0).futureValue should be (())
       client.set("SOMEKEY", "SOMEVALUE")
@@ -285,7 +286,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
 
-  FlushDB.name should {
+  FlushDB.toString should {
     "flush the current database only" taggedAs (V100) in {
       client.select(0).futureValue should be (())
       client.set("SOMEKEY", "SOMEVALUE")
@@ -299,7 +300,7 @@ class ServerCommandsSpec extends WordSpec
     }
   }
 
-  Info.name when {
+  Info.toString when {
     "not provided with any section" should {
       "return the default section" taggedAs (V100) in {
         val map = client.info().!
@@ -326,13 +327,13 @@ class ServerCommandsSpec extends WordSpec
     }
   }
 
-  LastSave.name should {
+  LastSave.toString should {
     "return the UNIX timestamp of the last database save" taggedAs (V100) in {
       client.lastSave().futureValue shouldBe > (0)
     }
   }
   
-  scredis.protocol.requests.ServerRequests.Role.name when {
+  scredis.protocol.requests.ServerRequests.Role.toString when {
     "querying a master database" should {
       "return the master role" taggedAs (V2812) in {
         client1.slaveOf("127.0.0.1", 6379).futureValue should be (())
@@ -364,13 +365,13 @@ class ServerCommandsSpec extends WordSpec
     }
   }
 
-  Save.name should {
+  Save.toString should {
     "save the database" taggedAs (V100) in {
       client.save().futureValue should be (())
     }
   }
   
-  SlowLogGet.name when {
+  SlowLogGet.toString when {
     "count is not specified" should {
       "return all slowlog entries" taggedAs (V2212) in {
         val entries = client.slowLogGet().!
@@ -386,19 +387,19 @@ class ServerCommandsSpec extends WordSpec
     }
   }
   
-  SlowLogLen.name should {
+  SlowLogLen.toString should {
     "return the size of the slowlog" taggedAs (V2212) in {
       client.slowLogLen().futureValue shouldBe >= (0)
     }
   }
   
-  SlowLogReset.name should {
+  SlowLogReset.toString should {
     "succeed" taggedAs (V2212) in {
       client.slowLogReset().futureValue should be (())
     }
   }
 
-  Time.name should {
+  Time.toString should {
     "return the current server UNIX timestamp with microseconds" taggedAs (V260) in {
       client.time().futureValue shouldBe > (0)
     }

@@ -12,10 +12,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
- * Defines a basic Redis client supporting all commands.
- * 
- * @note a Client is '''not''' thread-safe. To execute commands within multiple threads, use
- * [[scredis.Redis]] or [[scredis.ClientPool]].
+ * Defines a Redis client supporting all commands.
  * 
  * @param host server address
  * @param port server port
@@ -23,7 +20,7 @@ import scala.concurrent.duration._
  * @param database database index to select
  * @param timeout maximum duration for the execution of a command, can be infinite
  * 
- * @define e [[scredis.exceptions.RedisCommandException]]
+ * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define client [[scredis.Client]]
  * @define tc com.typesafe.Config
  */
@@ -154,12 +151,9 @@ final class Client(
     super.select(database)
   }
   
-  /*
-  try {
-    connection.connect()
-  } catch {
-    case e: Throwable =>
-  }*/
+  authAndSelect().recover {
+    case e: Throwable => logger.error("Could not initialize client", e)
+  }
   
 }
 

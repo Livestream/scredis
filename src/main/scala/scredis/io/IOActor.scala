@@ -162,7 +162,7 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
     incrementWriteId()
     this.batch = batch.toList
     timeoutCancellableOpt = Some {
-      scheduler.scheduleOnce(0 nanoseconds, self, WriteTimeout(writeId))
+      scheduler.scheduleOnce(5 seconds, self, WriteTimeout(writeId))
     }
     //ctx.stop()
     //waitTimerContext = waitTimer.time()
@@ -218,14 +218,6 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
   }
   
   def connected: Receive = LoggingReceive {
-    case request: Request[_] => {
-      //val data = ByteString(request.encoded)
-      //logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
-      requests.addLast(request)
-      if (canWrite) {
-        write()
-      }
-    }
     case request @ Quit() => {
       requests.addLast(request)
       if (canWrite) {
@@ -241,6 +233,14 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       }
       isClosing = true
       context.become(closing)
+    }
+    case request: Request[_] => {
+      //val data = ByteString(request.encoded)
+      //logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
+      requests.addLast(request)
+      if (canWrite) {
+        write()
+      }
     }
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")

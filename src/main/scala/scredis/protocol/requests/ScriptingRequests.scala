@@ -9,10 +9,10 @@ object ScriptingRequests {
   
   object Eval extends Command("EVAL")
   object EvalSHA extends Command("EVALSHA")
-  object ScriptExists extends Command("SCRIPT EXISTS")
-  object ScriptFlush extends ZeroArgCommand("SCRIPT FLUSH")
-  object ScriptKill extends ZeroArgCommand("SCRIPT KILL")
-  object ScriptLoad extends Command("SCRIPT LOAD")
+  object ScriptExists extends Command("SCRIPT", "EXISTS")
+  object ScriptFlush extends ZeroArgCommand("SCRIPT", "FLUSH")
+  object ScriptKill extends ZeroArgCommand("SCRIPT", "KILL")
+  object ScriptLoad extends Command("SCRIPT", "LOAD")
   
   case class Eval[R, W1: Writer, W2: Writer](script: String, keys: Seq[W1], args: Seq[W2])(
     implicit decoder: Decoder[R], keysWriter: Writer[W1], argsWriter: Writer[W2]

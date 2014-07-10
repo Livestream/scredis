@@ -7,10 +7,12 @@ import akka.actor._
 import scredis.io._
 import scredis.protocol._
 
+import scala.collection.mutable.{ Map => MMap }
 import scala.concurrent.{ ExecutionContext, Future, Await }
 import scala.concurrent.duration._
 
 import java.net.InetSocketAddress
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * This trait represents an instance of a client connected to a `Redis` server.
@@ -25,11 +27,11 @@ abstract class AbstractClient(
     Props(classOf[IOActor], new InetSocketAddress(host, port)).withDispatcher(
       "scredis.io-dispatcher"
     ),
-    "IOActor"
+    AbstractClient.getUniqueName(s"io-actor-$host-$port")
   )
   private val partitionerActor = system.actorOf(
     Props(classOf[PartitionerActor], ioActor).withDispatcher("scredis.partitioner-dispatcher"),
-    "PartitionerActor"
+    AbstractClient.getUniqueName(s"partitioner-actor-$host-$port")
   )
   
   implicit val dispatcher: ExecutionContext = system.dispatcher
@@ -47,5 +49,17 @@ abstract class AbstractClient(
   }
   
   ioActor ! partitionerActor
+  
+}
+
+object AbstractClient {
+  private val ids = MMap[String, AtomicInteger]()
+  
+  private def getUniqueName(name: String): String = {
+    val counter = ids.synchronized {
+      ids.getOrElseUpdate(name, new AtomicInteger(0))
+    }
+    s"$name-${counter.incrementAndGet()}"
+  }
   
 }

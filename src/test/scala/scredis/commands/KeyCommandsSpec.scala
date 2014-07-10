@@ -84,7 +84,7 @@ class KeyCommandsSpec extends WordSpec
     client.set("VALUE-E", "VE").futureValue
   }
 
-  Del.name when {
+  Del.toString when {
     "deleting a single key that does not exist" should {
       "return 0" taggedAs (V100) in {
         client.del("I-DONT-EXIST").futureValue should be (0)
@@ -107,7 +107,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  Dump.name when {
+  Dump.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V260) in {
         client.dump("NONEXISTENTKEY").futureValue should be (empty)
@@ -123,7 +123,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  Exists.name when {
+  Exists.toString when {
     "the key does not exist" should {
       "return false" taggedAs (V100) in {
         client.exists("NONEXISTENTKEY").futureValue should be (false)
@@ -136,7 +136,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  Expire.name when {
+  Expire.toString when {
     "the key does not exist" should {
       "return false" taggedAs (V100) in {
         client.expire("NONEXISTENTKEY", 1).futureValue should be (false)
@@ -153,7 +153,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  ExpireAt.name when {
+  ExpireAt.toString when {
     "the key does not exist" should {
       "return false" taggedAs (V120) in {
         val unixTimestamp = (System.currentTimeMillis / 1000)
@@ -172,7 +172,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  Keys.name when {
+  Keys.toString when {
     "the database is empty" should {
       "return None" taggedAs (V100) in {
         client.flushAll()
@@ -193,11 +193,11 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  Migrate.name when {
+  Migrate.toString when {
     "the key does not exist" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.migrate("NONEXISTENTKEY", "127.0.0.1").futureValue
+          client.migrate("NONEXISTENTKEY", "127.0.0.1").!
         }
       }
     }
@@ -205,14 +205,14 @@ class KeyCommandsSpec extends WordSpec
       "return an error" taggedAs (V260) in {
         client.set("TO-MIGRATE", SomeValue).futureValue
         a [RedisErrorResponseException] should be thrownBy { 
-          client.migrate("TO-MIGRATE", "127.0.0.1", timeout = 500 milliseconds).futureValue
+          client.migrate("TO-MIGRATE", "127.0.0.1", timeout = 500 milliseconds).!
         }
       }
     }
     "migrating a key to a non-existing instance" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.migrate("TO-MIGRATE", "127.0.0.1", 6378, timeout = 500 milliseconds).futureValue
+          client.migrate("TO-MIGRATE", "127.0.0.1", 6378, timeout = 500 milliseconds).!
         }
       }
     }
@@ -249,7 +249,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  Move.name when {
+  Move.toString when {
     "moving a key that does not exist" should {
       "return false" taggedAs (V100) in {
         client.move("NONEXISTENTKEY", 1).futureValue should be (false)
@@ -275,7 +275,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  ObjectRefCount.name when {
+  ObjectRefCount.toString when {
     "the object does not exist" should {
       "return None" taggedAs (V223) in {
         client.objectRefCount("NONEXISTENTKEY").futureValue should be (empty)
@@ -289,7 +289,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  ObjectEncoding.name when {
+  ObjectEncoding.toString when {
     "the object does not exist" should {
       "return None" taggedAs (V223) in {
         client.objectEncoding("NONEXISTENTKEY").futureValue should be (empty)
@@ -303,7 +303,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  ObjectIdleTime.name when {
+  ObjectIdleTime.toString when {
     "the object does not exist" should {
       "return None" taggedAs (V223) in {
         client.objectIdleTime("NONEXISTENTKEY").futureValue should be (empty)
@@ -317,7 +317,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  Persist.name when {
+  Persist.toString when {
     "persisting a non-existent key" should {
       "return false" taggedAs (V220) in {
         client.persist("NONEXISTENTKEY").futureValue should be (false)
@@ -339,7 +339,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  PExpire.name when {
+  PExpire.toString when {
     "the key does not exist" should {
       "return false" taggedAs (V260) in {
         client.pExpire("NONEXISTENTKEY", 500).futureValue should be (false)
@@ -356,7 +356,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  PExpireAt.name when {
+  PExpireAt.toString when {
     "the key does not exist" should {
       "return false" taggedAs (V260) in {
         val unixTimestampMillis = System.currentTimeMillis + 500
@@ -375,7 +375,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  PTTL.name when {
+  PTTL.toString when {
     "key does not exist" should {
       "return Left(false)" taggedAs (V260) in {
         client.pTtl("NONEXISTENTKEY").futureValue should be (Left(false))
@@ -396,7 +396,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  RandomKey.name when {
+  RandomKey.toString when {
     "the database is empty" should {
       "return None" taggedAs (V100) in {
         client.flushDB()
@@ -413,11 +413,11 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  Rename.name when {
+  Rename.toString when {
     "the key does not exist" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.rename("sourceKey", "destKey").futureValue
+          client.rename("sourceKey", "destKey").!
         }
       }
     }
@@ -425,7 +425,7 @@ class KeyCommandsSpec extends WordSpec
       "return an error" taggedAs (V100) in {
         client.set("sourceKey", SomeValue)
         a [RedisErrorResponseException] should be thrownBy { 
-          client.rename("sourceKey", "sourceKey").futureValue
+          client.rename("sourceKey", "sourceKey").!
         }
       }
     }
@@ -446,12 +446,12 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  RenameNX.name when {
+  RenameNX.toString when {
     "the key does not exist" should {
       "return an error" taggedAs (V100) in {
         client.del("sourceKey", "destKey")
         a [RedisErrorResponseException] should be thrownBy { 
-          client.renameNX("sourceKey", "destKey").futureValue
+          client.renameNX("sourceKey", "destKey").!
         }
       }
     }
@@ -459,7 +459,7 @@ class KeyCommandsSpec extends WordSpec
       "return an error" taggedAs (V100) in {
         client.set("sourceKey", SomeValue)
         a [RedisErrorResponseException] should be thrownBy { 
-          client.renameNX("sourceKey", "sourceKey").futureValue
+          client.renameNX("sourceKey", "sourceKey").!
         }
       }
     }
@@ -478,11 +478,11 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  Restore.name when {
+  Restore.toString when {
     "the destination key already exists" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.restore("TO-DUMP", dumpedValue).futureValue
+          client.restore("TO-DUMP", dumpedValue).!
         }
       }
     }
@@ -505,7 +505,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  Scan.name when {
+  Scan.toString when {
     "the database is empty" should {
       "return an empty set" taggedAs (V280) in {
         client.flushDB().futureValue should be (())
@@ -581,7 +581,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  Sort.name when {
+  Sort.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         setUpSortData()
@@ -908,7 +908,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
   
-  TTL.name when {
+  TTL.toString when {
     "key does not exist" should {
       "return Left(false)" taggedAs (V100) in {
         client.ttl("NONEXISTENTKEY").futureValue should be (Left(false))
@@ -929,7 +929,7 @@ class KeyCommandsSpec extends WordSpec
     }
   }
 
-  scredis.protocol.requests.KeyRequests.Type.name when {
+  scredis.protocol.requests.KeyRequests.Type.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         client.`type`("NONEXISTENTKEY").futureValue should be (empty)

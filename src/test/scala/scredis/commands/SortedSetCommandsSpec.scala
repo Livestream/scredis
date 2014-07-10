@@ -26,11 +26,11 @@ class SortedSetCommandsSpec extends WordSpec
     client.hSet("HASH", "FIELD", SomeValue).!
   }
 
-  ZAdd.name when {
+  ZAdd.toString when {
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zAdd("HASH", "hello", 1).futureValue
+          client.zAdd("HASH", "hello", 1).!
         }
       }
     }
@@ -55,7 +55,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  s"${ZAdd.name}-2.4" when {
+  s"${ZAdd.toString}-2.4" when {
     "providing an empty map" should {
       "return 0" taggedAs (V240) in {
         client.zAdd("SET", Map.empty[String, Score]).futureValue should be (0)
@@ -89,7 +89,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZCard.name when {
+  ZCard.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V120) in {
         client.zCard("SET").futureValue should be (0)
@@ -98,7 +98,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zCard("HASH").futureValue
+          client.zCard("HASH").!
         }
       }
     }
@@ -113,7 +113,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZCount.name when {
+  ZCount.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V200) in {
         client.zCount(
@@ -124,7 +124,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.zCount("HASH", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity).futureValue
+          client.zCount("HASH", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity).!
         }
       }
     }
@@ -188,7 +188,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZIncrBy.name when {
+  ZIncrBy.toString when {
     "the key does not exist" should {
       "create a sorted set, add the member and increment the score starting " +
         "from zero" taggedAs (V120) in {
@@ -201,7 +201,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zIncrBy("HASH", "A", 1.5).futureValue
+          client.zIncrBy("HASH", "A", 1.5).!
         }
       }
     }
@@ -218,7 +218,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZInterStore.name when {
+  ZInterStore.toString when {
     "the keys do not exist" should {
       "do nothing" taggedAs (V200) in {
         client.zInterStore("SET", Seq("SET1", "SET2")).futureValue should be (0)
@@ -422,7 +422,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
   
-  ZLexCount.name when {
+  ZLexCount.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V289) in {
         client.zLexCount(
@@ -435,7 +435,7 @@ class SortedSetCommandsSpec extends WordSpec
         a [RedisErrorResponseException] should be thrownBy { 
           client.zLexCount(
             "HASH", LexicalScoreLimit.MinusInfinity, LexicalScoreLimit.PlusInfinity
-          ).futureValue
+          ).!
         }
       }
     }
@@ -497,7 +497,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRange.name when {
+  ZRange.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V120) in {
         client.zRange("SET").futureValue should be (empty)
@@ -507,10 +507,10 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRange("HASH").futureValue
+          client.zRange("HASH").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRangeWithScores("HASH").futureValue
+          client.zRangeWithScores("HASH").!
         }
       }
     }
@@ -594,7 +594,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
   
-  ZRangeByLex.name when {
+  ZRangeByLex.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V289) in {
         client.zRangeByLex(
@@ -607,7 +607,7 @@ class SortedSetCommandsSpec extends WordSpec
         a [RedisErrorResponseException] should be thrownBy { 
           client.zRangeByLex(
             "HASH", LexicalScoreLimit.MinusInfinity, LexicalScoreLimit.PlusInfinity
-          ).futureValue
+          ).!
         }
       }
     }
@@ -675,7 +675,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRangeByScore.name when {
+  ZRangeByScore.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V220) in {
         client.zRangeByScore(
@@ -691,12 +691,12 @@ class SortedSetCommandsSpec extends WordSpec
         a [RedisErrorResponseException] should be thrownBy { 
           client.zRangeByScore(
             "HASH", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity
-          ).futureValue
+          ).!
         }
         a [RedisErrorResponseException] should be thrownBy { 
           client.zRangeByScoreWithScores(
             "HASH", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity
-          ).futureValue
+          ).!
         }
       }
     }
@@ -815,7 +815,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRank.name when {
+  ZRank.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V200) in {
         client.zRank("SET", "A").futureValue should be (empty)
@@ -824,7 +824,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRank("HASH", "hello").futureValue
+          client.zRank("HASH", "hello").!
         }
       }
     }
@@ -844,7 +844,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRem.name when {
+  ZRem.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V120) in {
         client.zRem("SET", "A").futureValue should be (0)
@@ -853,7 +853,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRem("HASH", "A").futureValue
+          client.zRem("HASH", "A").!
         }
       }
     }
@@ -875,7 +875,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  s"${ZRem.name}-2.4" when {
+  s"${ZRem.toString}-2.4" when {
     "the key does not exist" should {
       "return 0" taggedAs (V240) in {
         client.zRem("SET", "A", "B").futureValue should be (0)
@@ -884,7 +884,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRem("HASH", "A", "B").futureValue
+          client.zRem("HASH", "A", "B").!
         }
       }
     }
@@ -907,7 +907,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
   
-  ZRemRangeByLex.name when {
+  ZRemRangeByLex.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V289) in {
         client.zRemRangeByLex(
@@ -920,7 +920,7 @@ class SortedSetCommandsSpec extends WordSpec
         a [RedisErrorResponseException] should be thrownBy {
           client.zRemRangeByLex(
             "HASH", LexicalScoreLimit.MinusInfinity, LexicalScoreLimit.PlusInfinity
-          ).futureValue
+          ).!
         }
       }
     }
@@ -961,7 +961,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRemRangeByRank.name when {
+  ZRemRangeByRank.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V200) in {
         client.zRemRangeByRank("SET", 0, -1).futureValue should be (0)
@@ -970,7 +970,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRemRangeByRank("HASH", 0, -1).futureValue
+          client.zRemRangeByRank("HASH", 0, -1).!
         }
       }
     }
@@ -1000,7 +1000,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRemRangeByScore.name when {
+  ZRemRangeByScore.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V120) in {
         client.zRemRangeByScore(
@@ -1013,7 +1013,7 @@ class SortedSetCommandsSpec extends WordSpec
         a [RedisErrorResponseException] should be thrownBy { 
           client.zRemRangeByScore(
             "HASH", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity
-          ).futureValue
+          ).!
         }
       }
     }
@@ -1054,7 +1054,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRevRange.name when {
+  ZRevRange.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V120) in {
         client.zRevRange("SET").futureValue should be (empty)
@@ -1064,10 +1064,10 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRevRange("HASH").futureValue
+          client.zRevRange("HASH").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRevRangeWithScores("HASH").futureValue
+          client.zRevRangeWithScores("HASH").!
         }
       }
     }
@@ -1145,7 +1145,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRevRangeByScore.name when {
+  ZRevRangeByScore.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V220) in {
         client.zRevRangeByScore(
@@ -1161,12 +1161,12 @@ class SortedSetCommandsSpec extends WordSpec
         a [RedisErrorResponseException] should be thrownBy { 
           client.zRevRangeByScore(
             "HASH", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity
-          ).futureValue
+          ).!
         }
         a [RedisErrorResponseException] should be thrownBy { 
           client.zRevRangeByScoreWithScores(
             "HASH", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity
-          ).futureValue
+          ).!
         }
       }
     }
@@ -1295,7 +1295,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZRevRank.name when {
+  ZRevRank.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V200) in {
         client.zRevRank("SET", "A").futureValue should be (empty)
@@ -1304,7 +1304,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zRevRank("HASH", "hello").futureValue
+          client.zRevRank("HASH", "hello").!
         }
       }
     }
@@ -1324,7 +1324,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
   
-  ZScan.name when {
+  ZScan.toString when {
     "the key does not exist" should {
       "return an empty set" taggedAs (V280) in {
         val (next, set) = client.zScan[String]("NONEXISTENTKEY", 0).!
@@ -1335,7 +1335,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V280) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zScan[String]("HASH", 0).futureValue
+          client.zScan[String]("HASH", 0).!
         }
       }
     }
@@ -1411,7 +1411,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
 
-  ZScore.name when {
+  ZScore.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V120) in {
         client.zScore("SET", "A").futureValue should be (empty)
@@ -1420,7 +1420,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V120) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zScore("HASH", "A").futureValue
+          client.zScore("HASH", "A").!
         }
       }
     }
@@ -1446,7 +1446,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
   }
   
-  ZUnionStore.name when {
+  ZUnionStore.toString when {
     "the keys do not exist" should {
       "do nothing" taggedAs (V200) in {
         client.zUnionStore("SET", Seq("SET1", "SET2")).futureValue should be (0)

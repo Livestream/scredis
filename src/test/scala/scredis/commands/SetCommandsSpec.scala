@@ -25,7 +25,7 @@ class SetCommandsSpec extends WordSpec
     client.hSet("HASH", "FIELD", SomeValue).!
   }
 
-  SAdd.name when {
+  SAdd.toString when {
     "the key does not exist" should {
       "create a set and add the member to it" taggedAs (V100) in {
         client.sAdd("SET", SomeValue).futureValue should be (1)
@@ -35,7 +35,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sAdd("HASH", "hello").futureValue
+          client.sAdd("HASH", "hello").!
         }
       }
     }
@@ -50,7 +50,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  s"${SAdd.name}-2.4" when {
+  s"${SAdd.toString}-2.4" when {
     "the key does not exist" should {
       "create a set and add the members to it" taggedAs (V240) in {
         client.sAdd("SET", SomeValue, "A").futureValue should be (2)
@@ -60,7 +60,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sAdd("HASH", "hello", "asd").futureValue
+          client.sAdd("HASH", "hello", "asd").!
         }
       }
     }
@@ -77,7 +77,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SCard.name when {
+  SCard.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V100) in {
         client.sCard("SET").futureValue should be (0)
@@ -86,7 +86,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sCard("HASH").futureValue
+          client.sCard("HASH").!
         }
       }
     }
@@ -101,7 +101,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SDiff.name when {
+  SDiff.toString when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
         client.sDiff("SET1", "SET2", "SET3").futureValue should be (empty)
@@ -116,13 +116,13 @@ class SetCommandsSpec extends WordSpec
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sDiff("HASH", "SET1", "SET2").futureValue
+          client.sDiff("HASH", "SET1", "SET2").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.sDiff("SET1", "HASH", "SET2").futureValue
+          client.sDiff("SET1", "HASH", "SET2").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.sDiff("SET1", "SET2", "HASH").futureValue
+          client.sDiff("SET1", "SET2", "HASH").!
         }
       }
     }
@@ -153,7 +153,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SDiffStore.name when {
+  SDiffStore.toString when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
         client.sDiffStore("SET", "SET1", "SET2", "SET3").futureValue should be (0)
@@ -170,13 +170,13 @@ class SetCommandsSpec extends WordSpec
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sDiffStore("SET", "HASH", "SET2", "SET3").futureValue
+          client.sDiffStore("SET", "HASH", "SET2", "SET3").!
         }
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sDiffStore("SET", "SET1", "HASH", "SET3").futureValue
+          client.sDiffStore("SET", "SET1", "HASH", "SET3").!
         }
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sDiffStore("SET", "SET1", "SET2", "HASH").futureValue
+          client.sDiffStore("SET", "SET1", "SET2", "HASH").!
         }
       }
     }
@@ -214,7 +214,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SInter.name when {
+  SInter.toString when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
         client.sInter("SET1", "SET2", "SET3").futureValue should be (empty)
@@ -229,14 +229,14 @@ class SetCommandsSpec extends WordSpec
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sInter("HASH", "SET1", "SET2").futureValue
+          client.sInter("HASH", "SET1", "SET2").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.sInter("SET1", "HASH", "SET2").futureValue
+          client.sInter("SET1", "HASH", "SET2").!
         }
         client.sAdd("SET2", "A")
         a [RedisErrorResponseException] should be thrownBy {
-          client.sInter("SET1", "SET2", "HASH").futureValue
+          client.sInter("SET1", "SET2", "HASH").!
         }
         client.del("SET2")
       }
@@ -270,7 +270,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SInterStore.name when {
+  SInterStore.toString when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
         client.sInterStore("SET", "SET1", "SET2", "SET3").futureValue should be (0)
@@ -287,14 +287,14 @@ class SetCommandsSpec extends WordSpec
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sInterStore("SET", "HASH", "SET2", "SET3").futureValue
+          client.sInterStore("SET", "HASH", "SET2", "SET3").!
         }
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sInterStore("SET", "SET1", "HASH", "SET3").futureValue
+          client.sInterStore("SET", "SET1", "HASH", "SET3").!
         }
         client.sAdd("SET2", "A")
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sInterStore("SET", "SET1", "SET2", "HASH").futureValue
+          client.sInterStore("SET", "SET1", "SET2", "HASH").!
         }
         client.del("SET2")
       }
@@ -335,7 +335,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SIsMember.name when {
+  SIsMember.toString when {
     "the key does not exist" should {
       "return false" taggedAs (V100) in {
         client.sIsMember("SET", "A").futureValue should be (false)
@@ -344,7 +344,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sIsMember("HASH", "A").futureValue
+          client.sIsMember("HASH", "A").!
         }
       }
     }
@@ -362,7 +362,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SMembers.name when {
+  SMembers.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         client.sMembers("SET").futureValue should be (empty)
@@ -371,7 +371,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sMembers("HASH").futureValue
+          client.sMembers("HASH").!
         }
       }
     }
@@ -386,7 +386,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SMove.name when {
+  SMove.toString when {
     "the key does not exist" should {
       "return false" taggedAs (V100) in {
         client.sMove("SET1", "SET2", "A").futureValue should be (false)
@@ -396,11 +396,11 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sMove("HASH", "SET", "A").futureValue
+          client.sMove("HASH", "SET", "A").!
         }
         client.sAdd("SET", "A")
         a [RedisErrorResponseException] should be thrownBy {
-          client.sMove("SET", "HASH", "A").futureValue
+          client.sMove("SET", "HASH", "A").!
         }
         client.del("SET")
       }
@@ -419,7 +419,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SPop.name when {
+  SPop.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         client.sPop("SET").futureValue should be (empty)
@@ -428,7 +428,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sPop("HASH").futureValue
+          client.sPop("HASH").!
         }
       }
     }
@@ -458,7 +458,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SRandMember.name when {
+  SRandMember.toString when {
     "the key does not exist" should {
       "return None" taggedAs (V100) in {
         client.sRandMember("SET").futureValue should be (empty)
@@ -467,7 +467,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sRandMember("HASH").futureValue
+          client.sRandMember("HASH").!
         }
       }
     }
@@ -484,7 +484,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
   
-  s"${SRandMember.name}-2.6" when {
+  s"${SRandMember.toString}-2.6" when {
     "the key does not exist" should {
       "return None" taggedAs (V260) in {
         client.sRandMembers("SET", 3).futureValue should be (empty)
@@ -493,7 +493,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sRandMembers("HASH", 3).futureValue
+          client.sRandMembers("HASH", 3).!
         }
       }
     }
@@ -513,7 +513,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SRem.name when {
+  SRem.toString when {
     "the key does not exist" should {
       "return 0" taggedAs (V100) in {
         client.sRem("SET", "A").futureValue should be (0)
@@ -522,7 +522,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sRem("HASH", "A").futureValue
+          client.sRem("HASH", "A").!
         }
       }
     }
@@ -547,7 +547,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  s"${SRem.name}-2.4" when {
+  s"${SRem.toString}-2.4" when {
     "the key does not exist" should {
       "return 0" taggedAs (V240) in {
         client.sRem("SET", "A", "B").futureValue should be (0)
@@ -556,7 +556,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sRem("HASH", "A", "B").futureValue
+          client.sRem("HASH", "A", "B").!
         }
       }
     }
@@ -577,7 +577,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
   
-  SScan.name when {
+  SScan.toString when {
     "the key does not exist" should {
       "return an empty set" taggedAs (V280) in {
         val (next, set) = client.sScan[String]("NONEXISTENTKEY", 0).!
@@ -588,7 +588,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V280) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sScan[String]("HASH", 0).futureValue
+          client.sScan[String]("HASH", 0).!
         }
       }
     }
@@ -654,7 +654,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
   
-  SUnion.name when {
+  SUnion.toString when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
         client.sUnion("SET1", "SET2", "SET3").futureValue should be (empty)
@@ -671,13 +671,13 @@ class SetCommandsSpec extends WordSpec
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sUnion("HASH", "SET1", "SET2").futureValue
+          client.sUnion("HASH", "SET1", "SET2").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.sUnion("SET1", "HASH", "SET2").futureValue
+          client.sUnion("SET1", "HASH", "SET2").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.sUnion("SET1", "SET2", "HASH").futureValue
+          client.sUnion("SET1", "SET2", "HASH").!
         }
       }
     }
@@ -710,7 +710,7 @@ class SetCommandsSpec extends WordSpec
     }
   }
 
-  SUnionStore.name when {
+  SUnionStore.toString when {
     "all keys do not exist" should {
       "return None" taggedAs (V100) in {
         client.sUnionStore("SET", "SET1", "SET2", "SET3").futureValue should be (0)
@@ -729,13 +729,13 @@ class SetCommandsSpec extends WordSpec
     "at least one key does not contain a set" should {
       "return an error" taggedAs (V100) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sUnionStore("SET", "HASH", "SET2", "SET3").futureValue
+          client.sUnionStore("SET", "HASH", "SET2", "SET3").!
         }
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sUnionStore("SET", "SET1", "HASH", "SET3").futureValue
+          client.sUnionStore("SET", "SET1", "HASH", "SET3").!
         }
         a [RedisErrorResponseException] should be thrownBy { 
-          client.sUnionStore("SET", "SET1", "SET2", "HASH").futureValue
+          client.sUnionStore("SET", "SET1", "SET2", "HASH").!
         }
       }
     }

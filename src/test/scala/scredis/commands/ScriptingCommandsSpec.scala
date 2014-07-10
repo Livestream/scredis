@@ -80,11 +80,11 @@ class ScriptingCommandsSpec extends WordSpec
     client.rPush("LIST", "C").!
   }
 
-  Eval.name when {
+  Eval.toString when {
     "the script is invalid" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.eval[Unit, String, String](InvalidScript).futureValue
+          client.eval[Unit, String, String](InvalidScript).!
         }
       }
     }
@@ -175,7 +175,7 @@ class ScriptingCommandsSpec extends WordSpec
     }
   }
   
-  EvalSHA.name when {
+  EvalSHA.toString when {
     "the script is valid but returns an error" should {
       "return an error" taggedAs (V260) in {
         val sha1 = client.scriptLoad(ScriptAsInteger).!
@@ -272,7 +272,7 @@ class ScriptingCommandsSpec extends WordSpec
     }
   }
   
-  ScriptExists.name when {
+  ScriptExists.toString when {
     "some scripts exist" should {
       "return true whenever a script exists and false otherwise" taggedAs (V260) in {
         val sha1 = client.scriptLoad(ScriptAsStatus).futureValue
@@ -286,7 +286,7 @@ class ScriptingCommandsSpec extends WordSpec
     }
   }
 
-  ScriptFlush.name when {
+  ScriptFlush.toString when {
     "some scripts exist" should {
       "remove all cached scripts" taggedAs (V260) in {
         val sha1 = client.scriptLoad(ScriptAsUnit).!
@@ -302,17 +302,17 @@ class ScriptingCommandsSpec extends WordSpec
     }
   }
   
-  ScriptKill.name should {
+  ScriptKill.toString should {
     "always succeed" taggedAs (V260) in {
       client.scriptKill() should be (())
     }
   }
   
-  ScriptLoad.name when {
+  ScriptLoad.toString when {
     "the script is invalid" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.scriptLoad(InvalidScript).futureValue
+          client.scriptLoad(InvalidScript).!
         }
       }
     }

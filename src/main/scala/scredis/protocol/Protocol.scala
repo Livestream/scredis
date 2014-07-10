@@ -143,8 +143,8 @@ object Protocol {
   
   private[scredis] def releaseBuffer(buffer: ByteBuffer): Unit = bufferPool.release(buffer)
   
-  private[scredis] def encode(command: String): Array[Byte] = {
-    val buffer = encode(Seq[Any](command))
+  private[scredis] def encodeZeroArgCommand(names: Seq[String]): Array[Byte] = {
+    val buffer = encode(names)
     val bytes = new Array[Byte](buffer.remaining)
     buffer.get(bytes)
     bufferPool.release(buffer)

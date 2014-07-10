@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets
  * @define e [[scredis.exceptions.RedisWriterException]]
  * 
  */
-abstract class Writer[A] {
+abstract class Writer[-A] {
   
   /**
    * Internal write method to be implemented.
@@ -71,5 +71,12 @@ object FloatWriter extends Writer[Float] {
 
 object DoubleWriter extends Writer[Double] {
   protected def writeImpl(value: Double): Array[Byte] = UTF8StringWriter.write(value.toString())
+}
+
+object AnyWriter extends Writer[Any] {
+  protected def writeImpl(value: Any): Array[Byte] = value match {
+    case bytes: Array[Byte] => bytes
+    case x                  => UTF8StringWriter.write(x.toString())
+  }
 }
 

@@ -271,7 +271,13 @@ trait StringCommands { self: AbstractClient =>
    *
    * @since 1.0.1
    */
-  def mSet[W: Writer](keyValuePairs: Map[String, W]): Future[Unit] = send(MSet(keyValuePairs))
+  def mSet[W: Writer](keyValuePairs: Map[String, W]): Future[Unit] = {
+    if (keyValuePairs.isEmpty) {
+      Future.successful(())
+    } else {
+      send(MSet(keyValuePairs))
+    }
+  }
   
   /**
    * Atomically sets multiple keys to multiple values, only if none of the keys exist.

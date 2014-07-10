@@ -1,5 +1,9 @@
 package scredis.util
 
+import org.scalatest.enablers.Sequencing
+import org.scalactic.{ Equality, Every }
+import org.scalatest.words.ArrayWrapper
+
 import akka.actor.ActorSystem
 
 import scala.concurrent.{ Future, Await }

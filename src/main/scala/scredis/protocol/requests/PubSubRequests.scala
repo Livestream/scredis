@@ -11,9 +11,9 @@ object PubSubRequests {
   
   object PSubscribe extends Command("PSUBSCRIBE")
   object Publish extends Command("PUBLISH")
-  object PubSubChannels extends Command("PUBSUB CHANNELS")
-  object PubSubNumSub extends Command("PUBSUB NUMSUB")
-  object PubSubNumPat extends ZeroArgCommand("PUBSUB NUMPAT")
+  object PubSubChannels extends Command("PUBSUB", "CHANNELS")
+  object PubSubNumSub extends Command("PUBSUB", "NUMSUB")
+  object PubSubNumPat extends ZeroArgCommand("PUBSUB", "NUMPAT")
   object PUnsubscribe extends Command("PUNSUBSCRIBE")
   object Subscribe extends Command("SUBSCRIBE")
   object Unsubscribe extends Command("UNSUBSCRIBE")
