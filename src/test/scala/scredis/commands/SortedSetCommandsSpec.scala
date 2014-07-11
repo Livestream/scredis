@@ -36,7 +36,7 @@ class SortedSetCommandsSpec extends WordSpec
     }
     "the key does not exist" should {
       "create a sorted set and add the member to it" taggedAs (V120) in {
-        client.zAdd("SET", SomeValue, Score.MinusInfinity).futureValue should be (1)
+        client.zAdd("SET", SomeValue, Score.MinusInfinity).futureValue should be (true)
         client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
           (SomeValue, Score.MinusInfinity)
         )
@@ -45,8 +45,8 @@ class SortedSetCommandsSpec extends WordSpec
     "the sorted set contains some elements" should {
       "add the provided member only if it is not already contained in the " +
         "sorted set" taggedAs (V120) in {
-          client.zAdd("SET", SomeValue, Score.PlusInfinity).futureValue should be (0)
-          client.zAdd("SET", "A", -1.3)
+          client.zAdd("SET", SomeValue, Score.PlusInfinity).futureValue should be (false)
+          client.zAdd("SET", "A", -1.3).futureValue should be (true)
           client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
             ("A", Score.Value(-1.3)), (SomeValue, Score.PlusInfinity)
           )
@@ -64,7 +64,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V240) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.zAdd("HASH", Map("hello" -> 1, "asd" -> 2)).futureValue
+          client.zAdd("HASH", Map("hello" -> 1, "asd" -> 2)).!
         }
       }
     }
@@ -81,7 +81,9 @@ class SortedSetCommandsSpec extends WordSpec
         "in the sorted set" taggedAs (V240) in {
           client.zAdd("SET", Map("A" -> 2.5, "B" -> 3.8)).futureValue should be (0)
           client.zAdd("SET", Map("C" -> -1.3, "D" -> -2.6)).futureValue should be (2)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("D", -2.6), ("C", -1.3), ("A", 2.5), ("B", 3.8)
           )
           client.del("SET")
@@ -193,7 +195,9 @@ class SortedSetCommandsSpec extends WordSpec
       "create a sorted set, add the member and increment the score starting " +
         "from zero" taggedAs (V120) in {
           client.zIncrBy("SET", "A", 1.5).futureValue should be (1.5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 1.5)
           )
         }
@@ -210,7 +214,9 @@ class SortedSetCommandsSpec extends WordSpec
         client.zIncrBy("SET", "A", 1.5).futureValue should be (3.0)
         client.zIncrBy("SET", "A", -0.5).futureValue should be (2.5)
         client.zIncrBy("SET", "B", -0.7).futureValue should be (-0.7)
-        client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+        client.zRangeWithScores(
+          "SET"
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("B", -0.7), ("A", 2.5)
         )
         client.del("SET")
@@ -239,10 +245,10 @@ class SortedSetCommandsSpec extends WordSpec
     "at least one of the source key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zInterStore("SET", Seq("HASH")).futureValue
+          client.zInterStore("SET", Seq("HASH")).!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.zInterStore("SET", Seq("HASH", "SET2")).futureValue
+          client.zInterStore("SET", Seq("HASH", "SET2")).!
         }
       }
     }
@@ -1469,13 +1475,13 @@ class SortedSetCommandsSpec extends WordSpec
     "at least one of the source key does not contain a sorted set" should {
       "return an error" taggedAs (V200) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zUnionStore("SET", Seq("HASH")).futureValue
+          client.zUnionStore("SET", Seq("HASH")).!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.zUnionStore("SET", Seq("HASH", "SET2")).futureValue
+          client.zUnionStore("SET", Seq("HASH", "SET2")).!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.zUnionStore("SET", Seq("SET1", "HASH")).futureValue
+          client.zUnionStore("SET", Seq("SET1", "HASH")).!
         }
       }
     }

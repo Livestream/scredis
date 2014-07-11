@@ -118,8 +118,8 @@ package object scredis {
     }
     
     def apply(stringValue: String): Score = stringValue.toLowerCase() match {
-      case MinusInfinity.stringValue | "inf"  => MinusInfinity
-      case PlusInfinity.stringValue           => PlusInfinity
+      case MinusInfinity.stringValue          => MinusInfinity
+      case PlusInfinity.stringValue | "inf"   => PlusInfinity
       case x                                  => Value(x.toDouble)
     }
   }
