@@ -37,7 +37,7 @@ trait KeyCommands { self: AbstractClient =>
    *
    * @since 2.6.0
    */
-  def dump[R: Reader](key: String): Future[Option[R]] = send(Dump(key))
+  def dump(key: String): Future[Option[Array[Byte]]] = send(Dump(key))
   
   /**
    * Determines if a key exists.

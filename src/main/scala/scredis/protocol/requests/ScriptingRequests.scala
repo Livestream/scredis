@@ -17,7 +17,7 @@ object ScriptingRequests {
   case class Eval[R, W1: Writer, W2: Writer](script: String, keys: Seq[W1], args: Seq[W2])(
     implicit decoder: Decoder[R], keysWriter: Writer[W1], argsWriter: Writer[W2]
   ) extends Request[R](
-    Eval, script +: keys.size +: keys.map(keysWriter.write) :+ args.map(argsWriter.write): _*
+    Eval, script +: keys.size +: keys.map(keysWriter.write) ++: args.map(argsWriter.write): _*
   ) {
     override def decode = decoder
   }
@@ -25,7 +25,7 @@ object ScriptingRequests {
   case class EvalSHA[R, W1: Writer, W2: Writer](sha1: String, keys: Seq[W1], args: Seq[W2])(
     implicit decoder: Decoder[R], keysWriter: Writer[W1], argsWriter: Writer[W2]
   ) extends Request[R](
-    EvalSHA, sha1 +: keys.size +: keys.map(keysWriter.write) :+ args.map(argsWriter.write): _*
+    EvalSHA, sha1 +: keys.size +: keys.map(keysWriter.write) ++: args.map(argsWriter.write): _*
   ) {
     override def decode = decoder
   }

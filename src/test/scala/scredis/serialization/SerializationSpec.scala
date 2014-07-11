@@ -28,13 +28,13 @@ class SerializationSpec extends WordSpec
   "Writing" when {
     "values are stored with different types" should {
       "correctly parse various types" taggedAs(V100) in {
-        client.set[Array[Byte]]("bytes", Bytes).futureValue should be (())
-        client.set[Array[Byte]]("utf-16", Value.getBytes("UTF-16")).futureValue should be (())
-        client.set[String]("str", Value).futureValue should be (())
-        client.set[Boolean]("boolean", true).futureValue should be (())
-        client.set[Int]("number", 5).futureValue should be (())
-        client.set[Double]("decimal", 5.5).futureValue should be (())
-        client.rPush[Any]("list", "1", 2, 3, "4", "5").futureValue should be (())
+        client.set[Array[Byte]]("bytes", Bytes).futureValue should be (true)
+        client.set[Array[Byte]]("utf-16", Value.getBytes("UTF-16")).futureValue should be (true)
+        client.set[String]("str", Value).futureValue should be (true)
+        client.set[Boolean]("boolean", true).futureValue should be (true)
+        client.set[Int]("number", 5).futureValue should be (true)
+        client.set[Double]("decimal", 5.5).futureValue should be (true)
+        client.rPush[Any]("list", "1", 2, 3, "4", "5").futureValue should be (5)
       }
     }
   }
@@ -58,13 +58,13 @@ class SerializationSpec extends WordSpec
           1, 2, 3, 4, 5
         )
         a [RedisReaderException] should be thrownBy {
-          client.get[Boolean]("decimal").futureValue
+          client.get[Boolean]("decimal").!
         }
         a [RedisReaderException] should be thrownBy {
-          client.get[Long]("decimal").futureValue
+          client.get[Long]("decimal").!
         }
         a [RedisReaderException] should be thrownBy {
-          client.lRange[Boolean]("list").futureValue
+          client.lRange[Boolean]("list").!
         }
       }
     }

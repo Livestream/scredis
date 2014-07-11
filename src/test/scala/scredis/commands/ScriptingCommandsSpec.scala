@@ -7,6 +7,7 @@ import scredis._
 import scredis.protocol._
 import scredis.protocol.requests.ScriptingRequests._
 import scredis.exceptions._
+import scredis.serialization.UTF8StringWriter
 import scredis.tags._
 import scredis.util.TestUtils._
 
@@ -35,23 +36,25 @@ class ScriptingCommandsSpec extends WordSpec
   private val ScriptAsNestedList = """return {KEYS[1], {KEYS[2], {KEYS[4], KEYS[5]}, KEYS[3]}}"""
   private val ScriptAsNestedListWithNils = """return {KEYS[1], {KEYS[2], {nil, nil}, nil}}"""
   
-  private implicit val SimpleStringResponseDecoder: Decoder[String] = {
+  private implicit val LuaStatusDecoder: Decoder[String] = {
     case SimpleStringResponse(x) => x
   }
   
-  private implicit val SimpleStringResponseToUnitDecoder: Decoder[Unit] = {
-    case SimpleStringResponse(_) => ()
+  private implicit val LuaUnitDecoder: Decoder[Unit] = {
+    case SimpleStringResponse(_)  => ()
+    case BulkStringResponse(None) => ()
   }
   
-  private implicit val IntegerResponseDecoder: Decoder[Long] = {
+  private implicit val LuaIntegerDecoder: Decoder[Long] = {
     case IntegerResponse(x) => x
   }
   
-  private implicit val IntegerResponseToBooleanDecoder: Decoder[Boolean] = {
-    case i: IntegerResponse => i.toBoolean
+  private implicit val LuaBooleanDecoder: Decoder[Boolean] = {
+    case i: IntegerResponse       => i.toBoolean
+    case BulkStringResponse(None) => false
   }
   
-  private implicit val BulkStringResponseDecoder: Decoder[Option[String]] = {
+  private implicit val LuaStringDecoder: Decoder[Option[String]] = {
     case b: BulkStringResponse => b.parsed[String]
   }
   
@@ -91,7 +94,7 @@ class ScriptingCommandsSpec extends WordSpec
     "the script is valid but returns an error" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy { 
-          client.eval[Long, String, String](ScriptAsInteger, keys = Seq("HASH")).futureValue
+          client.eval[Long, String, String](ScriptAsInteger, keys = Seq("HASH")).!
         }
       }
     }
@@ -101,7 +104,7 @@ class ScriptingCommandsSpec extends WordSpec
         client.eval[Unit, String, String](
           ScriptAsUnit, keys = Seq("STR"), args = Seq(Value)
         ).futureValue should be (())
-        client.get("STR").futureValue should contain (Value)
+        client.get[String]("STR").futureValue should contain (Value)
       }
       Given("that the script returns true")
       "succeed and return true" taggedAs (V260) in {
@@ -146,6 +149,10 @@ class ScriptingCommandsSpec extends WordSpec
       "succeed and return the nested list" taggedAs (V260) in {
         client.eval[List[Any], String, String](
           ScriptAsNestedList, keys = Seq("1", "2", "3", "4", "5")
+        )(
+          NestedArrayResponseDecoder,
+          UTF8StringWriter,
+          UTF8StringWriter
         ).futureValue should be (
           List(
             Some("1"),
@@ -159,18 +166,25 @@ class ScriptingCommandsSpec extends WordSpec
         
         client.eval[List[Any], String, String](
           ScriptAsNestedListWithNils, keys = Seq("1", "2", "3", "4", "5")
+        )(
+          NestedArrayResponseDecoder,
+          UTF8StringWriter,
+          UTF8StringWriter
         ).futureValue should be (
           List(
             Some("1"),
             List(
               Some("2"),
-              List(None, None),
-              None
+              Nil
             )
           )
         )
         
-        client.eval[List[Any], String, String](ScriptAsEmptyList).futureValue should be (empty)
+        client.eval[List[Any], String, String](ScriptAsEmptyList)(
+          NestedArrayResponseDecoder,
+          UTF8StringWriter,
+          UTF8StringWriter
+        ).futureValue should be (empty)
       }
     }
   }
@@ -180,7 +194,7 @@ class ScriptingCommandsSpec extends WordSpec
       "return an error" taggedAs (V260) in {
         val sha1 = client.scriptLoad(ScriptAsInteger).!
         a [RedisErrorResponseException] should be thrownBy { 
-          client.evalSHA[Long, String, String](sha1, keys = Seq("HASH")).futureValue
+          client.evalSHA[Long, String, String](sha1, keys = Seq("HASH")).!
         }
       }
     }
@@ -243,6 +257,10 @@ class ScriptingCommandsSpec extends WordSpec
         val sha1 = client.scriptLoad(ScriptAsNestedList).!
         client.evalSHA[List[Any], String, String](
           sha1, keys = Seq("1", "2", "3", "4", "5")
+        )(
+          NestedArrayResponseDecoder,
+          UTF8StringWriter,
+          UTF8StringWriter
         ).futureValue should be (
           List(
             Some("1"),
@@ -256,18 +274,25 @@ class ScriptingCommandsSpec extends WordSpec
         val sha2 = client.scriptLoad(ScriptAsNestedListWithNils).!
         client.evalSHA[List[Any], String, String](
           sha2, keys = Seq("1", "2", "3", "4", "5")
+        )(
+          NestedArrayResponseDecoder,
+          UTF8StringWriter,
+          UTF8StringWriter
         ).futureValue should be (
           List(
             Some("1"),
             List(
               Some("2"),
-              List(None, None),
-              None
+              Nil
             )
           )
         )
         val sha3 = client.scriptLoad(ScriptAsEmptyList).!
-        client.evalSHA[List[Any], String, String](sha3).futureValue should be (empty)
+        client.evalSHA[List[Any], String, String](sha3)(
+          NestedArrayResponseDecoder,
+          UTF8StringWriter,
+          UTF8StringWriter
+        ).futureValue should be (empty)
       }
     }
   }
@@ -302,9 +327,13 @@ class ScriptingCommandsSpec extends WordSpec
     }
   }
   
-  ScriptKill.toString should {
-    "always succeed" taggedAs (V260) in {
-      client.scriptKill() should be (())
+  ScriptKill.toString when {
+    "no script is running" should {
+      "return an error" taggedAs (V260) in {
+        a [RedisErrorResponseException] should be thrownBy {
+          client.scriptKill().!
+        }
+      }
     }
   }
   

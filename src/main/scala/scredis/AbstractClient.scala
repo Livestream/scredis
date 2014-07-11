@@ -23,13 +23,17 @@ import java.util.concurrent.atomic.AtomicInteger
 abstract class AbstractClient(
   system: ActorSystem,
   host: String,
-  port: Int
+  port: Int,
+  passwordOpt: Option[String],
+  database: Int
 ) extends LazyLogging {
   
   @volatile private var isClosed = false
   
   private val ioActor = system.actorOf(
-    Props(classOf[IOActor], new InetSocketAddress(host, port)).withDispatcher(
+    Props(
+      classOf[IOActor], new InetSocketAddress(host, port), passwordOpt, database
+    ).withDispatcher(
       "scredis.io-dispatcher"
     ),
     AbstractClient.getUniqueName(s"io-actor-$host-$port")

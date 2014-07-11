@@ -30,7 +30,7 @@ final class Client(
   private var passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
   private var database: Int = RedisConfigDefaults.Client.Database,
   timeout: Duration = RedisConfigDefaults.Client.Timeout
-)(implicit system: ActorSystem) extends AbstractClient(system, host, port)
+)(implicit system: ActorSystem) extends AbstractClient(system, host, port, passwordOpt, database)
   with ConnectionCommands
   with ServerCommands
   with KeyCommands

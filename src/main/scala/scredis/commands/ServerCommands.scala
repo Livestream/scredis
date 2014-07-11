@@ -66,11 +66,14 @@ trait ServerCommands { self: AbstractClient =>
    * @since 2.8.12
    */
   def clientKillWithFilters(
-    addrs: Seq[(String, Int)] = Nil,
-    ids: Seq[Long] = Nil,
-    types: Seq[scredis.ClientType] = Nil,
+    addrOpt: Option[(String, Int)] = None,
+    idOpt: Option[Long] = None,
+    typeOpt: Option[scredis.ClientType] = None,
     skipMe: Boolean = true
-  ): Future[Long] = send(ClientKillWithFilters(addrs, ids, types, skipMe))
+  ): Future[Long] = (addrOpt, idOpt, typeOpt) match {
+    case (None, None, None) => Future.successful(0)
+    case _ => send(ClientKillWithFilters(addrOpt, idOpt, typeOpt, skipMe))
+  }
   
   /**
    * Lists all client connections.

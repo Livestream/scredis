@@ -11,6 +11,7 @@ import scala.concurrent.duration._
 object ServerRequests {
   
   import scredis.serialization.Implicits.stringReader
+  import scredis.serialization.Implicits.longReader
   
   object BGRewriteAOF extends ZeroArgCommand("BGREWRITEAOF")
   object BGSave extends ZeroArgCommand("BGSAVE")
@@ -38,45 +39,50 @@ object ServerRequests {
   object Time extends ZeroArgCommand("TIME")
   
   case class BGRewriteAOF() extends Request[Unit](BGRewriteAOF) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(value) => ()
     }
   }
   
   case class BGSave() extends Request[Unit](BGSave) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(value) => ()
     }
   }
   
   case class ClientGetName() extends Request[Option[String]](ClientGetName) {
-    override def decode = {  
+    override def decode = {
       case b: BulkStringResponse => b.parsed[String]
     }
   }
   
   case class ClientKill(ip: String, port: Int) extends Request[Unit](ClientKill, s"$ip:$port") {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
+  /*
+   *  Note: Redis does not support killing multiple clients
+   *  (e.g. KILL ID 1 ID 2 will only kill the last one)
+   *  This is why arguments are Options and not Seqs
+   */
   case class ClientKillWithFilters(
-    addrs: Seq[(String, Int)],
-    ids: Seq[Long],
-    types: Seq[scredis.ClientType],
+    addrOpt: Option[(String, Int)],
+    idOpt: Option[Long],
+    typeOpt: Option[scredis.ClientType],
     skipMe: Boolean
   ) extends Request[Long](
     ClientKill,
     {
       val args = ListBuffer[Any]()
-      addrs.distinct.foreach {
+      addrOpt.foreach {
         case (ip, port) => args += "ADDR" += s"$ip:$port"
       }
-      ids.distinct.foreach {
+      idOpt.foreach {
         args += "ID" += _
       }
-      types.distinct.foreach {
+      typeOpt.foreach {
         args += "TYPE" += _
       }
       if (!skipMe) {
@@ -85,13 +91,13 @@ object ServerRequests {
       args.toList
     }: _*
   ) {
-    override def decode = {  
+    override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
   case class ClientList() extends Request[List[Map[String, String]]](ClientList) {
-    override def decode = {  
+    override def decode = {
       case b: BulkStringResponse => b.flattened[String].split("\n").map { line =>
         line.split(" ").flatMap { keyValue =>
           val split = keyValue.split("=")
@@ -108,13 +114,13 @@ object ServerRequests {
   }
   
   case class ClientPause(timeoutMillis: Long) extends Request[Unit](ClientPause, timeoutMillis) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
   case class ClientSetName(name: String) extends Request[Unit](ClientSetName, name) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
@@ -122,7 +128,7 @@ object ServerRequests {
   case class ConfigGet(parameter: String) extends Request[Map[String, String]](
     ConfigGet, parameter
   ) {
-    override def decode = {  
+    override def decode = {
       case a: ArrayResponse => a.parsedAsPairsMap[String, String, Map] {
         case b: BulkStringResponse => b.flattened[String]
       } {
@@ -132,39 +138,39 @@ object ServerRequests {
   }
   
   case class ConfigResetStat() extends Request[Unit](ConfigResetStat) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
   case class ConfigRewrite() extends Request[Unit](ConfigRewrite) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
   case class ConfigSet[W: Writer](parameter: String, value: W) extends Request[Unit](
-    ConfigRewrite, parameter, implicitly[Writer[W]].write(value)
+    ConfigSet, parameter, implicitly[Writer[W]].write(value)
   ) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
   case class DBSize() extends Request[Long](DBSize) {
-    override def decode = {  
+    override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
   case class FlushAll() extends Request[Unit](FlushAll) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
   case class FlushDB() extends Request[Unit](FlushDB) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
@@ -172,10 +178,10 @@ object ServerRequests {
   case class Info(sectionOpt: Option[String]) extends Request[Map[String, String]](
     Info, sectionOpt.toSeq: _*
   ) {
-    override def decode = {  
+    override def decode = {
       case b: BulkStringResponse => b.flattened[String].split("\r\n").flatMap { keyValue =>
         val split = keyValue.split(":")
-        if (keyValue.length > 1) {
+        if (split.length > 1) {
           val key = split(0).trim()
           val value = split(1).trim()
           Some(key -> value)
@@ -187,13 +193,13 @@ object ServerRequests {
   }
   
   case class LastSave() extends Request[Long](LastSave) {
-    override def decode = {  
+    override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
   case class Role() extends Request[scredis.Role](Role) {
-    override def decode = {  
+    override def decode = {
       case a: ArrayResponse => a.headOpt[String] {
         case b: BulkStringResponse => b.flattened[String]
       } match {
@@ -249,7 +255,7 @@ object ServerRequests {
   }
   
   case class Save() extends Request[Unit](Save) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
@@ -257,19 +263,19 @@ object ServerRequests {
   case class Shutdown(modifierOpt: Option[scredis.ShutdownModifier]) extends Request[Unit](
     Shutdown, modifierOpt.map(_.name).toSeq: _*
   ) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
   case class SlaveOf(host: String, port: Int) extends Request[Unit](SlaveOf, host, port) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
   case class SlaveOfNoOne() extends Request[Unit](SlaveOf, "NO", "ONE") {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
@@ -279,7 +285,7 @@ object ServerRequests {
   ) extends Request[CC[scredis.SlowLogEntry]](
     SlowLogGet, countOpt.toSeq: _*
   ) {
-    override def decode = {  
+    override def decode = {
       case a: ArrayResponse => a.parsed[scredis.SlowLogEntry, CC] {
         case a: ArrayResponse => {
           val data = a.parsed[Any, IndexedSeq] {
@@ -300,22 +306,22 @@ object ServerRequests {
   }
   
   case class SlowLogLen() extends Request[Long](SlowLogLen) {
-    override def decode = {  
+    override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
   case class SlowLogReset() extends Request[Unit](SlowLogReset) {
-    override def decode = {  
+    override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
   case class Time() extends Request[(Long, Long)](Time) {
-    override def decode = {  
+    override def decode = {
       case a: ArrayResponse => {
         val array = a.parsed[Long, IndexedSeq] {
-          case IntegerResponse(value) => value
+          case b: BulkStringResponse => b.flattened[Long]
         }
         (array(0), array(1))
       }

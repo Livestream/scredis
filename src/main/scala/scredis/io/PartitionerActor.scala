@@ -13,6 +13,7 @@ import scredis.protocol.{ Protocol, Request }
 import scala.util.Success
 import scala.collection.mutable.{ Queue => MQueue, ListBuffer }
 
+import java.util.LinkedList
 import java.nio.ByteBuffer
 
 class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
@@ -20,7 +21,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
   import PartitionerActor._
   import DecoderActor.Partition
   
-  private val requests = MQueue[Request[_]]()
+  private val requests = new LinkedList[Request[_]]()
   
   private val decoders = context.actorOf(
     SmallestMailboxPool(3).props(Props[DecoderActor]).withDispatcher("scredis.decoder-dispatcher")
@@ -35,14 +36,12 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
   
   def receive: Receive = {
     case request: Request[_] => {
-      requests.enqueue(request)
+      requests.addLast(request)
       ioActor ! request
     }
-    case Remove(count) => {
-      println(s"Removing $count request(s)")
-      for (i <- 1 to count) {
-        requests.dequeue()
-      }
+    case Push(request) => requests.push(request)
+    case Remove(count) => for (i <- 1 to count) {
+      requests.pop()
     }
     case Skip(count) => skip += count
     case data: ByteString => {
@@ -70,7 +69,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
       
       val requests = ListBuffer[Request[_]]()
       for (i <- 1 to repliesCount) {
-        requests += this.requests.dequeue()
+        requests += this.requests.pop()
       }
       
       decoders ! Partition(trimmedData, requests.toList.iterator, skipCount)
@@ -82,4 +81,5 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
 object PartitionerActor {
   case class Remove(count: Int)
   case class Skip(count: Int)
+  case class Push(request: Request[_])
 }

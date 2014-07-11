@@ -35,6 +35,7 @@ abstract class Request[A](command: Command, args: Any*) {
       case response => try {
         promise.success(decode(response))
       } catch {
+        case e: RedisReaderException => promise.failure(e)
         case e: Throwable => promise.failure(
           RedisProtocolException(s"Unexpected response: $response", e)
         )

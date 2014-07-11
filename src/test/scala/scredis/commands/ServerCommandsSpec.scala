@@ -67,29 +67,20 @@ class ServerCommandsSpec extends WordSpec
         }
       }
     }
-    "killing a connected client" should {
+    "killing connected clients" should {
       "succeed" taggedAs (V240) in {
-        client2.ping().futureValue should be ("PONG")
-        val client2Data = client1.clientList().!.reduceLeft((c1, c2) => {
-          if (c1("age").toInt < c2("age").toInt) c1
-          else c2
-        })
-        val (ip, port) = {
-          val split = client2Data("addr").split(":")
-          (split(0), split(1).toInt)
+        client1.ping().futureValue should be ("PONG")
+        // Cannot kill self
+        val clients = client1.clientList().futureValue.filter { data =>
+          data("cmd").toLowerCase != "client"
         }
-        client1.clientKill(ip, port)
-        client1.clientList().futureValue should have size (1)
-      }
-    }
-    "killing self" should {
-      "succeed" taggedAs (V240) in {
-        val clientData = client1.clientList().futureValue.head
-        val (ip, port) = {
-          val split = clientData("addr").split(":")
-          (split(0), split(1).toInt)
+        clients should have size (2)
+        clients.reverse.foreach { data =>
+          val split = data("addr").split(":")
+          client1.clientKill(split(0), split(1).toInt).futureValue should be (())
         }
-        client1.clientKill(ip, port)
+        // Clients automatically reconnect
+        client1.clientList().futureValue should have size (3)
       }
     }
   }
@@ -97,60 +88,42 @@ class ServerCommandsSpec extends WordSpec
   s"${ClientKill.toString}-2.8.12" when {
     "killing by addresses" should {
       "succeed" taggedAs (V2812) in {
-        client2.clientSetName("client2").!
-        client3.clientSetName("client3").!
+        client1.clientSetName("client1").futureValue should be (())
+        client2.clientSetName("client2").futureValue should be (())
+        client3.clientSetName("client3").futureValue should be (())
         val clients = client1.clientList().!
         val client2Addr = clients.filter { map =>
           map("name") == "client2"
-        }.head("addr")
-        val client3Addr = clients.filter { map =>
-          map("name") == "client3"
         }.head("addr")
         val (ip2, port2) = {
           val split = client2Addr.split(":")
           (split(0), split(1).toInt)
         }
-        val (ip3, port3) = {
-          val split = client3Addr.split(":")
-          (split(0), split(1).toInt)
-        }
-        client1.clientKillWithFilters(
-          addrs = Seq((ip2, port2), (ip3, port3))
-        ).futureValue should be (2)
+        client1.clientKillWithFilters(addrOpt = Some((ip2, port2))).futureValue should be (1)
       }
     }
     "killing by ids" should {
       "succeed" taggedAs (V2812) in {
-        client2.clientSetName("client2").!
-        client3.clientSetName("client3").!
+        client2.clientSetName("client2").futureValue should be (())
         val clients = client1.clientList().!
-        val client2Id = clients.filter { map =>
-          map("name") == "client2"
-        }.head("id").toInt
         val client3Id = clients.filter { map =>
           map("name") == "client3"
         }.head("id").toInt
-        client1.clientKillWithFilters(
-          ids = Seq(client2Id, client3Id)
-        ).futureValue should be (2)
+        client1.clientKillWithFilters(idOpt = Some(client3Id)).futureValue should be (1)
       }
     }
     "killing by type" should {
       Given("that skipMe is true")
       "kill all clients except self" taggedAs (V2812) in {
-        client2.clientSetName("client2").!
-        client3.clientSetName("client3").!
         client1.clientKillWithFilters(
-          types = Seq(ClientType.Normal), skipMe = true
+          typeOpt = Some(ClientType.Normal), skipMe = true
         ).futureValue should be (2)
       }
       Given("that skipMe is false")
       "kill all clients including self" taggedAs (V2812) in {
-        client2.clientSetName("client2").!
-        client3.clientSetName("client3").!
         client1.clientKillWithFilters(
-          types = Seq(ClientType.Normal), skipMe = false
-        ) should be (3)
+          typeOpt = Some(ClientType.Normal), skipMe = false
+        ).futureValue should be (3)
       }
     }
   }
@@ -230,9 +203,18 @@ class ServerCommandsSpec extends WordSpec
     }
   }
   
-  ConfigRewrite.toString should {
-    "succeed" taggedAs (V280) in {
-      client.configRewrite().futureValue should be (())
+  ConfigRewrite.toString when {
+    "the server is running without a config file" should {
+      "return an error" taggedAs (V280) in {
+        a [RedisErrorResponseException] should be thrownBy {
+          client.configRewrite().!
+        }
+      }
+    }
+    "the server is running with a config file" should {
+      "succeed" taggedAs (V280) in {
+        client1.configRewrite().futureValue should be (())
+      }
     }
   }
 
@@ -246,13 +228,13 @@ class ServerCommandsSpec extends WordSpec
     }
     "changing the password" should {
       "succeed" taggedAs (V200) in {
-        client.configSet("requirepass", "guessit").!
+        client.configSet("requirepass", "guessit").futureValue should be (())
         a [RedisErrorResponseException] should be thrownBy {
           client.ping().!
         }
         client.auth("guessit").futureValue should be (())
         client.configGet("requirepass").!("requirepass") should be ("guessit")
-        client.configSet("requirepass", "") should be (())
+        client.configSet("requirepass", "").futureValue should be (())
         client.configGet("requirepass").!("requirepass") should be (empty)
         client.auth("").futureValue should be (())
       }
@@ -329,7 +311,7 @@ class ServerCommandsSpec extends WordSpec
 
   LastSave.toString should {
     "return the UNIX timestamp of the last database save" taggedAs (V100) in {
-      client.lastSave().futureValue shouldBe > (0)
+      client.lastSave().futureValue should be > (0l)
     }
   }
   
@@ -337,7 +319,8 @@ class ServerCommandsSpec extends WordSpec
     "querying a master database" should {
       "return the master role" taggedAs (V2812) in {
         client1.slaveOf("127.0.0.1", 6379).futureValue should be (())
-        val role = client.role().!
+        Thread.sleep(2000)
+        val role = client.role().futureValue
         role shouldBe a [scredis.Role.Master]
         inside(role) {
           case scredis.Role.Master(offset, slaves) => inside(slaves) {
@@ -351,7 +334,7 @@ class ServerCommandsSpec extends WordSpec
     }
     "querying a slave database" should {
       "return the slave role" taggedAs (V2812) in {
-        val role = client1.role().!
+        val role = client1.role().futureValue
         role shouldBe a [scredis.Role.Slave]
         inside(role) {
           case scredis.Role.Slave(masterIp, masterPort, state, offset) => {
@@ -359,7 +342,8 @@ class ServerCommandsSpec extends WordSpec
             masterPort should be (6379)
           }
         }
-        client1.slaveOfNoOne() should be (())
+        client1.slaveOfNoOne().futureValue should be (())
+        Thread.sleep(2000)
         client1.role().futureValue shouldBe a [scredis.Role.Master]
       }
     }
@@ -375,21 +359,21 @@ class ServerCommandsSpec extends WordSpec
     "count is not specified" should {
       "return all slowlog entries" taggedAs (V2212) in {
         val entries = client.slowLogGet().!
-        entries.size shouldBe >= (0)
+        entries.size should be >= (0)
       }
     }
     "count is specified" should {
       "return at most count slowlog entries" taggedAs (V2212) in {
         val entries = client.slowLogGet(countOpt = Some(3)).!
-        entries.size shouldBe >= (0)
-        entries.size shouldBe <= (3)
+        entries.size should be >= (0)
+        entries.size should be <= (3)
       }
     }
   }
   
   SlowLogLen.toString should {
     "return the size of the slowlog" taggedAs (V2212) in {
-      client.slowLogLen().futureValue shouldBe >= (0)
+      client.slowLogLen().futureValue should be >= (0l)
     }
   }
   
@@ -401,7 +385,9 @@ class ServerCommandsSpec extends WordSpec
 
   Time.toString should {
     "return the current server UNIX timestamp with microseconds" taggedAs (V260) in {
-      client.time().futureValue shouldBe > (0)
+      val (seconds, microseconds) = client.time().futureValue
+      seconds should be > (0l)
+      microseconds should be >= (0l)
     }
   }
 
@@ -410,8 +396,6 @@ class ServerCommandsSpec extends WordSpec
     client.quit().!
     client1.flushAll().!
     client1.quit().!
-    client2.quit().!
-    client3.quit().!
   }
 
 }

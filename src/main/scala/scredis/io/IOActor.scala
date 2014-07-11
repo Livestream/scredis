@@ -9,7 +9,7 @@ import akka.util.ByteString
 import akka.event.LoggingReceive
 
 import scredis.protocol.{ Protocol, Request }
-import scredis.protocol.requests.ConnectionRequests.Quit
+import scredis.protocol.requests.ConnectionRequests.{ Auth, Select, Quit }
 import scredis.protocol.requests.ServerRequests.Shutdown
 import scredis.exceptions.RedisIOException
 
@@ -22,7 +22,9 @@ import java.net.InetSocketAddress
 
 case object ClosingException extends Exception("Connection is being closed")
 
-class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
+class IOActor(
+  remote: InetSocketAddress, var passwordOpt: Option[String], var database: Int
+) extends Actor with LazyLogging {
   
   import Tcp._
   import IOActor._
@@ -167,6 +169,17 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       isConnecting = false
       canWrite = true
       retries = 0
+      requeueBatch()
+      if (database > 0) {
+        val request = Select(database)
+        requests.push(request)
+        partitionerActor ! Push(request)
+      }
+      passwordOpt.foreach { password =>
+        val request = Auth(password)
+        requests.push(request)
+        partitionerActor ! Push(request)
+      }
       write()
       context.watch(connection)
       if (isClosing) {
@@ -193,32 +206,52 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       stop()
     }
     case request: Request[_] => {
-      requests.addLast(request)
+      request match {
+        case Auth(password) => if (password.isEmpty) {
+          passwordOpt = None
+          request.success(())
+          partitionerActor ! Remove(1)
+        } else {
+          passwordOpt = Some(password)
+          requests.addLast(request)
+        }
+        case Select(database) => {
+          this.database = database
+          requests.addLast(request)
+        }
+        case _  => requests.addLast(request)
+      }
       if (!isConnecting) {
         connect()
       }
     }
+    case Terminated(connection) => {
+      logger.info(s"Connection has been shutdown")
+    }
   }
   
   def connected: Receive = LoggingReceive {
-    case request @ Quit() => {
-      requests.addLast(request)
-      if (canWrite) {
-        write()
-      }
-      isClosing = true
-      context.become(closing)
-    }
-    case request @ Shutdown(_) => {
-      requests.addLast(request)
-      if (canWrite) {
-        write()
-      }
-      isClosing = true
-      context.become(closing)
-    }
     case request: Request[_] => {
-      requests.addLast(request)
+      request match {
+        case Auth(password) => if (password.isEmpty) {
+          passwordOpt = None
+          request.success(())
+          partitionerActor ! Remove(1)
+        } else {
+          passwordOpt = Some(password)
+          requests.addLast(request)
+        }
+        case Select(database) => {
+          this.database = database
+          requests.addLast(request)
+        }
+        case Quit() | Shutdown(_) => {
+          isClosing = true
+          requests.addLast(request)
+          context.become(closing)
+        }
+        case _  => requests.addLast(request)
+      }
       if (canWrite) {
         write()
       }
@@ -295,6 +328,10 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       logger.info(s"Connection has been closed")
       stop()
     }
+    case Terminated(connection) => {
+      logger.info(s"Connection has been shutdown")
+      stop()
+    }
   }
   
   def aborting: Receive = LoggingReceive {
@@ -317,7 +354,25 @@ class IOActor(remote: InetSocketAddress) extends Actor with LazyLogging {
       request.failure(RedisIOException("Connection is closing"))
       partitionerActor ! Remove(1)
     } else {
-      requests.addLast(request)
+      request match {
+        case Auth(password) => if (password.isEmpty) {
+          passwordOpt = None
+          request.success(())
+          partitionerActor ! Remove(1)
+        } else {
+          passwordOpt = Some(password)
+          requests.addLast(request)
+        }
+        case Select(database) => {
+          this.database = database
+          requests.addLast(request)
+        }
+        case Quit() | Shutdown(_) => {
+          isClosing = true
+          requests.addLast(request)
+        }
+        case _ => requests.addLast(request)
+      }
     }
   }
   

@@ -10,6 +10,7 @@ import scala.concurrent.duration.FiniteDuration
 object KeyRequests {
   
   import scredis.serialization.Implicits.stringReader
+  import scredis.serialization.Implicits.bytesReader
   
   object Del extends Command("DEL")
   object Dump extends Command("DUMP")
@@ -73,9 +74,9 @@ object KeyRequests {
     }
   }
   
-  case class Dump[R: Reader](key: String) extends Request[Option[R]](Dump, key) {
+  case class Dump(key: String) extends Request[Option[Array[Byte]]](Dump, key) {
     override def decode = {
-      case b: BulkStringResponse => b.parsed[R]
+      case b: BulkStringResponse => b.parsed[Array[Byte]]
     }
   }
   
@@ -205,7 +206,9 @@ object KeyRequests {
     }
   }
   
-  case class RenameNX(key: String, newKey: String) extends Request[Boolean](Rename, key, newKey) {
+  case class RenameNX(key: String, newKey: String) extends Request[Boolean](
+    RenameNX, key, newKey
+  ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -214,7 +217,7 @@ object KeyRequests {
   case class Restore[W: Writer](
     key: String, value: W, ttlOpt: Option[FiniteDuration]
   ) extends Request[Unit](
-    Restore, ttlOpt.map(_.toMillis).getOrElse(0), implicitly[Writer[W]].write(value)
+    Restore, key, ttlOpt.map(_.toMillis).getOrElse(0), implicitly[Writer[W]].write(value)
   ) {
     override def decode = {
       case s: SimpleStringResponse => ()

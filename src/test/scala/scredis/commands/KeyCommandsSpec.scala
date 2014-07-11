@@ -81,7 +81,7 @@ class KeyCommandsSpec extends WordSpec
     client.set("VALUE-B", "VB")
     client.set("VALUE-C", "VC")
     client.set("VALUE-D", "VD")
-    client.set("VALUE-E", "VE").futureValue
+    client.set("VALUE-E", "VE").!
   }
 
   Del.toString when {
@@ -116,7 +116,7 @@ class KeyCommandsSpec extends WordSpec
     "the key exists" should {
       "return the serialized value for that key" taggedAs (V260) in {
         client.set("TO-DUMP", SomeValue)
-        val dump = client.dump[Array[Byte]]("TO-DUMP")(scredis.serialization.BytesReader).!
+        val dump = client.dump("TO-DUMP").!
         dump should be (defined)
         dumpedValue = dump.get
       }
@@ -194,16 +194,9 @@ class KeyCommandsSpec extends WordSpec
   }
 
   Migrate.toString when {
-    "the key does not exist" should {
-      "return an error" taggedAs (V260) in {
-        a [RedisErrorResponseException] should be thrownBy { 
-          client.migrate("NONEXISTENTKEY", "127.0.0.1").!
-        }
-      }
-    }
     "migrating a key to the same instance" should {
       "return an error" taggedAs (V260) in {
-        client.set("TO-MIGRATE", SomeValue).futureValue
+        client.set("TO-MIGRATE", SomeValue)
         a [RedisErrorResponseException] should be thrownBy { 
           client.migrate("TO-MIGRATE", "127.0.0.1", timeout = 500 milliseconds).!
         }
@@ -219,14 +212,12 @@ class KeyCommandsSpec extends WordSpec
     "migrating a key to a valid instance" should {
       "succeed" taggedAs (V260) in {
         // Remove password on 6380
-        client2.configSet("requirepass", "").futureValue
-        client2.auth("").futureValue
+        client2.configSet("requirepass", "").futureValue should be (())
         client.migrate("TO-MIGRATE", "127.0.0.1", 6380, timeout = 500 milliseconds).futureValue
         client.exists("TO-MIGRATE").futureValue should be (false)
         client2.get("TO-MIGRATE").futureValue should contain (SomeValue)
         // Set password back on 6380
-        client2.configSet("requirepass", "foobar").futureValue
-        client2.auth("foobar").futureValue
+        client2.configSet("requirepass", "foobar").futureValue should be (())
       }
     }
     "migrating a key to a valid instance in another database" should {
@@ -235,8 +226,8 @@ class KeyCommandsSpec extends WordSpec
           "TO-MIGRATE", "127.0.0.1", 6379, database = 1, timeout = 500 milliseconds
         ).futureValue
         client2.exists("TO-MIGRATE").futureValue should be (false)
-        client.select(1).futureValue
-        client.get("TO-MIGRATE").futureValue should be (SomeValue)
+        client.select(1).futureValue should be (())
+        client.get("TO-MIGRATE").futureValue should contain (SomeValue)
         client.flushDB().futureValue should be (())
         client.select(0).futureValue should be (())
       }
@@ -449,7 +440,8 @@ class KeyCommandsSpec extends WordSpec
   RenameNX.toString when {
     "the key does not exist" should {
       "return an error" taggedAs (V100) in {
-        client.del("sourceKey", "destKey")
+        client.del("sourceKey")
+        client.del("destKey")
         a [RedisErrorResponseException] should be thrownBy { 
           client.renameNX("sourceKey", "destKey").!
         }
@@ -479,26 +471,17 @@ class KeyCommandsSpec extends WordSpec
   }
   
   Restore.toString when {
-    "the destination key already exists" should {
-      "return an error" taggedAs (V260) in {
-        a [RedisErrorResponseException] should be thrownBy { 
-          client.restore("TO-DUMP", dumpedValue).!
-        }
-      }
-    }
     "the destination key does not exist" should {
       "restore the dumped value" taggedAs (V260) in {
-        client.restore("RESTORED", dumpedValue)
-        val dumped = client.get("TO-DUMP").!.get
-        client.get("RESTORED").futureValue should contain (dumped)
+        client.restore("RESTORED", dumpedValue).futureValue should be (())
+        client.get("RESTORED").futureValue should contain (SomeValue)
         client.del("RESTORED")
       }
     }
     "applying a ttl" should {
       "restore the dumped value which should expire after the ttl" taggedAs (V260) in {
-        client.restore("RESTORED", dumpedValue, Some(500 milliseconds))
-        val dumped = client.get("TO-DUMP").!.get
-        client.get("RESTORED").futureValue should contain (dumped)
+        client.restore("RESTORED", dumpedValue, Some(500 milliseconds)).futureValue should be (())
+        client.get("RESTORED").futureValue should contain (SomeValue)
         Thread.sleep(600)
         client.get("RESTORED").futureValue should be (empty)
       }
