@@ -37,7 +37,9 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not exist" should {
       "create a sorted set and add the member to it" taggedAs (V120) in {
         client.zAdd("SET", SomeValue, Score.MinusInfinity).futureValue should be (true)
-        client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+        client.zRangeWithScores(
+          "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           (SomeValue, Score.MinusInfinity)
         )
       }
@@ -47,7 +49,9 @@ class SortedSetCommandsSpec extends WordSpec
         "sorted set" taggedAs (V120) in {
           client.zAdd("SET", SomeValue, Score.PlusInfinity).futureValue should be (false)
           client.zAdd("SET", "A", -1.3).futureValue should be (true)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", Score.Value(-1.3)), (SomeValue, Score.PlusInfinity)
           )
           client.del("SET")
@@ -71,7 +75,9 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not exist" should {
       "create a sorted set and add the member to it" taggedAs (V240) in {
         client.zAdd("SET", Map("A" -> 1, "B" -> 1.5)).futureValue should be (2)
-        client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+        client.zRangeWithScores(
+          "SET"
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", Score.Value(1)), ("B", Score.Value(1.5))
         )
       }
@@ -235,7 +241,9 @@ class SortedSetCommandsSpec extends WordSpec
       "overwrite the destination sorted set with the empty set" taggedAs (V200) in {
         client.zAdd("SET", "A", 0)
         client.zAdd("SET1", "A", 0)
-        client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+        client.zRangeWithScores(
+          "SET"
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", 0)
         )
         client.zInterStore("SET", Seq("SET1", "SET2", "SET3")).futureValue should be (0)
@@ -267,22 +275,30 @@ class SortedSetCommandsSpec extends WordSpec
           client.zAdd("SET3", "E", -5.56)
 
           client.zInterStore("SET", Seq("SET1", "SET1")).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 2 * 0), ("B", 2 * 1.7), ("C", 2 * 2.3), ("D", 2 * 4.41)
           )
           
           client.zInterStore("SET", Seq("SET1", "SET2")).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", 2.3 + 5.5)
           )
 
           client.zInterStore("SET", Seq("SET1", "SET3")).futureValue should be (2)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0 + (-1.0)), ("C", 2.3 + (-2.13))
           )
 
           client.zInterStore("SET", Seq("SET1", "SET2", "SET3")).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", 2.3 + 5.5 + (-2.13))
           )
         }
@@ -290,24 +306,32 @@ class SortedSetCommandsSpec extends WordSpec
       "compute the intersection between them, aggregate the scores with Min and " +
         "store the result in the destination" taggedAs (V200) in {
           client.zInterStore("SET", Seq("SET1", "SET1"), Aggregate.Min).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
           )
 
           client.zInterStore("SET", Seq("SET1", "SET2"), Aggregate.Min).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", math.min(2.3, 5.5))
           )
 
           client.zInterStore("SET", Seq("SET1", "SET3"), Aggregate.Min).futureValue should be (2)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", -2.13), ("A", -1)
           )
 
           client.zInterStore(
             "SET", Seq("SET1", "SET2", "SET3"), Aggregate.Min
           ).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", math.min(math.min(2.3, 5.5), -2.13))
           )
         }
@@ -315,49 +339,58 @@ class SortedSetCommandsSpec extends WordSpec
       "compute the intersection between them, aggregate the scores with Max and " +
         "store the result in the destination" taggedAs (V200) in {
           client.zInterStore("SET", Seq("SET1", "SET1"), Aggregate.Max).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
           )
 
           client.zInterStore("SET", Seq("SET1", "SET2"), Aggregate.Max).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", math.max(2.3, 5.5))
           )
 
           client.zInterStore("SET", Seq("SET1", "SET3"), Aggregate.Max).futureValue should be (2)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("C", 2.3)
           )
 
           client.zInterStore(
             "SET", Seq("SET1", "SET2", "SET3"), Aggregate.Max
           ).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", math.max(math.max(2.3, 5.5), -2.13))
           )
         }
       Given("some custom weights and that the aggregation function is Sum")
       "compute the intersection between them, aggregate the scores with Sum by taking the " +
         "weights into account and store the result in the destination" taggedAs (V200) in {
-          client.zInterStoreWeighted("SET", Map("SET1" -> 1, "SET1" -> 2)).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
-            ("A", 3 * 0), ("B", 3 * 1.7), ("C", 3 * 2.3), ("D", 3 * 4.41)
-          )
-
           client.zInterStoreWeighted("SET", Map("SET1" -> 1, "SET2" -> 2)).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", 2.3 + 2 * 5.5)
           )
 
           client.zInterStoreWeighted("SET", Map("SET1" -> 1, "SET3" -> 2)).futureValue should be (2)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0 + 2 * (-1.0)), ("C", 2.3 + 2 * (-2.13))
           )
 
           client.zInterStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2, "SET3" -> -1)
           ).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", 2.3 + 2 * 5.5 + (-1) * (-2.13))
           )
         }
@@ -365,30 +398,29 @@ class SortedSetCommandsSpec extends WordSpec
       "compute the intersection between them, aggregate the scores with Min by taking the " +
         "weights into account and store the result in the destination" taggedAs (V200) in {
           client.zInterStoreWeighted(
-            "SET", Map("SET1" -> 1, "SET1" -> 2), Aggregate.Min
-          ).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
-            ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
-          )
-
-          client.zInterStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2), Aggregate.Min
           ).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", math.min(2.3, 2 * 5.5))
           )
 
           client.zInterStoreWeighted(
             "SET", Map("SET1" -> 1, "SET3" -> 2), Aggregate.Min
           ).futureValue should be (2)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", -4.26), ("A", -2)
           )
 
           client.zInterStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2, "SET3" -> -1), Aggregate.Min
           ).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", math.min(math.min(2.3, 2 * 5.5), (-1) * (-2.13)))
           )
         }
@@ -396,34 +428,33 @@ class SortedSetCommandsSpec extends WordSpec
       "compute the intersection between them, aggregate the scores with Max by taking the " +
         "weights into account and store the result in the destination" taggedAs (V200) in {
           client.zInterStoreWeighted(
-            "SET", Map("SET1" -> 1, "SET1" -> 2), Aggregate.Max
-          ).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
-            ("A", 2 * 0), ("B", 2 * 1.7), ("C", 2 * 2.3), ("D", 2 * 4.41)
-          )
-
-          client.zInterStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2), Aggregate.Max
           ).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", math.max(2.3, 2 * 5.5))
           )
 
           client.zInterStoreWeighted(
             "SET", Map("SET1" -> 1, "SET3" -> 2), Aggregate.Max
           ).futureValue should be (2)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("C", 2.3)
           )
 
           client.zInterStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2, "SET3" -> -1), Aggregate.Max
           ).futureValue should be (1)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", math.max(math.max(2.3, 2 * 5.5), (-1) * (-2.13)))
           )
 
-          client.del("SET1", "SET2", "SET3")
+          client.del("SET", "SET1", "SET2", "SET3")
         }
     }
   }
@@ -468,7 +499,7 @@ class SortedSetCommandsSpec extends WordSpec
         
         client.zLexCount(
           "SET", LexicalScoreLimit.Exclusive("a"), LexicalScoreLimit.Exclusive("c")
-        ).futureValue should be (2)
+        ).futureValue should be (1)
         
         client.zLexCount(
           "SET", LexicalScoreLimit.Inclusive("a"), LexicalScoreLimit.Exclusive("f")
@@ -505,7 +536,7 @@ class SortedSetCommandsSpec extends WordSpec
 
   ZRange.toString when {
     "the key does not exist" should {
-      "return None" taggedAs (V120) in {
+      "return an empty set" taggedAs (V120) in {
         client.zRange("SET").futureValue should be (empty)
         client.zRangeWithScores("SET").futureValue should be (empty)
       }
@@ -530,14 +561,14 @@ class SortedSetCommandsSpec extends WordSpec
         client.zRange("SET", 0, 0).futureValue should contain theSameElementsInOrderAs List("A")
         client.zRangeWithScores(
           "SET", 0, 0
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5)
         )
 
         client.zRange("SET", 3, 3).futureValue should contain theSameElementsInOrderAs List("D")
         client.zRangeWithScores(
           "SET", 3, 3
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("D", 3)
         )
 
@@ -546,7 +577,7 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRangeWithScores(
           "SET", 1, 2
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("B", -1), ("C", 0)
         )
 
@@ -557,7 +588,7 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRangeWithScores(
           "SET", 0, 3
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1), ("C", 0), ("D", 3)
         )
         
@@ -566,7 +597,7 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRangeWithScores(
           "SET", 0, -1
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1), ("C", 0), ("D", 3)
         )
 
@@ -575,7 +606,7 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRangeWithScores(
           "SET", 0, -2
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1), ("C", 0)
         )
 
@@ -584,14 +615,16 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRangeWithScores(
           "SET", -3, -1
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("B", -1), ("C", 0), ("D", 3)
         )
 
         client.zRange("SET").futureValue should contain theSameElementsInOrderAs List(
           "A", "B", "C", "D"
         )
-        client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+        client.zRangeWithScores(
+          "SET"
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1), ("C", 0), ("D", 3)
         )
 
@@ -719,7 +752,7 @@ class SortedSetCommandsSpec extends WordSpec
         ).futureValue should contain theSameElementsInOrderAs List("A", "B", "C", "D")
         client.zRangeByScoreWithScores(
           "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1), ("C", 0), ("D", 3)
         )
 
@@ -728,7 +761,7 @@ class SortedSetCommandsSpec extends WordSpec
         ).futureValue should contain theSameElementsInOrderAs List("A", "B", "C")
         client.zRangeByScoreWithScores(
           "SET", ScoreLimit.MinusInfinity, ScoreLimit.Inclusive(0)
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1), ("C", 0)
         )
 
@@ -737,7 +770,7 @@ class SortedSetCommandsSpec extends WordSpec
         ).futureValue should contain theSameElementsInOrderAs List("A", "B")
         client.zRangeByScoreWithScores(
           "SET", ScoreLimit.MinusInfinity, ScoreLimit.Exclusive(0)
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1)
         )
 
@@ -746,7 +779,7 @@ class SortedSetCommandsSpec extends WordSpec
         ).futureValue should contain theSameElementsInOrderAs List("B", "C", "D")
         client.zRangeByScoreWithScores(
           "SET", ScoreLimit.Inclusive(-1), ScoreLimit.PlusInfinity
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("B", -1), ("C", 0), ("D", 3)
         )
 
@@ -755,7 +788,7 @@ class SortedSetCommandsSpec extends WordSpec
         ).futureValue should contain theSameElementsInOrderAs List("C", "D")
         client.zRangeByScoreWithScores(
           "SET", ScoreLimit.Exclusive(-1), ScoreLimit.PlusInfinity
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("C", 0), ("D", 3)
         )
 
@@ -764,7 +797,7 @@ class SortedSetCommandsSpec extends WordSpec
         ).futureValue should contain theSameElementsInOrderAs List("B", "C")
         client.zRangeByScoreWithScores(
           "SET", ScoreLimit.Inclusive(-1), ScoreLimit.Inclusive(0)
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("B", -1), ("C", 0)
         )
 
@@ -773,7 +806,7 @@ class SortedSetCommandsSpec extends WordSpec
         ).futureValue should contain theSameElementsInOrderAs List("C")
         client.zRangeByScoreWithScores(
           "SET", ScoreLimit.Exclusive(-1), ScoreLimit.Inclusive(0)
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("C", 0)
         )
 
@@ -794,7 +827,7 @@ class SortedSetCommandsSpec extends WordSpec
           )
           client.zRangeByScoreWithScores(
             "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity, Some((0, 3))
-          ).futureValue should contain theSameElementsInOrderAs List(
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", -5), ("B", -1), ("C", 0)
           )
 
@@ -805,7 +838,7 @@ class SortedSetCommandsSpec extends WordSpec
           )
           client.zRangeByScoreWithScores(
             "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity, Some((1, 4))
-          ).futureValue should contain theSameElementsInOrderAs List(
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("B", -1), ("C", 0), ("D", 3)
           )
 
@@ -1087,19 +1120,19 @@ class SortedSetCommandsSpec extends WordSpec
         client.zRevRange("SET", 0, 0).futureValue should contain theSameElementsInOrderAs List("D")
         client.zRevRangeWithScores(
           "SET", 0, 0
-        ).futureValue should contain theSameElementsInOrderAs List(("D", 3))
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](("D", 3))
 
         client.zRevRange("SET", 3, 3).futureValue should contain theSameElementsInOrderAs List("A")
         client.zRevRangeWithScores(
           "SET", 3, 3
-        ).futureValue should contain theSameElementsInOrderAs List(("A", -5))
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](("A", -5))
 
         client.zRevRange("SET", 1, 2).futureValue should contain theSameElementsInOrderAs List(
           "C", "B"
         )
         client.zRevRangeWithScores(
           "SET", 1, 2
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("C", 0), ("B", -1)
         )
 
@@ -1108,7 +1141,7 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRevRangeWithScores(
           "SET", 0, 3
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("D", 3), ("C", 0), ("B", -1), ("A", -5)
         )
 
@@ -1117,7 +1150,7 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRevRangeWithScores(
           "SET", 0, -1
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("D", 3), ("C", 0), ("B", -1), ("A", -5)
         )
 
@@ -1126,7 +1159,7 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRevRangeWithScores(
           "SET", 0, -2
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("D", 3), ("C", 0), ("B", -1)
         )
 
@@ -1135,14 +1168,16 @@ class SortedSetCommandsSpec extends WordSpec
         )
         client.zRevRangeWithScores(
           "SET", -3, -1
-        ).futureValue should contain theSameElementsInOrderAs List(
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("C", 0), ("B", -1), ("A", -5)
         )
 
         client.zRevRange("SET").futureValue should contain theSameElementsInOrderAs List(
           "D", "C", "B", "A"
         )
-        client.zRevRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+        client.zRevRangeWithScores(
+          "SET"
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("D", 3), ("C", 0), ("B", -1), ("A", -5)
         )
 
@@ -1185,115 +1220,135 @@ class SortedSetCommandsSpec extends WordSpec
         client.zAdd("SET", "A", -5)
 
         client.zRevRangeByScore(
-          "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity
+          "SET", min = ScoreLimit.MinusInfinity, max = ScoreLimit.PlusInfinity
         ).futureValue.reverse should contain theSameElementsInOrderAs List(
           "A", "B", "C", "D"
         )
         client.zRevRangeByScoreWithScores(
-          "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity
-        ).futureValue.reverse should contain theSameElementsInOrderAs List(
+          "SET", min = ScoreLimit.MinusInfinity, max = ScoreLimit.PlusInfinity
+        ).futureValue.reverse should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1), ("C", 0), ("D", 3)
         )
 
         client.zRevRangeByScore(
-          "SET", ScoreLimit.Inclusive(0), ScoreLimit.PlusInfinity
+          "SET", max = ScoreLimit.Inclusive(0), min = ScoreLimit.MinusInfinity
         ).futureValue.reverse should contain theSameElementsInOrderAs List(
           "A", "B", "C"
         )
         client.zRevRangeByScoreWithScores(
-          "SET", ScoreLimit.Inclusive(0), ScoreLimit.PlusInfinity
-        ).futureValue.reverse should contain theSameElementsInOrderAs List(
+          "SET", max = ScoreLimit.Inclusive(0), min = ScoreLimit.MinusInfinity
+        ).futureValue.reverse should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1), ("C", 0)
         )
 
         client.zRevRangeByScore(
-          "SET", ScoreLimit.Exclusive(0), ScoreLimit.PlusInfinity
+          "SET", max = ScoreLimit.Exclusive(0), min = ScoreLimit.MinusInfinity
         ).futureValue.reverse should contain theSameElementsInOrderAs List(
           "A", "B"
         )
         client.zRevRangeByScoreWithScores(
-          "SET", ScoreLimit.Exclusive(0), ScoreLimit.PlusInfinity
-        ).futureValue.reverse should contain theSameElementsInOrderAs List(
+          "SET", max = ScoreLimit.Exclusive(0), min = ScoreLimit.MinusInfinity
+        ).futureValue.reverse should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", -5), ("B", -1)
         )
 
         client.zRevRangeByScore(
-          "SET", ScoreLimit.MinusInfinity, ScoreLimit.Inclusive(-1)
+          "SET", max = ScoreLimit.PlusInfinity, min = ScoreLimit.Inclusive(-1)
         ).futureValue.reverse should contain theSameElementsInOrderAs List(
           "B", "C", "D"
         )
         client.zRevRangeByScoreWithScores(
-          "SET", ScoreLimit.MinusInfinity, ScoreLimit.Inclusive(-1)
-        ).futureValue.reverse should contain theSameElementsInOrderAs List(
+          "SET", max = ScoreLimit.PlusInfinity, min = ScoreLimit.Inclusive(-1)
+        ).futureValue.reverse should contain theSameElementsInOrderAs List[(String, Score)](
           ("B", -1), ("C", 0), ("D", 3)
         )
 
         client.zRevRangeByScore(
-          "SET", ScoreLimit.MinusInfinity, ScoreLimit.Exclusive(-1)
+          "SET", max = ScoreLimit.PlusInfinity, min = ScoreLimit.Exclusive(-1)
         ).futureValue.reverse should contain theSameElementsInOrderAs List(
           "C", "D"
         )
         client.zRevRangeByScoreWithScores(
-          "SET", ScoreLimit.MinusInfinity, ScoreLimit.Exclusive(-1)
-        ).futureValue.reverse should contain theSameElementsInOrderAs List(
+          "SET", max = ScoreLimit.PlusInfinity, min = ScoreLimit.Exclusive(-1)
+        ).futureValue.reverse should contain theSameElementsInOrderAs List[(String, Score)](
           ("C", 0), ("D", 3)
         )
 
         client.zRevRangeByScore(
-          "SET", ScoreLimit.Inclusive(0), ScoreLimit.Inclusive(-1)
+          "SET", max = ScoreLimit.Inclusive(0), min = ScoreLimit.Inclusive(-1)
         ).futureValue.reverse should contain theSameElementsInOrderAs List(
           "B", "C"
         )
         client.zRevRangeByScoreWithScores(
-          "SET", ScoreLimit.Inclusive(0), ScoreLimit.Inclusive(-1)
-        ).futureValue.reverse should contain theSameElementsInOrderAs List(
+          "SET", max = ScoreLimit.Inclusive(0), min = ScoreLimit.Inclusive(-1)
+        ).futureValue.reverse should contain theSameElementsInOrderAs List[(String, Score)](
           ("B", -1), ("C", 0)
         )
 
         client.zRevRangeByScore(
-          "SET", ScoreLimit.Inclusive(0), ScoreLimit.Exclusive(-1)
+          "SET", max = ScoreLimit.Inclusive(0), min = ScoreLimit.Exclusive(-1)
         ).futureValue.reverse should contain theSameElementsInOrderAs List("C")
         client.zRevRangeByScoreWithScores(
-          "SET", ScoreLimit.Inclusive(0), ScoreLimit.Exclusive(-1)
-        ).futureValue.reverse should contain theSameElementsInOrderAs List("C", 0)
+          "SET", max = ScoreLimit.Inclusive(0), min = ScoreLimit.Exclusive(-1)
+        ).futureValue.reverse should contain theSameElementsInOrderAs List[(String, Score)](
+          ("C", 0)
+        )
 
         client.zRevRangeByScore(
-          "SET", ScoreLimit.Exclusive(0), ScoreLimit.Exclusive(-1)
+          "SET", max = ScoreLimit.Exclusive(0), min = ScoreLimit.Exclusive(-1)
         ).futureValue should be (empty)
         client.zRevRangeByScoreWithScores(
-          "SET", ScoreLimit.Exclusive(0), ScoreLimit.Exclusive(-1)
+          "SET", max = ScoreLimit.Exclusive(0), min = ScoreLimit.Exclusive(-1)
         ).futureValue should be (empty)
       }
       Given("that some limit is provided")
       "return the ordered elements in the specified score range within " +
         "provided limit" taggedAs (V220) in {
           client.zRevRangeByScore(
-            "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity, Some((0, 3))
+            "SET",
+            max = ScoreLimit.PlusInfinity,
+            min = ScoreLimit.MinusInfinity,
+            limitOpt = Some((0, 3))
           ).futureValue should contain theSameElementsInOrderAs List(
             "D", "C", "B"
           )
           client.zRevRangeByScoreWithScores(
-            "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity, Some((0, 3))
-          ).futureValue should contain theSameElementsInOrderAs List(
+            "SET",
+            max = ScoreLimit.PlusInfinity,
+            min = ScoreLimit.MinusInfinity,
+            limitOpt = Some((0, 3))
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("D", 3), ("C", 0), ("B", -1)
           )
           
           client.zRevRangeByScore(
-            "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity, Some((1, 4))
+            "SET",
+            max = ScoreLimit.PlusInfinity,
+            min = ScoreLimit.MinusInfinity,
+            limitOpt = Some((1, 4))
           ).futureValue should contain theSameElementsInOrderAs List(
             "C", "B", "A"
           )
           client.zRevRangeByScoreWithScores(
-            "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity, Some((1, 4))
-          ).futureValue should contain theSameElementsInOrderAs List(
+            "SET",
+            max = ScoreLimit.PlusInfinity,
+            min = ScoreLimit.MinusInfinity,
+            limitOpt = Some((1, 4))
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("C", 0), ("B", -1), ("A", -5)
           )
 
           client.zRevRangeByScore(
-            "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity, Some((0, 0))
+            "SET",
+            max = ScoreLimit.PlusInfinity,
+            min = ScoreLimit.MinusInfinity,
+            limitOpt = Some((0, 0))
           ).futureValue should be (empty)
           client.zRevRangeByScoreWithScores(
-            "SET", ScoreLimit.MinusInfinity, ScoreLimit.PlusInfinity, Some((0, 0))
+            "SET",
+            max = ScoreLimit.PlusInfinity,
+            min = ScoreLimit.MinusInfinity,
+            limitOpt = Some((0, 0))
           ).futureValue should be (empty)
 
           client.del("SET")
@@ -1352,7 +1407,7 @@ class SortedSetCommandsSpec extends WordSpec
         }
         val (next, set) = client.zScan[String]("SSET", 0).!
         next should be (0)
-        set should contain theSameElementsInOrderAs List(
+        set should contain theSameElementsInOrderAs List[(String, Score)](
           ("value1", 1.0),
           ("value2", 2.0),
           ("value3", 3.0),
@@ -1463,11 +1518,15 @@ class SortedSetCommandsSpec extends WordSpec
       "overwrite the destination sorted set with the empty set" taggedAs (V200) in {
         client.zAdd("SET", "A", 0)
         client.zAdd("SET1", "A", 0)
-        client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+        client.zRangeWithScores(
+          "SET"
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", 0)
         )
         client.zUnionStore("SET", Seq("SET1", "SET2", "SET3")).futureValue should be (1)
-        client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+        client.zRangeWithScores(
+          "SET"
+        ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
           ("A", 0)
         )
       }
@@ -1500,22 +1559,30 @@ class SortedSetCommandsSpec extends WordSpec
           client.zAdd("SET3", "E", -5.56)
 
           client.zUnionStore("SET", Seq("SET1", "SET1")).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 2 * 0), ("B", 2 * 1.7), ("C", 2 * 2.3), ("D", 2 * 4.41)
           )
 
           client.zUnionStore("SET", Seq("SET1", "SET2")).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("D", 4.41), ("C", 2.3 + 5.5)
           )
 
           client.zUnionStore("SET", Seq("SET1", "SET3")).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", -5.56), ("A", -1), ("C", 2.3 - 2.13), ("B", 1.7), ("D", 4.41)
           )
 
           client.zUnionStore("SET", Seq("SET1", "SET2", "SET3")).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", -5.56), ("A", -1), ("B", 1.7), ("D", 4.41), ("C", 2.3 + 5.5 - 2.13)
           )
         }
@@ -1523,24 +1590,32 @@ class SortedSetCommandsSpec extends WordSpec
       "compute the union between them, aggregate the scores with Min and " +
         "store the result in the destination" taggedAs (V200) in {
           client.zUnionStore("SET", Seq("SET1", "SET1"), Aggregate.Min).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
           )
 
           client.zUnionStore("SET", Seq("SET1", "SET2"), Aggregate.Min).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
           )
 
           client.zUnionStore("SET", Seq("SET1", "SET3"), Aggregate.Min).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", -5.56), ("C", -2.13), ("A", -1), ("B", 1.7), ("D", 4.41)
           )
 
           client.zUnionStore(
             "SET", Seq("SET1", "SET2", "SET3"), Aggregate.Min
           ).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", -5.56), ("C", -2.13), ("A", -1), ("B", 1.7), ("D", 4.41)
           )
         }
@@ -1548,49 +1623,58 @@ class SortedSetCommandsSpec extends WordSpec
       "compute the union between them, aggregate the scores with Max and " +
         "store the result in the destination" taggedAs (V200) in {
           client.zUnionStore("SET", Seq("SET1", "SET1"), Aggregate.Max).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
           )
 
           client.zUnionStore("SET", Seq("SET1", "SET2"), Aggregate.Max).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("D", 4.41), ("C", 5.5)
           )
 
           client.zUnionStore("SET", Seq("SET1", "SET3"), Aggregate.Max).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", -5.56), ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
           )
 
           client.zUnionStore(
             "SET", Seq("SET1", "SET2", "SET3"), Aggregate.Max
           ).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", -5.56), ("A", 0), ("B", 1.7), ("D", 4.41), ("C", 5.5)
           )
         }
       Given("some custom weights and that the aggregation function is Sum")
       "compute the union between them, aggregate the scores with Sum by taking the " +
         "weights into account and store the result in the destination" taggedAs (V200) in {
-          client.zUnionStoreWeighted("SET", Map("SET1" -> 1, "SET1" -> 2)).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
-            ("A", 3 * 0), ("B", 3 * 1.7), ("C", 3 * 2.3), ("D", 3 * 4.41)
-          )
-
           client.zUnionStoreWeighted("SET", Map("SET1" -> 1, "SET2" -> 2)).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("D", 4.41), ("C", 2.3 + 2 * 5.5)
           )
 
           client.zUnionStoreWeighted("SET", Map("SET1" -> 1, "SET3" -> 2)).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", 2 * (-5.56)), ("A", 2 * (-1)), ("C", 2.3 + 2 * (-2.13)), ("B", 1.7), ("D", 4.41)
           )
 
           client.zUnionStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2, "SET3" -> -1)
           ).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 1),
             ("B", 1.7),
             ("D", 4.41),
@@ -1602,30 +1686,29 @@ class SortedSetCommandsSpec extends WordSpec
       "compute the union between them, aggregate the scores with Min by taking the " +
         "weights into account and store the result in the destination" taggedAs (V200) in {
           client.zUnionStoreWeighted(
-            "SET", Map("SET1" -> 1, "SET1" -> 2), Aggregate.Min
-          ).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
-            ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
-          )
-
-          client.zUnionStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2), Aggregate.Min
           ).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
           )
 
           client.zUnionStoreWeighted(
             "SET", Map("SET1" -> 1, "SET3" -> 2), Aggregate.Min
           ).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", 2 * (-5.56)), ("C", -4.26), ("A", -2), ("B", 1.7), ("D", 4.41)
           )
 
           client.zUnionStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2, "SET3" -> -1), Aggregate.Min
           ).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("C", 2.13), ("D", 4.41), ("E", 5.56)
           )
         }
@@ -1633,30 +1716,29 @@ class SortedSetCommandsSpec extends WordSpec
       "compute the union between them, aggregate the scores with Max by taking the " +
         "weights into account and store the result in the destination" taggedAs (V200) in {
           client.zUnionStoreWeighted(
-            "SET", Map("SET1" -> 1, "SET1" -> 2), Aggregate.Max
-          ).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
-            ("A", 0), ("B", 3.4), ("C", 4.6), ("D", 8.82)
-          )
-
-          client.zUnionStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2), Aggregate.Max
           ).futureValue should be (4)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 0), ("B", 1.7), ("D", 4.41), ("C", 11)
           )
 
           client.zUnionStoreWeighted(
             "SET", Map("SET1" -> 1, "SET3" -> 2), Aggregate.Max
           ).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("E", 2 * (-5.56)), ("A", 0), ("B", 1.7), ("C", 2.3), ("D", 4.41)
           )
 
           client.zUnionStoreWeighted(
             "SET", Map("SET1" -> 1, "SET2" -> 2, "SET3" -> -1), Aggregate.Max
           ).futureValue should be (5)
-          client.zRangeWithScores("SET").futureValue should contain theSameElementsInOrderAs List(
+          client.zRangeWithScores(
+            "SET"
+          ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
             ("A", 1), ("B", 1.7), ("D", 4.41), ("E", 5.56), ("C", 11)
           )
           client.del("SET", "SET1", "SET2", "SET3")

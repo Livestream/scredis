@@ -549,6 +549,6 @@ trait SortedSetCommands { self: AbstractClient =>
     destKey: String,
     keysWeightPairs: Map[String, Double],
     aggregate: scredis.Aggregate = scredis.Aggregate.Sum
-  ): Future[Long] = send(ZInterStoreWeighted(destKey, keysWeightPairs, aggregate))
+  ): Future[Long] = send(ZUnionStoreWeighted(destKey, keysWeightPairs, aggregate))
   
 }
