@@ -1,9 +1,13 @@
 package scredis.commands
 
-import scredis.io.Connection
+import scredis.TransactionBuilder
+import scredis.io.TransactionEnabledConnection
 import scredis.protocol.requests.TransactionRequests._
+import scredis.exceptions.RedisTransactionBuilderException
 
+import scala.util.Try
 import scala.concurrent.Future
+import scredis.TransactionBuilder
 
 /**
  * This trait implements transaction commands.
@@ -13,7 +17,7 @@ import scala.concurrent.Future
  * @define true '''true'''
  * @define false '''false'''
  */
-trait TransactionCommands { self: Connection =>
+trait TransactionCommands { self: TransactionEnabledConnection =>
   
   /**
    * Watches the given keys, which upon modification, will abort a transaction.
@@ -30,5 +34,26 @@ trait TransactionCommands { self: Connection =>
    * @since 2.2.0
    */
   def unwatch(): Future[Unit] = send(Unwatch())
+  
+  def inTransaction(f: TransactionBuilder => Any): Future[IndexedSeq[Try[Any]]] = {
+    val builder = new TransactionBuilder()
+    try {
+      f(builder)
+      sendTransaction(builder.result())
+    } catch {
+      case e: Throwable => Future.failed(RedisTransactionBuilderException(cause = e))
+    }
+  }
+  
+  def withTransaction[A](f: TransactionBuilder => A): A = {
+    val builder = new TransactionBuilder()
+    try {
+      val result = f(builder)
+      sendTransaction(builder.result())
+      result
+    } catch {
+      case e: Throwable => throw RedisTransactionBuilderException(cause = e)
+    }
+  }
   
 }

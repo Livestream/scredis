@@ -1,6 +1,7 @@
 package scredis.protocol.requests
 
 import scredis.protocol._
+import scredis.exceptions.RedisTransactionAbortedException
 
 import scala.util.Try
 
@@ -19,10 +20,11 @@ object TransactionRequests {
   }
   
   case class Exec(
-    parsers: Traversable[PartialFunction[Response, Any]]
-  ) extends Request[IndexedSeq[Try[Any]]](Multi) {
+    decoders: Seq[Decoder[Any]]
+  ) extends Request[IndexedSeq[Try[Any]]](Exec) {
     override def decode = {
-      case a: ArrayResponse => a.parsed[IndexedSeq](parsers)
+      case a: ArrayResponse         => a.parsed[IndexedSeq](decoders)
+      case BulkStringResponse(None) => throw RedisTransactionAbortedException
     }
   }
   

@@ -31,6 +31,7 @@ abstract class Request[A](command: Command, args: Any*) {
   
   private[scredis] def complete(response: Response): Unit = {
     response match {
+      case SimpleStringResponse("QUEUED") =>
       case ErrorResponse(message) => promise.failure(RedisErrorResponseException(message))
       case response => try {
         promise.success(decode(response))
@@ -44,8 +45,8 @@ abstract class Request[A](command: Command, args: Any*) {
     Protocol.release()
   }
   
-  private[scredis] def success(value: A): Unit = {
-    promise.success(value)
+  private[scredis] def success(value: Any): Unit = {
+    promise.success(value.asInstanceOf[A])
     Protocol.release()
   }
   
