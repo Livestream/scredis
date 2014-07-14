@@ -17,6 +17,12 @@ import scala.concurrent.duration._
  */
 trait BlockingListCommands { self: BlockingConnection =>
   
+  private implicit def secondsToDuration(seconds: Int): Duration = if (seconds <= 0) {
+    Duration.Inf
+  } else {
+    (seconds + 1).seconds
+  }
+  
   /**
    * Removes and returns the first element in a list, or block until one is available.
    *
@@ -24,13 +30,13 @@ trait BlockingListCommands { self: BlockingConnection =>
    * an element is available
    * @param keys list key(s)
    * @return list of key to popped element pair, or $none if timeout occurs
-   * @throws $e if key contains a non-list value
+   * @throws $e if a key contains a non-list value
    *
    * @since 2.0.0
    */
   def blPop[R: Reader](timeoutSeconds: Int, keys: String*): Option[(String, R)] = sendBlocking(
     BLPop(timeoutSeconds, keys: _*)
-  )
+  )(timeoutSeconds)
   
   /**
    * Removes and returns the last element in a list, or block until one is available.
@@ -39,13 +45,13 @@ trait BlockingListCommands { self: BlockingConnection =>
    * an element is available in at least one of the provided lists
    * @param keys list key(s)
    * @return list of key to popped element pair, or $none if timeout occurs
-   * @throws $e if key contains a non-list value
+   * @throws $e if a key contains a non-list value
    *
    * @since 2.0.0
    */
   def brPop[R: Reader](timeoutSeconds: Int, keys: String*): Option[(String, R)] = sendBlocking(
     BRPop(timeoutSeconds, keys: _*)
-  )
+  )(timeoutSeconds)
   
   /**
    * Pops a value from a list, pushes it to another list and returns it, or block until one is
@@ -63,6 +69,6 @@ trait BlockingListCommands { self: BlockingConnection =>
    */
   def brPopLPush[R: Reader](
     sourceKey: String, destKey: String, timeoutSeconds: Int
-  ): Option[R] = sendBlocking(BRPopLPush(sourceKey, destKey, timeoutSeconds))
+  ): Option[R] = sendBlocking(BRPopLPush(sourceKey, destKey, timeoutSeconds))(timeoutSeconds)
   
 }

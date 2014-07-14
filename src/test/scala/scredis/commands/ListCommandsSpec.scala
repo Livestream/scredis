@@ -10,6 +10,7 @@ import scredis.tags._
 import scredis.util.TestUtils._
 
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class ListCommandsSpec extends WordSpec
@@ -18,22 +19,24 @@ class ListCommandsSpec extends WordSpec
   with Matchers
   with ScalaFutures {
   
+  import scala.concurrent.ExecutionContext.Implicits.global
+  
   private val client = Client()
+  private val client2 = Client()
   private val SomeValue = "HelloWorld!虫àéç蟲"
 
   override def beforeAll(): Unit = {
     client.hSet("HASH", "FIELD", SomeValue).!
   }
   
-  /* FIXME:
   BLPop.toString when {
     "the first existing key is not of type list" should {
       "return an error" taggedAs (V200) in {
-        client.rPush("LIST", "A").futureValue
+        client.rPush("LIST", "A")
         a [RedisErrorResponseException] should be thrownBy {
           client.blPop(1, "HASH", "LIST")
         }
-        client.del("LIST").!
+        client.del("LIST")
         a [RedisErrorResponseException] should be thrownBy  {
           client.blPop(1, "LIST", "HASH")
         }
@@ -41,45 +44,39 @@ class ListCommandsSpec extends WordSpec
     }
     "the keys do not exist or are empty" should {
       "succeed" taggedAs (V200) in {
-        client.blPop(1, "LIST", "LIST2", "LIST3").futureValue should be (empty)
+        client.blPop(1, "LIST", "LIST2", "LIST3") should be (empty)
       }
     }
     "the timeout is zero" should {
       "block and return as soon as a value is pushed" taggedAs (V200) in {
         val future = Future {
           val start = System.currentTimeMillis
-          val result = client.sync(_.blPop(0, "LIST", "LIST2", "LIST3"))
+          val result = client.blPop(0, "LIST", "LIST2", "LIST3")
           val elapsed = System.currentTimeMillis - start
           (result, elapsed)
         }
         Thread.sleep(500)
-        client.rPush("LIST2", "A").futureValue
-        val (result, elapsed) = Await.result(future, 50 milliseconds)
-        result.get should be (("LIST2" -> "A"))
+        a [RedisIOException] should be thrownBy {
+          client.rPush("LIST2", "A").!
+        }
+        client2.rPush("LIST2", "A")
+        val (result, elapsed) = future.!
+        result should contain (("LIST2", "A"))
         elapsed.toInt should be >= (500)
       }
     }
     "the keys contain a non-empty list" should {
       "pop the values in order" taggedAs (V200) in {
-        client.rPush("LIST", "A").futureValue
-        client.rPush("LIST", "B").futureValue
-        client.rPush("LIST2", "C").futureValue
-        client.rPush("LIST3", "D").futureValue
-        client.rPush("LIST3", "E").futureValue
-        client.sync(_.blPop(1, "LIST", "LIST2", "LIST3")).get should be (("LIST" -> "A"))
-        client.sync(_.blPop(1, "LIST", "LIST2", "LIST3")).get should be (("LIST" -> "B"))
-        client.sync(_.blPop(1, "LIST", "LIST2", "LIST3")).get should be (("LIST2" -> "C"))
-        client.sync(_.blPop(1, "LIST", "LIST2", "LIST3")).get should be (("LIST3" -> "D"))
-        client.sync(_.blPop(1, "LIST", "LIST2", "LIST3")).get should be (("LIST3" -> "E"))
-      }
-    }
-    "the BLPOP timeout is greater than the default timeout" should {
-      "adjust the connection timeout to the BLPOP timeout" taggedAs (V200) in {
-        client.sync { client =>
-          client.setTimeout(200 milliseconds)
-          client.blPop(1, "LIST", "LIST2", "LIST3").futureValue should be (empty)
-          client.restoreDefaultTimeout()
-        }
+        client.rPush("LIST", "A")
+        client.rPush("LIST", "B")
+        client.rPush("LIST2", "C")
+        client.rPush("LIST3", "D")
+        client.rPush("LIST3", "E")
+        client.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST", "A"))
+        client.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST", "B"))
+        client.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST2", "C"))
+        client.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST3", "D"))
+        client.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST3", "E"))
       }
     }
   }
@@ -87,57 +84,51 @@ class ListCommandsSpec extends WordSpec
   BRPop.toString when {
     "the first existing key is not of type list" should {
       "return an error" taggedAs (V200) in {
-        client.lPush("LIST", "A").futureValue
+        client.lPush("LIST", "A")
         a [RedisErrorResponseException] should be thrownBy {
-          client.sync(_.brPop(1, "HASH", "LIST"))
+          client.brPop(1, "HASH", "LIST")
         }
-        client.del("LIST").futureValue
-        a [RedisErrorResponseException] should be thrownBy {
-          client.sync(_.brPop(1, "LIST", "HASH"))
+        client.del("LIST")
+        a [RedisErrorResponseException] should be thrownBy  {
+          client.brPop(1, "LIST", "HASH")
         }
       }
     }
     "the keys do not exist or are empty" should {
       "succeed" taggedAs (V200) in {
-        client.sync(_.brPop(1, "LIST", "LIST2", "LIST3")).futureValue should be (empty)
+        client.brPop(1, "LIST", "LIST2", "LIST3") should be (empty)
       }
     }
     "the timeout is zero" should {
       "block and return as soon as a value is pushed" taggedAs (V200) in {
         val future = Future {
           val start = System.currentTimeMillis
-          val result = client.sync(_.brPop(0, "LIST", "LIST2", "LIST3"))
+          val result = client.brPop(0, "LIST", "LIST2", "LIST3")
           val elapsed = System.currentTimeMillis - start
           (result, elapsed)
         }
         Thread.sleep(500)
-        client.lPush("LIST2", "A").futureValue
-        val (result, elapsed) = Await.result(future, 50 milliseconds)
-        result.get should be (("LIST2" -> "A"))
+        a [RedisIOException] should be thrownBy {
+          client.lPush("LIST2", "A").!
+        }
+        client2.lPush("LIST2", "A")
+        val (result, elapsed) = future.!
+        result should contain (("LIST2", "A"))
         elapsed.toInt should be >= (500)
       }
     }
     "the keys contain a non-empty list" should {
-      "return the values in order" taggedAs (V200) in {
-        client.lPush("LIST", "A").futureValue
-        client.lPush("LIST", "B").futureValue
-        client.lPush("LIST2", "C").futureValue
-        client.lPush("LIST3", "D").futureValue
-        client.lPush("LIST3", "E").futureValue
-        client.sync(_.brPop(1, "LIST", "LIST2", "LIST3").get should be (("LIST" -> "A")))
-        client.sync(_.brPop(1, "LIST", "LIST2", "LIST3").get should be (("LIST" -> "B")))
-        client.sync(_.brPop(1, "LIST", "LIST2", "LIST3").get should be (("LIST2" -> "C")))
-        client.sync(_.brPop(1, "LIST", "LIST2", "LIST3").get should be (("LIST3" -> "D")))
-        client.sync(_.brPop(1, "LIST", "LIST2", "LIST3").get should be (("LIST3" -> "E")))
-      }
-    }
-    "the BRPOP timeout is greater than the default timeout" should {
-      "adjust the connection timeout to the BRPOP timeout" taggedAs (V200) in {
-        client.sync { client =>
-          client.setTimeout(200 milliseconds)
-          client.brPop(1, "LIST", "LIST2", "LIST3").futureValue should be (empty)
-          client.restoreDefaultTimeout()
-        }
+      "pop the values in order" taggedAs (V200) in {
+        client.lPush("LIST", "A")
+        client.lPush("LIST", "B")
+        client.lPush("LIST2", "C")
+        client.lPush("LIST3", "D")
+        client.lPush("LIST3", "E")
+        client.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST", "A"))
+        client.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST", "B"))
+        client.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST2", "C"))
+        client.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST3", "D"))
+        client.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST3", "E"))
       }
     }
   }
@@ -145,42 +136,33 @@ class ListCommandsSpec extends WordSpec
   BRPopLPush.toString when {
     "the source key does not exist" should {
       "do nothing" taggedAs (V220) in {
-        client.sync(_.brPopLPush("LIST", "LIST", 1)).futureValue should be (empty)
+        client.brPopLPush("LIST", "LIST", 1) should be (empty)
       }
     }
     "the source key does not contain a list" should {
       "return an error" taggedAs (V220) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sync(_.brPopLPush("HASH", "LIST", 1))
+          client.brPopLPush("HASH", "LIST", 1)
         }
       }
     }
     "the dest key does not contain a list" should {
       "return an error" taggedAs (V220) in {
-        client.lPush("LIST", "A").futureValue
+        client.lPush("LIST", "A")
         a [RedisErrorResponseException] should be thrownBy {
-          client.sync(_.brPopLPush("LIST", "HASH", 1))
+          client.brPopLPush("LIST", "HASH", 1)
         }
       }
     }
     "the source and dest keys are correct" should {
       "succeed" taggedAs (V220) in {
-        client.sync(_.brPopLPush("LIST", "LIST", 1)).futureValue should be (Some("A"))
-        client.sync(_.brPopLPush("LIST", "LIST2", 1)).futureValue should be (Some("A"))
+        client.brPopLPush("LIST", "LIST", 1) should contain ("A")
+        client.brPopLPush("LIST", "LIST2", 1) should contain ("A")
         client.lPop("LIST").futureValue should be (empty)
-        client.lPop("LIST2").futureValue should be (Some("A"))
+        client.lPop("LIST2").futureValue should contain ("A")
       }
     }
-    "the BRPopLPush timeout is greater than the default timeout" should {
-      "adjust the connection timeout to the BRPopLPush timeout" taggedAs (V200) in {
-        client.sync { client =>
-          client.setTimeout(200 milliseconds)
-          client.brPopLPush("LIST", "LIST", 1).futureValue should be (empty)
-          client.restoreDefaultTimeout()
-        }
-      }
-    }
-  }*/
+  }
 
   LIndex.toString when {
     "the key does not exist" should {
@@ -760,6 +742,7 @@ class ListCommandsSpec extends WordSpec
   override def afterAll() {
     client.flushDB().!
     client.quit().!
+    client2.quit().!
   }
 
 }

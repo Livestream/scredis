@@ -15,6 +15,7 @@ import scala.concurrent.{ ExecutionContext, Future, Await }
 import scala.concurrent.duration._
 
 import java.net.InetSocketAddress
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /**
  * This trait represents a connection to a `Redis` server.
@@ -25,11 +26,11 @@ abstract class AkkaIOConnection(
   port: Int,
   passwordOpt: Option[String],
   database: Int
-) extends TransactionEnabledConnection with LazyLogging {
+) extends TransactionEnabledConnection with BlockingConnection with LazyLogging {
   
-  @volatile protected var isClosed = false
+  @volatile private var isClosed = false
   
-  protected val ioActor = system.actorOf(
+  private val ioActor = system.actorOf(
     Props(
       classOf[IOActor], new InetSocketAddress(host, port), passwordOpt, database
     ).withDispatcher(
@@ -37,14 +38,37 @@ abstract class AkkaIOConnection(
     ),
     Connection.getUniqueName(s"io-actor-$host-$port")
   )
-  protected val partitionerActor = system.actorOf(
+  private val partitionerActor = system.actorOf(
     Props(classOf[PartitionerActor], ioActor).withDispatcher("scredis.partitioner-dispatcher"),
     Connection.getUniqueName(s"partitioner-actor-$host-$port")
   )
   
+  private val lock = new ReentrantReadWriteLock()
+  
   override protected implicit val ec = system.dispatcher
   
-  protected def send[A](request: Request[A]): Future[A] = {
+  private def withReadLock[A](f: => Future[A]): Future[A] = {
+    if (lock.readLock.tryLock) {
+      try {
+        f
+      } finally {
+        lock.readLock.unlock()
+      }
+    } else {
+      Future.failed(RedisIOException("Trying to send request on a blocked connection"))
+    }
+  }
+  
+  private def withWriteLock[A](f: => A): A = {
+    lock.writeLock.lock()
+    try {
+      f
+    } finally {
+      lock.writeLock.unlock()
+    }
+  }
+  
+  override protected def send[A](request: Request[A]): Future[A] = withReadLock {
     if (isClosed) {
       Future.failed(RedisIOException("Connection has been closed"))
     } else {
@@ -59,7 +83,9 @@ abstract class AkkaIOConnection(
     }
   }
   
-  protected def sendTransaction(transaction: Transaction): Future[IndexedSeq[Try[Any]]] = {
+  override protected def sendTransaction(
+    transaction: Transaction
+  ): Future[Vector[Try[Any]]] = withReadLock {
     if (isClosed) {
       Future.failed(RedisIOException("Connection has been closed"))
     } else {
@@ -69,10 +95,12 @@ abstract class AkkaIOConnection(
     }
   }
   
-  protected def sendBlocking[A](request: Request[A]): A = {
+  override protected def sendBlocking[A](request: Request[A])(
+    implicit timeout: Duration
+  ): A = withWriteLock {
     logger.debug(s"Sending blocking request: $request")
-    // TODO: send
-    Await.result(request.future, Duration.Inf)
+    partitionerActor ! request
+    Await.result(request.future, timeout)
   }
   
   ioActor ! partitionerActor

@@ -21,9 +21,9 @@ object TransactionRequests {
   
   case class Exec(
     decoders: Seq[Decoder[Any]]
-  ) extends Request[IndexedSeq[Try[Any]]](Exec) {
+  ) extends Request[Vector[Try[Any]]](Exec) {
     override def decode = {
-      case a: ArrayResponse         => a.parsed[IndexedSeq](decoders)
+      case a: ArrayResponse         => a.parsed[Vector](decoders)
       case BulkStringResponse(None) => throw RedisTransactionAbortedException
     }
   }

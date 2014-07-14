@@ -24,11 +24,11 @@ trait Connection {
 }
 
 trait BlockingConnection {
-  protected def sendBlocking[A](request: Request[A]): A
+  protected def sendBlocking[A](request: Request[A])(implicit timeout: Duration): A
 }
 
 trait TransactionEnabledConnection extends Connection {
-  protected def sendTransaction(transaction: Transaction): Future[IndexedSeq[Try[Any]]]
+  protected def sendTransaction(transaction: Transaction): Future[Vector[Try[Any]]]
 }
 
 object Connection {

@@ -38,6 +38,7 @@ final class Client(
   with StringCommands
   with HashCommands
   with ListCommands
+  with BlockingListCommands
   with SetCommands
   with SortedSetCommands
   with ScriptingCommands
@@ -111,18 +112,6 @@ final class Client(
     RedisConfig(configName, path)
   )
   
-  private def authAndSelect(): Future[Unit] = {
-    passwordOpt.map(auth).getOrElse {
-      Future.successful(())
-    }.flatMap { _ =>
-      if (database > 0) {
-        select(database)
-      } else {
-        Future.successful(())
-      }
-    }
-  }
-  
   /**
    * Authenticates to the server.
    *
@@ -151,10 +140,6 @@ final class Client(
   override def select(database: Int): Future[Unit] = {
     this.database = database
     super.select(database)
-  }
-  
-  authAndSelect().recover {
-    case e: Throwable => logger.error("Could not initialize client", e)
   }
   
 }

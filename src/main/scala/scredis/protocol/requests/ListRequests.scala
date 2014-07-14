@@ -55,7 +55,8 @@ object ListRequests {
     source: String, destination: String, timeoutSeconds: Int
   ) extends Request[Option[R]](BRPopLPush, source, destination, timeoutSeconds) {
     override def decode = {
-      case b: BulkStringResponse => b.parsed[R]
+      case b: BulkStringResponse  => b.parsed[R]
+      case ArrayResponse(-1, _)   => None
     }
   }
   

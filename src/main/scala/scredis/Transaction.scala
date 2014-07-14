@@ -31,4 +31,6 @@ private[scredis] final case class Transaction (requests: Seq[Request[_]]) {
     }
   }
   
+  override def toString = requests.mkString("Transaction(", ", ", ")")
+  
 }
