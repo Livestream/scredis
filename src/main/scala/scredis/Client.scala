@@ -4,6 +4,7 @@ import com.typesafe.config.Config
 
 import akka.actor.ActorSystem
 
+import scredis.io.Connection
 import scredis.protocol.Protocol
 import scredis.commands._
 import scredis.exceptions._
@@ -30,7 +31,7 @@ final class Client(
   private var passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
   private var database: Int = RedisConfigDefaults.Client.Database,
   timeout: Duration = RedisConfigDefaults.Client.Timeout
-)(implicit system: ActorSystem) extends AbstractClient(system, host, port, passwordOpt, database)
+)(implicit system: ActorSystem) extends Connection(system, host, port, passwordOpt, database)
   with ConnectionCommands
   with ServerCommands
   with KeyCommands

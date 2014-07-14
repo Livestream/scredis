@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.AbstractClient
+import scredis.io.Connection
 import scredis.protocol.requests.SortedSetRequests._
 import scredis.serialization.{ Reader, Writer }
 import scredis.util.LinkedHashSet
@@ -16,7 +16,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait SortedSetCommands { self: AbstractClient =>
+trait SortedSetCommands { self: Connection =>
   
   /**
    * Adds a member to a sorted set, or update its score if it already exists.

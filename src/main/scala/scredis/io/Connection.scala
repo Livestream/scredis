@@ -1,10 +1,9 @@
-package scredis
+package scredis.io
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 
 import akka.actor._
 
-import scredis.io._
 import scredis.exceptions._
 import scredis.protocol._
 import scredis.protocol.requests.ConnectionRequests.Quit
@@ -18,9 +17,9 @@ import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * This trait represents an instance of a client connected to a `Redis` server.
+ * This trait represents a connection to a `Redis` server.
  */
-abstract class AbstractClient(
+abstract class Connection(
   system: ActorSystem,
   host: String,
   port: Int,
@@ -36,11 +35,11 @@ abstract class AbstractClient(
     ).withDispatcher(
       "scredis.io-dispatcher"
     ),
-    AbstractClient.getUniqueName(s"io-actor-$host-$port")
+    Connection.getUniqueName(s"io-actor-$host-$port")
   )
   private val partitionerActor = system.actorOf(
     Props(classOf[PartitionerActor], ioActor).withDispatcher("scredis.partitioner-dispatcher"),
-    AbstractClient.getUniqueName(s"partitioner-actor-$host-$port")
+    Connection.getUniqueName(s"partitioner-actor-$host-$port")
   )
   
   implicit val dispatcher: ExecutionContext = system.dispatcher
@@ -70,7 +69,7 @@ abstract class AbstractClient(
   
 }
 
-object AbstractClient {
+object Connection {
   private val ids = MMap[String, AtomicInteger]()
   
   private def getUniqueName(name: String): String = {

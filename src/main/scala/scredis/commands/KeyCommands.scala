@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.AbstractClient
+import scredis.io.Connection
 import scredis.protocol.requests.KeyRequests._
 import scredis.serialization.{ Reader, Writer }
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait KeyCommands { self: AbstractClient =>
+trait KeyCommands { self: Connection =>
   
   /**
    * Deletes one or multiple keys.

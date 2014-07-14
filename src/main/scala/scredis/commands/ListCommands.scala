@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.AbstractClient
+import scredis.io.Connection
 import scredis.protocol.requests.ListRequests._
 import scredis.serialization.{ Reader, Writer }
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait ListCommands { self: AbstractClient =>
+trait ListCommands { self: Connection =>
   
   /**
    * Removes and returns the first element in a list, or block until one is available.

@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.AbstractClient
+import scredis.io.Connection
 import scredis.protocol.requests.TransactionRequests._
 
 import scala.concurrent.Future
@@ -13,7 +13,7 @@ import scala.concurrent.Future
  * @define true '''true'''
  * @define false '''false'''
  */
-trait TransactionCommands { self: AbstractClient =>
+trait TransactionCommands { self: Connection =>
   
   /**
    * Watches the given keys, which upon modification, will abort a transaction.

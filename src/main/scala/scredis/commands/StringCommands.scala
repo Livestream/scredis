@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.AbstractClient
+import scredis.io.Connection
 import scredis.protocol.requests.StringRequests._
 import scredis.serialization.{ Reader, Writer }
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait StringCommands { self: AbstractClient =>
+trait StringCommands { self: Connection =>
   
   /**
    * Appends a value to a key.

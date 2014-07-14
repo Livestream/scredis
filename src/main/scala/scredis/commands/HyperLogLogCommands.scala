@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.AbstractClient
+import scredis.io.Connection
 import scredis.protocol.requests.HyperLogLogRequests._
 import scredis.serialization.Writer
 
@@ -14,7 +14,7 @@ import scala.concurrent.Future
  * @define true '''true'''
  * @define false '''false'''
  */
-trait HyperLogLogCommands { self: AbstractClient =>
+trait HyperLogLogCommands { self: Connection =>
   
   /**
    * Adds all the element arguments to the HyperLogLog data structure stored at specified key.
