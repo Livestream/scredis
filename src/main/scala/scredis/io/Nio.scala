@@ -1,11 +1,11 @@
 package scredis.io
-/*
+
 import akka.actor._
 import akka.routing._
 
 import scredis._
 import scredis.protocol._
-import scredis.protocol.requests._
+import scredis.protocol.requests.ConnectionRequests.Ping
 import scredis.serialization.Implicits.stringReader
 
 import scala.util.{ Try, Success, Failure }
@@ -23,8 +23,10 @@ object Nio {
     
     val start = System.currentTimeMillis
     val f = Future.traverse(range)(i => {
-      Protocol.send(LRange("list", 0, -1))(target)
-    })(List.canBuildFrom, ec)
+      val req = Ping()
+      target ! req
+      req.future
+    })
     println("QUEUING DONE")
     Await.ready(
       f,
@@ -36,11 +38,9 @@ object Nio {
   }
   
   def main(args: Array[String]): Unit = {
-    val redis = Redis()
-    
     val system = ActorSystem()
     val ioActor = system.actorOf(
-      Props(classOf[IOActor], new InetSocketAddress("localhost", 6379))
+      Props(classOf[IOActor], new InetSocketAddress("localhost", 6379), None, 0)
         .withDispatcher("scredis.io-dispatcher")
     )
     val partitionerActor = system.actorOf(
@@ -67,4 +67,4 @@ object Nio {
     system.shutdown()
   }
   
-}*/
+}
