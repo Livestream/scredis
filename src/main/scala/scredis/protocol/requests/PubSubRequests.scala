@@ -1,6 +1,8 @@
 package scredis.protocol.requests
 
+import scredis.PubSubMessage
 import scredis.protocol._
+import scredis.exceptions.RedisProtocolException
 import scredis.serialization.Writer
 
 import scala.collection.generic.CanBuildFrom

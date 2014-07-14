@@ -8,7 +8,7 @@ import akka.actor.{ Actor, ActorRef, Props }
 import akka.routing._
 import akka.util.ByteString
 
-import scredis.Transaction
+import scredis.{ Transaction, Subscription }
 import scredis.protocol.{ Protocol, Request }
 import scredis.protocol.requests.TransactionRequests.{ Multi, Exec }
 
@@ -22,7 +22,9 @@ import java.nio.ByteBuffer
 class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
   
   import PartitionerActor._
-  import DecoderActor.Partition
+  import DecoderActor._
+  
+  private var subscriptionOpt: Option[Subscription] = None
   
   private val requests = new LinkedList[Request[_]]()
   
@@ -57,6 +59,10 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
       requests.pop()
     }
     case Skip(count) => skip += count
+    case PartitionerActor.Subscribe(subscription) => {
+      subscriptionOpt = Some(subscription)
+      decoders ! Broadcast(DecoderActor.Subscribe(subscription))
+    }
     case data: ByteString => {
       logger.debug(s"Received data: ${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}")
       val completedData = remainingByteStringOpt match {
@@ -69,31 +75,38 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
       
       val buffer = completedData.asByteBuffer
       val repliesCount = Protocol.count(buffer)
-      val position = buffer.position
-      val skipCount = math.min(skip, repliesCount)
-      skip -= skipCount
       
-      val trimmedData = if (buffer.remaining > 0) {
-        remainingByteStringOpt = Some(ByteString(buffer))
-        completedData.take(position)
-      } else {
-        completedData
+      if (repliesCount > 0) {
+        val position = buffer.position
+        val skipCount = math.min(skip, repliesCount)
+        skip -= skipCount
+        
+        val trimmedData = if (buffer.remaining > 0) {
+          remainingByteStringOpt = Some(ByteString(buffer))
+          completedData.take(position)
+        } else {
+          completedData
+        }
+        
+        subscriptionOpt match {
+          case Some(_) => decoders ! SubscribePartition(trimmedData)
+          case None => {
+            val requests = ListBuffer[Request[_]]()
+            for (i <- 1 to repliesCount) {
+              requests += this.requests.pop()
+            }
+            decoders ! Partition(trimmedData, requests.toList.iterator, skipCount)
+          }
+        }
       }
-      
-      val requests = ListBuffer[Request[_]]()
-      for (i <- 1 to repliesCount) {
-        requests += this.requests.pop()
-      }
-      
-      decoders ! Partition(trimmedData, requests.toList.iterator, skipCount)
     }
   }
   
 }
 
 object PartitionerActor {
-  import ExecutionContext.Implicits.global
   case class Remove(count: Int)
   case class Skip(count: Int)
   case class Push(request: Request[_])
+  case class Subscribe(subscription: Subscription)
 }

@@ -6,7 +6,9 @@ import com.codahale.metrics._
 import akka.actor.ActorRef
 import akka.util.ByteString
 
+import scredis.PubSubMessage
 import scredis.exceptions._
+import scredis.serialization.UTF8StringReader
 import scredis.util.BufferPool
 
 import scala.collection.mutable.{ ArrayBuilder, ListBuffer, Stack }
@@ -276,6 +278,52 @@ object Protocol {
     case IntegerResponseByte       => IntegerResponse(parseLong(buffer))
     case BulkStringResponseByte    => decodeBulkStringResponse(buffer)
     case ArrayResponseByte         => ArrayResponse(parseInt(buffer), buffer)
+  }
+  
+  private[scredis] def decodePubSubResponse(response: Response): PubSubMessage = response match {
+    case a: ArrayResponse => {
+      val vector = a.parsed[Any, Vector] {
+        case BulkStringResponse(valueOpt) => valueOpt.get
+        case IntegerResponse(value) => value.toInt
+      }
+      val kind = UTF8StringReader.read(vector(0).asInstanceOf[Array[Byte]])
+      kind match {
+        case "subscribe"    => {
+          val channel = UTF8StringReader.read(vector(1).asInstanceOf[Array[Byte]])
+          val channelsCount = vector(2).asInstanceOf[Int]
+          PubSubMessage.Subscribe(channel, channelsCount)
+        }
+        case "psubscribe"   => {
+          val pattern = UTF8StringReader.read(vector(1).asInstanceOf[Array[Byte]])
+          val patternsCount = vector(2).asInstanceOf[Int]
+          PubSubMessage.PSubscribe(pattern, patternsCount)
+        }
+        case "unsubscribe"  => {
+          val channel = UTF8StringReader.read(vector(1).asInstanceOf[Array[Byte]])
+          val channelsCount = vector(2).asInstanceOf[Int]
+          PubSubMessage.Unsubscribe(channel, channelsCount)
+        }
+        case "punsubscribe" => {
+          val pattern = UTF8StringReader.read(vector(1).asInstanceOf[Array[Byte]])
+          val patternsCount = vector(2).asInstanceOf[Int]
+          PubSubMessage.PUnsubscribe(pattern, patternsCount)
+        }
+        case "message"      => {
+          val channel = UTF8StringReader.read(vector(1).asInstanceOf[Array[Byte]])
+          val message = vector(2).asInstanceOf[Array[Byte]]
+          PubSubMessage.Message(channel, message)
+        }
+        case "pmessage"     => {
+          val pattern = UTF8StringReader.read(vector(1).asInstanceOf[Array[Byte]])
+          val channel = UTF8StringReader.read(vector(2).asInstanceOf[Array[Byte]])
+          val message = vector(3).asInstanceOf[Array[Byte]]
+          PubSubMessage.PMessage(pattern, channel, message)
+        }
+        case x              => throw RedisProtocolException(
+          "Invalid PubSubMessage type received: $x"
+        )
+      }
+    }
   }
   
   private[scredis] def send[A](request: Request[A])(implicit targetActor: ActorRef): Future[A] = {

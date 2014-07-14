@@ -2,21 +2,26 @@ package scredis.io
 
 import com.codahale.metrics.MetricRegistry
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
+
 import akka.actor.{ Actor, ActorRef }
 import akka.util.ByteString
 
+import scredis.Subscription
 import scredis.protocol.{ Protocol, Request }
 import scredis.exceptions.RedisProtocolException
 
 import scala.util.Success
 import scala.collection.mutable.{ Queue => MQueue }
+import scala.concurrent.{ ExecutionContext, Future }
 
 import java.nio.ByteBuffer
 
-class DecoderActor extends Actor {
+class DecoderActor extends Actor with LazyLogging {
   
-  import DecoderActor.Partition
+  import DecoderActor._
   
+  private var subscriptionOpt: Option[Subscription] = None
   private var count = 0
   
   private val decodeTimer = scredis.protocol.Protocol.metrics.timer(
@@ -24,7 +29,7 @@ class DecoderActor extends Actor {
   )
   
   def receive: Receive = {
-    case p @ Partition(data, requests, skip) => {
+    case Partition(data, requests, skip) => {
       var skipCount = skip
       val buffer = data.asByteBuffer
       val decode = decodeTimer.time()
@@ -51,10 +56,33 @@ class DecoderActor extends Actor {
       }
       decode.stop()
     }
+    case SubscribePartition(data) => {
+      val buffer = data.asByteBuffer
+      while (buffer.remaining > 0) {
+        try {
+          val message = Protocol.decodePubSubResponse(Protocol.decode(buffer))
+          subscriptionOpt match {
+            case Some(subscription) => if (subscription.isDefinedAt(message)) {
+              Future {
+                subscription.apply(message)
+              }(ExecutionContext.global)
+            } else {
+              logger.debug(s"Received unregistered PubSubMessage: $message")
+            }
+            case None => logger.error("Received SubscribePartition without any subscription")
+          }
+        } catch {
+          case e: Throwable => logger.error("Could not decode PubSubMessage", e)
+        }
+      }
+    }
+    case Subscribe(subscription) => subscriptionOpt = Some(subscription)
   }
   
 }
 
 object DecoderActor {
   case class Partition(data: ByteString, requests: Iterator[Request[_]], skip: Int)
+  case class SubscribePartition(data: ByteString)
+  case class Subscribe(subscription: Subscription)
 }

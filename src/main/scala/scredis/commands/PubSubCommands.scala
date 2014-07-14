@@ -29,4 +29,46 @@ trait PubSubCommands { self: Connection =>
     Publish(channel, message)
   )
   
+  /**
+   * Lists the currently active channels. An active channel is a Pub/Sub channel with one or more
+   * subscribers (not including clients subscribed to patterns).
+   * 
+   * @note If no pattern is specified, all the channels are listed, otherwise if pattern is
+   * specified only channels matching the specified glob-style pattern are listed.
+   *
+   * @param patternOpt optional pattern to filter returned channels
+   * @return the currently active channels, optionally matching the specified pattern
+   *
+   * @since 2.8.0
+   */
+  def pubSubChannels(patternOpt: Option[String]): Future[List[String]] = send(
+    PubSubChannels[List](patternOpt)
+  )
+  
+  /**
+   * Returns the number of subscribers (not counting clients subscribed to patterns) for the
+   * specified channels.
+   *
+   * @param channels channel name(s)
+   * @return a map of channels to number of subscribers for every provided channel
+   *
+   * @since 2.8.0
+   */
+  def pubSubNumSub(channels: String*): Future[Map[String, Long]] = send(
+    PubSubNumSub[Map](channels: _*)
+  )
+  
+  /**
+   * Returns the number of subscriptions to patterns (that are performed using the
+   * PSUBSCRIBE command).
+   * 
+   * @note Note that this is not just the count of clients subscribed to patterns but the total
+   * number of patterns all the clients are subscribed to.
+   *
+   * @return the number of subscriptions to patterns
+   *
+   * @since 2.8.0
+   */
+  def pubSubNumPat(): Future[Long] = send(PubSubNumPat())
+  
 }

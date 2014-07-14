@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 
 import akka.actor._
 
-import scredis.Transaction
+import scredis.{ Transaction, Subscription }
 import scredis.exceptions._
 import scredis.protocol._
 import scredis.protocol.requests.ConnectionRequests.Quit
@@ -23,12 +23,17 @@ trait Connection {
   protected def send[A](request: Request[A]): Future[A]
 }
 
+trait TransactionEnabledConnection extends Connection {
+  protected def sendTransaction(transaction: Transaction): Future[Vector[Try[Any]]]
+}
+
 trait BlockingConnection {
   protected def sendBlocking[A](request: Request[A])(implicit timeout: Duration): A
 }
 
-trait TransactionEnabledConnection extends Connection {
-  protected def sendTransaction(transaction: Transaction): Future[Vector[Try[Any]]]
+trait SubscriberConnection {
+  protected def sendAsSubscriber(request: Request[_]): Unit
+  protected def updateSubscription(subscription: Subscription): Unit
 }
 
 object Connection {
