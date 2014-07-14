@@ -21,7 +21,7 @@ class StringCommandsSpec extends WordSpec
   private val SomeValue = "HelloWorld!虫àéç蟲"
 
   override def beforeAll() {
-    client.lPush("LIST", "A")
+    client.lPush("LIST", "A").!
   }
 
   Append.toString when {
@@ -105,16 +105,16 @@ class StringCommandsSpec extends WordSpec
     "performing bitwise operations on keys that do not contain string values" should {
       "return an error" taggedAs (V260) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.bitOp(scredis.BitOp.And, "LIST", "A", "B").!
+          client.bitOp(scredis.BitOp.And, "AND", "LIST", "B").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.bitOp(scredis.BitOp.Or, "LIST", "A", "B").!
+          client.bitOp(scredis.BitOp.Or, "OR", "LIST", "B").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.bitOp(scredis.BitOp.Xor, "LIST", "A", "B").!
+          client.bitOp(scredis.BitOp.Xor, "XOR", "LIST", "B").!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          client.bitOp(scredis.BitOp.Not, "LIST", "B").!
+          client.bitOp(scredis.BitOp.Not, "NOT", "LIST").!
         }
       }
     }
@@ -139,16 +139,16 @@ class StringCommandsSpec extends WordSpec
         // $ -> 00100100
         // # -> 00100011
 
-        client.bitOp(scredis.BitOp.And, "DOLLAR", "POUND", "AND").futureValue should be (1)
+        client.bitOp(scredis.BitOp.And, "AND", "DOLLAR", "POUND").futureValue should be (1)
         client.bitCount("AND").futureValue should be (1)
 
-        client.bitOp(scredis.BitOp.Or, "DOLLAR", "POUND", "OR").futureValue should be (1)
+        client.bitOp(scredis.BitOp.Or, "OR", "DOLLAR", "POUND").futureValue should be (1)
         client.bitCount("OR").futureValue should be (4)
 
-        client.bitOp(scredis.BitOp.Xor, "DOLLAR", "POUND", "XOR").futureValue should be (1)
+        client.bitOp(scredis.BitOp.Xor, "XOR", "DOLLAR", "POUND").futureValue should be (1)
         client.bitCount("XOR").futureValue should be (3)
 
-        client.bitOp(scredis.BitOp.Not, "DOLLAR", "NOT").futureValue should be (1)
+        client.bitOp(scredis.BitOp.Not, "NOT", "DOLLAR").futureValue should be (1)
         client.bitCount("NOT").futureValue should be (6)
       }
     }
@@ -156,8 +156,9 @@ class StringCommandsSpec extends WordSpec
   
   BitPos.toString when {
     "the key does not exists" should {
-      "return 0" taggedAs (V287) in {
-        client.bitPos("NONEXISTENTKEY", true).futureValue should be (0)
+      "return -1 for set bits and 0 for clear bits" taggedAs (V287) in {
+        client.bitPos("NONEXISTENTKEY", true).futureValue should be (-1)
+        client.bitPos("NONEXISTENTKEY", false).futureValue should be (0)
       }
     }
     "the key exists but does not contain a string" should {
@@ -169,14 +170,18 @@ class StringCommandsSpec extends WordSpec
     }
     "the key contains $" should {
       "return the position of the first bit set/unset" taggedAs (V287) in {
-        client.set("STRING", "\\xff\\xf0\\x00")
+        val bytes = new Array[Byte](3)
+        bytes(0) = 0xFF.toByte
+        bytes(1) = 0xF0.toByte
+        bytes(2) = 0x00.toByte
+        client.set("STRING", bytes)
         client.bitPos("STRING", false).futureValue should be (12)
         client.bitPos("STRING", true).futureValue should be (0)
         
-        client.bitPos("STRING", false, 1).futureValue should be (4)
+        client.bitPos("STRING", false, 1).futureValue should be (12)
         client.bitPos("STRING", true, 2).futureValue should be (-1)
         client.bitPos("STRING", true, 0, 1).futureValue should be (0)
-        client.bitPos("STRING", false, 3).futureValue should be (24)
+        client.bitPos("STRING", false, 3).futureValue should be (-1)
         client.bitPos("STRING", false, 0, 0).futureValue should be (-1)
         
         client.del("STRING")
@@ -579,7 +584,6 @@ class StringCommandsSpec extends WordSpec
       "successfully set the value at key and expire it" taggedAs (V2612) in {
         client.set("KEY", SomeValue, ttlOpt = Some(500 milliseconds)).futureValue should be (true)
         client.get("KEY").futureValue should contain (SomeValue)
-        client.ttl("KEY").futureValue should be (Right(1))
         Thread.sleep(550)
         client.get("KEY").futureValue should be (empty)
       }
@@ -615,7 +619,6 @@ class StringCommandsSpec extends WordSpec
           "KEY", "C", ttlOpt = Some(500 milliseconds), conditionOpt = Some(Condition.NX)
         ).futureValue should be (true)
         client.get("KEY").futureValue should contain ("C")
-        client.ttl("KEY").futureValue should be (Right(1))
         Thread.sleep(550)
         client.get("KEY").futureValue should be (empty)
       }
