@@ -4,42 +4,44 @@ import org.scalatest._
 import org.scalatest.concurrent._
 
 import scredis._
-import scredis.protocol.requests.PubSubRequests._
+import scredis.PubSubMessage._
+import scredis.protocol.requests.PubSubRequests
 import scredis.exceptions._
 import scredis.tags._
 import scredis.util.TestUtils._
 
-import scala.concurrent.duration._
-/*
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.Promise
+
 class PubSubCommandsSpec extends WordSpec
   with GivenWhenThen
   with BeforeAndAfterAll
   with Matchers
+  with Inside
   with ScalaFutures {
   
-  private val redis = Redis()
-  private val client = Client()
-  private val client2 = Client()
-  private val client3 = Client()
-  private val client4 = Client()
+  private val publisher = Client()
+  private val client = SubscriberClient()
+  private val client2 = SubscriberClient()
+  private val client3 = SubscriberClient()
+  private val client4 = SubscriberClient()
   private val SomeValue = "HelloWorld!虫àéç蟲"
 
-  val subscribes = ListBuffer[Subscribe]()
-  val unsubscribes = ListBuffer[Unsubscribe]()
-  val messages = ListBuffer[Message]()
-
-  val pSubscribes = ListBuffer[PSubscribe]()
-  val pUnsubscribes = ListBuffer[PUnsubscribe]()
-  val pMessages = ListBuffer[PMessage]()
-
-  val pf: PartialFunction[PubSubMessage, Unit] = {
+  private val subscribes = ListBuffer[Subscribe]()
+  private val unsubscribes = ListBuffer[Unsubscribe]()
+  private val messages = ListBuffer[Message]()
+  
+  private val pSubscribes = ListBuffer[PSubscribe]()
+  private val pUnsubscribes = ListBuffer[PUnsubscribe]()
+  private val pMessages = ListBuffer[PMessage]()
+  
+  private val pf: PartialFunction[PubSubMessage, Unit] = {
     case m: Subscribe => subscribes += m
     case m: Message => messages += m
     case m: Unsubscribe => unsubscribes += m
     case m: PSubscribe => pSubscribes += m
     case m: PMessage => pMessages += m
     case m: PUnsubscribe => pUnsubscribes += m
-    case Error(e) => e.printStackTrace()
   }
 
   private def clear(): Unit = {
@@ -50,216 +52,289 @@ class PubSubCommandsSpec extends WordSpec
     pUnsubscribes.clear()
     pMessages.clear()
   }
-  
-  import scredis.util.TestUtils._
 
-  Names.Publish when {
+  PubSubRequests.Publish.toString when {
     "there are no clients subscribed to the channel" should {
       "return 0" taggedAs (V200) in {
-        redis.publish("CHANNEL", "MESSAGE") must be(0)
-        client.publish("CHANNEL", "MESSAGE") must be(0)
+        publisher.publish("CHANNEL", "MESSAGE").futureValue should be (0)
       }
     }
     "some clients have subscribed to the channel" should {
       "return the number of subscribed clients that received the message" taggedAs (V200) in {
+        val promise2 = Promise[Unit]()
         client2.subscribe("CHANNEL") {
-          case Message(channel, message) =>
+          case Subscribe(_, _) => promise2.success(())
         }
+        val promise3 = Promise[Unit]()
         client3.subscribe("CHANNEL") {
-          case Message(channel, message) =>
+          case Subscribe(_, _) => promise3.success(())
         }
-        client.publish("CHANNEL", SomeValue) must be(2)
+        promise2.future.futureValue should be (())
+        promise3.future.futureValue should be (())
+        publisher.publish("CHANNEL", SomeValue).futureValue should be (2)
         client2.unsubscribe()
         client3.unsubscribe()
       }
     }
   }
 
-  Names.Subscribe when {
+  PubSubRequests.Subscribe.toString when {
     "some messages get published" should {
       Given("that the messages get published to non-subscribed channels")
       "not receive any messages" taggedAs (V200) in {
         client.subscribe("CHANNEL1", "CHANNEL2")(pf)
-        client2.publish("CHANNEL3", "A")
-        client3.publish("CHANNEL3", "B")
-        client2.publish("CHANNEL4", "C")
-        Thread.sleep(500)
+        Thread.sleep(200)
+        publisher.publish("CHANNEL3", "A").futureValue should be (0)
+        publisher.publish("CHANNEL3", "B").futureValue should be (0)
+        publisher.publish("CHANNEL4", "C").futureValue should be (0)
+        Thread.sleep(200)
         client.unsubscribe()
-        Thread.sleep(500)
-        subscribes.toList must be(List(Subscribe("CHANNEL1", 1), Subscribe("CHANNEL2", 2)))
-        messages must be('empty)
-        unsubscribes must have size (2)
+        Thread.sleep(200)
+        subscribes.toList should contain theSameElementsAs List(
+          Subscribe("CHANNEL1", 1),
+          Subscribe("CHANNEL2", 2)
+        )
+        messages should be (empty)
+        unsubscribes should have size (2)
         clear()
-        assert(client.isSubscribed == false)
       }
       Given("that some messages get published to a subscribed channel")
       "receive the messages belonging to the subscribed channels" taggedAs (V200) in {
         client.subscribe("CHANNEL1", "CHANNEL2")(pf)
-        client2.publish("CHANNEL1", "A")
-        client3.publish("CHANNEL3", "B")
-        client4.publish("CHANNEL2", "C")
-        client2.publish("CHANNEL1", "D")
-
+        Thread.sleep(200)
+        publisher.publish("CHANNEL1", "A").futureValue should be (1)
+        publisher.publish("CHANNEL3", "B").futureValue should be (0)
+        publisher.publish("CHANNEL2", "C").futureValue should be (1)
+        publisher.publish("CHANNEL1", "D").futureValue should be (1)
+        
         client.subscribe("CHANNEL3")(pf)
-        client3.publish("CHANNEL3", "E")
+        Thread.sleep(200)
+        publisher.publish("CHANNEL3", "E").futureValue should be (1)
 
-        Thread.sleep(500)
+        Thread.sleep(200)
         client.unsubscribe()
-        Thread.sleep(500)
+        Thread.sleep(200)
 
-        subscribes.toList must be(List(
-          Subscribe("CHANNEL1", 1), Subscribe("CHANNEL2", 2), Subscribe("CHANNEL3", 3)))
+        subscribes.toList should contain theSameElementsInOrderAs List(
+          Subscribe("CHANNEL1", 1),
+          Subscribe("CHANNEL2", 2),
+          Subscribe("CHANNEL3", 3)
+        )
+        
+        inside(messages.toList) {
+          case List(message1, message2, message3, message4) => {
+            message1.channel should be ("CHANNEL1")
+            message1.readAs[String] should be ("A")
+            message2.channel should be ("CHANNEL2")
+            message2.readAs[String] should be ("C")
+            message3.channel should be ("CHANNEL1")
+            message3.readAs[String] should be ("D")
+            message4.channel should be ("CHANNEL3")
+            message4.readAs[String] should be ("E")
+          }
+        }
 
-        messages.toList must be(List(
-          Message("CHANNEL1", "A"), Message("CHANNEL2", "C"),
-          Message("CHANNEL1", "D"), Message("CHANNEL3", "E")))
-
-        unsubscribes must have size (3)
+        unsubscribes should have size (3)
         clear()
-        assert(client.isSubscribed == false)
       }
     }
   }
 
-  Names.PSubscribe when {
+  PubSubRequests.PSubscribe.toString when {
     "some messages get published" should {
       Given("that the messages get published to non-matched channels")
       "not receive any messages" taggedAs (V200) in {
         client.pSubscribe("MyC*", "*5")(pf)
-        client2.publish("CHANNEL1", "A")
-        client3.publish("CHANNEL2", "B")
-        client2.publish("CHANNEL3", "C")
-        Thread.sleep(500)
+        Thread.sleep(200)
+        publisher.publish("CHANNEL1", "A").futureValue should be (0)
+        publisher.publish("CHANNEL2", "B").futureValue should be (0)
+        publisher.publish("CHANNEL3", "C").futureValue should be (0)
+        Thread.sleep(200)
         client.pUnsubscribe()
-        Thread.sleep(500)
-        pSubscribes.toList must be(List(PSubscribe("MyC*", 1), PSubscribe("*5", 2)))
-        pMessages must be('empty)
-        pUnsubscribes must have size (2)
+        Thread.sleep(200)
+        pSubscribes.toList should contain theSameElementsAs List(
+          PSubscribe("MyC*", 1),
+          PSubscribe("*5", 2)
+        )
+        pMessages should be (empty)
+        pUnsubscribes should have size (2)
         clear()
       }
       Given("that some messages get published to matching patterns")
       "receive the messages matching the patterns" taggedAs (V200) in {
         client.pSubscribe("MyC*", "*5")(pf)
-        client2.publish("MyChannel1", "A")
-        client3.publish("CHANNEL3", "B")
-        client4.publish("MyChannel2", "C")
-        client2.publish("CHANNEL5", "D")
+        Thread.sleep(200)
+        publisher.publish("MyChannel1", "A").futureValue should be (1)
+        publisher.publish("CHANNEL3", "B").futureValue should be (0)
+        publisher.publish("MyChannel2", "C").futureValue should be (1)
+        publisher.publish("CHANNEL5", "D").futureValue should be (1)
 
         client.pSubscribe("*")(pf)
-        client3.publish("CHANNEL3", "E")
+        Thread.sleep(200)
+        publisher.publish("CHANNEL3", "E").futureValue should be (1)
 
-        Thread.sleep(500)
+        Thread.sleep(200)
         client.pUnsubscribe()
-        Thread.sleep(500)
+        Thread.sleep(200)
 
-        pSubscribes.toList must be(List(
-          PSubscribe("MyC*", 1), PSubscribe("*5", 2), PSubscribe("*", 3)))
-
-        pMessages.toList must be(List(
-          PMessage("MyC*", "MyChannel1", "A"), PMessage("MyC*", "MyChannel2", "C"),
-          PMessage("*5", "CHANNEL5", "D"), PMessage("*", "CHANNEL3", "E")))
-
-        pUnsubscribes must have size (3)
+        pSubscribes.toList should contain theSameElementsAs List(
+          PSubscribe("MyC*", 1),
+          PSubscribe("*5", 2),
+          PSubscribe("*", 3)
+        )
+        
+        inside(pMessages.toList) {
+          case List(message1, message2, message3, message4) => {
+            message1.pattern should be ("MyC*")
+            message1.channel should be ("MyChannel1")
+            message1.readAs[String]() should be ("A")
+            message2.pattern should be ("MyC*")
+            message2.channel should be ("MyChannel2")
+            message2.readAs[String]() should be ("C")
+            message3.pattern should be ("*5")
+            message3.channel should be ("CHANNEL5")
+            message3.readAs[String]() should be ("D")
+            message4.pattern should be ("*")
+            message4.channel should be ("CHANNEL3")
+            message4.readAs[String]() should be ("E")
+          }
+        }
+        
+        pUnsubscribes should have size (3)
         clear()
       }
     }
   }
 
-  Names.Unsubscribe when {
+  PubSubRequests.Unsubscribe.toString when {
     "unsubscribing from non-subscribed channels" should {
       "do nothing and still receive published messages" taggedAs (V200) in {
         client.subscribe("CHANNEL1", "CHANNEL2", "CHANNEL3")(pf)
         client.unsubscribe("CHANNEL0", "CHANNEL4")
-        client2.publish("CHANNEL1", "HELLO")
-        client3.publish("CHANNEL2", "HELLO")
-        client4.publish("CHANNEL3", "HELLO")
-        Thread.sleep(500)
-        subscribes.toList must be(List(
-          Subscribe("CHANNEL1", 1), Subscribe("CHANNEL2", 2), Subscribe("CHANNEL3", 3)))
-        messages.toList must be(List(
-          Message("CHANNEL1", "HELLO"), Message("CHANNEL2", "HELLO"), Message("CHANNEL3", "HELLO")))
-        unsubscribes must have size (2)
-        unsubscribes.forall(_.channelsCount == 3) must be(true)
+        Thread.sleep(200)
+        publisher.publish("CHANNEL1", "HELLO").futureValue should be (1)
+        publisher.publish("CHANNEL2", "HELLO").futureValue should be (1)
+        publisher.publish("CHANNEL3", "HELLO").futureValue should be (1)
+        Thread.sleep(200)
+        subscribes.toList should contain theSameElementsAs List(
+          Subscribe("CHANNEL1", 1),
+          Subscribe("CHANNEL2", 2),
+          Subscribe("CHANNEL3", 3)
+        )
+        inside(messages.toList) {
+          case List(message1, message2, message3) => {
+            message1.channel should be ("CHANNEL1")
+            message1.readAs[String] should be ("HELLO")
+            message2.channel should be ("CHANNEL2")
+            message2.readAs[String] should be ("HELLO")
+            message3.channel should be ("CHANNEL3")
+            message3.readAs[String] should be ("HELLO")
+          }
+        }
+        unsubscribes should have size (2)
+        unsubscribes.forall(_.channelsCount == 3) should be (true)
         clear()
       }
     }
     "unsubscribing from subscribed channels" should {
       "unsubscribe and published messages should no longer be received" taggedAs (V200) in {
         client.unsubscribe("CHANNEL1")
-        client2.publish("CHANNEL1", "HELLO")
-        client3.publish("CHANNEL2", "HELLO")
-        client4.publish("CHANNEL3", "HELLO")
+        Thread.sleep(200)
+        publisher.publish("CHANNEL1", "HELLO").futureValue should be (0)
+        publisher.publish("CHANNEL2", "HELLO").futureValue should be (1)
+        publisher.publish("CHANNEL3", "HELLO").futureValue should be (1)
+        Thread.sleep(200)
         client.unsubscribe()
-        client4.publish("CHANNEL1", "HELLO")
-        client3.publish("CHANNEL2", "HELLO")
-        client2.publish("CHANNEL3", "HELLO")
-        subscribes must be('empty)
-        messages.toList must be(List(
-          Message("CHANNEL2", "HELLO"), Message("CHANNEL3", "HELLO")))
-        unsubscribes must have size (3)
+        Thread.sleep(200)
+        publisher.publish("CHANNEL1", "HELLO").futureValue should be (0)
+        publisher.publish("CHANNEL2", "HELLO").futureValue should be (0)
+        publisher.publish("CHANNEL3", "HELLO").futureValue should be (0)
+        Thread.sleep(200)
+        subscribes should be (empty)
+        inside(messages.toList) {
+          case List(message1, message2) => {
+            message1.channel should be ("CHANNEL2")
+            message1.readAs[String] should be ("HELLO")
+            message2.channel should be ("CHANNEL3")
+            message2.readAs[String] should be ("HELLO")
+          }
+        }
+        unsubscribes should have size (3)
         clear()
       }
     }
   }
 
-  Names.PUnsubscribe when {
+  PubSubRequests.PUnsubscribe.toString when {
     "unsubscribing from non-subscribed patterns" should {
       "do nothing and still receive published messages" taggedAs (V200) in {
         client.pSubscribe("*1", "*2", "*3")(pf)
         client.pUnsubscribe("*0", "*4")
-        client2.publish("CHANNEL1", "HELLO")
-        client3.publish("CHANNEL2", "HELLO")
-        client4.publish("CHANNEL3", "HELLO")
-        Thread.sleep(500)
-        pSubscribes.toList must be(List(
-          PSubscribe("*1", 1), PSubscribe("*2", 2), PSubscribe("*3", 3)))
-        pMessages.toList must be(List(
-          PMessage("*1", "CHANNEL1", "HELLO"),
-          PMessage("*2", "CHANNEL2", "HELLO"),
-          PMessage("*3", "CHANNEL3", "HELLO")))
-        pUnsubscribes must have size (2)
-        pUnsubscribes.forall(_.patternsCount == 3) must be(true)
+        Thread.sleep(200)
+        publisher.publish("CHANNEL1", "HELLO").futureValue should be (1)
+        publisher.publish("CHANNEL2", "HELLO").futureValue should be (1)
+        publisher.publish("CHANNEL3", "HELLO").futureValue should be (1)
+        Thread.sleep(200)
+        pSubscribes.toList should contain theSameElementsAs List(
+          PSubscribe("*1", 1),
+          PSubscribe("*2", 2),
+          PSubscribe("*3", 3)
+        )
+        inside(pMessages.toList) {
+          case List(message1, message2, message3) => {
+            message1.pattern should be ("*1")
+            message1.channel should be ("CHANNEL1")
+            message1.readAs[String]() should be ("HELLO")
+            message2.pattern should be ("*2")
+            message2.channel should be ("CHANNEL2")
+            message2.readAs[String]() should be ("HELLO")
+            message3.pattern should be ("*3")
+            message3.channel should be ("CHANNEL3")
+            message3.readAs[String]() should be ("HELLO")
+          }
+        }
+        pUnsubscribes should have size (2)
+        pUnsubscribes.forall(_.patternsCount == 3) should be (true)
         clear()
       }
     }
     "unsubscribing from subscribed patterns" should {
       "unsubscribe and published messages should no longer be received" taggedAs (V200) in {
         client.pUnsubscribe("*1")
-        client2.publish("CHANNEL1", "HELLO")
-        client3.publish("CHANNEL2", "HELLO")
-        client4.publish("CHANNEL3", "HELLO")
+        Thread.sleep(200)
+        publisher.publish("CHANNEL1", "HELLO").futureValue should be (0)
+        publisher.publish("CHANNEL2", "HELLO").futureValue should be (1)
+        publisher.publish("CHANNEL3", "HELLO").futureValue should be (1)
+        Thread.sleep(200)
         client.pUnsubscribe()
-        client4.publish("CHANNEL1", "HELLO")
-        client3.publish("CHANNEL2", "HELLO")
-        client2.publish("CHANNEL3", "HELLO")
-        pSubscribes must be('empty)
-        pMessages.toList must be(List(
-          PMessage("*2", "CHANNEL2", "HELLO"), PMessage("*3", "CHANNEL3", "HELLO")))
-        pUnsubscribes must have size (3)
+        Thread.sleep(200)
+        publisher.publish("CHANNEL1", "HELLO").futureValue should be (0)
+        publisher.publish("CHANNEL2", "HELLO").futureValue should be (0)
+        publisher.publish("CHANNEL3", "HELLO").futureValue should be (0)
+        Thread.sleep(200)
+        pSubscribes should be (empty)
+        inside(pMessages.toList) {
+          case List(message1, message2) => {
+            message1.pattern should be ("*2")
+            message1.channel should be ("CHANNEL2")
+            message1.readAs[String]() should be ("HELLO")
+            message2.pattern should be ("*3")
+            message2.channel should be ("CHANNEL3")
+            message2.readAs[String]() should be ("HELLO")
+          }
+        }
+        pUnsubscribes should have size (3)
         clear()
       }
     }
   }
 
   override def afterAll() {
-    redis.quit()
-    
-    client.unsubscribe()
-    client.pUnsubscribe()
-
-    client2.unsubscribe()
-    client2.pUnsubscribe()
-
-    client3.unsubscribe()
-    client3.pUnsubscribe()
-
-    client4.unsubscribe()
-    client4.pUnsubscribe()
-
+    publisher.quit().!
     client.quit()
     client2.quit()
     client3.quit()
     client4.quit()
   }
-
-}*/
+  
+}

@@ -5,6 +5,8 @@ import org.scalatest.concurrent._
 
 import akka.util.ByteString
 
+import scredis.PubSubMessage
+
 class ProtocolSpec extends WordSpec
   with GivenWhenThen
   with BeforeAndAfterAll
@@ -31,6 +33,9 @@ class ProtocolSpec extends WordSpec
         val buffer = All.toByteBuffer
         Protocol.count(buffer) should be (6)
         buffer.remaining should be (0)
+        val buffer2 = ByteString("*3\r\n$12\r\npunsubscribe\r\n$-1\r\n:0\r\n").toByteBuffer
+        Protocol.count(buffer2) should be (1)
+        buffer2.remaining should be (0)
       }
     }
     "receiving different types of responses with nested arrays" should {
@@ -77,6 +82,16 @@ class ProtocolSpec extends WordSpec
         Protocol.count(fragmented) should be (1)
         fragmented.position should be (ArrayString.size)
       }
+    }
+  }
+  
+  "decode" should {
+    "succeed" in {
+      val buffer = ByteString("*3\r\n$12\r\npunsubscribe\r\n$-1\r\n:0\r\n").toByteBuffer
+      val response = Protocol.decode(buffer)
+      response shouldBe an [ArrayResponse]
+      val arrayResponse = response.asInstanceOf[ArrayResponse]
+      arrayResponse.length should be (3)
     }
   }
   

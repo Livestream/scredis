@@ -291,18 +291,24 @@ package object scredis {
     /**
      * This message is triggered after we successfully unsubscribed from a channel.
      */
-    final case class Unsubscribe(channel: String, channelsCount: Int) extends PubSubMessage
+    final case class Unsubscribe(
+      channelOpt: Option[String], channelsCount: Int
+    ) extends PubSubMessage
     
     /**
      * This message is triggered after we successfully unsubscribed from a pattern.
      */
-    final case class PUnsubscribe(pattern: String, patternsCount: Int) extends PubSubMessage
+    final case class PUnsubscribe(
+      patternOpt: Option[String], patternsCount: Int
+    ) extends PubSubMessage
     
     /**
      * This message is triggered when a message is received.
      */
     final case class Message(channel: String, message: Array[Byte]) extends PubSubMessage {
       def readAs[R: Reader](): R = implicitly[Reader[R]].read(message)
+      override def toString = s"Message(channel=$channel, message=" +
+        s"${readAs[String]()(UTF8StringReader)})"
     }
     
     /**
@@ -312,6 +318,8 @@ package object scredis {
       pattern: String, channel: String, message: Array[Byte]
     ) extends PubSubMessage {
       def readAs[R: Reader](): R = implicitly[Reader[R]].read(message)
+      override def toString = s"PMessage(pattern=$pattern, channel=$channel, message=" +
+        s"${readAs[String]()(UTF8StringReader)})"
     }
     
     /**

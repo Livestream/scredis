@@ -57,6 +57,9 @@ abstract class Request[A](command: Command, args: Any*) {
   
   def decode: Decoder[A]
   
+  def isReadOnly: Boolean = command.isReadOnly
+  def isSubscriber: Boolean = command.isSubscriber
+  
   override def toString = (command +: args).map {
     case bytes: Array[Byte] => UTF8StringReader.read(bytes)
     case x                  => x.toString

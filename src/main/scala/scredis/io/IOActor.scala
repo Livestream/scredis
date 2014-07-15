@@ -11,6 +11,7 @@ import akka.event.LoggingReceive
 import scredis.protocol.{ Protocol, Request }
 import scredis.protocol.requests.ConnectionRequests.{ Auth, Select, Quit }
 import scredis.protocol.requests.ServerRequests.Shutdown
+import scredis.protocol.requests.PubSubRequests.{ Subscribe => SubscribeRequest, PSubscribe }
 import scredis.exceptions.RedisIOException
 
 import scala.util.Failure
@@ -19,8 +20,6 @@ import scala.concurrent.duration._
 
 import java.util.LinkedList
 import java.net.InetSocketAddress
-
-case object ClosingException extends Exception("Connection is being closed")
 
 class IOActor(
   remote: InetSocketAddress, var passwordOpt: Option[String], var database: Int
@@ -36,17 +35,18 @@ class IOActor(
   private val scheduler = context.system.scheduler
   
   private val bufferPool = new scredis.util.BufferPool(1)
-  private val requests = new LinkedList[Request[_]]()
   
-  private var connection: ActorRef = _
-  private var partitionerActor: ActorRef = _
   private var batch: List[Request[_]] = Nil
-  private var writeId: Int = 0
-  private var retries: Int = 0
+  private var writeId = 0
+  private var retries = 0
   private var canWrite = false
   private var isConnecting: Boolean = false
   private var isClosing: Boolean = false
   private var timeoutCancellableOpt: Option[Cancellable] = None
+  
+  protected val requests = new LinkedList[Request[_]]()
+  protected var connection: ActorRef = _
+  protected var partitionerActor: ActorRef = _
   
   private def incrementWriteId(): Unit = {
     if (writeId == Integer.MAX_VALUE) {
@@ -152,6 +152,21 @@ class IOActor(
     }
   }
   
+  protected def onConnect(): Unit = {
+    if (database > 0) {
+      val request = Select(database)
+      requests.push(request)
+      partitionerActor ! Push(request)
+    }
+    passwordOpt.foreach { password =>
+      val request = Auth(password)
+      requests.push(request)
+      partitionerActor ! Push(request)
+    }
+  }
+  
+  protected def all: Receive = PartialFunction.empty
+  
   def receive: Receive = {
     case partitionerActor: ActorRef => {
       this.partitionerActor = partitionerActor
@@ -161,7 +176,7 @@ class IOActor(
     }
   }
   
-  def connecting: Receive = LoggingReceive {
+  def connecting: Receive = all orElse {
     case Connected(remote, local) => {
       logger.trace(s"Connected to $remote")
       connection = sender
@@ -170,16 +185,7 @@ class IOActor(
       canWrite = true
       retries = 0
       requeueBatch()
-      if (database > 0) {
-        val request = Select(database)
-        requests.push(request)
-        partitionerActor ! Push(request)
-      }
-      passwordOpt.foreach { password =>
-        val request = Auth(password)
-        requests.push(request)
-        partitionerActor ! Push(request)
-      }
+      onConnect()
       write()
       context.watch(connection)
       if (isClosing) {
@@ -228,9 +234,10 @@ class IOActor(
     case Terminated(connection) => {
       logger.info(s"Connection has been shutdown")
     }
+    case PoisonPill => stop()
   }
   
-  def connected: Receive = LoggingReceive {
+  def connected: Receive = all orElse {
     case request: Request[_] => {
       request match {
         case Auth(password) => if (password.isEmpty) {
@@ -291,12 +298,17 @@ class IOActor(
       connect()
       context.become(connecting)
     }
+    case PoisonPill => {
+      logger.info(s"Closing connection")
+      connection ! Close
+      context.become(closing)
+    }
     case x => logger.error(s"Invalid message received from: $sender: $x")
   }
   
-  def closing: Receive = LoggingReceive {
+  def closing: Receive = all orElse {
     case request: Request[_] => {
-      request.failure(ClosingException)
+      request.failure(RedisIOException("Connection is being closed"))
       partitionerActor ! Remove(1)
     }
     case Received(data) => {
@@ -332,9 +344,10 @@ class IOActor(
       logger.info(s"Connection has been shutdown")
       stop()
     }
+    case PoisonPill =>
   }
   
-  def aborting: Receive = LoggingReceive {
+  def aborting: Receive = all orElse {
     case _: ConnectionClosed => {
       logger.info(s"Connection has been reset")
       connect()
@@ -374,6 +387,7 @@ class IOActor(
         case _ => requests.addLast(request)
       }
     }
+    case PoisonPill => isClosing = true
   }
   
 }

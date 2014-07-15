@@ -7,7 +7,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import akka.actor.{ Actor, ActorRef }
 import akka.util.ByteString
 
-import scredis.Subscription
+import scredis.{ PubSubMessage, Subscription }
 import scredis.protocol.{ Protocol, Request }
 import scredis.exceptions.RedisProtocolException
 
@@ -17,7 +17,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 import java.nio.ByteBuffer
 
-class DecoderActor extends Actor with LazyLogging {
+class DecoderActor(ioActor: ActorRef) extends Actor with LazyLogging {
   
   import DecoderActor._
   
@@ -61,6 +61,13 @@ class DecoderActor extends Actor with LazyLogging {
       while (buffer.remaining > 0) {
         try {
           val message = Protocol.decodePubSubResponse(Protocol.decode(buffer))
+          message match {
+            case m: PubSubMessage.Subscribe => ioActor ! m
+            case m: PubSubMessage.PSubscribe => ioActor ! m
+            case m: PubSubMessage.Unsubscribe => ioActor ! m
+            case m: PubSubMessage.PUnsubscribe => ioActor ! m
+            case _ =>
+          }
           subscriptionOpt match {
             case Some(subscription) => if (subscription.isDefinedAt(message)) {
               Future {
@@ -72,7 +79,9 @@ class DecoderActor extends Actor with LazyLogging {
             case None => logger.error("Received SubscribePartition without any subscription")
           }
         } catch {
-          case e: Throwable => logger.error("Could not decode PubSubMessage", e)
+          case e: Throwable => logger.error(
+            s"Could not decode PubSubMessage: ${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}", e
+          )
         }
       }
     }

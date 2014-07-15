@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 
 import com.codahale.metrics.MetricRegistry
 
-import akka.actor.{ Actor, ActorRef, Props }
+import akka.actor._
 import akka.routing._
 import akka.util.ByteString
 
@@ -29,7 +29,9 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
   private val requests = new LinkedList[Request[_]]()
   
   private val decoders = context.actorOf(
-    SmallestMailboxPool(3).props(Props[DecoderActor]).withDispatcher("scredis.decoder-dispatcher")
+    SmallestMailboxPool(3).props(Props(classOf[DecoderActor], ioActor)).withDispatcher(
+      "scredis.decoder-dispatcher"
+    )
   )
   
   private val tellTimer = scredis.protocol.Protocol.metrics.timer(
@@ -41,7 +43,9 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
   
   def receive: Receive = {
     case request: Request[_] => {
-      requests.addLast(request)
+      if (!request.isSubscriber) {
+        requests.addLast(request)
+      }
       ioActor ! request
     }
     case t @ Transaction(requests) => {
@@ -100,6 +104,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
         }
       }
     }
+    case CloseIOActor => ioActor ! PoisonPill
   }
   
 }
@@ -109,4 +114,5 @@ object PartitionerActor {
   case class Skip(count: Int)
   case class Push(request: Request[_])
   case class Subscribe(subscription: Subscription)
+  case object CloseIOActor
 }

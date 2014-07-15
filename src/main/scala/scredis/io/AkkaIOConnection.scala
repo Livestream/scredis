@@ -30,7 +30,7 @@ abstract class AkkaIOConnection(
   
   @volatile private var isClosed = false
   
-  private val ioActor = system.actorOf(
+  protected val ioActor = system.actorOf(
     Props(
       classOf[IOActor], new InetSocketAddress(host, port), passwordOpt, database
     ).withDispatcher(
@@ -38,7 +38,7 @@ abstract class AkkaIOConnection(
     ),
     Connection.getUniqueName(s"io-actor-$host-$port")
   )
-  private val partitionerActor = system.actorOf(
+  protected val partitionerActor = system.actorOf(
     Props(classOf[PartitionerActor], ioActor).withDispatcher("scredis.partitioner-dispatcher"),
     Connection.getUniqueName(s"partitioner-actor-$host-$port")
   )

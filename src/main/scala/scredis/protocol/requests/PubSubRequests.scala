@@ -11,14 +11,22 @@ object PubSubRequests {
   
   import scredis.serialization.Implicits.stringReader
   
-  object PSubscribe extends Command("PSUBSCRIBE")
+  object PSubscribe extends Command("PSUBSCRIBE") {
+    override def isSubscriber = true
+  }
   object Publish extends Command("PUBLISH")
   object PubSubChannels extends Command("PUBSUB", "CHANNELS")
   object PubSubNumSub extends Command("PUBSUB", "NUMSUB")
   object PubSubNumPat extends ZeroArgCommand("PUBSUB", "NUMPAT")
-  object PUnsubscribe extends Command("PUNSUBSCRIBE")
-  object Subscribe extends Command("SUBSCRIBE")
-  object Unsubscribe extends Command("UNSUBSCRIBE")
+  object PUnsubscribe extends Command("PUNSUBSCRIBE") {
+    override def isSubscriber = true
+  }
+  object Subscribe extends Command("SUBSCRIBE") {
+    override def isSubscriber = true
+  }
+  object Unsubscribe extends Command("UNSUBSCRIBE") {
+    override def isSubscriber = true
+  }
   
   case class PSubscribe(patterns: String*) extends Request[Nothing](
     PSubscribe, patterns: _*
