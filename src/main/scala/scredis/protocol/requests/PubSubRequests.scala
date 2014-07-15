@@ -28,7 +28,7 @@ object PubSubRequests {
     override def isSubscriber = true
   }
   
-  case class PSubscribe(patterns: String*) extends Request[Nothing](
+  case class PSubscribe(patterns: String*) extends Request[Int](
     PSubscribe, patterns: _*
   ) {
     override def decode = ???
@@ -70,19 +70,19 @@ object PubSubRequests {
     }
   }
   
-  case class PUnsubscribe(patterns: String*) extends Request[Nothing](
+  case class PUnsubscribe(patterns: String*) extends Request[Int](
     PUnsubscribe, patterns: _*
   ) {
     override def decode = ???
   }
   
-  case class Subscribe(channels: String*) extends Request[Nothing](
+  case class Subscribe(channels: String*) extends Request[Int](
     Subscribe, channels: _*
   ) {
     override def decode = ???
   }
   
-  case class Unsubscribe(channels: String*) extends Request[Nothing](
+  case class Unsubscribe(channels: String*) extends Request[Int](
     Unsubscribe, channels: _*
   ) {
     override def decode = ???

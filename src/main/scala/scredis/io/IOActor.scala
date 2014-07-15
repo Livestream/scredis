@@ -14,8 +14,9 @@ import scredis.protocol.requests.ServerRequests.Shutdown
 import scredis.protocol.requests.PubSubRequests.{ Subscribe => SubscribeRequest, PSubscribe }
 import scredis.exceptions.RedisIOException
 
-import scala.util.Failure
+import scala.util.{ Success, Failure }
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 import java.util.LinkedList
@@ -48,7 +49,7 @@ class IOActor(
   protected var connection: ActorRef = _
   protected var partitionerActor: ActorRef = _
   
-  private def incrementWriteId(): Unit = {
+  protected def incrementWriteId(): Unit = {
     if (writeId == Integer.MAX_VALUE) {
       writeId = 1
     } else {
@@ -56,17 +57,13 @@ class IOActor(
     }
   }
   
-  private def connect(): Unit = if (!isConnecting) {
+  protected def connect(): Unit = if (!isConnecting) {
     logger.info(s"Connecting to $remote")
     IO(Tcp) ! Connect(remote)
     isConnecting = true
   }
   
-  private def close(): Unit = {
-    connection ! Close
-  }
-  
-  private def failAllQueuedRequests(throwable: Throwable): Unit = {
+  protected def failAllQueuedRequests(throwable: Throwable): Unit = {
     requeueBatch()
     val count = requests.size
     while (!requests.isEmpty) {
@@ -75,7 +72,7 @@ class IOActor(
     partitionerActor ! Remove(count)
   }
   
-  private def failBatch(throwable: Throwable, skip: Boolean = false): Unit = {
+  protected def failBatch(throwable: Throwable, skip: Boolean = false): Unit = {
     val count = batch.size
     batch.foreach(_.failure(throwable))
     batch = Nil
@@ -86,12 +83,12 @@ class IOActor(
     }
   }
   
-  private def requeueBatch(): Unit = {
+  protected def requeueBatch(): Unit = {
     batch.foreach(requests.push)
     batch = Nil
   }
   
-  private def abortAndReconnect(): Unit = {
+  protected def abortAndReconnect(): Unit = {
     connection ! Abort
     timeoutCancellableOpt = Some {
       scheduler.scheduleOnce(3 seconds, self, AbortTimeout)
@@ -99,13 +96,13 @@ class IOActor(
     context.become(aborting)
   }
   
-  private def stop(): Unit = {
+  protected def stop(): Unit = {
     logger.trace("Stopping Actor...")
     partitionerActor ! PoisonPill
     context.stop(self)
   }
   
-  private def write(): Unit = {
+  protected def write(): Unit = {
     if (!this.batch.isEmpty) {
       requeueBatch()
     }
@@ -153,17 +150,33 @@ class IOActor(
   }
   
   protected def onConnect(): Unit = {
-    if (database > 0) {
+    val selectFuture = if (database > 0) {
       val request = Select(database)
       requests.push(request)
       partitionerActor ! Push(request)
+      request.future
+    } else {
+      Future.successful(())
     }
-    passwordOpt.foreach { password =>
-      val request = Auth(password)
-      requests.push(request)
-      partitionerActor ! Push(request)
+    val passwordFuture = passwordOpt match {
+      case Some(password) => {
+        val request = Auth(password)
+        requests.push(request)
+        partitionerActor ! Push(request)
+        request.future
+      }
+      case None => Future.successful(())
+    }
+    passwordFuture.andThen {
+      case Success(_) => selectFuture.andThen {
+        case Success(_) => onAuthAndSelect()
+        case Failure(e) => logger.error(s"Could not select database '$database'' in $remote", e)
+      }
+      case Failure(e) => logger.error(s"Could not authenticate to $remote", e)
     }
   }
+  
+  protected def onAuthAndSelect(): Unit = ()
   
   protected def all: Receive = PartialFunction.empty
   

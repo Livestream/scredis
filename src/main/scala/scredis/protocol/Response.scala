@@ -1,5 +1,7 @@
 package scredis.protocol
 
+import akka.util.ByteString
+
 import scredis.exceptions._
 import scredis.serialization.Reader
 
@@ -22,6 +24,9 @@ case class IntegerResponse(value: Long) extends Response {
 case class BulkStringResponse(valueOpt: Option[Array[Byte]]) extends Response {
   def parsed[R](implicit reader: Reader[R]): Option[R] = valueOpt.map(reader.read)
   def flattened[R](implicit reader: Reader[R]): R = parsed[R].get
+  
+  override def toString = s"BulkStringResponse(" +
+    s"${valueOpt.map(ByteString(_).decodeString("UTF-8"))})"
 }
 
 case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
@@ -164,5 +169,8 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
     }
     builder.result()
   }
+  
+  override def toString = s"ArrayResponse(length=$length, buffer=" +
+    s"${ByteString(buffer).decodeString("UTF-8")})"
   
 }

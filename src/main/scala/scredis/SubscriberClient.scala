@@ -102,7 +102,7 @@ final class SubscriberClient(
   )
   
   /**
-   * Unsubscribes from all subscribed channels/patterns and then closes the connection
+   * Unsubscribes from all subscribed channels/patterns and then closes the connection.
    */
   def quit(): Unit = close()
   
@@ -128,11 +128,11 @@ object SubscriberClient {
   def apply(
     host: String = RedisConfigDefaults.Client.Host,
     port: Int = RedisConfigDefaults.Client.Port,
-    password: Option[String] = RedisConfigDefaults.Client.Password,
+    passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
     database: Int = RedisConfigDefaults.Client.Database,
     timeout: Duration = RedisConfigDefaults.Client.Timeout
   )(implicit system: ActorSystem): SubscriberClient = new SubscriberClient(
-    host, port, password, database, timeout
+    host, port, passwordOpt, database, timeout
   )
   
   

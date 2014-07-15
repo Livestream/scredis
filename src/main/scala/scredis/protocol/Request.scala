@@ -15,6 +15,7 @@ abstract class Request[A](command: Command, args: Any*) {
   private var _buffer: ByteBuffer = null
   private var _bytes: Array[Byte] = null
   val future = promise.future
+  val repliesCount = 1
   
   private[scredis] def encode(): Unit = if (_buffer == null && _bytes == null) {
     command match {
@@ -57,6 +58,7 @@ abstract class Request[A](command: Command, args: Any*) {
   
   def decode: Decoder[A]
   
+  def argsCount: Int = args.size
   def isReadOnly: Boolean = command.isReadOnly
   def isSubscriber: Boolean = command.isSubscriber
   

@@ -164,10 +164,10 @@ object Client {
   def apply(
     host: String = RedisConfigDefaults.Client.Host,
     port: Int = RedisConfigDefaults.Client.Port,
-    password: Option[String] = RedisConfigDefaults.Client.Password,
+    passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
     database: Int = RedisConfigDefaults.Client.Database,
     timeout: Duration = RedisConfigDefaults.Client.Timeout
-  )(implicit system: ActorSystem): Client = new Client(host, port, password, database, timeout)
+  )(implicit system: ActorSystem): Client = new Client(host, port, passwordOpt, database, timeout)
   
   
   /**

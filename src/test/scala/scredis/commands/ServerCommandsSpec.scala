@@ -19,9 +19,9 @@ class ServerCommandsSpec extends WordSpec
   with ScalaFutures {
   
   private val client = Client()
-  private val client1 = Client(port = 6380, password = Some("foobar"))
-  private val client2 = Client(port = 6380, password = Some("foobar"))
-  private val client3 = Client(port = 6380, password = Some("foobar"))
+  private val client1 = Client(port = 6380, passwordOpt = Some("foobar"))
+  private val client2 = Client(port = 6380, passwordOpt = Some("foobar"))
+  private val client3 = Client(port = 6380, passwordOpt = Some("foobar"))
   
   BGRewriteAOF.toString should {
     "succeed" taggedAs (V100) in {

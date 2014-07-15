@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 
 import akka.actor._
 
-import scredis.{ Transaction, Subscription }
+import scredis.{ Transaction, Subscription, PubSubMessage }
 import scredis.exceptions._
 import scredis.protocol._
 import scredis.protocol.requests.ConnectionRequests.Quit
@@ -32,7 +32,7 @@ trait BlockingConnection {
 }
 
 trait SubscriberConnection {
-  protected def sendAsSubscriber(request: Request[_]): Unit
+  protected def sendAsSubscriber(request: Request[_]): Future[Int]
   protected def updateSubscription(subscription: Subscription): Unit
 }
 

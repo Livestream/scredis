@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 
 import akka.actor._
 
-import scredis.Subscription
+import scredis.{ Subscription, PubSubMessage }
 import scredis.protocol._
 import scredis.protocol.requests.PubSubRequests.{ Unsubscribe, PUnsubscribe }
 
@@ -40,8 +40,9 @@ abstract class SubscriberAkkaIOConnection(
     Connection.getUniqueName(s"partitioner-actor-$host-$port")
   )
   
-  override protected def sendAsSubscriber(request: Request[_]): Unit = {
+  override protected def sendAsSubscriber(request: Request[_]): Future[Int] = {
     partitionerActor ! request
+    request.future.asInstanceOf[Future[Int]]
   }
   
   override protected def updateSubscription(subscription: Subscription): Unit = {
@@ -49,12 +50,12 @@ abstract class SubscriberAkkaIOConnection(
   }
   
   protected def close(): Unit = {
+    isClosed = true
     sendAsSubscriber(Unsubscribe())
     sendAsSubscriber(PUnsubscribe())
     partitionerActor ! PartitionerActor.CloseIOActor
   }
   
   ioActor ! partitionerActor
-  partitionerActor ! PartitionerActor.Subscribe(PartialFunction.empty)
   
 }

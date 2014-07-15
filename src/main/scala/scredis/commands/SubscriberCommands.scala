@@ -3,6 +3,9 @@ package scredis.commands
 import scredis.Subscription
 import scredis.io.{ Connection, SubscriberConnection }
 import scredis.protocol.requests.PubSubRequests._
+import scredis.exceptions.RedisInvalidArgumentException
+
+import scala.concurrent.Future
 
 /**
  * This trait implements subscriber commands.
@@ -16,14 +19,17 @@ trait SubscriberCommands { self: SubscriberConnection =>
    * commands, except for additional SUBSCRIBE, PSUBSCRIBE, UNSUBSCRIBE and PUNSUBSCRIBE commands.
    *
    * @param patterns the patterns
-   * @param pf partial function handling received messages
+   * @param subscription partial function handling received messages
+   * @return the total number of subscribed channels and patterns
    *
    * @since 2.0.0
    */
-  def pSubscribe(patterns: String*)(subscription: Subscription): Unit = {
+  def pSubscribe(patterns: String*)(subscription: Subscription): Future[Int] = {
     updateSubscription(subscription)
     if (!patterns.isEmpty) {
       sendAsSubscriber(PSubscribe(patterns: _*))
+    } else {
+      Future.failed(RedisInvalidArgumentException("PSUBSCRIBE: patterns cannot be empty"))
     }
   }
   
@@ -35,10 +41,11 @@ trait SubscriberCommands { self: SubscriberConnection =>
    * the client.
    *
    * @param patterns the patterns, if empty, unsubscribe from all patterns
+   * @return the total number of subscribed channels and patterns
    *
    * @since 2.0.0
    */
-  def pUnsubscribe(patterns: String*): Unit = sendAsSubscriber(PUnsubscribe(patterns: _*))
+  def pUnsubscribe(patterns: String*): Future[Int] = sendAsSubscriber(PUnsubscribe(patterns: _*))
   
   /**
    * Listens for messages published to the given channels.
@@ -48,13 +55,16 @@ trait SubscriberCommands { self: SubscriberConnection =>
    *
    * @param channels channel name(s) of channel(s) to listen to
    * @param subscription partial function handling received messages
+   * @return the total number of subscribed channels and patterns
    *
    * @since 2.0.0
    */
-  def subscribe(channels: String*)(subscription: Subscription): Unit = {
+  def subscribe(channels: String*)(subscription: Subscription): Future[Int] = {
     updateSubscription(subscription)
     if (!channels.isEmpty) {
       sendAsSubscriber(Subscribe(channels: _*))
+    } else {
+      Future.failed(RedisInvalidArgumentException("SUBSCRIBE: channels cannot be empty"))
     }
   }
 
@@ -66,9 +76,10 @@ trait SubscriberCommands { self: SubscriberConnection =>
    * the client.
    *
    * @param channels the names of the channels, if empty, unsubscribe from all channels
+   * @return the total number of subscribed channels and patterns
    *
    * @since 2.0.0
    */
-  def unsubscribe(channels: String*): Unit = sendAsSubscriber(Unsubscribe(channels: _*))
+  def unsubscribe(channels: String*): Future[Int] = sendAsSubscriber(Unsubscribe(channels: _*))
   
 }

@@ -62,10 +62,22 @@ class DecoderActor(ioActor: ActorRef) extends Actor with LazyLogging {
         try {
           val message = Protocol.decodePubSubResponse(Protocol.decode(buffer))
           message match {
-            case m: PubSubMessage.Subscribe => ioActor ! m
-            case m: PubSubMessage.PSubscribe => ioActor ! m
-            case m: PubSubMessage.Unsubscribe => ioActor ! m
-            case m: PubSubMessage.PUnsubscribe => ioActor ! m
+            case m: PubSubMessage.Subscribe => {
+              ioActor ! m
+              sender ! PartitionerActor.Complete(m)
+            }
+            case m: PubSubMessage.PSubscribe => {
+              ioActor ! m
+              sender ! PartitionerActor.Complete(m)
+            }
+            case m: PubSubMessage.Unsubscribe => {
+              ioActor ! m
+              sender ! PartitionerActor.Complete(m)
+            }
+            case m: PubSubMessage.PUnsubscribe => {
+              ioActor ! m
+              sender ! PartitionerActor.Complete(m)
+            }
             case _ =>
           }
           subscriptionOpt match {
