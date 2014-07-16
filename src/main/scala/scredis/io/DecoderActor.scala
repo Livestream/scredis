@@ -29,27 +29,18 @@ class DecoderActor(ioActor: ActorRef) extends Actor with LazyLogging {
   )
   
   def receive: Receive = {
-    case Partition(data, requests, skip) => {
-      var skipCount = skip
+    case Partition(data, requests) => {
       val buffer = data.asByteBuffer
       val decode = decodeTimer.time()
       while (requests.hasNext) {
         val request = requests.next()
         try {
           val response = Protocol.decode(buffer)
-          if (skipCount == 0) {
-            request.complete(response)
-          } else {
-            skipCount -= 1
-          }
+          request.complete(response)
         } catch {
-          case e: Throwable => {
-            if (skipCount == 0) {
-              request.failure(RedisProtocolException("Could not decode response", e))
-            } else {
-              skipCount -= 1
-            }
-          }
+          case e: Throwable => request.failure(
+            RedisProtocolException("Could not decode response", e)
+          )
         }
         count += 1
         if (count % 100000 == 0) println(count)
@@ -92,18 +83,21 @@ class DecoderActor(ioActor: ActorRef) extends Actor with LazyLogging {
           }
         } catch {
           case e: Throwable => logger.error(
-            s"Could not decode PubSubMessage: ${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}", e
+            s"Could not decode PubSubMessage: " 
+              +s"${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}",
+            e
           )
         }
       }
     }
     case Subscribe(subscription) => subscriptionOpt = Some(subscription)
+    case x => logger.error(s"Received unexpected message: $x")
   }
   
 }
 
 object DecoderActor {
-  case class Partition(data: ByteString, requests: Iterator[Request[_]], skip: Int)
+  case class Partition(data: ByteString, requests: Iterator[Request[_]])
   case class SubscribePartition(data: ByteString)
   case class Subscribe(subscription: Subscription)
 }

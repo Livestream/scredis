@@ -18,25 +18,21 @@ class SubscriberIOActor(
   private val subscribedPatterns = MHashSet[String]()
   
   override protected def onConnect(): Unit = {
-    // TODO: keep queued but do a PAUSE on ioActor until AUTH and RESUB
-    failAllQueuedRequests(RedisIOException(s"Connection to $remote has been dropped"))
     partitionerActor ! PartitionerActor.ResetPubSub
     super.onConnect()
   }
   
   override protected def onAuthAndSelect(): Unit = {
-    partitionerActor ! PartitionerActor.Subscribe(PartialFunction.empty)
+    partitionerActor ! PartitionerActor.RestoreSubscription
     subscribedChannels.foreach { channel =>
       logger.info(s"Automatically re-subscribing to channel: $channel")
       val request = Subscribe(channel)
-      this.requests.push(request)
-      partitionerActor ! PartitionerActor.Push(request)
+      partitionerActor ! request
     }
     subscribedPatterns.foreach { pattern =>
       logger.info(s"Automatically re-subscribing to pattern: $pattern")
       val request = PSubscribe(pattern)
-      this.requests.push(request)
-      partitionerActor ! PartitionerActor.Push(request)
+      partitionerActor ! request
     }
     subscribedChannels.clear()
     subscribedPatterns.clear()

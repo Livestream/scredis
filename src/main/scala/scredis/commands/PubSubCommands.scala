@@ -41,7 +41,7 @@ trait PubSubCommands { self: Connection =>
    *
    * @since 2.8.0
    */
-  def pubSubChannels(patternOpt: Option[String]): Future[List[String]] = send(
+  def pubSubChannels(patternOpt: Option[String] = None): Future[List[String]] = send(
     PubSubChannels[List](patternOpt)
   )
   
@@ -54,7 +54,7 @@ trait PubSubCommands { self: Connection =>
    *
    * @since 2.8.0
    */
-  def pubSubNumSub(channels: String*): Future[Map[String, Long]] = send(
+  def pubSubNumSub(channels: String*): Future[Map[String, Int]] = send(
     PubSubNumSub[Map](channels: _*)
   )
   

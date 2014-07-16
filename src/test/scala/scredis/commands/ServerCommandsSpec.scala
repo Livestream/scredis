@@ -79,8 +79,6 @@ class ServerCommandsSpec extends WordSpec
           val split = data("addr").split(":")
           client1.clientKill(split(0), split(1).toInt).futureValue should be (())
         }
-        // Clients automatically reconnect
-        client1.clientList().futureValue should have size (3)
       }
     }
   }

@@ -20,7 +20,7 @@ trait BlockingListCommands { self: BlockingConnection =>
   private implicit def secondsToDuration(seconds: Int): Duration = if (seconds <= 0) {
     Duration.Inf
   } else {
-    (seconds + 1).seconds
+    (seconds + 2).seconds
   }
   
   /**

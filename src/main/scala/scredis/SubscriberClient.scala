@@ -29,10 +29,9 @@ final class SubscriberClient(
   private var host: String = RedisConfigDefaults.Client.Host,
   private var port: Int = RedisConfigDefaults.Client.Port,
   private var passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
-  private var database: Int = RedisConfigDefaults.Client.Database,
   timeout: Duration = RedisConfigDefaults.Client.Timeout
 )(implicit system: ActorSystem) extends SubscriberAkkaIOConnection(
-  system, host, port, passwordOpt, database
+  system, host, port, passwordOpt, database = 0
 ) with SubscriberCommands {
   
   /**
@@ -45,7 +44,6 @@ final class SubscriberClient(
     config.Client.Host,
     config.Client.Port,
     config.Client.Password,
-    config.Client.Database,
     config.Client.Timeout
   )
   
@@ -104,7 +102,7 @@ final class SubscriberClient(
   /**
    * Unsubscribes from all subscribed channels/patterns and then closes the connection.
    */
-  def quit(): Unit = close()
+  def quit(): Future[Unit] = close()
   
 }
 
@@ -129,10 +127,9 @@ object SubscriberClient {
     host: String = RedisConfigDefaults.Client.Host,
     port: Int = RedisConfigDefaults.Client.Port,
     passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
-    database: Int = RedisConfigDefaults.Client.Database,
     timeout: Duration = RedisConfigDefaults.Client.Timeout
   )(implicit system: ActorSystem): SubscriberClient = new SubscriberClient(
-    host, port, passwordOpt, database, timeout
+    host, port, passwordOpt, timeout
   )
   
   

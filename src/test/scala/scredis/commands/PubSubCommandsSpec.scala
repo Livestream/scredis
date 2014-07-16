@@ -6,6 +6,7 @@ import org.scalatest.concurrent._
 import scredis._
 import scredis.PubSubMessage._
 import scredis.protocol.requests.PubSubRequests
+import scredis.serialization.UTF8StringWriter
 import scredis.exceptions._
 import scredis.tags._
 import scredis.util.TestUtils._
@@ -20,7 +21,6 @@ class PubSubCommandsSpec extends WordSpec
   with GivenWhenThen
   with BeforeAndAfterAll
   with Matchers
-  with Inside
   with ScalaFutures {
   
   implicit class BlockingLinkedBlockingQueue[A](queue: LinkedBlockingQueue[A]) {
@@ -35,6 +35,8 @@ class PubSubCommandsSpec extends WordSpec
       buffer.toList
     }
   }
+  
+  implicit def stringToByteArray(str: String): Array[Byte] = UTF8StringWriter.write(str)
   
   private val publisher = Client(port = 6380, passwordOpt = Some("foobar"))
   private val client = SubscriberClient(port = 6380, passwordOpt = Some("foobar"))
@@ -131,19 +133,13 @@ class PubSubCommandsSpec extends WordSpec
           Subscribe("CHANNEL3", 3)
         )
         
-        inside(messages.poll(4)) {
-          case List(message1, message2, message3, message4) => {
-            message1.channel should be ("CHANNEL1")
-            message1.readAs[String] should be ("A")
-            message2.channel should be ("CHANNEL2")
-            message2.readAs[String] should be ("C")
-            message3.channel should be ("CHANNEL1")
-            message3.readAs[String] should be ("D")
-            message4.channel should be ("CHANNEL3")
-            message4.readAs[String] should be ("E")
-          }
-        }
-
+        messages.poll(4) should contain theSameElementsAs List(
+          Message("CHANNEL1", "A"),
+          Message("CHANNEL2", "C"),
+          Message("CHANNEL1", "D"),
+          Message("CHANNEL3", "E")
+        )
+        
         unsubscribes.poll(3) should have size (3)
         clear()
       }
@@ -187,23 +183,12 @@ class PubSubCommandsSpec extends WordSpec
           PSubscribe("*5", 2),
           PSubscribe("*", 3)
         )
-        
-        inside(pMessages.poll(4)) {
-          case List(message1, message2, message3, message4) => {
-            message1.pattern should be ("MyC*")
-            message1.channel should be ("MyChannel1")
-            message1.readAs[String]() should be ("A")
-            message2.pattern should be ("MyC*")
-            message2.channel should be ("MyChannel2")
-            message2.readAs[String]() should be ("C")
-            message3.pattern should be ("*5")
-            message3.channel should be ("CHANNEL5")
-            message3.readAs[String]() should be ("D")
-            message4.pattern should be ("*")
-            message4.channel should be ("CHANNEL3")
-            message4.readAs[String]() should be ("E")
-          }
-        }
+        pMessages.poll(4) should contain theSameElementsAs List(
+          PMessage("MyC*", "MyChannel1", "A"),
+          PMessage("MyC*", "MyChannel2", "C"),
+          PMessage("*5", "CHANNEL5", "D"),
+          PMessage("*", "CHANNEL3", "E")
+        )
         
         pUnsubscribes.poll(3) should have size (3)
         clear()
@@ -225,16 +210,12 @@ class PubSubCommandsSpec extends WordSpec
           Subscribe("CHANNEL2", 2),
           Subscribe("CHANNEL3", 3)
         )
-        inside(messages.poll(3)) {
-          case List(message1, message2, message3) => {
-            message1.channel should be ("CHANNEL1")
-            message1.readAs[String] should be ("HELLO")
-            message2.channel should be ("CHANNEL2")
-            message2.readAs[String] should be ("HELLO")
-            message3.channel should be ("CHANNEL3")
-            message3.readAs[String] should be ("HELLO")
-          }
-        }
+        messages.poll(3) should contain theSameElementsAs List(
+          Message("CHANNEL1", "HELLO"),
+          Message("CHANNEL2", "HELLO"),
+          Message("CHANNEL3", "HELLO")
+        )
+        
         unsubscribes.poll(2) should have size (2)
         unsubscribes.forall(_.channelsCount == 3) should be (true)
         clear()
@@ -252,14 +233,11 @@ class PubSubCommandsSpec extends WordSpec
         publisher.publish("CHANNEL3", "HELLO").futureValue should be (0)
         
         subscribes.poll(0) should be (empty)
-        inside(messages.poll(2)) {
-          case List(message1, message2) => {
-            message1.channel should be ("CHANNEL2")
-            message1.readAs[String] should be ("HELLO")
-            message2.channel should be ("CHANNEL3")
-            message2.readAs[String] should be ("HELLO")
-          }
-        }
+        messages.poll(2) should contain theSameElementsAs List(
+          Message("CHANNEL2", "HELLO"),
+          Message("CHANNEL3", "HELLO")
+        )
+        
         unsubscribes.poll(3) should have size (3)
         clear()
       }
@@ -280,19 +258,11 @@ class PubSubCommandsSpec extends WordSpec
           PSubscribe("*2", 2),
           PSubscribe("*3", 3)
         )
-        inside(pMessages.poll(3)) {
-          case List(message1, message2, message3) => {
-            message1.pattern should be ("*1")
-            message1.channel should be ("CHANNEL1")
-            message1.readAs[String]() should be ("HELLO")
-            message2.pattern should be ("*2")
-            message2.channel should be ("CHANNEL2")
-            message2.readAs[String]() should be ("HELLO")
-            message3.pattern should be ("*3")
-            message3.channel should be ("CHANNEL3")
-            message3.readAs[String]() should be ("HELLO")
-          }
-        }
+        pMessages.poll(3) should contain theSameElementsAs List(
+          PMessage("*1", "CHANNEL1", "HELLO"),
+          PMessage("*2", "CHANNEL2", "HELLO"),
+          PMessage("*3", "CHANNEL3", "HELLO")
+        )
         pUnsubscribes.poll(2) should have size (2)
         pUnsubscribes.forall(_.patternsCount == 3) should be (true)
         clear()
@@ -310,16 +280,10 @@ class PubSubCommandsSpec extends WordSpec
         publisher.publish("CHANNEL3", "HELLO").futureValue should be (0)
         
         pSubscribes.poll(0) should be (empty)
-        inside(pMessages.poll(2)) {
-          case List(message1, message2) => {
-            message1.pattern should be ("*2")
-            message1.channel should be ("CHANNEL2")
-            message1.readAs[String]() should be ("HELLO")
-            message2.pattern should be ("*3")
-            message2.channel should be ("CHANNEL3")
-            message2.readAs[String]() should be ("HELLO")
-          }
-        }
+        pMessages.poll(3) should contain theSameElementsAs List(
+          PMessage("*2", "CHANNEL2", "HELLO"),
+          PMessage("*3", "CHANNEL3", "HELLO")
+        )
         pUnsubscribes.poll(3) should have size (3)
         clear()
       }
@@ -347,32 +311,28 @@ class PubSubCommandsSpec extends WordSpec
           PSubscribe("ASD*", 5)
         )
         
+        clear()
+        
         publisher.clientKillWithFilters(
           typeOpt = Some(ClientType.PubSub)
         ).futureValue should be (1)
+        
+        subscribes.poll(2) should have size (2)
+        pSubscribes.poll(3) should have size (3)
         
         client.subscribe("CHANNEL3")(pf).futureValue should be (6)
         client.pSubscribe("*")(pf).futureValue should be (7)
         
         publisher.publish("CHANNEL1", "LOL").futureValue should be (3)
         
-        inside(messages.poll(1)) {
-          case List(message) => {
-            message.channel should be ("CHANNEL1")
-            message.readAs[String] should be ("LOL")
-          }
-        }
+        messages.poll(1) should contain theSameElementsAs List(
+          Message("CHANNEL1", "LOL")
+        )
         
-        inside(pMessages.poll(2)) {
-          case List(message1, message2) => {
-            message1.pattern should be ("CH*")
-            message1.channel should be ("CHANNEL1")
-            message1.readAs[String] should be ("LOL")
-            message2.pattern should be ("*")
-            message2.channel should be ("CHANNEL1")
-            message2.readAs[String] should be ("LOL")
-          }
-        }
+        pMessages.poll(2) should contain theSameElementsAs List(
+          PMessage("CH*", "CHANNEL1", "LOL"),
+          PMessage("*", "CHANNEL1", "LOL")
+        )
         
         client.unsubscribe().futureValue should be (4)
         client.pUnsubscribe().futureValue should be (0)
@@ -381,13 +341,130 @@ class PubSubCommandsSpec extends WordSpec
       }
     }
   }
+  
+  PubSubRequests.PubSubChannels.toString should {
+    "list all active channels" taggedAs (V280) in {
+      client.subscribe("CHANNEL1", "CHANNEL2", "CHANNEL3")(pf).futureValue should be (3)
+      client.pSubscribe("BLAH*")(pf).futureValue should be (4)
+      subscribes.poll(3) should contain theSameElementsAs List(
+        Subscribe("CHANNEL1", 1),
+        Subscribe("CHANNEL2", 2),
+        Subscribe("CHANNEL3", 3)
+      )
+      pSubscribes.poll(1) should contain theSameElementsAs List(
+        PSubscribe("BLAH*", 4)
+      )
+      publisher.pubSubChannels().futureValue should contain theSameElementsAs List(
+        "CHANNEL1", "CHANNEL2", "CHANNEL3"
+      )
+      publisher.pubSubChannels(Some("CHAN*")).futureValue should contain theSameElementsAs List(
+        "CHANNEL1", "CHANNEL2", "CHANNEL3"
+      )
+      publisher.pubSubChannels(Some("*")).futureValue should contain theSameElementsAs List(
+        "CHANNEL1", "CHANNEL2", "CHANNEL3"
+      )
+      publisher.pubSubChannels(Some("*2")).futureValue should contain theSameElementsAs List(
+        "CHANNEL2"
+      )
+      publisher.pubSubChannels(Some("BLAH*")).futureValue should be (empty)
+      
+      client.unsubscribe().futureValue should be (1)
+      publisher.pubSubChannels().futureValue should be (empty)
+      client.pUnsubscribe().futureValue should be (0)
+      
+      clear()
+    }
+  }
+  
+  PubSubRequests.PubSubNumSub.toString should {
+    "return the number of subscribers for the specified channel(s)" taggedAs (V280) in {
+      client.subscribe("CHANNEL1", "CHANNEL2", "CHANNEL3")(pf).futureValue should be (3)
+      client.pSubscribe("BLAH*")(pf).futureValue should be (4)
+      client2.subscribe("CHANNEL1", "CHANNEL2")(pf).futureValue should be (2)
+      client3.subscribe("CHANNEL1")(pf).futureValue should be (1)
+      subscribes.poll(6) should contain theSameElementsAs List(
+        Subscribe("CHANNEL1", 1),
+        Subscribe("CHANNEL2", 2),
+        Subscribe("CHANNEL3", 3),
+        Subscribe("CHANNEL1", 1),
+        Subscribe("CHANNEL2", 2),
+        Subscribe("CHANNEL1", 1)
+      )
+      pSubscribes.poll(1) should contain theSameElementsAs List(
+        PSubscribe("BLAH*", 4)
+      )
+      publisher.pubSubNumSub().futureValue should be (empty)
+      publisher.pubSubNumSub(
+        "CHANNEL1", "CHANNEL2", "CHANNEL3", "CHANNEL4"
+      ).! should contain theSameElementsAs List(
+        ("CHANNEL1", 3), ("CHANNEL2", 2), ("CHANNEL3", 1), ("CHANNEL4", 0)
+      )
+      
+      client.unsubscribe().futureValue should be (1)
+      client.pUnsubscribe().futureValue should be (0)
+      publisher.pubSubNumSub(
+        "CHANNEL1", "CHANNEL2", "CHANNEL3", "CHANNEL4"
+      ).! should contain theSameElementsAs List(
+        ("CHANNEL1", 2), ("CHANNEL2", 1), ("CHANNEL3", 0), ("CHANNEL4", 0)
+      )
+      
+      client2.unsubscribe().futureValue should be (0)
+      publisher.pubSubNumSub(
+        "CHANNEL1", "CHANNEL2", "CHANNEL3", "CHANNEL4"
+      ).! should contain theSameElementsAs List(
+        ("CHANNEL1", 1), ("CHANNEL2", 0), ("CHANNEL3", 0), ("CHANNEL4", 0)
+      )
+      
+      client3.unsubscribe().futureValue should be (0)
+      publisher.pubSubNumSub(
+        "CHANNEL1", "CHANNEL2", "CHANNEL3", "CHANNEL4"
+      ).! should contain theSameElementsAs List(
+        ("CHANNEL1", 0), ("CHANNEL2", 0), ("CHANNEL3", 0), ("CHANNEL4", 0)
+      )
+      
+      clear()
+    }
+  }
+  
+  PubSubRequests.PubSubNumPat.toString should {
+    "return the total number of pattern(s) all the clients are subscribed to" taggedAs (V280) in {
+      client.subscribe("CHANNEL1")(pf).futureValue should be (1)
+      client.pSubscribe("*1", "*2", "*3")(pf).futureValue should be (4)
+      client2.pSubscribe("*1", "*2")(pf).futureValue should be (2)
+      client3.pSubscribe("*1")(pf).futureValue should be (1)
+      subscribes.poll(1) should contain theSameElementsAs List(
+        Subscribe("CHANNEL1", 1)
+      )
+      pSubscribes.poll(6) should contain theSameElementsAs List(
+        PSubscribe("*1", 2),
+        PSubscribe("*2", 3),
+        PSubscribe("*3", 4),
+        PSubscribe("*1", 1),
+        PSubscribe("*2", 2),
+        PSubscribe("*1", 1)
+      )
+      publisher.pubSubNumPat().futureValue should be (6)
+      
+      client.unsubscribe().futureValue should be (3)
+      client.pUnsubscribe().futureValue should be (0)
+      publisher.pubSubNumPat().futureValue should be (3)
+      
+      client2.pUnsubscribe().futureValue should be (0)
+      publisher.pubSubNumPat().futureValue should be (1)
+      
+      client3.pUnsubscribe().futureValue should be (0)
+      publisher.pubSubNumPat().futureValue should be (0)
+      
+      clear()
+    }
+  }
 
   override def afterAll() {
     publisher.quit().!
-    client.quit()
-    client2.quit()
-    client3.quit()
-    client4.quit()
+    client.quit().!
+    client2.quit().!
+    client3.quit().!
+    client4.quit().!
   }
   
 }

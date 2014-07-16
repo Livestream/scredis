@@ -10,6 +10,7 @@ import scala.collection.generic.CanBuildFrom
 object PubSubRequests {
   
   import scredis.serialization.Implicits.stringReader
+  import scredis.serialization.Implicits.intReader
   
   object PSubscribe extends Command("PSUBSCRIBE") {
     override def isSubscriber = true
@@ -53,13 +54,13 @@ object PubSubRequests {
   }
   
   case class PubSubNumSub[CC[X, Y] <: collection.Map[X, Y]](channels: String*)(
-    implicit cbf: CanBuildFrom[Nothing, (String, Long), CC[String, Long]]
-  ) extends Request[CC[String, Long]](PubSubNumSub, channels: _*) {
+    implicit cbf: CanBuildFrom[Nothing, (String, Int), CC[String, Int]]
+  ) extends Request[CC[String, Int]](PubSubNumSub, channels: _*) {
     override def decode = {
-      case a: ArrayResponse => a.parsedAsPairsMap[String, Long, CC] {
+      case a: ArrayResponse => a.parsedAsPairsMap[String, Int, CC] {
         case b: BulkStringResponse => b.flattened[String]
       } {
-        case IntegerResponse(value) => value
+        case b: BulkStringResponse => b.flattened[Int]
       }
     }
   }

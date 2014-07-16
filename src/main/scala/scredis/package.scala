@@ -307,8 +307,18 @@ package object scredis {
      */
     final case class Message(channel: String, message: Array[Byte]) extends PubSubMessage {
       def readAs[R: Reader](): R = implicitly[Reader[R]].read(message)
+      
+      override def equals(other: Any): Boolean = other match {
+        case Message(channel, message) => (
+          this.channel == channel &&
+          this.message.sameElements(message)
+        )
+        case _ => false
+      }
+      
       override def toString = s"Message(channel=$channel, message=" +
         s"${readAs[String]()(UTF8StringReader)})"
+      
     }
     
     /**
@@ -318,8 +328,19 @@ package object scredis {
       pattern: String, channel: String, message: Array[Byte]
     ) extends PubSubMessage {
       def readAs[R: Reader](): R = implicitly[Reader[R]].read(message)
+      
+      override def equals(other: Any): Boolean = other match {
+        case PMessage(pattern, channel, message) => (
+          this.pattern == pattern &&
+          this.channel == channel &&
+          this.message.sameElements(message)
+        )
+        case _ => false
+      }
+      
       override def toString = s"PMessage(pattern=$pattern, channel=$channel, message=" +
         s"${readAs[String]()(UTF8StringReader)})"
+      
     }
     
     /**

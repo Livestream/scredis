@@ -25,6 +25,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
   import DecoderActor._
   
   private var subscriptionOpt: Option[Subscription] = None
+  private var previousSubscriptionOpt: Option[Subscription] = None
   
   private val requests = new LinkedList[Request[_]]()
   private var requestOpt: Option[Request[_]] = None
@@ -45,7 +46,6 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
   )
   
   private var remainingByteStringOpt: Option[ByteString] = None
-  private var skip = 0
   
   def receive: Receive = {
     case request: Request[_] => {
@@ -66,7 +66,6 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
     case Remove(count) => for (i <- 1 to count) {
       requests.pop()
     }
-    case Skip(count) => skip += count
     case PartitionerActor.Subscribe(subscription) => {
       subscriptionOpt = Some(subscription)
       decoders ! Broadcast(DecoderActor.Subscribe(subscription))
@@ -86,8 +85,6 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
       
       if (repliesCount > 0) {
         val position = buffer.position
-        val skipCount = math.min(skip, repliesCount)
-        skip -= skipCount
         
         val trimmedData = if (buffer.remaining > 0) {
           remainingByteStringOpt = Some(ByteString(buffer))
@@ -103,7 +100,7 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
             for (i <- 1 to repliesCount) {
               requests += this.requests.pop()
             }
-            decoders ! Partition(trimmedData, requests.toList.iterator, skipCount)
+            decoders ! Partition(trimmedData, requests.toList.iterator)
           }
         }
       }
@@ -169,15 +166,20 @@ class PartitionerActor(ioActor: ActorRef) extends Actor with LazyLogging {
       }
     }
     case ResetPubSub => {
+      previousSubscriptionOpt = subscriptionOpt
       subscriptionOpt = None
-      requests.clear()
       requestOpt = None
       requestRepliesCount = 0
       subscribedCount = 0
       subscribedChannelsCount = 0
       subscribedPatternsCount = 0
     }
-    case CloseIOActor => ioActor ! PoisonPill
+    case RestoreSubscription => {
+      val subscription = previousSubscriptionOpt.getOrElse(PartialFunction.empty)
+      subscriptionOpt = Some(subscription)
+      decoders ! Broadcast(DecoderActor.Subscribe(subscription))
+    }
+    case x => logger.error(s"Received unexpected message: $x")
   }
   
 }
@@ -189,5 +191,5 @@ object PartitionerActor {
   case class Subscribe(subscription: Subscription)
   case class Complete(message: PubSubMessage)
   case object ResetPubSub
-  case object CloseIOActor
+  case object RestoreSubscription
 }

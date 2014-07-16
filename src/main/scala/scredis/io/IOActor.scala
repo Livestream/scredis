@@ -16,7 +16,7 @@ import scredis.exceptions.RedisIOException
 
 import scala.util.{ Success, Failure }
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.Future
+import scala.concurrent.{ Future, Await }
 import scala.concurrent.duration._
 
 import java.util.LinkedList
@@ -42,6 +42,7 @@ class IOActor(
   private var retries = 0
   private var canWrite = false
   private var isConnecting: Boolean = false
+  private var isAuthenticating = false
   private var isClosing: Boolean = false
   private var timeoutCancellableOpt: Option[Cancellable] = None
   
@@ -72,15 +73,11 @@ class IOActor(
     partitionerActor ! Remove(count)
   }
   
-  protected def failBatch(throwable: Throwable, skip: Boolean = false): Unit = {
+  protected def failBatch(throwable: Throwable): Unit = {
     val count = batch.size
     batch.foreach(_.failure(throwable))
     batch = Nil
-    if (skip) {
-      partitionerActor ! Skip(count)
-    } else {
-      partitionerActor ! Remove(count)
-    }
+    partitionerActor ! Remove(count)
   }
   
   protected def requeueBatch(): Unit = {
@@ -102,20 +99,9 @@ class IOActor(
     context.stop(self)
   }
   
-  protected def write(): Unit = {
-    if (!this.batch.isEmpty) {
-      requeueBatch()
-    }
-    if (requests.isEmpty) {
-      canWrite = true
-      return
-    }
-    
-    var i = 0
+  protected def write(requests: Seq[Request[_]]): Unit = {
     var length = 0
-    val batch = ListBuffer[Request[_]]()
-    while (!requests.isEmpty && i < 5000) {
-      val request = requests.pop()
+    requests.foreach { request =>
       request.encode()
       length += {
         request.encoded match {
@@ -123,11 +109,9 @@ class IOActor(
           case Right(buffer) => buffer.remaining
         }
       }
-      batch += request
-      i += 1
     }
     val buffer = bufferPool.acquire(length)
-    batch.foreach { r =>
+    requests.foreach { r =>
       r.encoded match {
         case Left(bytes) => buffer.put(bytes)
         case Right(buff) => {
@@ -149,28 +133,65 @@ class IOActor(
     }
   }
   
-  protected def onConnect(): Unit = {
-    val selectFuture = if (database > 0) {
-      val request = Select(database)
-      requests.push(request)
-      partitionerActor ! Push(request)
-      request.future
-    } else {
-      Future.successful(())
+  protected def write(): Unit = {
+    if (!this.batch.isEmpty) {
+      requeueBatch()
     }
-    val passwordFuture = passwordOpt match {
-      case Some(password) => {
-        val request = Auth(password)
-        requests.push(request)
-        partitionerActor ! Push(request)
-        request.future
-      }
+    if (requests.isEmpty) {
+      canWrite = true
+      return
+    }
+    
+    var i = 0
+    var length = 0
+    val batch = ListBuffer[Request[_]]()
+    while (!requests.isEmpty && i < 5000) {
+      batch += requests.pop()
+      i += 1
+    }
+    write(batch.toList)
+  }
+  
+  protected def onConnect(): Unit = {
+    val authRequestOpt = passwordOpt.map { password =>
+      Auth(password)
+    }
+    val selectRequestOpt = if (database > 0) {
+      Some(Select(database))
+    } else {
+      None
+    }
+    
+    val authFuture = authRequestOpt match {
+      case Some(request) => request.future
       case None => Future.successful(())
     }
-    passwordFuture.andThen {
+    val selectFuture = selectRequestOpt match {
+      case Some(request) => request.future
+      case None => Future.successful(())
+    }
+    
+    (authRequestOpt, selectRequestOpt) match {
+      case (Some(auth), Some(select)) => {
+        partitionerActor ! PartitionerActor.Push(select)
+        partitionerActor ! PartitionerActor.Push(auth)
+        write(Seq(auth, select))
+      }
+      case (Some(auth), None) => {
+        partitionerActor ! PartitionerActor.Push(auth)
+        write(Seq(auth))
+      }
+      case (None, Some(select)) => {
+        partitionerActor ! PartitionerActor.Push(select)
+        write(Seq(select))
+      }
+      case (None, None) =>
+    }
+    
+    authFuture.andThen {
       case Success(_) => selectFuture.andThen {
-        case Success(_) => onAuthAndSelect()
-        case Failure(e) => logger.error(s"Could not select database '$database'' in $remote", e)
+        case Success(_) =>
+        case Failure(e) => logger.error(s"Could not select database '$database' in $remote", e)
       }
       case Failure(e) => logger.error(s"Could not authenticate to $remote", e)
     }
@@ -194,13 +215,17 @@ class IOActor(
       logger.trace(s"Connected to $remote")
       connection = sender
       connection ! Register(self)
+      context.watch(connection)
       isConnecting = false
       canWrite = true
       retries = 0
       requeueBatch()
       onConnect()
-      write()
-      context.watch(connection)
+      if (canWrite) {
+        write()
+      } else {
+        isAuthenticating = true
+      }
       if (isClosing) {
         context.become(closing)
       } else {
@@ -272,19 +297,30 @@ class IOActor(
         }
         case _  => requests.addLast(request)
       }
-      if (canWrite) {
+      if (!isAuthenticating && canWrite) {
         write()
       }
     }
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
       partitionerActor ! data
+      if (isAuthenticating) {
+        onAuthAndSelect()
+        isAuthenticating = false
+        if (canWrite) {
+          write()
+        }
+      }
     }
     case WriteAck => {
       batch = Nil
       retries = 0
       timeoutCancellableOpt.foreach(_.cancel())
-      write()
+      if (isAuthenticating) {
+        canWrite = true
+      } else {
+        write()
+      }
     }
     case WriteTimeout(writeId) => if (writeId == this.writeId) {
       failBatch(RedisIOException("Timeout"))
@@ -298,7 +334,11 @@ class IOActor(
         abortAndReconnect()
       } else {
         retries += 1
-        write()
+        if (isAuthenticating) {
+          canWrite = true
+        } else {
+          write()
+        }
       }
     }
     case _: ConnectionClosed => {
@@ -327,12 +367,23 @@ class IOActor(
     case Received(data) => {
       logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
       partitionerActor ! data
+      if (isAuthenticating) {
+        onAuthAndSelect()
+        isAuthenticating = false
+        if (canWrite) {
+          write()
+        }
+      }
     }
     case WriteAck => {
       retries = 0
       batch = Nil
       timeoutCancellableOpt.foreach(_.cancel())
-      write()
+      if (isAuthenticating) {
+        canWrite = true
+      } else {
+        write()
+      }
     }
     case WriteTimeout(writeId) => if (writeId == this.writeId) {
       failBatch(RedisIOException("Timeout"))
@@ -346,7 +397,11 @@ class IOActor(
         abortAndReconnect()
       } else {
         retries += 1
-        write()
+        if (isAuthenticating) {
+          canWrite = true
+        } else {
+          write()
+        }
       }
     }
     case _: ConnectionClosed => {
