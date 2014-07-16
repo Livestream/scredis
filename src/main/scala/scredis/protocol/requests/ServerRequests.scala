@@ -25,12 +25,12 @@ object ServerRequests {
   object ConfigRewrite extends ZeroArgCommand("CONFIG", "REWRITE")
   object ConfigSet extends Command("CONFIG", "SET")
   object DBSize extends ZeroArgCommand("DBSIZE")
-  object FlushAll extends ZeroArgCommand("FLUSHALL")
-  object FlushDB extends ZeroArgCommand("FLUSHDB")
+  object FlushAll extends ZeroArgCommand("FLUSHALL") with WriteCommand
+  object FlushDB extends ZeroArgCommand("FLUSHDB") with WriteCommand
   object Info extends Command("INFO")
   object LastSave extends ZeroArgCommand("LASTSAVE")
   object Role extends ZeroArgCommand("ROLE")
-  object Save extends ZeroArgCommand("SAVE")
+  object Save extends ZeroArgCommand("SAVE") with WriteCommand
   object Shutdown extends Command("SHUTDOWN")
   object SlaveOf extends Command("SLAVEOF")
   object SlowLogGet extends Command("SLOWLOG", "GET")

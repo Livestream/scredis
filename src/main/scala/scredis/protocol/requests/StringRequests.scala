@@ -12,28 +12,28 @@ object StringRequests {
   import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.doubleReader
   
-  object Append extends Command("APPEND")
+  object Append extends Command("APPEND") with WriteCommand
   object BitCount extends Command("BITCOUNT")
-  object BitOp extends Command("BITOP")
+  object BitOp extends Command("BITOP") with WriteCommand
   object BitPos extends Command("BITPOS")
-  object Decr extends Command("DECR")
-  object DecrBy extends Command("DECRBY")
+  object Decr extends Command("DECR") with WriteCommand
+  object DecrBy extends Command("DECRBY") with WriteCommand
   object Get extends Command("GET")
   object GetBit extends Command("GETBIT")
   object GetRange extends Command("GETRANGE")
-  object GetSet extends Command("GETSET")
-  object Incr extends Command("INCR")
-  object IncrBy extends Command("INCRBY")
-  object IncrByFloat extends Command("INCRBYFLOAT")
+  object GetSet extends Command("GETSET") with WriteCommand
+  object Incr extends Command("INCR") with WriteCommand
+  object IncrBy extends Command("INCRBY") with WriteCommand
+  object IncrByFloat extends Command("INCRBYFLOAT") with WriteCommand
   object MGet extends Command("MGET")
-  object MSet extends Command("MSET")
-  object MSetNX extends Command("MSETNX")
-  object PSetEX extends Command("PSETEX")
-  object Set extends Command("SET")
-  object SetBit extends Command("SETBIT")
-  object SetEX extends Command("SETEX")
-  object SetNX extends Command("SETNX")
-  object SetRange extends Command("SETRANGE")
+  object MSet extends Command("MSET") with WriteCommand
+  object MSetNX extends Command("MSETNX") with WriteCommand
+  object PSetEX extends Command("PSETEX") with WriteCommand
+  object Set extends Command("SET") with WriteCommand
+  object SetBit extends Command("SETBIT") with WriteCommand
+  object SetEX extends Command("SETEX") with WriteCommand
+  object SetNX extends Command("SETNX") with WriteCommand
+  object SetRange extends Command("SETRANGE") with WriteCommand
   object StrLen extends Command("STRLEN")
   
   case class Append[W: Writer](key: String, value: W) extends Request[Long](

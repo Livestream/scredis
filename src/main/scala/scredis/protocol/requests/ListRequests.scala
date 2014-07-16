@@ -9,23 +9,23 @@ object ListRequests {
   
   import scredis.serialization.Implicits.stringReader
   
-  object BLPop extends Command("BLPOP")
-  object BRPop extends Command("BRPOP")
-  object BRPopLPush extends Command("BRPOPLPUSH")
+  object BLPop extends Command("BLPOP") with WriteCommand
+  object BRPop extends Command("BRPOP") with WriteCommand
+  object BRPopLPush extends Command("BRPOPLPUSH") with WriteCommand
   object LIndex extends Command("LINDEX")
-  object LInsert extends Command("LINSERT")
+  object LInsert extends Command("LINSERT") with WriteCommand
   object LLen extends Command("LLEN")
-  object LPop extends Command("LPOP")
-  object LPush extends Command("LPUSH")
-  object LPushX extends Command("LPUSHX")
+  object LPop extends Command("LPOP") with WriteCommand
+  object LPush extends Command("LPUSH") with WriteCommand
+  object LPushX extends Command("LPUSHX") with WriteCommand
   object LRange extends Command("LRANGE")
-  object LRem extends Command("LREM")
-  object LSet extends Command("LSET")
-  object LTrim extends Command("LTRIM")
-  object RPop extends Command("RPOP")
-  object RPopLPush extends Command("RPOPLPUSH")
-  object RPush extends Command("RPUSH")
-  object RPushX extends Command("RPUSHX")
+  object LRem extends Command("LREM") with WriteCommand
+  object LSet extends Command("LSET") with WriteCommand
+  object LTrim extends Command("LTRIM") with WriteCommand
+  object RPop extends Command("RPOP") with WriteCommand
+  object RPopLPush extends Command("RPOPLPUSH") with WriteCommand
+  object RPush extends Command("RPUSH") with WriteCommand
+  object RPushX extends Command("RPUSHX") with WriteCommand
   
   case class BLPop[R: Reader](
     timeoutSeconds: Int, keys: String*

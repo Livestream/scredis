@@ -10,26 +10,26 @@ object SortedSetRequests {
   import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.doubleReader
   
-  object ZAdd extends Command("ZADD")
+  object ZAdd extends Command("ZADD") with WriteCommand
   object ZCard extends Command("ZCARD")
   object ZCount extends Command("ZCOUNT")
-  object ZIncrBy extends Command("ZINCRBY")
-  object ZInterStore extends Command("ZINTERSTORE")
+  object ZIncrBy extends Command("ZINCRBY") with WriteCommand
+  object ZInterStore extends Command("ZINTERSTORE") with WriteCommand
   object ZLexCount extends Command("ZLEXCOUNT")
   object ZRange extends Command("ZRANGE")
   object ZRangeByLex extends Command("ZRANGEBYLEX")
   object ZRangeByScore extends Command("ZRANGEBYSCORE")
   object ZRank extends Command("ZRANK")
-  object ZRem extends Command("ZREM")
-  object ZRemRangeByLex extends Command("ZREMRANGEBYLEX")
-  object ZRemRangeByRank extends Command("ZREMRANGEBYRANK")
-  object ZRemRangeByScore extends Command("ZREMRANGEBYSCORE")
+  object ZRem extends Command("ZREM") with WriteCommand
+  object ZRemRangeByLex extends Command("ZREMRANGEBYLEX") with WriteCommand
+  object ZRemRangeByRank extends Command("ZREMRANGEBYRANK") with WriteCommand
+  object ZRemRangeByScore extends Command("ZREMRANGEBYSCORE") with WriteCommand
   object ZRevRange extends Command("ZREVRANGE")
   object ZRevRangeByScore extends Command("ZREVRANGEBYSCORE")
   object ZRevRank extends Command("ZREVRANK")
   object ZScan extends Command("ZSCAN")
   object ZScore extends Command("ZSCORE")
-  object ZUnionStore extends Command("ZUNIONSTORE")
+  object ZUnionStore extends Command("ZUNIONSTORE") with WriteCommand
   
   private val WithScores = "WITHSCORES"
   private val Weights = "WEIGHTS"

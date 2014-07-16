@@ -12,25 +12,25 @@ object KeyRequests {
   import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.bytesReader
   
-  object Del extends Command("DEL")
+  object Del extends Command("DEL") with WriteCommand
   object Dump extends Command("DUMP")
   object Exists extends Command("EXISTS")
-  object Expire extends Command("EXPIRE")
-  object ExpireAt extends Command("EXPIREAT")
+  object Expire extends Command("EXPIRE") with WriteCommand
+  object ExpireAt extends Command("EXPIREAT") with WriteCommand
   object Keys extends Command("KEYS")
-  object Migrate extends Command("MIGRATE")
-  object Move extends Command("MOVE")
+  object Migrate extends Command("MIGRATE") with WriteCommand
+  object Move extends Command("MOVE") with WriteCommand
   object ObjectRefCount extends Command("OBJECT", "REFCOUNT")
   object ObjectEncoding extends Command("OBJECT", "ENCODING")
   object ObjectIdleTime extends Command("OBJECT", "IDLETIME")
-  object Persist extends Command("PERSIST")
-  object PExpire extends Command("PEXPIRE")
-  object PExpireAt extends Command("PEXPIREAT")
+  object Persist extends Command("PERSIST") with WriteCommand
+  object PExpire extends Command("PEXPIRE") with WriteCommand
+  object PExpireAt extends Command("PEXPIREAT") with WriteCommand
   object PTTL extends Command("PTTL")
   object RandomKey extends ZeroArgCommand("RANDOMKEY")
-  object Rename extends Command("RENAME")
-  object RenameNX extends Command("RENAMENX")
-  object Restore extends Command("RESTORE")
+  object Rename extends Command("RENAME") with WriteCommand
+  object RenameNX extends Command("RENAMENX") with WriteCommand
+  object Restore extends Command("RESTORE") with WriteCommand
   object Scan extends Command("SCAN")
   object Sort extends Command("SORT")
   object TTL extends Command("TTL")
@@ -276,6 +276,9 @@ object KeyRequests {
     Sort,
     generateSortArgs(key, byOpt, limitOpt, get, desc, alpha, Some(targetKey)): _*
   ) {
+    
+    override def isReadOnly = false
+    
     override def decode = {
       case IntegerResponse(value) => value
     }

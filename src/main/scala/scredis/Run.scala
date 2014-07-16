@@ -16,8 +16,9 @@ object Run {
     implicit val system = ActorSystem("redis")
     val client = Client()
     
+    println("SET")
     client.set("key", "Yo!").onComplete {
-      case Success(_) => println("SET")
+      case Success(_) => println("SET DONE")
       case Failure(e) => e.printStackTrace()
     }
     
@@ -54,7 +55,7 @@ object Run {
   }
   
   def main(args: Array[String]): Unit = {
-    testPerformance()
+    testReconnection()
     System.exit(0)
   }
   

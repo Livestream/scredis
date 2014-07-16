@@ -74,19 +74,6 @@ final class Client(
   def this(config: Config)(implicit system: ActorSystem) = this(RedisConfig(config))
   
   /**
-   * Constructs a $client instance from a $tc using the provided path.
-   * 
-   * @note The path must include to the scredis object, e.g. x.y.scredis
-   * 
-   * @param config $tc
-   * @param path path pointing to the scredis config object
-   * @return the constructed $client
-   */
-  def this(config: Config, path: String)(implicit system: ActorSystem) = this(
-    RedisConfig(config, path)
-  )
-  
-  /**
    * Constructs a $client instance from a config file.
    * 
    * @note The config file must contain the scredis object at its root.
@@ -190,19 +177,6 @@ object Client {
    * @return the constructed $client
    */
   def apply(config: Config)(implicit system: ActorSystem): Client = new Client(config)
-  
-  /**
-   * Constructs a $client instance from a $tc using the provided path.
-   * 
-   * @note The path must include to the scredis object, e.g. x.y.scredis
-   * 
-   * @param config $tc
-   * @param path path pointing to the scredis config object
-   * @return the constructed $client
-   */
-  def apply(config: Config, path: String)(implicit system: ActorSystem): Client = new Client(
-    config, path
-  )
   
   /**
    * Constructs a $client instance from a config file.

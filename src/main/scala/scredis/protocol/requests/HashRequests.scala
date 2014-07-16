@@ -10,19 +10,19 @@ object HashRequests {
   import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.doubleReader
   
-  object HDel extends Command("HDEL")
+  object HDel extends Command("HDEL") with WriteCommand
   object HExists extends Command("HEXISTS")
   object HGet extends Command("HGET")
   object HGetAll extends Command("HGETALL")
-  object HIncrBy extends Command("HINCRBY")
-  object HIncrByFloat extends Command("HINCRBYFLOAT")
+  object HIncrBy extends Command("HINCRBY") with WriteCommand
+  object HIncrByFloat extends Command("HINCRBYFLOAT") with WriteCommand
   object HKeys extends Command("HKEYS")
   object HLen extends Command("HLEN")
   object HMGet extends Command("HMGET")
-  object HMSet extends Command("HMSET")
+  object HMSet extends Command("HMSET") with WriteCommand
   object HScan extends Command("HSCAN")
-  object HSet extends Command("HSET")
-  object HSetNX extends Command("HSETNX")
+  object HSet extends Command("HSET") with WriteCommand
+  object HSetNX extends Command("HSETNX") with WriteCommand
   object HVals extends Command("HVALS")
   
   case class HDel(key: String, fields: String*) extends Request[Long](

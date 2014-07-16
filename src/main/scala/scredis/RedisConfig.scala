@@ -1,7 +1,5 @@
 package scredis
 
-import org.slf4j.LoggerFactory
-
 import com.typesafe.config.{ ConfigFactory, Config }
 
 import org.apache.commons.pool.impl.GenericObjectPool
@@ -18,15 +16,12 @@ import java.util.concurrent.ThreadPoolExecutor
  * @see reference.conf
  */
 class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
-  def this(config: Config, path: String) = this(ConfigFactory.load().getConfig(path))
   def this(configName: String) = this(ConfigFactory.load(configName).getConfig("scredis"))
   def this(configName: String, path: String) = this(ConfigFactory.load(configName).getConfig(path))
   
   private val referenceConfig = ConfigFactory.defaultReference().getConfig("scredis")
   private val mergedConfig = config.withFallback(referenceConfig)
   mergedConfig.checkValid(referenceConfig)
-  
-  private lazy val logger = LoggerFactory.getLogger(getClass)
 
   private val client = mergedConfig.getConfig("client")
   private val pool = mergedConfig.getConfig("pool")
@@ -201,8 +196,8 @@ class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
 }
 
 object RedisConfig {
-  def apply(config: Config = ConfigFactory.load().getConfig("scredis")) = new RedisConfig(config)
-  def apply(config: Config, path: String) = new RedisConfig(config, path)
+  def apply() = new RedisConfig()
+  def apply(config: Config) = new RedisConfig(config)
   def apply(configName: String) = new RedisConfig(configName)
   def apply(configName: String, path: String) = new RedisConfig(configName, path)
 }

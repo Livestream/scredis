@@ -60,7 +60,6 @@ abstract class Request[A](command: Command, args: Any*) {
   
   def argsCount: Int = args.size
   def isReadOnly: Boolean = command.isReadOnly
-  def isSubscriber: Boolean = command.isSubscriber
   
   override def toString = (command +: args).map {
     case bytes: Array[Byte] => UTF8StringReader.read(bytes)
