@@ -60,7 +60,17 @@ class IOActor(
   
   protected def connect(): Unit = if (!isConnecting) {
     logger.info(s"Connecting to $remote")
-    IO(Tcp) ! Connect(remote)
+    IO(Tcp) ! Connect(
+      remoteAddress = remote,
+      options = List[akka.io.Inet.SocketOption](
+        SO.KeepAlive(true),
+        SO.TcpNoDelay(true),
+        SO.ReuseAddress(true),
+        SO.SendBufferSize(500000),
+        SO.ReceiveBufferSize(500000)
+      ),
+      timeout = Some(2 seconds)
+    )
     isConnecting = true
     timeoutCancellableOpt = Some {
       scheduler.scheduleOnce(2 seconds, self, ConnectTimeout)
@@ -145,12 +155,10 @@ class IOActor(
       return
     }
     
-    var i = 0
     var length = 0
     val batch = ListBuffer[Request[_]]()
-    while (!requests.isEmpty && i < 5000) {
+    while (!requests.isEmpty && length < 50000) {
       batch += requests.pop()
-      i += 1
     }
     write(batch.toList)
   }
@@ -237,13 +245,13 @@ class IOActor(
       }
     }
     case CommandFailed(_: Connect) => {
-      logger.error(s"Could not connect to $remote")
+      logger.error(s"Could not connect to $remote: Command failed")
       failAllQueuedRequests(RedisIOException(s"Could not connect to $remote: Command failed"))
       timeoutCancellableOpt.foreach(_.cancel())
       isConnecting = false
     }
     case ConnectTimeout => {
-      logger.error(s"Connect Timeout")
+      logger.error(s"Could not connect to $remote: Connect timeout")
       failAllQueuedRequests(RedisIOException(s"Could not connect to $remote: Connect timeout"))
       isConnecting = false
     }
@@ -429,12 +437,7 @@ class IOActor(
     case Received(data) => println("RECEIVED")
     case WriteAck => println("WRITEACK")
     case CommandFailed(cmd: Write) => println("COMMANDFAILED")
-    case _: ConnectionClosed => {
-      logger.info(s"Connection has been reset")
-      timeoutCancellableOpt.foreach(_.cancel())
-      connect()
-      context.become(connecting)
-    }
+    case _: ConnectionClosed =>
     case Terminated(connection) => {
       logger.info(s"Connection has been reset")
       timeoutCancellableOpt.foreach(_.cancel())
