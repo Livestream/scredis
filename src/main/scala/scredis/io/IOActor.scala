@@ -66,7 +66,7 @@ class IOActor(
         SO.KeepAlive(true),
         SO.TcpNoDelay(true),
         SO.ReuseAddress(true),
-        SO.SendBufferSize(500000),
+        SO.SendBufferSize(5000000),
         SO.ReceiveBufferSize(500000)
       ),
       timeout = Some(2 seconds)
@@ -112,16 +112,17 @@ class IOActor(
     context.stop(self)
   }
   
-  protected def write(requests: Seq[Request[_]]): Unit = {
-    var length = 0
-    requests.foreach { request =>
-      request.encode()
-      length += {
-        request.encoded match {
-          case Left(bytes) => bytes.length
-          case Right(buffer) => buffer.remaining
-        }
-      }
+  protected def encode(request: Request[_]): Int = {
+    request.encode()
+    request.encoded match {
+      case Left(bytes) => bytes.length
+      case Right(buffer) => buffer.remaining
+    }
+  }
+  
+  protected def write(requests: Seq[Request[_]], lengthOpt: Option[Int] = None): Unit = {
+    val length = lengthOpt.getOrElse {
+      requests.foldLeft(0)((length, request) => length + encode(request))
     }
     val buffer = bufferPool.acquire(length)
     requests.foreach { r =>
@@ -158,9 +159,11 @@ class IOActor(
     var length = 0
     val batch = ListBuffer[Request[_]]()
     while (!requests.isEmpty && length < 50000) {
-      batch += requests.pop()
+      val request = requests.pop()
+      length += encode(request)
+      batch += request
     }
-    write(batch.toList)
+    write(batch.toList, Some(length))
   }
   
   protected def onConnect(): Unit = {
