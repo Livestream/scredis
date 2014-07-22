@@ -18,15 +18,11 @@ object Nio {
   
   private val range = (1 to 3000000).toList
   
-  private def run(target: ActorRef)(implicit ec: ExecutionContext): Long = {
+  private def run(client: Client)(implicit ec: ExecutionContext): Long = {
     println("START")
     
     val start = System.currentTimeMillis
-    val f = Future.traverse(range)(i => {
-      val req = Ping()
-      target ! req
-      req.future
-    })
+    val f = Future.traverse(range)(_ => client.ping())
     println("QUEUING DONE")
     Await.ready(
       f,
@@ -38,29 +34,17 @@ object Nio {
   }
   
   def main(args: Array[String]): Unit = {
-    val system = ActorSystem()
-    val ioActor = system.actorOf(
-      Props(classOf[IOActor], new InetSocketAddress("localhost", 6379), None, 0)
-        .withDispatcher("scredis.io-dispatcher")
-    )
-    val partitionerActor = system.actorOf(
-      Props(classOf[PartitionerActor], ioActor).withDispatcher("scredis.partitioner-dispatcher")
-    )
-    
-    ioActor ! partitionerActor
+    implicit val system = ActorSystem()
+    val client = Client()
     
     implicit val dispatcher: ExecutionContext = system.dispatcher
-    val target: ActorRef = partitionerActor
-    
-    
     
     // WARMUP
-    
-    run(target)
+    run(client)
     println("WARMUP complete")
     Thread.sleep(1000)
     
-    val times = List(run(target), run(target), run(target))
+    val times = List(run(client), run(client), run(client))
     val avg = times.foldLeft(0L)(_ + _) / times.size
     val rps = range.size.toFloat / avg * 1000
     println(s"AVG: $rps r/s")

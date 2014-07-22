@@ -33,27 +33,34 @@ abstract class Request[A](command: Command, args: Any*) {
   private[scredis] def complete(response: Response): Unit = {
     response match {
       case SimpleStringResponse("QUEUED") =>
-      case ErrorResponse(message) => promise.failure(RedisErrorResponseException(message))
+      case ErrorResponse(message) => failure(RedisErrorResponseException(message))
       case response => try {
-        promise.success(decode(response))
+        success(decode(response))
       } catch {
-        case e: RedisReaderException => promise.failure(e)
-        case e: Throwable => promise.failure(
+        case e: RedisReaderException => failure(e)
+        case e: Throwable => failure(
           RedisProtocolException(s"Unexpected response for request '$this': $response", e)
         )
       }
     }
-    Protocol.release()
   }
   
   private[scredis] def success(value: Any): Unit = {
-    promise.success(value.asInstanceOf[A])
-    Protocol.release()
+    try {
+      promise.success(value.asInstanceOf[A])
+      Protocol.release()
+    } catch {
+      case e: IllegalStateException =>
+    }
   }
   
   private[scredis] def failure(throwable: Throwable): Unit = {
-    promise.failure(throwable)
-    Protocol.release()
+    try {
+      promise.failure(throwable)
+      Protocol.release()
+    } catch {
+      case e: IllegalStateException =>
+    }
   }
   
   def decode: Decoder[A]

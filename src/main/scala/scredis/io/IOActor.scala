@@ -103,7 +103,7 @@ class IOActor(
     timeoutCancellableOpt = Some {
       scheduler.scheduleOnce(3 seconds, self, AbortTimeout)
     }
-    context.become(aborting)
+    become(aborting)
   }
   
   protected def stop(): Unit = {
@@ -142,9 +142,10 @@ class IOActor(
     canWrite = false
     incrementWriteId()
     this.batch = requests
+    /*
     timeoutCancellableOpt = Some {
       scheduler.scheduleOnce(2 seconds, self, WriteTimeout(writeId))
-    }
+    }*/
   }
   
   protected def write(): Unit = {
@@ -215,16 +216,26 @@ class IOActor(
   
   protected def all: Receive = PartialFunction.empty
   
+  protected def fail: Receive = {
+    case x => logger.error(s"Received unhandled message: $x")
+  }
+  
+  protected def become(state: Receive): Unit = context.become(all orElse state orElse fail)
+  
+  override def preStart(): Unit = {
+    become(receive)
+  }
+  
   def receive: Receive = {
     case partitionerActor: ActorRef => {
       this.partitionerActor = partitionerActor
       logger.trace(s"Connecting to $remote...")
       connect()
-      context.become(connecting)
+      become(connecting)
     }
   }
   
-  def connecting: Receive = all orElse {
+  def connecting: Receive = {
     case Connected(remote, local) => {
       logger.info(s"Connected to $remote")
       connection = sender
@@ -242,9 +253,9 @@ class IOActor(
         isAuthenticating = true
       }
       if (isClosing) {
-        context.become(closing)
+        become(closing)
       } else {
-        context.become(connected)
+        become(connected)
       }
     }
     case CommandFailed(_: Connect) => {
@@ -296,7 +307,7 @@ class IOActor(
     case PoisonPill => stop()
   }
   
-  def connected: Receive = all orElse {
+  def connected: Receive = {
     case request: Request[_] => {
       request match {
         case Auth(password) => if (password.isEmpty) {
@@ -314,7 +325,7 @@ class IOActor(
         case Quit() | Shutdown(_) => {
           isClosing = true
           requests.addLast(request)
-          context.become(closing)
+          become(closing)
         }
         case _  => requests.addLast(request)
       }
@@ -365,22 +376,21 @@ class IOActor(
     case _: ConnectionClosed => {
       logger.info(s"Connection has been closed by the server")
       connect()
-      context.become(connecting)
+      become(connecting)
     }
     case Terminated(connection) => {
       logger.info(s"Connection has been shutdown")
       connect()
-      context.become(connecting)
+      become(connecting)
     }
     case PoisonPill => {
       logger.info(s"Closing connection")
       connection ! Close
-      context.become(closing)
+      become(closing)
     }
-    case x => logger.error(s"Invalid message received from: $sender: $x")
   }
   
-  def closing: Receive = all orElse {
+  def closing: Receive = {
     case request: Request[_] => {
       request.failure(RedisIOException("Connection is being closed"))
       partitionerActor ! Remove(1)
@@ -436,7 +446,7 @@ class IOActor(
     case PoisonPill =>
   }
   
-  def aborting: Receive = all orElse {
+  def aborting: Receive = {
     case Received(data) => println("RECEIVED")
     case WriteAck => println("WRITEACK")
     case CommandFailed(cmd: Write) => println("COMMANDFAILED")
@@ -445,12 +455,11 @@ class IOActor(
       logger.info(s"Connection has been reset")
       timeoutCancellableOpt.foreach(_.cancel())
       connect()
-      context.become(connecting)
+      become(connecting)
     }
     case AbortTimeout => {
       logger.error(s"A timeout occurred while resetting the connection")
-      connect()
-      context.become(connecting)
+      context.stop(connection)
     }
     case request: Request[_] => if (isClosing) {
       request.failure(RedisIOException("Connection is closing"))
