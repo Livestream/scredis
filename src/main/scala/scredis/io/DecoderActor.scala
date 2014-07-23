@@ -17,7 +17,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 import java.nio.ByteBuffer
 
-class DecoderActor(ioActor: ActorRef) extends Actor with LazyLogging {
+class DecoderActor extends Actor with LazyLogging {
   
   import DecoderActor._
   
@@ -29,22 +29,33 @@ class DecoderActor(ioActor: ActorRef) extends Actor with LazyLogging {
   )
   
   def receive: Receive = {
-    case Partition(data, requests) => {
+    case Partition(data, requests, skip) => {
       val buffer = data.asByteBuffer
       val decode = decodeTimer.time()
+      
+      for (i <- 1 to skip) {
+        try {
+          Protocol.decode(buffer)
+        } catch {
+          case e: Throwable => logger.error("Could not decode response", e)
+        }
+      }
+      
       while (requests.hasNext) {
         val request = requests.next()
         try {
           val response = Protocol.decode(buffer)
           request.complete(response)
         } catch {
-          case e: Throwable => request.failure(
-            RedisProtocolException("Could not decode response", e)
-          )
+          case e: Throwable => {
+            logger.error("Could not decode response", e)
+            request.failure(RedisProtocolException("Could not decode response", e))
+          }
         }
         count += 1
         if (count % 100000 == 0) println(count)
       }
+      
       decode.stop()
     }
     case SubscribePartition(data) => {
@@ -54,20 +65,16 @@ class DecoderActor(ioActor: ActorRef) extends Actor with LazyLogging {
           val message = Protocol.decodePubSubResponse(Protocol.decode(buffer))
           message match {
             case m: PubSubMessage.Subscribe => {
-              ioActor ! m
-              sender ! PartitionerActor.Complete(m)
+              sender ! SubscriberListenerActor.Complete(m)
             }
             case m: PubSubMessage.PSubscribe => {
-              ioActor ! m
-              sender ! PartitionerActor.Complete(m)
+              sender ! SubscriberListenerActor.Complete(m)
             }
             case m: PubSubMessage.Unsubscribe => {
-              ioActor ! m
-              sender ! PartitionerActor.Complete(m)
+              sender ! SubscriberListenerActor.Complete(m)
             }
             case m: PubSubMessage.PUnsubscribe => {
-              ioActor ! m
-              sender ! PartitionerActor.Complete(m)
+              sender ! SubscriberListenerActor.Complete(m)
             }
             case _ =>
           }
@@ -97,7 +104,7 @@ class DecoderActor(ioActor: ActorRef) extends Actor with LazyLogging {
 }
 
 object DecoderActor {
-  case class Partition(data: ByteString, requests: Iterator[Request[_]])
+  case class Partition(data: ByteString, requests: Iterator[Request[_]], skip: Int)
   case class SubscribePartition(data: ByteString)
   case class Subscribe(subscription: Subscription)
 }

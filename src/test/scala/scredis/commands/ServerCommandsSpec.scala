@@ -89,7 +89,7 @@ class ServerCommandsSpec extends WordSpec
         client1.clientSetName("client1").futureValue should be (())
         client2.clientSetName("client2").futureValue should be (())
         client3.clientSetName("client3").futureValue should be (())
-        val clients = client1.clientList().!
+        val clients = client1.clientList().futureValue
         val client2Addr = clients.filter { map =>
           map("name") == "client2"
         }.head("addr")
@@ -103,7 +103,7 @@ class ServerCommandsSpec extends WordSpec
     "killing by ids" should {
       "succeed" taggedAs (V2812) in {
         client2.clientSetName("client2").futureValue should be (())
-        val clients = client1.clientList().!
+        val clients = client1.clientList().futureValue
         val client3Id = clients.filter { map =>
           map("name") == "client3"
         }.head("id").toInt
@@ -129,20 +129,20 @@ class ServerCommandsSpec extends WordSpec
   ClientList.toString when {
     "3 clients are connected" should {
       "list the 3 clients" taggedAs (V240) in {
-        client2.clientSetName("client2").!
-        client3.clientSetName("client3").!
+        client2.clientSetName("client2").futureValue should be (())
+        client3.clientSetName("client3").futureValue should be (())
         client1.clientList().futureValue should have size (3)
       }
     }
     "2 clients are connected" should {
       "list the 2 clients" taggedAs (V240) in {
-        client3.quit().!
+        client3.quit().futureValue should be (())
         client1.clientList().futureValue should have size (2)
       }
     }
     "no other clients are connected" should {
       "list the calling client" taggedAs (V240) in {
-        client2.quit().!
+        client2.quit().futureValue should be (())
         client1.clientList().futureValue should have size (1)
       }
     }

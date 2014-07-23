@@ -25,22 +25,17 @@ abstract class AkkaIOConnection(
   host: String,
   port: Int,
   passwordOpt: Option[String],
-  database: Int
+  database: Int,
+  decodersCount: Int = 3
 ) extends TransactionEnabledConnection with BlockingConnection with LazyLogging {
   
   @volatile private var isClosed = false
   
-  protected val ioActor = system.actorOf(
-    Props(
-      classOf[IOActor], new InetSocketAddress(host, port), passwordOpt, database
-    ).withDispatcher(
-      "scredis.io-dispatcher"
+  protected val listenerActor = system.actorOf(
+    Props(classOf[ListenerActor], host, port, passwordOpt, database, decodersCount).withDispatcher(
+      "scredis.listener-dispatcher"
     ),
-    Connection.getUniqueName(s"io-actor-$host-$port")
-  )
-  protected val partitionerActor = system.actorOf(
-    Props(classOf[PartitionerActor], ioActor).withDispatcher("scredis.partitioner-dispatcher"),
-    Connection.getUniqueName(s"partitioner-actor-$host-$port")
+    Connection.getUniqueName(s"listener-actor-$host-$port")
   )
   
   private val lock = new ReentrantReadWriteLock()
@@ -78,7 +73,7 @@ abstract class AkkaIOConnection(
         case _: Shutdown  => isClosed = true
         case _            =>
       }
-      partitionerActor ! request
+      listenerActor ! request
       request.future
     }
   }
@@ -90,7 +85,7 @@ abstract class AkkaIOConnection(
       Future.failed(RedisIOException("Connection has been closed"))
     } else {
       logger.debug(s"Sending transaction: $transaction")
-      partitionerActor ! transaction
+      listenerActor ! transaction
       transaction.future
     }
   }
@@ -99,10 +94,8 @@ abstract class AkkaIOConnection(
     implicit timeout: Duration
   ): A = withWriteLock {
     logger.debug(s"Sending blocking request: $request")
-    partitionerActor ! request
+    listenerActor ! request
     Await.result(request.future, timeout)
   }
-  
-  ioActor ! partitionerActor
   
 }

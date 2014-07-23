@@ -24,37 +24,34 @@ abstract class SubscriberAkkaIOConnection(
   host: String,
   port: Int,
   passwordOpt: Option[String],
-  database: Int
+  database: Int,
+  decodersCount: Int = 3
 ) extends SubscriberConnection with LazyLogging {
   
   import system.dispatcher
   
   @volatile private var isClosed = false
   
-  protected val ioActor = system.actorOf(
+  protected val listenerActor = system.actorOf(
     Props(
-      classOf[SubscriberIOActor], new InetSocketAddress(host, port), passwordOpt, database
+      classOf[SubscriberListenerActor], host, port, passwordOpt, database, decodersCount
     ).withDispatcher(
-      "scredis.io-dispatcher"
+      "scredis.listener-dispatcher"
     ),
-    Connection.getUniqueName(s"io-subscriber-actor-$host-$port")
-  )
-  protected val partitionerActor = system.actorOf(
-    Props(classOf[PartitionerActor], ioActor).withDispatcher("scredis.partitioner-dispatcher"),
-    Connection.getUniqueName(s"partitioner-actor-$host-$port")
+    Connection.getUniqueName(s"listener-actor-$host-$port")
   )
   
   override protected def sendAsSubscriber(request: Request[_]): Future[Int] = {
     if (isClosed) {
       Future.failed(RedisIOException("Connection has been closed"))
     } else {
-      partitionerActor ! request
+      listenerActor ! request
       request.future.asInstanceOf[Future[Int]]
     }
   }
   
   override protected def updateSubscription(subscription: Subscription): Unit = {
-    partitionerActor ! PartitionerActor.Subscribe(subscription)
+    listenerActor ! SubscriberListenerActor.Subscribe(subscription)
   }
   
   protected def close(): Future[Unit] = {
@@ -62,21 +59,18 @@ abstract class SubscriberAkkaIOConnection(
     val unsubscribe = Unsubscribe()
     val pUnsubscribe = PUnsubscribe()
     val quit = Quit()
-    partitionerActor ! unsubscribe
-    partitionerActor ! pUnsubscribe
+    listenerActor ! unsubscribe
+    listenerActor ! pUnsubscribe
     
     unsubscribe.future.andThen {
       case _ => pUnsubscribe.future.andThen {
         case _ => {
-          partitionerActor ! PartitionerActor.ResetPubSub
-          partitionerActor ! quit
+          listenerActor ! SubscriberListenerActor.Shutdown(quit)
         }
       }
     }
     
     quit.future
   }
-  
-  ioActor ! partitionerActor
   
 }

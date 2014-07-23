@@ -23,15 +23,14 @@ import java.util.LinkedList
 import java.net.InetSocketAddress
 
 class IOActor(
-  remote: InetSocketAddress, var passwordOpt: Option[String], var database: Int
+  listenerActor: ActorRef,
+  remote: InetSocketAddress
 ) extends Actor with LazyLogging {
   
   import Tcp._
   import IOActor._
   import context.system
   import context.dispatcher
-  
-  import PartitionerActor._
   
   private val scheduler = context.system.scheduler
   
@@ -48,7 +47,6 @@ class IOActor(
   
   protected val requests = new LinkedList[Request[_]]()
   protected var connection: ActorRef = _
-  protected var partitionerActor: ActorRef = _
   
   protected def incrementWriteId(): Unit = {
     if (writeId == Integer.MAX_VALUE) {
@@ -83,14 +81,14 @@ class IOActor(
     while (!requests.isEmpty) {
       requests.pop().failure(throwable)
     }
-    partitionerActor ! Remove(count)
+    listenerActor ! ListenerActor.Remove(count)
   }
   
   protected def failBatch(throwable: Throwable): Unit = {
     val count = batch.size
     batch.foreach(_.failure(throwable))
     batch = Nil
-    partitionerActor ! Remove(count)
+    listenerActor ! ListenerActor.Remove(count)
   }
   
   protected def requeueBatch(): Unit = {
@@ -98,17 +96,14 @@ class IOActor(
     batch = Nil
   }
   
-  protected def abortAndReconnect(): Unit = {
-    connection ! Abort
-    timeoutCancellableOpt = Some {
-      scheduler.scheduleOnce(3 seconds, self, AbortTimeout)
-    }
-    become(aborting)
+  protected def abort(): Unit = {
+    listenerActor ! ListenerActor.Abort
+    become(awaitingAbort)
   }
   
   protected def stop(): Unit = {
     logger.trace("Stopping Actor...")
-    partitionerActor ! PoisonPill
+    //listenerActor ! PoisonPill
     context.stop(self)
   }
   
@@ -125,8 +120,8 @@ class IOActor(
       requests.foldLeft(0)((length, request) => length + encode(request))
     }
     val buffer = bufferPool.acquire(length)
-    requests.foreach { r =>
-      r.encoded match {
+    requests.foreach { request =>
+      request.encoded match {
         case Left(bytes) => buffer.put(bytes)
         case Right(buff) => {
           buffer.put(buff)
@@ -167,265 +162,78 @@ class IOActor(
     write(batch.toList, Some(length))
   }
   
-  protected def onConnect(): Unit = {
-    val authRequestOpt = passwordOpt.map { password =>
-      Auth(password)
-    }
-    val selectRequestOpt = if (database > 0) {
-      Some(Select(database))
-    } else {
-      None
-    }
-    
-    val authFuture = authRequestOpt match {
-      case Some(request) => request.future
-      case None => Future.successful(())
-    }
-    val selectFuture = selectRequestOpt match {
-      case Some(request) => request.future
-      case None => Future.successful(())
-    }
-    
-    (authRequestOpt, selectRequestOpt) match {
-      case (Some(auth), Some(select)) => {
-        partitionerActor ! PartitionerActor.Push(select)
-        partitionerActor ! PartitionerActor.Push(auth)
-        write(Seq(auth, select))
-      }
-      case (Some(auth), None) => {
-        partitionerActor ! PartitionerActor.Push(auth)
-        write(Seq(auth))
-      }
-      case (None, Some(select)) => {
-        partitionerActor ! PartitionerActor.Push(select)
-        write(Seq(select))
-      }
-      case (None, None) =>
-    }
-    
-    authFuture.andThen {
-      case Success(_) => selectFuture.andThen {
-        case Success(_) =>
-        case Failure(e) => logger.error(s"Could not select database '$database' in $remote", e)
-      }
-      case Failure(e) => logger.error(s"Could not authenticate to $remote", e)
+  protected def always: Receive = {
+    case Terminated(_) => {
+      failAllQueuedRequests(RedisIOException("Connection has been shutdown"))
+      listenerActor ! ListenerActor.Shutdown
+      become(awaitingShutdown)
     }
   }
-  
-  protected def onAuthAndSelect(): Unit = ()
-  
-  protected def all: Receive = PartialFunction.empty
   
   protected def fail: Receive = {
     case x => logger.error(s"Received unhandled message: $x")
   }
   
-  protected def become(state: Receive): Unit = context.become(all orElse state orElse fail)
+  protected def become(state: Receive): Unit = context.become(always orElse state orElse fail)
   
   override def preStart(): Unit = {
-    become(receive)
+    connect()
+    become(connecting)
   }
   
-  def receive: Receive = {
-    case partitionerActor: ActorRef => {
-      this.partitionerActor = partitionerActor
-      logger.trace(s"Connecting to $remote...")
-      connect()
-      become(connecting)
-    }
-  }
+  def receive: Receive = fail
   
   def connecting: Receive = {
     case Connected(remote, local) => {
       logger.info(s"Connected to $remote")
       connection = sender
-      connection ! Register(self)
+      connection ! Register(listenerActor)
+      listenerActor ! ListenerActor.Connected
       context.watch(connection)
       timeoutCancellableOpt.foreach(_.cancel())
       isConnecting = false
       canWrite = true
       retries = 0
       requeueBatch()
-      onConnect()
-      if (canWrite) {
-        write()
-      } else {
-        isAuthenticating = true
-      }
-      if (isClosing) {
-        become(closing)
-      } else {
-        become(connected)
-      }
+      write()
+      become(connected)
     }
     case CommandFailed(_: Connect) => {
       logger.error(s"Could not connect to $remote: Command failed")
       failAllQueuedRequests(RedisIOException(s"Could not connect to $remote: Command failed"))
       timeoutCancellableOpt.foreach(_.cancel())
-      isConnecting = false
+      context.stop(self)
     }
     case ConnectTimeout => {
       logger.error(s"Could not connect to $remote: Connect timeout")
       failAllQueuedRequests(RedisIOException(s"Could not connect to $remote: Connect timeout"))
-      isConnecting = false
+      context.stop(self)
     }
-    case request @ Quit() => {
-      request.success(())
-      partitionerActor ! Remove(1)
-      failAllQueuedRequests(RedisIOException(s"Connection has been closed with QUIT command"))
-      stop()
-    }
-    case request @ Shutdown(_) => {
-      request.success(())
-      partitionerActor ! Remove(1)
-      failAllQueuedRequests(RedisIOException(s"Connection has been closed with SHUTDOWN command"))
-      stop()
-    }
-    case request: Request[_] => {
-      request match {
-        case Auth(password) => if (password.isEmpty) {
-          passwordOpt = None
-          request.success(())
-          partitionerActor ! Remove(1)
-        } else {
-          passwordOpt = Some(password)
-          requests.addLast(request)
-        }
-        case Select(database) => {
-          this.database = database
-          requests.addLast(request)
-        }
-        case _  => requests.addLast(request)
-      }
-      if (!isConnecting) {
-        connect()
-      }
-    }
-    case Terminated(connection) => {
-      logger.info(s"Connection has been shutdown")
-    }
-    case PoisonPill => stop()
   }
   
   def connected: Receive = {
     case request: Request[_] => {
-      request match {
-        case Auth(password) => if (password.isEmpty) {
-          passwordOpt = None
-          request.success(())
-          partitionerActor ! Remove(1)
-        } else {
-          passwordOpt = Some(password)
-          requests.addLast(request)
-        }
-        case Select(database) => {
-          this.database = database
-          requests.addLast(request)
-        }
-        case Quit() | Shutdown(_) => {
-          isClosing = true
-          requests.addLast(request)
-          become(closing)
-        }
-        case _  => requests.addLast(request)
-      }
-      if (!isAuthenticating && canWrite) {
+      requests.addLast(request)
+      if (canWrite) {
         write()
-      }
-    }
-    case Received(data) => {
-      logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
-      partitionerActor ! data
-      if (isAuthenticating) {
-        onAuthAndSelect()
-        isAuthenticating = false
-        if (canWrite) {
-          write()
-        }
       }
     }
     case WriteAck => {
       batch = Nil
       retries = 0
       timeoutCancellableOpt.foreach(_.cancel())
-      if (isAuthenticating) {
-        canWrite = true
-      } else {
-        write()
-      }
+      write()
     }
     case WriteTimeout(writeId) => if (writeId == this.writeId) {
-      failBatch(RedisIOException("Write timeout"))
-      abortAndReconnect()
-    }
-    case CommandFailed(cmd @ Write(x, _)) => {
-      logger.error(s"Command failed: $cmd")
-      timeoutCancellableOpt.foreach(_.cancel())
-      if (retries >= 2) {
-        failBatch(RedisIOException("Could not send requests"))
-        abortAndReconnect()
-      } else {
-        retries += 1
-        if (isAuthenticating) {
-          canWrite = true
-        } else {
-          write()
-        }
-      }
-    }
-    case _: ConnectionClosed => {
-      logger.info(s"Connection has been closed by the server")
-      connect()
-      become(connecting)
-    }
-    case Terminated(connection) => {
-      logger.info(s"Connection has been shutdown")
-      connect()
-      become(connecting)
-    }
-    case PoisonPill => {
-      logger.info(s"Closing connection")
-      connection ! Close
-      become(closing)
-    }
-  }
-  
-  def closing: Receive = {
-    case request: Request[_] => {
-      request.failure(RedisIOException("Connection is being closed"))
-      partitionerActor ! Remove(1)
-    }
-    case Received(data) => {
-      logger.trace(s"Received data: ${data.decodeString("UTF-8")}")
-      partitionerActor ! data
-      if (isAuthenticating) {
-        onAuthAndSelect()
-        isAuthenticating = false
-        if (canWrite) {
-          write()
-        }
-      }
-    }
-    case WriteAck => {
-      retries = 0
-      batch = Nil
-      timeoutCancellableOpt.foreach(_.cancel())
-      if (isAuthenticating) {
-        canWrite = true
-      } else {
-        write()
-      }
-    }
-    case WriteTimeout(writeId) => if (writeId == this.writeId) {
-      failBatch(RedisIOException("Write timeout"))
-      abortAndReconnect()
+      failAllQueuedRequests(RedisIOException(s"Write timeout"))
+      abort()
     }
     case CommandFailed(cmd: Write) => {
       logger.error(s"Command failed: $cmd")
       timeoutCancellableOpt.foreach(_.cancel())
       if (retries >= 2) {
-        failBatch(RedisIOException("Could not send requests"))
-        abortAndReconnect()
+        failAllQueuedRequests(RedisIOException(s"Write failed"))
+        abort()
       } else {
         retries += 1
         if (isAuthenticating) {
@@ -435,57 +243,46 @@ class IOActor(
         }
       }
     }
-    case _: ConnectionClosed => {
-      logger.info(s"Connection has been closed")
-      stop()
+  }
+  
+  def awaitingShutdown: Receive = {
+    case request: Request[_] => {
+      request.failure(RedisIOException("Connection is beeing shutdown"))
+      listenerActor ! ListenerActor.Remove(1)
     }
-    case Terminated(connection) => {
-      logger.info(s"Connection has been shutdown")
-      stop()
+    case WriteAck =>
+    case CommandFailed(cmd: Write) =>
+    case ShutdownAck => context.stop(self)
+  }
+  
+  def awaitingAbort: Receive = {
+    case request: Request[_] => {
+      request.failure(RedisIOException("Connection is beeing reset"))
+      listenerActor ! ListenerActor.Remove(1)
     }
-    case PoisonPill =>
+    case WriteAck =>
+    case CommandFailed(cmd: Write) =>
+    case AbortAck => {
+      connection ! Abort
+      timeoutCancellableOpt = Some {
+        scheduler.scheduleOnce(3 seconds, self, AbortTimeout)
+      }
+      become(aborting)
+    }
   }
   
   def aborting: Receive = {
-    case Received(data) => println("RECEIVED")
-    case WriteAck => println("WRITEACK")
-    case CommandFailed(cmd: Write) => println("COMMANDFAILED")
-    case _: ConnectionClosed =>
+    case WriteAck =>
+    case CommandFailed(cmd: Write) =>
     case Terminated(connection) => {
       logger.info(s"Connection has been reset")
       timeoutCancellableOpt.foreach(_.cancel())
-      connect()
-      become(connecting)
+      context.stop(self)
     }
     case AbortTimeout => {
       logger.error(s"A timeout occurred while resetting the connection")
       context.stop(connection)
     }
-    case request: Request[_] => if (isClosing) {
-      request.failure(RedisIOException("Connection is closing"))
-      partitionerActor ! Remove(1)
-    } else {
-      request match {
-        case Auth(password) => if (password.isEmpty) {
-          passwordOpt = None
-          request.success(())
-          partitionerActor ! Remove(1)
-        } else {
-          passwordOpt = Some(password)
-          requests.addLast(request)
-        }
-        case Select(database) => {
-          this.database = database
-          requests.addLast(request)
-        }
-        case Quit() | Shutdown(_) => {
-          isClosing = true
-          requests.addLast(request)
-        }
-        case _ => requests.addLast(request)
-      }
-    }
-    case PoisonPill => isClosing = true
   }
   
 }
@@ -495,4 +292,6 @@ object IOActor {
   case object ConnectTimeout
   case class WriteTimeout(writeId: Int)
   case object AbortTimeout
+  case object AbortAck
+  case object ShutdownAck
 }
