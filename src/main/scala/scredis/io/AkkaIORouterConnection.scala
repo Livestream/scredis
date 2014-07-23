@@ -3,6 +3,7 @@ package scredis.io
 import com.typesafe.scalalogging.slf4j.LazyLogging
 
 import akka.actor._
+import akka.routing._
 
 import scredis.Transaction
 import scredis.exceptions._
@@ -14,13 +15,10 @@ import scala.util.Try
 import scala.concurrent.{ ExecutionContext, Future, Await }
 import scala.concurrent.duration._
 
-import java.net.InetSocketAddress
-import java.util.concurrent.locks.ReentrantReadWriteLock
-
 /**
  * This trait represents a connection to a `Redis` server.
  */
-abstract class AkkaIOConnection(
+abstract class AkkaIORouterConnection(
   system: ActorSystem,
   host: String,
   port: Int,
@@ -28,51 +26,30 @@ abstract class AkkaIOConnection(
   database: Int,
   decodersCount: Int = 3,
   receiveTimeout: FiniteDuration = 5 seconds
-) extends TransactionEnabledConnection with BlockingConnection with LazyLogging {
+) extends TransactionEnabledConnection with LazyLogging {
   
   @volatile private var isClosed = false
   
-  private val lock = new ReentrantReadWriteLock()
-  
-  protected implicit val listenerActor = system.actorOf(
-    Props(
-      classOf[ListenerActor],
-      host,
-      port,
-      passwordOpt,
-      database,
-      decodersCount,
-      receiveTimeout
-    ).withDispatcher(
-      "scredis.akka.listener-dispatcher"
+  protected implicit val listeners = system.actorOf(
+    RoundRobinPool(2).props(
+      Props(
+        classOf[ListenerActor],
+        host,
+        port,
+        passwordOpt,
+        database,
+        decodersCount,
+        receiveTimeout
+      ).withDispatcher(
+        "scredis.akka.listener-dispatcher"
+      )
     ),
     Connection.getUniqueName(s"listener-actor-$host-$port")
   )
   
   override protected implicit val ec = system.dispatcher
   
-  private def withReadLock[A](f: => Future[A]): Future[A] = {
-    if (lock.readLock.tryLock) {
-      try {
-        f
-      } finally {
-        lock.readLock.unlock()
-      }
-    } else {
-      Future.failed(RedisIOException("Trying to send request on a blocked connection"))
-    }
-  }
-  
-  private def withWriteLock[A](f: => A): A = {
-    lock.writeLock.lock()
-    try {
-      f
-    } finally {
-      lock.writeLock.unlock()
-    }
-  }
-  
-  override protected def send[A](request: Request[A]): Future[A] = withReadLock {
+  override protected def send[A](request: Request[A]): Future[A] = {
     if (isClosed) {
       Future.failed(RedisIOException("Connection has been closed"))
     } else {
@@ -88,21 +65,13 @@ abstract class AkkaIOConnection(
   
   override protected def sendTransaction(
     transaction: Transaction
-  ): Future[Vector[Try[Any]]] = withReadLock {
+  ): Future[Vector[Try[Any]]] = {
     if (isClosed) {
       Future.failed(RedisIOException("Connection has been closed"))
     } else {
       logger.debug(s"Sending transaction: $transaction")
       Protocol.send(transaction)
     }
-  }
-  
-  override protected def sendBlocking[A](request: Request[A])(
-    implicit timeout: Duration
-  ): A = withWriteLock {
-    logger.debug(s"Sending blocking request: $request")
-    listenerActor ! request
-    Await.result(request.future, timeout)
   }
   
 }

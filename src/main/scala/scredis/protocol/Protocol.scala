@@ -55,7 +55,7 @@ object Protocol {
   private val CrLf = "\r\n".getBytes(Encoding)
   private val CrLfLength = CrLf.length
   
-  private val bufferPool = new BufferPool(50000)
+  private val bufferPool = new BufferPool(30500)
   private val concurrentOpt: Option[(Semaphore, Boolean)] = Some(new Semaphore(30000), true)
   
   private def aquire(count: Int = 1): Unit = concurrentOpt.foreach {

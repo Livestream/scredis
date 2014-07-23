@@ -43,7 +43,7 @@ abstract class SubscriberAkkaIOConnection(
       decodersCount,
       receiveTimeout
     ).withDispatcher(
-      "scredis.listener-dispatcher"
+      "scredis.akka.listener-dispatcher"
     ),
     Connection.getUniqueName(s"listener-actor-$host-$port")
   )

@@ -60,14 +60,14 @@ class ListenerActor(
   protected var decoders: Router = _
   
   private def createIOActor(): ActorRef = context.actorOf(
-    Props(classOf[IOActor], self, remote).withDispatcher("scredis.io-dispatcher"),
+    Props(classOf[IOActor], self, remote).withDispatcher("scredis.akka.io-dispatcher"),
     Connection.getUniqueName(s"io-actor-$host-$port")
   )
   
   private def createDecodersRouter(): Router = {
     val routees = Vector.fill(decodersCount) {
       val ref = context.actorOf(
-        Props(classOf[DecoderActor]).withDispatcher("scredis.decoder-dispatcher")
+        Props(classOf[DecoderActor]).withDispatcher("scredis.akka.decoder-dispatcher")
       )
       context.watch(ref)
       ActorRefRoutee(ref)
