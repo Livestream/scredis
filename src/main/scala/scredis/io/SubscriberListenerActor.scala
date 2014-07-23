@@ -11,12 +11,18 @@ import scredis.protocol.requests.PubSubRequests
 import scredis.exceptions.RedisIOException
 
 import scala.collection.mutable.{ HashSet => MHashSet }
+import scala.concurrent.duration._
 
 import java.net.InetSocketAddress
 
 class SubscriberListenerActor(
-  host: String, port: Int, passwordOpt: Option[String], database: Int, decodersCount: Int
-) extends ListenerActor(host, port, passwordOpt, database, decodersCount) {
+  host: String,
+  port: Int,
+  passwordOpt: Option[String],
+  database: Int,
+  decodersCount: Int,
+  receiveTimeout: FiniteDuration
+) extends ListenerActor(host, port, passwordOpt, database, decodersCount, receiveTimeout) {
   
   import SubscriberListenerActor._
   

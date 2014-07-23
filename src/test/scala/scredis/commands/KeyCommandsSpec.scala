@@ -162,11 +162,11 @@ class KeyCommandsSpec extends WordSpec
     }
     "the key exists" should {
       "return true and the target key should expire after the ttl" taggedAs (V120) in {
-        val unixTimestamp = (System.currentTimeMillis / 1000) + 1
+        val unixTimestamp = (System.currentTimeMillis / 1000) + 2
         client.set("TO-EXPIRE", "HEY")
         client.expireAt("TO-EXPIRE", unixTimestamp).futureValue should be (true)
         client.get("TO-EXPIRE").futureValue should be (defined)
-        Thread.sleep(1050)
+        Thread.sleep(2050)
         client.get("TO-EXPIRE").futureValue should be (empty)
       }
     }

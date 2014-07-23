@@ -22,7 +22,13 @@ object Nio {
     println("START")
     
     val start = System.currentTimeMillis
-    val f = Future.traverse(range)(_ => client.ping())
+    val f = Future.traverse(range) { i =>
+      if (i % 2 == 0) {
+        client.ping()
+      } else {
+        client.get("key")
+      }
+    }
     println("QUEUING DONE")
     Await.ready(
       f,

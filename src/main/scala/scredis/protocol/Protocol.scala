@@ -6,7 +6,7 @@ import com.codahale.metrics._
 import akka.actor.ActorRef
 import akka.util.ByteString
 
-import scredis.PubSubMessage
+import scredis._
 import scredis.exceptions._
 import scredis.serialization.UTF8StringReader
 import scredis.util.BufferPool
@@ -58,9 +58,9 @@ object Protocol {
   private val bufferPool = new BufferPool(50000)
   private val concurrentOpt: Option[(Semaphore, Boolean)] = Some(new Semaphore(30000), true)
   
-  private def aquire(): Unit = concurrentOpt.foreach {
-    case (semaphore, true) => semaphore.acquire()
-    case (semaphore, false) => if (!semaphore.tryAcquire()) {
+  private def aquire(count: Int = 1): Unit = concurrentOpt.foreach {
+    case (semaphore, true) => semaphore.acquire(count)
+    case (semaphore, false) => if (!semaphore.tryAcquire(count)) {
       throw new Exception("Busy")
     }
   }
@@ -329,10 +329,20 @@ object Protocol {
     case x => throw RedisProtocolException(s"Invalid PubSubResponse received: $x")
   }
   
-  private[scredis] def send[A](request: Request[A])(implicit targetActor: ActorRef): Future[A] = {
+  private[scredis] def send[A](request: Request[A])(
+    implicit listenerActor: ActorRef
+  ): Future[A] = {
     aquire()
-    targetActor ! request
+    listenerActor ! request
     request.future
+  }
+  
+  private[scredis] def send[A](transaction: Transaction)(
+    implicit listenerActor: ActorRef
+  ): Future[Vector[Try[Any]]] = {
+    aquire(1 + transaction.requests.size)
+    listenerActor ! transaction
+    transaction.execRequest.future
   }
   
   reporter.start()

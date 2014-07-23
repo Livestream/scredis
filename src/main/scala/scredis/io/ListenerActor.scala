@@ -30,12 +30,20 @@ class ListenerActor(
   port: Int,
   var passwordOpt: Option[String],
   var database: Int,
-  var decodersCount: Int
+  var decodersCount: Int,
+  receiveTimeout: FiniteDuration
 ) extends Actor with LazyLogging {
   
   import context.dispatcher
   
   import ListenerActor._
+  
+  override val supervisorStrategy = OneForOneStrategy() {
+    case e: Exception => {
+      e.printStackTrace()
+      SupervisorStrategy.Stop
+    }
+  }
   
   private val remote = new InetSocketAddress(host, port)
   
@@ -43,6 +51,8 @@ class ListenerActor(
   private var initializationRequestsCount = 0
   private var isConnecting = false
   private var isShuttingDown = false
+  private var isReceiveTimeout = false
+  private var timeoutCancellableOpt: Option[Cancellable] = None
   
   protected val queuedRequests = new LinkedList[Request[_]]()
   protected val requests = new LinkedList[Request[_]]()
@@ -66,6 +76,11 @@ class ListenerActor(
   }
   
   protected def doSend(request: Request[_]): Unit = {
+    if (timeoutCancellableOpt.isEmpty) {
+      timeoutCancellableOpt = Some {
+        context.system.scheduler.scheduleOnce(receiveTimeout, self, ReceiveTimeout)
+      }
+    }
     requests.addLast(request)
     ioActor ! request
   }
@@ -132,6 +147,9 @@ class ListenerActor(
   
   protected def receive(data: ByteString): Int = {
     logger.debug(s"Received data: ${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}")
+    
+    timeoutCancellableOpt.foreach(_.cancel())
+    timeoutCancellableOpt = None
     
     val completedData = remainingByteStringOpt match {
       case Some(remains) => {
@@ -205,10 +223,19 @@ class ListenerActor(
   protected def become(state: Receive): Unit = context.become(state orElse always orElse unhandled)
   
   protected def reconnect(): Unit = {
-    isConnecting = true
     ioActor = createIOActor()
     context.watch(ioActor)
+    isConnecting = true
+    isReceiveTimeout = false
     become(connecting)
+  }
+  
+  protected def handleReceiveTimeout(): Unit = {
+    logger.error("Receive timeout")
+    isReceiveTimeout = true
+    timeoutCancellableOpt = None
+    ioActor ! IOActor.Shutdown
+    become(reconnecting)
   }
   
   protected def onConnect(): Unit = ()
@@ -223,7 +250,6 @@ class ListenerActor(
     ioActor = createIOActor()
     decoders = createDecodersRouter()
     context.watch(ioActor)
-    //context.system.eventStream.subscribe(self, classOf[DeadLetter])
     isConnecting = true
     become(connecting)
   }
@@ -311,6 +337,7 @@ class ListenerActor(
         case Failure(e) => logger.error(s"Could not authenticate to $remote", e)
       }
     }
+    case ReceiveTimeout =>
     case Terminated(_) => {
       isConnecting = false
       failAllQueuedRequests(RedisIOException(s"Could not connect to $remote"))
@@ -331,26 +358,42 @@ class ListenerActor(
         }
       }
     }
+    case ReceiveTimeout => handleReceiveTimeout()
     case Terminated(_) => {
+      logger.error(s"Could not initialize connection to $remote")
       failAllQueuedRequests(RedisIOException(s"Could not initialize connection to $remote"))
-      become(connecting)
+      reconnect()
     }
   }
   
   def initialized: Receive = send orElse {
     case Tcp.Received(data) => receive(data)
-    case Terminated(_) => become(connecting)
+    case ReceiveTimeout => handleReceiveTimeout()
+    case Terminated(_) => {
+      logger.info("Connection has been shutdown abruptly")
+      failAllSentRequests(RedisIOException("Connection has been shutdown abruptly"))
+      reconnect()
+    }
   }
   
   def reconnecting: Receive = queue orElse {
+    case Tcp.Received(_) =>
+    case ReceiveTimeout =>
     case Terminated(_) => {
-      logger.info("Connection has been shutdown abruptly. Reconnecting.")
+      if (isReceiveTimeout) {
+        logger.info(s"Connection has been reset due to receive timeout")
+        failAllSentRequests(RedisIOException("Receive timeout"))
+      } else {
+        logger.info(s"Connection has been shutdown abruptly")
+        failAllSentRequests(RedisIOException("Connection has been shutdown abruptly"))
+      }
       reconnect()
     }
   }
   
   def shuttingDown: Receive = fail orElse {
     case Tcp.Received(data) => receive(data)
+    case ReceiveTimeout => handleReceiveTimeout()
     case Shutdown => ioActor ! IOActor.ShutdownAck
     case Terminated(_) => shutdown()
   }

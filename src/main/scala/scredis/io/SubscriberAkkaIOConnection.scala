@@ -25,7 +25,8 @@ abstract class SubscriberAkkaIOConnection(
   port: Int,
   passwordOpt: Option[String],
   database: Int,
-  decodersCount: Int = 3
+  decodersCount: Int = 3,
+  receiveTimeout: FiniteDuration = 5 seconds
 ) extends SubscriberConnection with LazyLogging {
   
   import system.dispatcher
@@ -34,7 +35,13 @@ abstract class SubscriberAkkaIOConnection(
   
   protected val listenerActor = system.actorOf(
     Props(
-      classOf[SubscriberListenerActor], host, port, passwordOpt, database, decodersCount
+      classOf[SubscriberListenerActor],
+      host,
+      port,
+      passwordOpt,
+      database,
+      decodersCount,
+      receiveTimeout
     ).withDispatcher(
       "scredis.listener-dispatcher"
     ),

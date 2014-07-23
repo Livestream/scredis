@@ -9,9 +9,6 @@ import akka.util.ByteString
 import akka.event.LoggingReceive
 
 import scredis.protocol.{ Protocol, Request }
-import scredis.protocol.requests.ConnectionRequests.{ Auth, Select, Quit }
-import scredis.protocol.requests.ServerRequests.Shutdown
-import scredis.protocol.requests.PubSubRequests.{ Subscribe => SubscribeRequest, PSubscribe }
 import scredis.exceptions.RedisIOException
 
 import scala.util.{ Success, Failure }
@@ -37,26 +34,13 @@ class IOActor(
   private val bufferPool = new scredis.util.BufferPool(1)
   
   private var batch: Seq[Request[_]] = Nil
-  private var writeId = 0
-  private var retries = 0
   private var canWrite = false
-  private var isConnecting: Boolean = false
-  private var isAuthenticating = false
-  private var isClosing: Boolean = false
   private var timeoutCancellableOpt: Option[Cancellable] = None
   
   protected val requests = new LinkedList[Request[_]]()
   protected var connection: ActorRef = _
   
-  protected def incrementWriteId(): Unit = {
-    if (writeId == Integer.MAX_VALUE) {
-      writeId = 1
-    } else {
-      writeId += 1
-    }
-  }
-  
-  protected def connect(): Unit = if (!isConnecting) {
+  protected def connect(): Unit = {
     logger.info(s"Connecting to $remote")
     IO(Tcp) ! Connect(
       remoteAddress = remote,
@@ -69,26 +53,9 @@ class IOActor(
       ),
       timeout = Some(2 seconds)
     )
-    isConnecting = true
     timeoutCancellableOpt = Some {
       scheduler.scheduleOnce(2 seconds, self, ConnectTimeout)
     }
-  }
-  
-  protected def failAllQueuedRequests(throwable: Throwable): Unit = {
-    requeueBatch()
-    val count = requests.size
-    while (!requests.isEmpty) {
-      requests.pop().failure(throwable)
-    }
-    listenerActor ! ListenerActor.Remove(count)
-  }
-  
-  protected def failBatch(throwable: Throwable): Unit = {
-    val count = batch.size
-    batch.foreach(_.failure(throwable))
-    batch = Nil
-    listenerActor ! ListenerActor.Remove(count)
   }
   
   protected def requeueBatch(): Unit = {
@@ -135,12 +102,7 @@ class IOActor(
     connection ! Write(data, WriteAck)
     bufferPool.release(buffer)
     canWrite = false
-    incrementWriteId()
     this.batch = requests
-    /*
-    timeoutCancellableOpt = Some {
-      scheduler.scheduleOnce(2 seconds, self, WriteTimeout(writeId))
-    }*/
   }
   
   protected def write(): Unit = {
@@ -163,8 +125,8 @@ class IOActor(
   }
   
   protected def always: Receive = {
+    case Shutdown => abort()
     case Terminated(_) => {
-      failAllQueuedRequests(RedisIOException("Connection has been shutdown"))
       listenerActor ! ListenerActor.Shutdown
       become(awaitingShutdown)
     }
@@ -174,7 +136,7 @@ class IOActor(
     case x => logger.error(s"Received unhandled message: $x")
   }
   
-  protected def become(state: Receive): Unit = context.become(always orElse state orElse fail)
+  protected def become(state: Receive): Unit = context.become(state orElse always orElse fail)
   
   override def preStart(): Unit = {
     connect()
@@ -188,25 +150,21 @@ class IOActor(
       logger.info(s"Connected to $remote")
       connection = sender
       connection ! Register(listenerActor)
-      listenerActor ! ListenerActor.Connected
       context.watch(connection)
+      listenerActor ! ListenerActor.Connected
       timeoutCancellableOpt.foreach(_.cancel())
-      isConnecting = false
       canWrite = true
-      retries = 0
       requeueBatch()
       write()
       become(connected)
     }
     case CommandFailed(_: Connect) => {
       logger.error(s"Could not connect to $remote: Command failed")
-      failAllQueuedRequests(RedisIOException(s"Could not connect to $remote: Command failed"))
       timeoutCancellableOpt.foreach(_.cancel())
       context.stop(self)
     }
     case ConnectTimeout => {
       logger.error(s"Could not connect to $remote: Connect timeout")
-      failAllQueuedRequests(RedisIOException(s"Could not connect to $remote: Connect timeout"))
       context.stop(self)
     }
   }
@@ -220,28 +178,11 @@ class IOActor(
     }
     case WriteAck => {
       batch = Nil
-      retries = 0
-      timeoutCancellableOpt.foreach(_.cancel())
       write()
     }
-    case WriteTimeout(writeId) => if (writeId == this.writeId) {
-      failAllQueuedRequests(RedisIOException(s"Write timeout"))
-      abort()
-    }
-    case CommandFailed(cmd: Write) => {
-      logger.error(s"Command failed: $cmd")
-      timeoutCancellableOpt.foreach(_.cancel())
-      if (retries >= 2) {
-        failAllQueuedRequests(RedisIOException(s"Write failed"))
-        abort()
-      } else {
-        retries += 1
-        if (isAuthenticating) {
-          canWrite = true
-        } else {
-          write()
-        }
-      }
+    case CommandFailed(_: Write) => {
+      logger.error(s"Write failed")
+      write()
     }
   }
   
@@ -251,7 +192,7 @@ class IOActor(
       listenerActor ! ListenerActor.Remove(1)
     }
     case WriteAck =>
-    case CommandFailed(cmd: Write) =>
+    case CommandFailed(_: Write) =>
     case ShutdownAck => context.stop(self)
   }
   
@@ -261,7 +202,7 @@ class IOActor(
       listenerActor ! ListenerActor.Remove(1)
     }
     case WriteAck =>
-    case CommandFailed(cmd: Write) =>
+    case CommandFailed(_: Write) =>
     case AbortAck => {
       connection ! Abort
       timeoutCancellableOpt = Some {
@@ -273,9 +214,9 @@ class IOActor(
   
   def aborting: Receive = {
     case WriteAck =>
-    case CommandFailed(cmd: Write) =>
-    case Terminated(connection) => {
-      logger.info(s"Connection has been reset")
+    case CommandFailed(_: Write) =>
+    case Aborted =>
+    case Terminated(_) => {
       timeoutCancellableOpt.foreach(_.cancel())
       context.stop(self)
     }
@@ -290,8 +231,8 @@ class IOActor(
 object IOActor {
   object WriteAck extends Tcp.Event
   case object ConnectTimeout
-  case class WriteTimeout(writeId: Int)
   case object AbortTimeout
   case object AbortAck
   case object ShutdownAck
+  case object Shutdown
 }
