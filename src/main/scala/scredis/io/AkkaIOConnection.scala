@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
  * This trait represents a connection to a `Redis` server.
  */
 abstract class AkkaIOConnection(
-  system: ActorSystem,
+  protected val system: ActorSystem,
   host: String,
   port: Int,
   passwordOpt: Option[String],

@@ -5,7 +5,7 @@ import com.typesafe.config.Config
 import akka.actor._
 import akka.routing._
 
-import scredis.io.AkkaIORouterConnection
+import scredis.io.AkkaIOConnection
 import scredis.commands._
 
 import scala.concurrent.duration._
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
  * @define redis [[scredis.Redis]]
  * @define tc com.typesafe.Config
  */
-final class Redis(protected val config: RedisConfig) extends AkkaIORouterConnection(
+final class Redis(protected val config: RedisConfig) extends AkkaIOConnection(
   ActorSystem(),
   host = config.Client.Host,
   port = config.Client.Port,
@@ -23,7 +23,37 @@ final class Redis(protected val config: RedisConfig) extends AkkaIORouterConnect
   database = config.Client.Database,
   decodersCount = 2,
   receiveTimeout = 5 seconds
-) with ConnectionCommands {
+) with ConnectionCommands
+  with ServerCommands
+  with KeyCommands
+  with StringCommands
+  with HashCommands
+  with ListCommands
+  with SetCommands
+  with SortedSetCommands
+  with ScriptingCommands
+  with HyperLogLogCommands
+  with PubSubCommands
+  with TransactionCommands {
+  
+  private var shouldShutdownBlockingClient = false
+  private var shouldShutdownSubscriberClient = false
+  
+  /**
+   * 
+   */
+  lazy val blocking = {
+    shouldShutdownBlockingClient = true
+    BlockingClient(config)(system)
+  }
+  
+  /**
+   * 
+   */
+  lazy val subscriber = {
+    shouldShutdownSubscriberClient = true
+    SubscriberClient(config)(system)
+  }
   
   /**
    * Constructs a $redis instance using the default config
@@ -65,9 +95,9 @@ final class Redis(protected val config: RedisConfig) extends AkkaIORouterConnect
    * @return the constructed $redis
    */
   def this(configName: String, path: String) = this(RedisConfig(configName, path))
-
+  
   // TODO: select & auth BROADCAST
-
+  
 }
 
 /**
