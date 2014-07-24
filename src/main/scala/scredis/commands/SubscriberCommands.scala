@@ -25,7 +25,7 @@ trait SubscriberCommands { self: SubscriberConnection =>
    * @since 2.0.0
    */
   def pSubscribe(patterns: String*)(subscription: Subscription): Future[Int] = {
-    updateSubscription(subscription)
+    setSubscription(subscription)
     if (!patterns.isEmpty) {
       sendAsSubscriber(PSubscribe(patterns: _*))
     } else {
@@ -60,7 +60,7 @@ trait SubscriberCommands { self: SubscriberConnection =>
    * @since 2.0.0
    */
   def subscribe(channels: String*)(subscription: Subscription): Future[Int] = {
-    updateSubscription(subscription)
+    setSubscription(subscription)
     if (!channels.isEmpty) {
       sendAsSubscriber(Subscribe(channels: _*))
     } else {

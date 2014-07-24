@@ -100,12 +100,12 @@ final class SubscriberClient(
    *
    * @since 1.0.0
    */
-  def auth(password: String)(implicit timeout: Duration): Unit = authenticate(password)
+  def auth(password: String): Future[Unit] = authenticate(password)
   
   /**
    * Unsubscribes from all subscribed channels/patterns and then closes the connection.
    */
-  def quit()(implicit timeout: Duration): Unit = shutdown()
+  def quit(): Future[Unit] = shutdown()
   
 }
 

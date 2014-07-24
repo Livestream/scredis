@@ -14,7 +14,6 @@ import scredis.util.TestUtils._
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConversions._
 import scala.concurrent.Promise
-import scala.concurrent.duration._
 
 import java.util.concurrent.{ LinkedBlockingQueue, TimeUnit }
 
@@ -315,7 +314,7 @@ class PubSubCommandsSpec extends WordSpec
       
       publisher.configSet("requirepass", "").futureValue should be (())
       
-      client.auth("")(2 seconds) should be (())
+      client.auth("").futureValue should be (())
       
       subscribes.poll(2) should have size (2)
       pSubscribes.poll(3) should have size (3)
@@ -335,7 +334,7 @@ class PubSubCommandsSpec extends WordSpec
       )
       
       publisher.configSet("requirepass", "foobar").futureValue should be (())
-      client.auth("foobar")(2 seconds) should be (())
+      client.auth("foobar").futureValue should be (())
       
       client.unsubscribe().futureValue should be (4)
       client.pUnsubscribe().futureValue should be (0)
@@ -515,10 +514,10 @@ class PubSubCommandsSpec extends WordSpec
 
   override def afterAll() {
     publisher.quit().!
-    client.quit()(2 seconds)
-    client2.quit()(2 seconds)
-    client3.quit()(2 seconds)
-    client4.quit()(2 seconds)
+    client.quit().!
+    client2.quit().!
+    client3.quit().!
+    client4.quit().!
   }
   
 }

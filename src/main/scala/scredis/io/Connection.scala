@@ -36,7 +36,7 @@ trait BlockingConnection {
 
 trait SubscriberConnection {
   protected def sendAsSubscriber(request: Request[_]): Future[Int]
-  protected def updateSubscription(subscription: Subscription): Unit
+  protected def setSubscription(subscription: Subscription): Unit
 }
 
 object Connection {

@@ -117,13 +117,14 @@ final class Redis(protected val config: RedisConfig) extends AkkaNonBlockingConn
       }
     }
     if (shouldShutdownSubscriberClient) {
-      try {
-        subscriber.auth(password)(5 seconds)
-      } catch {
-        case e: Throwable => logger.error("Could not authenticate subscriber client", e)
-      }
+      subscriber.auth(password)
+    } else {
+      Future.successful(())
+    }.recover {
+      case e: Throwable => logger.error("Could not authenticate subscriber client", e)
+    }.flatMap { _ =>
+      super.auth(password)
     }
-    super.auth(password)
   }
 
   /**
@@ -140,13 +141,14 @@ final class Redis(protected val config: RedisConfig) extends AkkaNonBlockingConn
       }
     }
     if (shouldShutdownSubscriberClient) {
-      try {
-        subscriber.quit()(5 seconds)
-      } catch {
-        case e: Throwable => logger.error("Could not shutdown subscriber client", e)
-      }
+      subscriber.quit()
+    } else {
+      Future.successful(())
+    }.recover {
+      case e: Throwable => logger.error("Could not shutdown subscriber client", e)
+    }.flatMap { _ =>
+      super.quit()
     }
-    super.quit()
   }
 
   /**

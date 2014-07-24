@@ -6,7 +6,7 @@ import akka.actor._
 
 import scredis.{ Subscription, PubSubMessage }
 import scredis.protocol._
-import scredis.protocol.requests.PubSubRequests.{ Unsubscribe, PUnsubscribe }
+import scredis.protocol.requests.PubSubRequests._
 import scredis.protocol.requests.ConnectionRequests.{ Auth, Quit }
 import scredis.exceptions.RedisIOException
 
@@ -14,7 +14,7 @@ import scala.util.Try
 import scala.concurrent.{ ExecutionContext, Future, Await }
 import scala.concurrent.duration._
 
-import java.util.concurrent.locks.ReentrantReadWriteLock
+import java.util.concurrent.Semaphore
 import java.net.InetSocketAddress
 
 /**
@@ -38,7 +38,7 @@ abstract class SubscriberAkkaConnection(
   receiveTimeoutOpt = receiveTimeoutOpt
 ) with SubscriberConnection {
   
-  private val lock = new ReentrantReadWriteLock()
+  private val lock = new Semaphore(1)
   
   protected val listenerActor = system.actorOf(
     Props(
@@ -55,20 +55,11 @@ abstract class SubscriberAkkaConnection(
     Connection.getUniqueName(s"listener-actor-$host-$port")
   )
   
-  private def withReadLock[A](f: => A): A = {
-    lock.readLock.lock()
-    try {
-      f
-    } finally {
-      lock.readLock.unlock()
-    }
-  }
-  
   private def unsubscribeAndThen(f: => Any): Unit = {
     val unsubscribe = Unsubscribe()
     val pUnsubscribe = PUnsubscribe()
     listenerActor ! unsubscribe
-    val future = unsubscribe.future.recover {
+    unsubscribe.future.recover {
       case e: Throwable => -1
     }.flatMap { _ =>
       listenerActor ! pUnsubscribe
@@ -78,49 +69,53 @@ abstract class SubscriberAkkaConnection(
         f
       }
     }
-    Await.result(future, 5 seconds)
   }
   
-  override protected def sendAsSubscriber(request: Request[_]): Future[Int] = withReadLock {
+  override protected def sendAsSubscriber(request: Request[_]): Future[Int] = {
+    lock.acquire()
     if (isShuttingDown) {
+      lock.release()
       Future.failed(RedisIOException("Connection has been closed"))
     } else {
       listenerActor ! request
+      request.future.onComplete {
+        case _ => lock.release()
+      }
       request.future.asInstanceOf[Future[Int]]
     }
   }
   
-  override protected def updateSubscription(subscription: Subscription): Unit = {
+  override protected def setSubscription(subscription: Subscription): Unit = {
     listenerActor ! SubscriberListenerActor.Subscribe(subscription)
   }
   
-  protected def authenticate(password: String)(implicit timeout: Duration): Unit = {
-    lock.writeLock.lock()
+  protected def authenticate(password: String): Future[Unit] = {
+    lock.acquire()
     val auth = Auth(password)
     listenerActor ! SubscriberListenerActor.SaveSubscriptions
-    try {
-      unsubscribeAndThen {
-        listenerActor ! SubscriberListenerActor.Authenticate(auth)
-      }
-      Await.result(auth.future, timeout)
-      listenerActor ! SubscriberListenerActor.Authenticated
-    } finally {
-      lock.writeLock.unlock()
+    unsubscribeAndThen {
+      listenerActor ! SubscriberListenerActor.Authenticate(auth)
     }
+    auth.future.onComplete {
+      case _ => {
+        listenerActor ! SubscriberListenerActor.Authenticated
+        lock.release()
+      }
+    }
+    auth.future
   }
   
-  protected def shutdown()(implicit timeout: Duration): Unit = {
-    lock.writeLock.lock()
+  protected def shutdown(): Future[Unit] = {
+    lock.acquire()
     isShuttingDown = true
     val quit = Quit()
-    try {
-      unsubscribeAndThen {
-        listenerActor ! SubscriberListenerActor.Shutdown(quit)
-      }
-      Await.result(quit.future, timeout)
-    } finally {
-      lock.writeLock.unlock()
+    unsubscribeAndThen {
+      listenerActor ! SubscriberListenerActor.Shutdown(quit)
     }
+    quit.future.onComplete {
+      case _ => lock.release()
+    }
+    quit.future
   }
   
 }

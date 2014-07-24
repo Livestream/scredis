@@ -49,6 +49,7 @@ class SubscriberListenerActor(
   private var subscribedPatternsCount = 0
   
   override protected def onConnect(): Unit = {
+    shouldSendRequests = false
     previousSubscriptionOpt = subscriptionOpt
     subscriptionOpt = None
     requestOpt = None
