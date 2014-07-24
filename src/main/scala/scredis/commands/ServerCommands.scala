@@ -104,6 +104,49 @@ trait ServerCommands { self: NonBlockingConnection =>
   def clientSetName(name: String): Future[Unit] = send(ClientSetName(name))
   
   /**
+   * Returns details about all `Redis` commands.
+   *
+   * @return map of command name to command info
+   *
+   * @since 2.8.13
+   */
+  def command(): Future[Map[String, scredis.CommandInfo]] = send(Command())
+  
+  /**
+   * Returns the total number of commands in the target `Redis` server.
+   *
+   * @return total number of commands
+   *
+   * @since 2.8.13
+   */
+  def commandCount(): Future[Int] = send(CommandCount())
+  
+  /**
+   * Returns the list of keys part of a full `Redis` command.
+   *
+   * @return the list of keys present in the command
+   *
+   * @since 2.8.13
+   */
+  def commandGetKeys(command: String): Future[List[String]] = send(CommandGetKeys[List](command))
+  
+  /**
+   * Returns details about the specified `Redis` commands.
+   *
+   * @param names command names
+   * @return map of command name to command info
+   *
+   * @since 2.8.13
+   */
+  def commandInfo(names: String*): Future[Map[String, scredis.CommandInfo]] = {
+    if (names.isEmpty) {
+      Future.successful(Map.empty)
+    } else {
+      send(CommandInfo(names: _*))
+    }
+  }
+  
+  /**
    * Gets the value of a configuration parameter.
    *
    * @param pattern name or pattern of the configuration parameter to get

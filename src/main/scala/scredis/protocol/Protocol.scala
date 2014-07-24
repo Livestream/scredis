@@ -263,6 +263,10 @@ object Protocol {
       }
     }
     
+    if (!arrayStack.isEmpty) {
+      isFragmented = true
+    }
+    
     if (isFragmented) {
       if (arrayPosition >= 0) {
         buffer.position(arrayPosition)

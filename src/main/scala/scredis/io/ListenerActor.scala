@@ -154,20 +154,23 @@ class ListenerActor(
     timeoutCancellableOpt = None
     
     val completedData = remainingByteStringOpt match {
-      case Some(remains) => {
-        remainingByteStringOpt = None
-        remains ++ data
-      }
+      case Some(remains) => remains ++ data
       case None => data
     }
     
     val buffer = completedData.asByteBuffer
     val responsesCount = Protocol.count(buffer)
+    val position = buffer.position
+    
+    if (buffer.remaining > 0) {
+      remainingByteStringOpt = Some(ByteString(buffer))
+    } else {
+      remainingByteStringOpt = None
+    }
     
     if (responsesCount > 0) {
-      val trimmedData = if (buffer.remaining > 0) {
-        remainingByteStringOpt = Some(ByteString(buffer))
-        completedData.take(buffer.position)
+      val trimmedData = if (remainingByteStringOpt.isDefined) {
+        completedData.take(position)
       } else {
         completedData
       }

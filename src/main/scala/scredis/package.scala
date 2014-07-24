@@ -2,6 +2,8 @@ import scala.concurrent.duration.FiniteDuration
 
 import scredis.serialization._
 
+import scala.collection.immutable.HashSet
+
 package object scredis {
   private var poolNumber = 0
   
@@ -350,5 +352,48 @@ package object scredis {
   }
   
   type Subscription = PartialFunction[PubSubMessage, Any]
+  
+  /**
+   * Holds information about a `Redis` command. This type is returned by the
+   * COMMAND and COMMAND INFO command
+   */
+  final case class CommandInfo(
+    name: String,
+    arity: Int,
+    flags: CommandFlags,
+    firstKeyPosition: Int,
+    lastKeyPosition: Int,
+    keyStepCount: Int
+  ) {
+    override def toString = s"CommandInfo(name=$name, arity=$arity, flags=$flags, " +
+      s"firstKeyPosition=$firstKeyPosition, lastKeyPosition=$lastKeyPosition, " +
+      s"keyStepCount=$keyStepCount)"
+  }
+  
+  /**
+   * Helper class containing the flags of a command
+   */
+  final case class CommandFlags(set: HashSet[String]) {
+    def contains(flag: String): Boolean = set.contains(flag)
+    def is(flag: String): Boolean = contains(flag)
+    def has(flag: String): Boolean = contains(flag)
+    
+    def isWrite = contains("write")
+    def isReadOnly = contains("readonly")
+    def isDenyOOM = contains("denyoom")
+    def isAdmin = contains("admin")
+    def isPubSub = contains("pubsub")
+    def isNoScript = contains("noscript")
+    def isRandom = contains("random")
+    def isSortForScript = contains("sort_for_script")
+    def isLoading = contains("loading")
+    def isStale = contains("stale")
+    def isSkipMonitor = contains("skip_monitor")
+    def isAsking = contains("asking")
+    def isFast = contains("fast")
+    def isMovableKeys = contains("movablekeys")
+    
+    override def toString = set.mkString("[", ", ", "]")
+  }
   
 }

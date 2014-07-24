@@ -169,6 +169,62 @@ class ServerCommandsSpec extends WordSpec
       }
     }
   }
+  
+  Command.toString should {
+    "return details about all redis commands" taggedAs (V2813) in {
+      client.command().!
+      client.command().futureValue should not be (empty)
+    }
+  }
+  
+  CommandCount.toString should {
+    "return the total number of commands in this redis instance" taggedAs (V2813) in {
+      client.commandCount().futureValue should be > (0)
+    }
+  }
+  
+  CommandGetKeys.toString when {
+    "provided with garbage" should {
+      "return an error" taggedAs (V2813) in {
+        a [RedisErrorResponseException] should be thrownBy {
+          client.commandGetKeys("").!
+        }
+        a [RedisErrorResponseException] should be thrownBy {
+          client.commandGetKeys("THIS IS GARBAGE").!
+        }
+      }
+    }
+    "provided with a command that has no keys" should {
+      "return an empty list" taggedAs (V2813) ignore {
+        client.commandGetKeys("PING").futureValue should be (empty)
+      }
+    }
+    "provided with a command that has keys" should {
+      "return them" taggedAs (V2813) ignore {
+        client.commandGetKeys(
+          """EVAL "not consulted" 3 key1  key2 key3 arg1      arg2 arg3 argN"""
+        ).futureValue should be (empty)
+      }
+    }
+  }
+  
+  scredis.protocol.requests.ServerRequests.CommandInfo.toString when {
+    "provided with non-existent commands" should {
+      "return an empty list" taggedAs (V2813) in {
+        client.commandInfo("BULLSHIT").futureValue should be (empty)
+      }
+    }
+    "provided with valid commands" should {
+      "return the details about them" taggedAs (V2813) in {
+        client.commandInfo("INFO", "PING", "AUTH").futureValue should have size (3)
+      }
+    }
+    "provided with a mix of valid commands and non-existent commands" should {
+      "return the details about the valid ones" taggedAs (V2813) in {
+        client.commandInfo("INFO", "BULLSHIT", "PING", "AUTH", "").futureValue should have size (3)
+      }
+    }
+  }
 
   ConfigGet.toString when {
     "providing an non-existent key" should {

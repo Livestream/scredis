@@ -1,6 +1,6 @@
 package scredis.protocol.requests
 
-import scredis.protocol._
+import scredis.protocol.{ Command => PCommand, _ }
 import scredis.exceptions.RedisProtocolException
 import scredis.serialization.Writer
 
@@ -13,27 +13,69 @@ object ServerRequests {
   import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.longReader
   
+  private val commandInfoMapDecoder: Decoder[Map[String, scredis.CommandInfo]] = {
+    case a: ArrayResponse => a.parsed[Option[(String, scredis.CommandInfo)], List] {
+      case a: ArrayResponse => {
+        val info = a.parsed[Any, Vector] {
+          case b: BulkStringResponse => b
+          case IntegerResponse(value) => value.toInt
+          case a: ArrayResponse => a.parsed[String, scala.collection.immutable.HashSet] {
+            case SimpleStringResponse(value) => value
+            case x => throw new IllegalArgumentException(s"UNEXPECTED response for FLAGS: $x")
+          }
+          case x => throw new IllegalArgumentException(s"UNEXPECTED response for INFO: $x")
+        }
+        val name = info(0).asInstanceOf[BulkStringResponse].flattened[String]
+        val arity = info(1).asInstanceOf[Int]
+        val flags = info(2).asInstanceOf[scala.collection.immutable.HashSet[String]]
+        val firstKeyPosition = info(3).asInstanceOf[Int]
+        val lastKeyPosition = info(4).asInstanceOf[Int]
+        val keyStepCount = info(5).asInstanceOf[Int]
+        Some(
+          (
+            name,
+            scredis.CommandInfo(
+              name = name,
+              arity = arity,
+              flags = scredis.CommandFlags(flags),
+              firstKeyPosition = firstKeyPosition,
+              lastKeyPosition = lastKeyPosition,
+              keyStepCount = keyStepCount
+            )
+          )
+        )
+      }
+      case BulkStringResponse(None) => None
+      case x => throw new IllegalArgumentException(s"UNEXPECTED response for LIST: $x")
+    }.flatten.toMap
+    case x => throw new IllegalArgumentException(s"UNEXPECTED response for ROOT: $x")
+  }
+  
   object BGRewriteAOF extends ZeroArgCommand("BGREWRITEAOF")
   object BGSave extends ZeroArgCommand("BGSAVE")
   object ClientGetName extends ZeroArgCommand("CLIENT", "GETNAME")
-  object ClientKill extends Command("CLIENT", "KILL")
+  object ClientKill extends PCommand("CLIENT", "KILL")
   object ClientList extends ZeroArgCommand("CLIENT", "LIST")
-  object ClientPause extends Command("CLIENT", "PAUSE")
-  object ClientSetName extends Command("CLIENT", "SETNAME")
-  object ConfigGet extends Command("CONFIG", "GET")
+  object ClientPause extends PCommand("CLIENT", "PAUSE")
+  object ClientSetName extends PCommand("CLIENT", "SETNAME")
+  object Command extends ZeroArgCommand("COMMAND")
+  object CommandCount extends ZeroArgCommand("COMMAND", "COUNT")
+  object CommandGetKeys extends PCommand("COMMAND", "GETKEYS")
+  object CommandInfo extends PCommand("COMMAND", "INFO")
+  object ConfigGet extends PCommand("CONFIG", "GET")
   object ConfigResetStat extends ZeroArgCommand("CONFIG", "RESETSTAT")
   object ConfigRewrite extends ZeroArgCommand("CONFIG", "REWRITE")
-  object ConfigSet extends Command("CONFIG", "SET")
+  object ConfigSet extends PCommand("CONFIG", "SET")
   object DBSize extends ZeroArgCommand("DBSIZE")
   object FlushAll extends ZeroArgCommand("FLUSHALL") with WriteCommand
   object FlushDB extends ZeroArgCommand("FLUSHDB") with WriteCommand
-  object Info extends Command("INFO")
+  object Info extends PCommand("INFO")
   object LastSave extends ZeroArgCommand("LASTSAVE")
   object Role extends ZeroArgCommand("ROLE")
   object Save extends ZeroArgCommand("SAVE") with WriteCommand
-  object Shutdown extends Command("SHUTDOWN")
-  object SlaveOf extends Command("SLAVEOF")
-  object SlowLogGet extends Command("SLOWLOG", "GET")
+  object Shutdown extends PCommand("SHUTDOWN")
+  object SlaveOf extends PCommand("SLAVEOF")
+  object SlowLogGet extends PCommand("SLOWLOG", "GET")
   object SlowLogLen extends ZeroArgCommand("SLOWLOG", "LEN")
   object SlowLogReset extends ZeroArgCommand("SLOWLOG", "RESET")
   object Time extends ZeroArgCommand("TIME")
@@ -123,6 +165,32 @@ object ServerRequests {
     override def decode = {
       case SimpleStringResponse(_) => ()
     }
+  }
+  
+  case class Command() extends Request[Map[String, scredis.CommandInfo]](Command) {
+    override def decode = commandInfoMapDecoder
+  }
+  
+  case class CommandCount() extends Request[Int](CommandCount) {
+    override def decode = {
+      case IntegerResponse(value) => value.toInt
+    }
+  }
+  
+  case class CommandGetKeys[CC[X] <: Traversable[X]](command: String)(
+    implicit cbf: CanBuildFrom[Nothing, String, CC[String]]
+  ) extends Request[CC[String]](CommandGetKeys, command.split("\\s+"): _*) {
+    override def decode = {
+      case a: ArrayResponse => a.parsed[String, CC] {
+        case b: BulkStringResponse => b.flattened[String]
+      }
+    }
+  }
+  
+  case class CommandInfo(
+    commands: String*
+  ) extends Request[Map[String, scredis.CommandInfo]](CommandInfo, commands: _*) {
+    override def decode = commandInfoMapDecoder
   }
   
   case class ConfigGet(parameter: String) extends Request[Map[String, String]](
