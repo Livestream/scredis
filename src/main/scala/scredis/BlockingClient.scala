@@ -4,8 +4,9 @@ import com.typesafe.config.Config
 
 import akka.actor.ActorSystem
 
-import scredis.io.AkkaIOConnection
+import scredis.io.AkkaBlockingConnection
 import scredis.protocol.Protocol
+import scredis.protocol.requests.ConnectionRequests.{ Auth, Select, Quit }
 import scredis.commands._
 import scredis.exceptions._
 
@@ -26,14 +27,18 @@ import scala.concurrent.duration._
  * @define tc com.typesafe.Config
  */
 final class BlockingClient(
-  private var host: String = RedisConfigDefaults.Client.Host,
-  private var port: Int = RedisConfigDefaults.Client.Port,
-  private var passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
-  private var database: Int = RedisConfigDefaults.Client.Database,
+  host: String = RedisConfigDefaults.Client.Host,
+  port: Int = RedisConfigDefaults.Client.Port,
+  passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
+  database: Int = RedisConfigDefaults.Client.Database,
   timeout: Duration = RedisConfigDefaults.Client.Timeout
-)(implicit system: ActorSystem) extends AkkaIOConnection(system, host, port, passwordOpt, database)
-  with ConnectionCommands
-  with BlockingListCommands {
+)(implicit system: ActorSystem) extends AkkaBlockingConnection(
+  system = system,
+  host = host,
+  port = port,
+  passwordOpt = passwordOpt,
+  database = database
+) with BlockingListCommands {
   
   /**
    * Constructs a $client instance from a [[scredis.RedisConfig]]
@@ -96,14 +101,7 @@ final class BlockingClient(
    *
    * @since 1.0.0
    */
-  override def auth(password: String): Future[Unit] = {
-    this.passwordOpt = if (password.isEmpty) {
-      None
-    } else {
-      Some(password)
-    }
-    super.auth(password)
-  }
+  def auth(password: String)(implicit timeout: Duration): Unit = sendBlocking(Auth(password))
   
   /**
    * Changes the selected database on the current client.
@@ -113,10 +111,14 @@ final class BlockingClient(
    *
    * @since 1.0.0
    */
-  override def select(database: Int): Future[Unit] = {
-    this.database = database
-    super.select(database)
-  }
+  def select(database: Int)(implicit timeout: Duration): Unit = sendBlocking(Select(database))
+  
+  /**
+   * Closes the connection.
+   *
+   * @since 1.0.0
+   */
+  def quit()(implicit timeout: Duration): Unit = sendBlocking(Quit())
   
 }
 

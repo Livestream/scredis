@@ -31,7 +31,7 @@ class ListenerActor(
   var passwordOpt: Option[String],
   var database: Int,
   var decodersCount: Int,
-  receiveTimeout: FiniteDuration
+  receiveTimeoutOpt: Option[FiniteDuration]
 ) extends Actor with LazyLogging {
   
   import context.dispatcher
@@ -76,9 +76,11 @@ class ListenerActor(
   }
   
   protected def doSend(request: Request[_]): Unit = {
-    if (timeoutCancellableOpt.isEmpty) {
-      timeoutCancellableOpt = Some {
-        context.system.scheduler.scheduleOnce(receiveTimeout, self, ReceiveTimeout)
+    receiveTimeoutOpt.foreach { receiveTimeout =>
+      if (timeoutCancellableOpt.isEmpty) {
+        timeoutCancellableOpt = Some {
+          context.system.scheduler.scheduleOnce(receiveTimeout, self, ReceiveTimeout)
+        }
       }
     }
     requests.addLast(request)

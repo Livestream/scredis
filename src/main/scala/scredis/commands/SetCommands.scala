@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.io.Connection
+import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.SetRequests._
 import scredis.serialization.{ Reader, Writer }
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait SetCommands { self: Connection =>
+trait SetCommands { self: NonBlockingConnection =>
   
   /**
    * Adds one or more members to a set.

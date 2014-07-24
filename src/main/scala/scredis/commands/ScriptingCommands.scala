@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.io.Connection
+import scredis.io.NonBlockingConnection
 import scredis.protocol.Decoder
 import scredis.protocol.requests.ScriptingRequests._
 import scredis.serialization.{ Reader, Writer }
@@ -17,7 +17,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait ScriptingCommands { self: Connection =>
+trait ScriptingCommands { self: NonBlockingConnection =>
   
   /**
    * Executes a Lua script that does not require any keys or arguments.

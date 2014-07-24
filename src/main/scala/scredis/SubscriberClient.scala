@@ -4,7 +4,7 @@ import com.typesafe.config.Config
 
 import akka.actor.ActorSystem
 
-import scredis.io.SubscriberAkkaIOConnection
+import scredis.io.SubscriberAkkaConnection
 import scredis.protocol.Protocol
 import scredis.commands._
 import scredis.exceptions._
@@ -26,12 +26,16 @@ import scala.concurrent.duration._
  * @define tc com.typesafe.Config
  */
 final class SubscriberClient(
-  private var host: String = RedisConfigDefaults.Client.Host,
-  private var port: Int = RedisConfigDefaults.Client.Port,
-  private var passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
+  host: String = RedisConfigDefaults.Client.Host,
+  port: Int = RedisConfigDefaults.Client.Port,
+  passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
   timeout: Duration = RedisConfigDefaults.Client.Timeout
-)(implicit system: ActorSystem) extends SubscriberAkkaIOConnection(
-  system, host, port, passwordOpt, database = 0
+)(implicit system: ActorSystem) extends SubscriberAkkaConnection(
+  system = system,
+  host = host,
+  port = port,
+  passwordOpt = passwordOpt,
+  database = 0
 ) with SubscriberCommands {
   
   /**
@@ -87,9 +91,21 @@ final class SubscriberClient(
   )
   
   /**
+   * Authenticates to the server.
+   * 
+   * @note use the empty string to re-authenticate with no password
+   *
+   * @param password the server password
+   * @throws $e if authentication failed
+   *
+   * @since 1.0.0
+   */
+  def auth(password: String)(implicit timeout: Duration): Unit = authenticate(password)
+  
+  /**
    * Unsubscribes from all subscribed channels/patterns and then closes the connection.
    */
-  def quit(): Future[Unit] = close()
+  def quit()(implicit timeout: Duration): Unit = shutdown()
   
 }
 

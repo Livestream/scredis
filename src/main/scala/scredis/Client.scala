@@ -4,7 +4,7 @@ import com.typesafe.config.Config
 
 import akka.actor.ActorSystem
 
-import scredis.io.AkkaIOConnection
+import scredis.io.AkkaNonBlockingConnection
 import scredis.protocol.Protocol
 import scredis.commands._
 import scredis.exceptions._
@@ -26,19 +26,23 @@ import scala.concurrent.duration._
  * @define tc com.typesafe.Config
  */
 final class Client(
-  private var host: String = RedisConfigDefaults.Client.Host,
-  private var port: Int = RedisConfigDefaults.Client.Port,
-  private var passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
-  private var database: Int = RedisConfigDefaults.Client.Database,
+  host: String = RedisConfigDefaults.Client.Host,
+  port: Int = RedisConfigDefaults.Client.Port,
+  passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
+  database: Int = RedisConfigDefaults.Client.Database,
   timeout: Duration = RedisConfigDefaults.Client.Timeout
-)(implicit system: ActorSystem) extends AkkaIOConnection(system, host, port, passwordOpt, database)
-  with ConnectionCommands
+)(implicit system: ActorSystem) extends AkkaNonBlockingConnection(
+  system = system,
+  host = host,
+  port = port,
+  passwordOpt = passwordOpt,
+  database = database
+) with ConnectionCommands
   with ServerCommands
   with KeyCommands
   with StringCommands
   with HashCommands
   with ListCommands
-  with BlockingListCommands
   with SetCommands
   with SortedSetCommands
   with ScriptingCommands
@@ -98,36 +102,6 @@ final class Client(
   def this(configName: String, path: String)(implicit system: ActorSystem) = this(
     RedisConfig(configName, path)
   )
-  
-  /**
-   * Authenticates to the server.
-   *
-   * @param password the server password
-   * @throws $e if authentication failed
-   *
-   * @since 1.0.0
-   */
-  override def auth(password: String): Future[Unit] = {
-    this.passwordOpt = if (password.isEmpty) {
-      None
-    } else {
-      Some(password)
-    }
-    super.auth(password)
-  }
-  
-  /**
-   * Changes the selected database on the current client.
-   *
-   * @param db database index
-   * @throws $e if the database index is invalid
-   *
-   * @since 1.0.0
-   */
-  override def select(database: Int): Future[Unit] = {
-    this.database = database
-    super.select(database)
-  }
   
 }
 

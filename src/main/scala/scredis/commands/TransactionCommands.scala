@@ -1,7 +1,7 @@
 package scredis.commands
 
 import scredis.TransactionBuilder
-import scredis.io.TransactionEnabledConnection
+import scredis.io.{ Connection, NonBlockingConnection, TransactionEnabledConnection }
 import scredis.protocol.requests.TransactionRequests._
 import scredis.exceptions.RedisTransactionBuilderException
 
@@ -17,7 +17,8 @@ import scredis.TransactionBuilder
  * @define true '''true'''
  * @define false '''false'''
  */
-trait TransactionCommands { self: TransactionEnabledConnection =>
+trait TransactionCommands {
+  self: Connection with NonBlockingConnection with TransactionEnabledConnection =>
   
   /**
    * Watches the given keys, which upon modification, will abort a transaction.
@@ -39,7 +40,7 @@ trait TransactionCommands { self: TransactionEnabledConnection =>
     val builder = new TransactionBuilder()
     try {
       f(builder)
-      sendTransaction(builder.result())
+      send(builder.result())
     } catch {
       case e: Throwable => Future.failed(RedisTransactionBuilderException(cause = e))
     }
@@ -49,7 +50,7 @@ trait TransactionCommands { self: TransactionEnabledConnection =>
     val builder = new TransactionBuilder()
     try {
       val result = f(builder)
-      sendTransaction(builder.result())
+      send(builder.result())
       result
     } catch {
       case e: Throwable => throw RedisTransactionBuilderException(cause = e)

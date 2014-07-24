@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.io.Connection
+import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.ServerRequests._
 import scredis.serialization.{ Reader, Writer }
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait ServerCommands { self: Connection =>
+trait ServerCommands { self: NonBlockingConnection =>
   
   /**
    * Asynchronously rewrites the append-only file.

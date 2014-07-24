@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.io.{ Connection, BlockingConnection }
+import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.ListRequests._
 import scredis.serialization.{ Reader, Writer }
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait ListCommands { self: Connection =>
+trait ListCommands { self: NonBlockingConnection =>
   
   /**
    * Returns an element from a list by its index.

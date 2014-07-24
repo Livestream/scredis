@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.io.Connection
+import scredis.io.{ Connection, NonBlockingConnection }
 import scredis.protocol.requests.HashRequests._
 import scredis.serialization.{ Reader, Writer }
 
@@ -14,7 +14,7 @@ import scala.concurrent.Future
  * @define true '''true'''
  * @define false '''false'''
  */
-trait HashCommands { self: Connection =>
+trait HashCommands { self: Connection with NonBlockingConnection =>
   
   /**
    * Deletes one or more hash fields.

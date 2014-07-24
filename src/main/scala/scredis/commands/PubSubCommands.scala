@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.io.Connection
+import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.PubSubRequests._
 import scredis.serialization.Writer
 
@@ -14,7 +14,7 @@ import scala.concurrent.Future
  * @define true '''true'''
  * @define false '''false'''
  */
-trait PubSubCommands { self: Connection =>
+trait PubSubCommands { self: NonBlockingConnection =>
   
   /**
    * Publishes a message to a channel.

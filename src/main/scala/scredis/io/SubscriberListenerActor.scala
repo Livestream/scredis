@@ -6,9 +6,9 @@ import akka.util.ByteString
 
 import scredis.{ PubSubMessage, Subscription }
 import scredis.protocol.Request
-import scredis.protocol.requests.ConnectionRequests.Quit
+import scredis.protocol.requests.ConnectionRequests.{ Auth, Quit }
 import scredis.protocol.requests.PubSubRequests
-import scredis.exceptions.RedisIOException
+import scredis.exceptions._
 
 import scala.collection.mutable.{ HashSet => MHashSet }
 import scala.concurrent.duration._
@@ -21,17 +21,27 @@ class SubscriberListenerActor(
   passwordOpt: Option[String],
   database: Int,
   decodersCount: Int,
-  receiveTimeout: FiniteDuration
-) extends ListenerActor(host, port, passwordOpt, database, decodersCount, receiveTimeout) {
+  receiveTimeoutOpt: Option[FiniteDuration]
+) extends ListenerActor(
+  host,
+  port,
+  passwordOpt,
+  database,
+  decodersCount,
+  receiveTimeoutOpt
+) {
   
   import SubscriberListenerActor._
   
   private val subscribedChannels = MHashSet[String]()
   private val subscribedPatterns = MHashSet[String]()
   
-  private var isInitialized = false
+  private val savedSubscribedChannels = MHashSet[String]()
+  private val savedSubscribedPatterns = MHashSet[String]()
+  
+  private var shouldSendRequests = false
   private var requestOpt: Option[Request[_]] = None
-  private var requestRepliesCount = 0
+  private var requestResponsesCount = 0
   private var subscriptionOpt: Option[Subscription] = None
   private var previousSubscriptionOpt: Option[Subscription] = None
   private var subscribedCount = 0
@@ -42,14 +52,13 @@ class SubscriberListenerActor(
     previousSubscriptionOpt = subscriptionOpt
     subscriptionOpt = None
     requestOpt = None
-    requestRepliesCount = 0
+    requestResponsesCount = 0
     subscribedCount = 0
     subscribedChannelsCount = 0
     subscribedPatternsCount = 0
   }
   
   override protected def onInitialized(): Unit = {
-    println("CALLED", previousSubscriptionOpt, subscribedChannels, subscribedPatterns)
     val subscription = previousSubscriptionOpt.getOrElse(PartialFunction.empty)
     subscriptionOpt = Some(subscription)
     decoders.route(Broadcast(DecoderActor.Subscribe(subscription)), self)
@@ -57,12 +66,20 @@ class SubscriberListenerActor(
     subscribedChannels.foreach { channel =>
       logger.info(s"Automatically re-subscribing to channel: $channel")
       val request = PubSubRequests.Subscribe(channel)
-      queuedRequests.push(request)
+      if (shouldSendRequests) {
+        send(request)
+      } else {
+        queuedRequests.push(request)
+      }
     }
     subscribedPatterns.foreach { pattern =>
       logger.info(s"Automatically re-subscribing to pattern: $pattern")
       val request = PubSubRequests.PSubscribe(pattern)
-      queuedRequests.push(request)
+      if (shouldSendRequests) {
+        send(request)
+      } else {
+        queuedRequests.push(request)
+      }
     }
     subscribedChannels.clear()
     subscribedPatterns.clear()
@@ -81,7 +98,7 @@ class SubscriberListenerActor(
       decoders.route(Broadcast(DecoderActor.Subscribe(subscription)), self)
     }
     case Complete(message) => {
-      requestRepliesCount += 1
+      requestResponsesCount += 1
       val count = message match {
         case PubSubMessage.Subscribe(channel, count) => {
           logger.info(s"Subscribed to channel: $channel")
@@ -117,7 +134,7 @@ class SubscriberListenerActor(
           subscribedPatternsCount -= difference
           count
         }
-        case _ => ???
+        case x => throw RedisProtocolException(s"Unexpected pub sub message received: $x")
       }
       
       val (request, argsCount) = requestOpt match {
@@ -133,28 +150,48 @@ class SubscriberListenerActor(
         val (count, otherCount) = message match {
           case PubSubMessage.Unsubscribe(_, count) => (count, subscribedPatternsCount)
           case PubSubMessage.PUnsubscribe(_, count) => (count, subscribedChannelsCount)
-          case x => ???
+          case x => throw RedisProtocolException(
+            s"Unexpected pub sub message received: '$x' in response to '$request'"
+          )
         }
         if (count == otherCount) {
           request.success(count)
           requestOpt = None
-          requestRepliesCount = 0
+          requestResponsesCount = 0
         } else {
           requestOpt = Some(request)
         }
       } else {
-        if (argsCount == requestRepliesCount) {
+        if (argsCount == requestResponsesCount) {
           request.success(count)
           requestOpt = None
-          requestRepliesCount = 0
+          requestResponsesCount = 0
         } else {
           requestOpt = Some(request)
         }
       }
     }
+    case Fail(message) => requests.pop().failure(RedisErrorResponseException(message))
+    case SaveSubscriptions => {
+      savedSubscribedChannels ++= subscribedChannels
+      savedSubscribedPatterns ++= subscribedPatterns
+    }
+    case Authenticate(auth) => {
+      onConnect()
+      send(auth)
+    }
+    case Authenticated => {
+      shouldSendRequests = true
+      subscribedChannels ++= savedSubscribedChannels
+      subscribedPatterns ++= savedSubscribedPatterns
+      savedSubscribedChannels.clear()
+      savedSubscribedPatterns.clear()
+      onInitialized()
+      shouldSendRequests = false
+    }
     case Shutdown(quit) => {
       onConnect()
-      self ! quit
+      send(quit)
     }
   }
   
@@ -163,5 +200,9 @@ class SubscriberListenerActor(
 object SubscriberListenerActor {
   case class Subscribe(subscription: Subscription)
   case class Complete(message: PubSubMessage)
+  case class Fail(message: String)
+  case object SaveSubscriptions
+  case class Authenticate(auth: Auth)
+  case object Authenticated
   case class Shutdown(quit: Quit)
 }

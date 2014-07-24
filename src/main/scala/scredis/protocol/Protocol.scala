@@ -282,8 +282,11 @@ object Protocol {
     case ArrayResponseByte         => ArrayResponse(parseInt(buffer), buffer)
   }
   
-  private[scredis] def decodePubSubResponse(response: Response): PubSubMessage = response match {
-    case a: ArrayResponse => {
+  private[scredis] def decodePubSubResponse(
+    response: Response
+  ): Either[ErrorResponse, PubSubMessage] = response match {
+    case e: ErrorResponse => Left(e)
+    case a: ArrayResponse => Right {
       val vector = a.parsed[Any, Vector] {
         case BulkStringResponse(valueOpt) => valueOpt
         case IntegerResponse(value) => value.toInt

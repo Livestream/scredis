@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.io.Connection
+import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.KeyRequests._
 import scredis.serialization.{ Reader, Writer }
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
  * @define true '''true'''
  * @define false '''false'''
  */
-trait KeyCommands { self: Connection =>
+trait KeyCommands { self: NonBlockingConnection =>
   
   /**
    * Deletes one or multiple keys.

@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.io.Connection
+import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.ConnectionRequests._
 
 import scala.concurrent.Future
@@ -13,7 +13,7 @@ import scala.concurrent.Future
  * @define true '''true'''
  * @define false '''false'''
  */
-trait ConnectionCommands { self: Connection =>
+trait ConnectionCommands { self: NonBlockingConnection =>
   
   /**
    * Authenticates to the server.

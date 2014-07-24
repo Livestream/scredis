@@ -5,9 +5,11 @@ import com.typesafe.config.Config
 import akka.actor._
 import akka.routing._
 
-import scredis.io.AkkaIOConnection
+import scredis.io.AkkaNonBlockingConnection
 import scredis.commands._
 
+import scala.util.{ Success, Failure }
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
@@ -15,14 +17,14 @@ import scala.concurrent.duration._
  * @define redis [[scredis.Redis]]
  * @define tc com.typesafe.Config
  */
-final class Redis(protected val config: RedisConfig) extends AkkaIOConnection(
+final class Redis(protected val config: RedisConfig) extends AkkaNonBlockingConnection(
   ActorSystem(),
   host = config.Client.Host,
   port = config.Client.Port,
   passwordOpt = config.Client.Password,
   database = config.Client.Database,
   decodersCount = 2,
-  receiveTimeout = 5 seconds
+  receiveTimeoutOpt = Some(5 seconds)
 ) with ConnectionCommands
   with ServerCommands
   with KeyCommands
@@ -96,7 +98,79 @@ final class Redis(protected val config: RedisConfig) extends AkkaIOConnection(
    */
   def this(configName: String, path: String) = this(RedisConfig(configName, path))
   
-  // TODO: select & auth BROADCAST
+  /**
+   * Authenticates to the server.
+   * 
+   * @note use the empty string to re-authenticate with no password
+   *
+   * @param password the server password
+   * @throws $e if authentication failed
+   *
+   * @since 1.0.0
+   */
+  override def auth(password: String): Future[Unit] = {
+    if (shouldShutdownBlockingClient) {
+      try {
+        blocking.auth(password)(5 seconds)
+      } catch {
+        case e: Throwable => logger.error("Could not authenticate blocking client", e)
+      }
+    }
+    if (shouldShutdownSubscriberClient) {
+      try {
+        subscriber.auth(password)(5 seconds)
+      } catch {
+        case e: Throwable => logger.error("Could not authenticate subscriber client", e)
+      }
+    }
+    super.auth(password)
+  }
+
+  /**
+   * Closes the connection.
+   *
+   * @since 1.0.0
+   */
+  override def quit(): Future[Unit] = {
+    if (shouldShutdownBlockingClient) {
+      try {
+        blocking.quit()(5 seconds)
+      } catch {
+        case e: Throwable => logger.error("Could not shutdown blocking client", e)
+      }
+    }
+    if (shouldShutdownSubscriberClient) {
+      try {
+        subscriber.quit()(5 seconds)
+      } catch {
+        case e: Throwable => logger.error("Could not shutdown subscriber client", e)
+      }
+    }
+    super.quit()
+  }
+
+  /**
+   * Changes the selected database on the current connection.
+   *
+   * @param database database index
+   * @throws $e if the database index is invalid
+   *
+   * @since 1.0.0
+   */
+  override def select(database: Int): Future[Unit] = {
+    val future = if (shouldShutdownBlockingClient) {
+      try {
+        Future.successful(blocking.select(database)(5 seconds))
+      } catch {
+        case e: Throwable => Future.failed(e)
+      }
+    } else {
+      Future.successful(())
+    }
+    future.flatMap { _ =>
+      super.select(database)
+    }
+  }
   
 }
 

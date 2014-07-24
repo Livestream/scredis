@@ -8,7 +8,7 @@ import akka.actor.{ Actor, ActorRef }
 import akka.util.ByteString
 
 import scredis.{ PubSubMessage, Subscription }
-import scredis.protocol.{ Protocol, Request }
+import scredis.protocol.{ Protocol, Request, ErrorResponse }
 import scredis.exceptions.RedisProtocolException
 
 import scala.util.Success
@@ -62,31 +62,37 @@ class DecoderActor extends Actor with LazyLogging {
       val buffer = data.asByteBuffer
       while (buffer.remaining > 0) {
         try {
-          val message = Protocol.decodePubSubResponse(Protocol.decode(buffer))
-          message match {
-            case m: PubSubMessage.Subscribe => {
+          val result = Protocol.decodePubSubResponse(Protocol.decode(buffer))
+          result match {
+            case Left(ErrorResponse(message)) => {
+              sender ! SubscriberListenerActor.Fail(message)
+            }
+            case Right(m: PubSubMessage.Subscribe) => {
               sender ! SubscriberListenerActor.Complete(m)
             }
-            case m: PubSubMessage.PSubscribe => {
+            case Right(m: PubSubMessage.PSubscribe) => {
               sender ! SubscriberListenerActor.Complete(m)
             }
-            case m: PubSubMessage.Unsubscribe => {
+            case Right(m: PubSubMessage.Unsubscribe) => {
               sender ! SubscriberListenerActor.Complete(m)
             }
-            case m: PubSubMessage.PUnsubscribe => {
+            case Right(m: PubSubMessage.PUnsubscribe) => {
               sender ! SubscriberListenerActor.Complete(m)
             }
             case _ =>
           }
-          subscriptionOpt match {
-            case Some(subscription) => if (subscription.isDefinedAt(message)) {
-              Future {
-                subscription.apply(message)
-              }(ExecutionContext.global)
-            } else {
-              logger.debug(s"Received unregistered PubSubMessage: $message")
+          result match {
+            case Left(_) =>
+            case Right(message) => subscriptionOpt match {
+              case Some(subscription) => if (subscription.isDefinedAt(message)) {
+                Future {
+                  subscription.apply(message)
+                }(ExecutionContext.global)
+              } else {
+                logger.debug(s"Received unregistered PubSubMessage: $message")
+              }
+              case None => logger.error("Received SubscribePartition without any subscription")
             }
-            case None => logger.error("Received SubscribePartition without any subscription")
           }
         } catch {
           case e: Throwable => logger.error(

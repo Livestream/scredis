@@ -19,12 +19,15 @@ import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicInteger
 
 trait Connection {
-  protected implicit val ec: ExecutionContext = ExecutionContext.global
+  protected implicit val ec: ExecutionContext
+}
+
+trait NonBlockingConnection {
   protected def send[A](request: Request[A]): Future[A]
 }
 
-trait TransactionEnabledConnection extends Connection {
-  protected def sendTransaction(transaction: Transaction): Future[Vector[Try[Any]]]
+trait TransactionEnabledConnection {
+  protected def send(transaction: Transaction): Future[Vector[Try[Any]]]
 }
 
 trait BlockingConnection {

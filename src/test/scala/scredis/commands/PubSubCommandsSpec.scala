@@ -14,6 +14,7 @@ import scredis.util.TestUtils._
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConversions._
 import scala.concurrent.Promise
+import scala.concurrent.duration._
 
 import java.util.concurrent.{ LinkedBlockingQueue, TimeUnit }
 
@@ -290,6 +291,59 @@ class PubSubCommandsSpec extends WordSpec
     }
   }
   
+  "Authentication" should {
+    "suceed and preserve subscriptions" taggedAs (V200) in {
+      client.unsubscribe().futureValue should be (0)
+      client.pUnsubscribe().futureValue should be (0)
+      
+      client.subscribe("CHANNEL1", "CHANNEL2")(pf).futureValue should be (2)
+      
+      subscribes.poll(2) should contain theSameElementsAs List(
+        Subscribe("CHANNEL1", 1),
+        Subscribe("CHANNEL2", 2)
+      )
+      
+      client.pSubscribe("CH*", "*EL", "ASD*")(pf).futureValue should be (5)
+      
+      pSubscribes.poll(3) should contain theSameElementsAs List(
+        PSubscribe("CH*", 3),
+        PSubscribe("*EL", 4),
+        PSubscribe("ASD*", 5)
+      )
+      
+      clear()
+      
+      publisher.configSet("requirepass", "").futureValue should be (())
+      
+      client.auth("")(2 seconds) should be (())
+      
+      subscribes.poll(2) should have size (2)
+      pSubscribes.poll(3) should have size (3)
+      
+      client.subscribe("CHANNEL3")(pf).futureValue should be (6)
+      client.pSubscribe("*")(pf).futureValue should be (7)
+      
+      publisher.publish("CHANNEL1", "LOL").futureValue should be (3)
+      
+      messages.poll(1) should contain theSameElementsAs List(
+        Message("CHANNEL1", "LOL")
+      )
+      
+      pMessages.poll(2) should contain theSameElementsAs List(
+        PMessage("CH*", "CHANNEL1", "LOL"),
+        PMessage("*", "CHANNEL1", "LOL")
+      )
+      
+      publisher.configSet("requirepass", "foobar").futureValue should be (())
+      client.auth("foobar")(2 seconds) should be (())
+      
+      client.unsubscribe().futureValue should be (4)
+      client.pUnsubscribe().futureValue should be (0)
+      
+      clear()
+    }
+  }
+  
   "Automatic re-subscribe" when {
     "a subscribed client gets disconnected and reconnects" should {
       "preserve its subscriptions after reconnection" taggedAs (V2812) in {
@@ -461,10 +515,10 @@ class PubSubCommandsSpec extends WordSpec
 
   override def afterAll() {
     publisher.quit().!
-    client.quit().!
-    client2.quit().!
-    client3.quit().!
-    client4.quit().!
+    client.quit()(2 seconds)
+    client2.quit()(2 seconds)
+    client3.quit()(2 seconds)
+    client4.quit()(2 seconds)
   }
   
 }

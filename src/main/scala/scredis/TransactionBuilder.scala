@@ -1,14 +1,16 @@
 package scredis
 
-import scredis.io.Connection
+import scredis.io.{ Connection, NonBlockingConnection }
 import scredis.commands._
 import scredis.protocol.Request
 import scredis.exceptions.RedisTransactionBuilderException
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
-final class TransactionBuilder private[scredis] () extends Connection
+final class TransactionBuilder private[scredis] ()(
+  protected implicit val ec: ExecutionContext
+) extends Connection with NonBlockingConnection
   with ConnectionCommands
   with HashCommands
   with HyperLogLogCommands
