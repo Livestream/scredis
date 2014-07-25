@@ -53,7 +53,6 @@ object ClientBenchmark extends PerformanceTest {
           client.ping()
         }
         Await.result(future, 30 seconds)
-        println("DONE", i)
       }
     }
   }

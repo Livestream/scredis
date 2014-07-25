@@ -22,7 +22,6 @@ class DecoderActor extends Actor with LazyLogging {
   import DecoderActor._
   
   private var subscriptionOpt: Option[Subscription] = None
-  private var count = 0
   
   private val decodeTimer = scredis.protocol.Protocol.metrics.timer(
     MetricRegistry.name(getClass, "decodeTimer")
@@ -52,8 +51,6 @@ class DecoderActor extends Actor with LazyLogging {
             request.failure(RedisProtocolException("Could not decode response", e))
           }
         }
-        count += 1
-        if (count % 100000 == 0) println(count)
       }
       
       decode.stop()
