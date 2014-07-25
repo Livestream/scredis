@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.3.3",
   "com.codahale.metrics" % "metrics-core" % "3.0.1",
   "org.scalatest" %% "scalatest" % "2.2.0" % "test",
+  "com.storm-enroute" %% "scalameter" % "0.6" % "test",
   "org.slf4j" % "slf4j-simple" % "1.7.7"
 )
 
@@ -60,6 +61,8 @@ pomExtra := (
 )
 
 parallelExecution in Test := false
+
+testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
 
 concurrentRestrictions in Global += Tags.limit(Tags.Test, 1)
 
