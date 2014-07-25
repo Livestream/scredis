@@ -17,7 +17,7 @@ class ConnectionCommandsSpec extends WordSpec
   
   private val client = Client()
   private val clientToQuit = Client()
-  private val clientWithPassword = Client("application.conf", "unauthenticated.scredis")
+  private val clientWithPassword = Client(port = 6380)
   private val CorrectPassword = "foobar"
   
   Auth.toString when {

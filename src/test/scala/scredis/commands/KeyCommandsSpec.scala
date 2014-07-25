@@ -20,7 +20,7 @@ class KeyCommandsSpec extends WordSpec
   with ScalaFutures {
   
   private val client = Client()
-  private val client2 = Client("application.conf", "authenticated.scredis")
+  private val client2 = Client(port = 6380, passwordOpt = Some("foobar"))
   private val SomeValue = "HelloWorld!虫àéç蟲"
 
   private var dumpedValue: Array[Byte] = _

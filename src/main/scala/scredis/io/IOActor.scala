@@ -21,7 +21,11 @@ import java.net.InetSocketAddress
 
 class IOActor(
   listenerActor: ActorRef,
-  remote: InetSocketAddress
+  remote: InetSocketAddress,
+  connectTimeout: FiniteDuration,
+  maxWriteBatchSize: Int,
+  tcpSendBufferSizeHint: Int,
+  tcpReceiveBufferSizeHint: Int
 ) extends Actor with LazyLogging {
   
   import Tcp._
@@ -31,7 +35,10 @@ class IOActor(
   
   private val scheduler = context.system.scheduler
   
-  private val bufferPool = new scredis.util.BufferPool(1)
+  private val bufferPool = new scredis.util.BufferPool(
+    1,
+    maxWriteBatchSize + (0.25 * maxWriteBatchSize).toInt
+  )
   
   private var batch: Seq[Request[_]] = Nil
   private var canWrite = false
@@ -48,10 +55,10 @@ class IOActor(
         SO.KeepAlive(true),
         SO.TcpNoDelay(true),
         SO.ReuseAddress(true),
-        SO.SendBufferSize(5000000),
-        SO.ReceiveBufferSize(500000)
+        SO.SendBufferSize(tcpSendBufferSizeHint),
+        SO.ReceiveBufferSize(tcpReceiveBufferSizeHint)
       ),
-      timeout = Some(2 seconds)
+      timeout = Some(connectTimeout)
     )
     timeoutCancellableOpt = Some {
       scheduler.scheduleOnce(2 seconds, self, ConnectTimeout)
@@ -116,7 +123,7 @@ class IOActor(
     
     var length = 0
     val batch = ListBuffer[Request[_]]()
-    while (!requests.isEmpty && length < 50000) {
+    while (!requests.isEmpty && length < maxWriteBatchSize) {
       val request = requests.pop()
       length += encode(request)
       batch += request

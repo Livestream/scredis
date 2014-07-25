@@ -13,30 +13,56 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
- * Defines a Redis client supporting all commands.
+ * Defines a Redis client supporting all non-blocking commands.
  * 
  * @param host server address
  * @param port server port
- * @param password server password
+ * @param passwordOpt optional server password
  * @param database database index to select
- * @param timeout maximum duration for the execution of a command, can be infinite
+ * @param nameOpt optional client name (available since 2.6.9)
+ * @param connectTimeout connection timeout
+ * @param receiveTimeoutOpt optional batch receive timeout
+ * @param maxWriteBatchSize max number of bytes to send as part of a batch
+ * @param tcpSendBufferSizeHint size hint of the tcp send buffer, in bytes
+ * @param tcpReceiveBufferSizeHint size hint of the tcp receive buffer, in bytes
+ * @param akkaListenerDispatcherPath path to listener dispatcher definition
+ * @param akkaIODispatcherPath path to io dispatcher definition
+ * @param akkaDecoderDispatcherPath path to decoder dispatcher definition
  * 
  * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define client [[scredis.Client]]
  * @define tc com.typesafe.Config
  */
 final class Client(
-  host: String = RedisConfigDefaults.Client.Host,
-  port: Int = RedisConfigDefaults.Client.Port,
-  passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
-  database: Int = RedisConfigDefaults.Client.Database,
-  timeout: Duration = RedisConfigDefaults.Client.Timeout
+  host: String = RedisConfigDefaults.Redis.Host,
+  port: Int = RedisConfigDefaults.Redis.Port,
+  passwordOpt: Option[String] = RedisConfigDefaults.Redis.PasswordOpt,
+  database: Int = RedisConfigDefaults.Redis.Database,
+  nameOpt: Option[String] = RedisConfigDefaults.Redis.NameOpt,
+  connectTimeout: FiniteDuration = RedisConfigDefaults.IO.ConnectTimeout,
+  receiveTimeoutOpt: Option[FiniteDuration] = RedisConfigDefaults.IO.ReceiveTimeoutOpt,
+  maxWriteBatchSize: Int = RedisConfigDefaults.IO.MaxWriteBatchSize,
+  tcpSendBufferSizeHint: Int = RedisConfigDefaults.IO.TCPSendBufferSizeHint,
+  tcpReceiveBufferSizeHint: Int = RedisConfigDefaults.IO.TCPReceiveBufferSizeHint,
+  akkaListenerDispatcherPath: String = RedisConfigDefaults.IO.Akka.ListenerDispatcherPath,
+  akkaIODispatcherPath: String = RedisConfigDefaults.IO.Akka.IODispatcherPath,
+  akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath
 )(implicit system: ActorSystem) extends AkkaNonBlockingConnection(
   system = system,
   host = host,
   port = port,
   passwordOpt = passwordOpt,
-  database = database
+  database = database,
+  nameOpt = nameOpt,
+  connectTimeout = connectTimeout,
+  receiveTimeoutOpt = receiveTimeoutOpt,
+  maxWriteBatchSize = maxWriteBatchSize,
+  tcpSendBufferSizeHint = tcpSendBufferSizeHint,
+  tcpReceiveBufferSizeHint = tcpReceiveBufferSizeHint,
+  decodersCount = 2,
+  akkaListenerDispatcherPath = akkaListenerDispatcherPath,
+  akkaIODispatcherPath = akkaIODispatcherPath,
+  akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
 ) with ConnectionCommands
   with ServerCommands
   with KeyCommands
@@ -57,11 +83,19 @@ final class Client(
    * @return the constructed $client
    */
   def this(config: RedisConfig)(implicit system: ActorSystem) = this(
-    config.Client.Host,
-    config.Client.Port,
-    config.Client.Password,
-    config.Client.Database,
-    config.Client.Timeout
+    host = config.Redis.Host,
+    port = config.Redis.Port,
+    passwordOpt = config.Redis.PasswordOpt,
+    database = config.Redis.Database,
+    nameOpt = config.Redis.NameOpt,
+    connectTimeout = config.IO.ConnectTimeout,
+    receiveTimeoutOpt = config.IO.ReceiveTimeoutOpt,
+    maxWriteBatchSize = config.IO.MaxWriteBatchSize,
+    tcpSendBufferSizeHint = config.IO.TCPSendBufferSizeHint,
+    tcpReceiveBufferSizeHint = config.IO.TCPReceiveBufferSizeHint,
+    akkaListenerDispatcherPath = config.IO.Akka.ListenerDispatcherPath,
+    akkaIODispatcherPath = config.IO.Akka.IODispatcherPath,
+    akkaDecoderDispatcherPath = config.IO.Akka.DecoderDispatcherPath
   )
   
   /**
@@ -118,18 +152,47 @@ object Client {
    * 
    * @param host server address
    * @param port server port
-   * @param password server password
+   * @param passwordOpt optional server password
    * @param database database index to select
-   * @param timeout maximum duration for the execution of a command, can be infinite
+   * @param nameOpt optional client name (available since 2.6.9)
+   * @param connectTimeout connection timeout
+   * @param receiveTimeoutOpt optional batch receive timeout
+   * @param maxWriteBatchSize max number of bytes to send as part of a batch
+   * @param tcpSendBufferSizeHint size hint of the tcp send buffer, in bytes
+   * @param tcpReceiveBufferSizeHint size hint of the tcp receive buffer, in bytes
+   * @param akkaListenerDispatcherPath path to listener dispatcher definition
+   * @param akkaIODispatcherPath path to io dispatcher definition
+   * @param akkaDecoderDispatcherPath path to decoder dispatcher definition
    */
   def apply(
-    host: String = RedisConfigDefaults.Client.Host,
-    port: Int = RedisConfigDefaults.Client.Port,
-    passwordOpt: Option[String] = RedisConfigDefaults.Client.Password,
-    database: Int = RedisConfigDefaults.Client.Database,
-    timeout: Duration = RedisConfigDefaults.Client.Timeout
-  )(implicit system: ActorSystem): Client = new Client(host, port, passwordOpt, database, timeout)
-  
+    host: String = RedisConfigDefaults.Redis.Host,
+    port: Int = RedisConfigDefaults.Redis.Port,
+    passwordOpt: Option[String] = RedisConfigDefaults.Redis.PasswordOpt,
+    database: Int = RedisConfigDefaults.Redis.Database,
+    nameOpt: Option[String] = RedisConfigDefaults.Redis.NameOpt,
+    connectTimeout: FiniteDuration = RedisConfigDefaults.IO.ConnectTimeout,
+    receiveTimeoutOpt: Option[FiniteDuration] = RedisConfigDefaults.IO.ReceiveTimeoutOpt,
+    maxWriteBatchSize: Int = RedisConfigDefaults.IO.MaxWriteBatchSize,
+    tcpSendBufferSizeHint: Int = RedisConfigDefaults.IO.TCPSendBufferSizeHint,
+    tcpReceiveBufferSizeHint: Int = RedisConfigDefaults.IO.TCPReceiveBufferSizeHint,
+    akkaListenerDispatcherPath: String = RedisConfigDefaults.IO.Akka.ListenerDispatcherPath,
+    akkaIODispatcherPath: String = RedisConfigDefaults.IO.Akka.IODispatcherPath,
+    akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath
+  )(implicit system: ActorSystem): Client = new Client(
+    host = host,
+    port = port,
+    passwordOpt = passwordOpt,
+    database = database,
+    nameOpt = nameOpt,
+    connectTimeout = connectTimeout,
+    receiveTimeoutOpt = receiveTimeoutOpt,
+    maxWriteBatchSize = maxWriteBatchSize,
+    tcpSendBufferSizeHint = tcpSendBufferSizeHint,
+    tcpReceiveBufferSizeHint = tcpReceiveBufferSizeHint,
+    akkaListenerDispatcherPath = akkaListenerDispatcherPath,
+    akkaIODispatcherPath = akkaIODispatcherPath,
+    akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
+  )
   
   /**
    * Constructs a $client instance from a [[scredis.RedisConfig]]

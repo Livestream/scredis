@@ -15,6 +15,7 @@ import scredis.protocol.requests.ConnectionRequests.{ Auth, Select, Quit }
 import scredis.protocol.requests.ServerRequests
 import scredis.protocol.requests.TransactionRequests.{ Multi, Exec }
 import scredis.exceptions.RedisIOException
+import scredis.util.UniqueNameGenerator
 
 import scala.util.{ Try, Success, Failure }
 import scala.collection.mutable.{ Queue => MQueue, ListBuffer }
@@ -30,8 +31,15 @@ class ListenerActor(
   port: Int,
   var passwordOpt: Option[String],
   var database: Int,
+  var nameOpt: Option[String],
   var decodersCount: Int,
-  receiveTimeoutOpt: Option[FiniteDuration]
+  receiveTimeoutOpt: Option[FiniteDuration],
+  connectTimeout: FiniteDuration,
+  maxWriteBatchSize: Int,
+  tcpSendBufferSizeHint: Int,
+  tcpReceiveBufferSizeHint: Int,
+  akkaIODispatcherPath: String,
+  akkaDecoderDispatcherPath: String
 ) extends Actor with LazyLogging {
   
   import context.dispatcher
@@ -39,10 +47,7 @@ class ListenerActor(
   import ListenerActor._
   
   override val supervisorStrategy = OneForOneStrategy() {
-    case e: Exception => {
-      e.printStackTrace()
-      SupervisorStrategy.Stop
-    }
+    case e: Exception => SupervisorStrategy.Stop
   }
   
   private val remote = new InetSocketAddress(host, port)
@@ -60,14 +65,23 @@ class ListenerActor(
   protected var decoders: Router = _
   
   private def createIOActor(): ActorRef = context.actorOf(
-    Props(classOf[IOActor], self, remote).withDispatcher("scredis.akka.io-dispatcher"),
-    Connection.getUniqueName(s"io-actor-$host-$port")
+    Props(
+      classOf[IOActor],
+      self,
+      remote,
+      connectTimeout,
+      maxWriteBatchSize,
+      tcpSendBufferSizeHint,
+      tcpReceiveBufferSizeHint
+    ).withDispatcher(akkaIODispatcherPath),
+    UniqueNameGenerator.getUniqueName(s"${nameOpt.getOrElse(s"$host-$port")}-io-actor")
   )
   
   private def createDecodersRouter(): Router = {
     val routees = Vector.fill(decodersCount) {
       val ref = context.actorOf(
-        Props(classOf[DecoderActor]).withDispatcher("scredis.akka.decoder-dispatcher")
+        Props(classOf[DecoderActor]).withDispatcher(akkaIODispatcherPath),
+        UniqueNameGenerator.getNumberedName(s"${nameOpt.getOrElse(s"$host-$port")}-decoder-actor")
       )
       context.watch(ref)
       ActorRefRoutee(ref)
@@ -104,6 +118,13 @@ class ListenerActor(
           case select @ Select(database) => {
             this.database = database
             doSend(select)
+          }
+          case setName @ ServerRequests.ClientSetName(name) => if (name.isEmpty) {
+            nameOpt = None
+            doSend(setName)
+          } else {
+            nameOpt = Some(name)
+            doSend(setName)
           }
           case request @ (Quit() | ServerRequests.Shutdown(_)) => {
             isShuttingDown = true
@@ -285,7 +306,6 @@ class ListenerActor(
     }
     case Connected => {
       isConnecting = false
-      initializationRequestsCount = 0
       
       onConnect()
       
@@ -297,6 +317,9 @@ class ListenerActor(
       } else {
         None
       }
+      val setNameRequestOpt = nameOpt.map { name =>
+        ServerRequests.ClientSetName(name)
+      }
       
       val authFuture = authRequestOpt match {
         case Some(request) => request.future
@@ -306,40 +329,38 @@ class ListenerActor(
         case Some(request) => request.future
         case None => Future.successful(())
       }
+      val setNameFuture = setNameRequestOpt match {
+        case Some(request) => request.future
+        case None => Future.successful(())
+      }
       
-      (authRequestOpt, selectRequestOpt) match {
-        case (Some(auth), Some(select)) => {
-          initializationRequestsCount = 2
-          send(auth, select)
-          become(initializing)
-        }
-        case (Some(auth), None) => {
-          initializationRequestsCount = 1
-          send(auth)
-          become(initializing)
-        }
-        case (None, Some(select)) => {
-          initializationRequestsCount = 1
-          send(select)
-          become(initializing)
-        }
-        case (None, None) => {
-          onInitialized()
-          sendAllQueuedRequests()
-          if (isShuttingDown) {
-            become(shuttingDown)
-          } else {
-            become(initialized)
-          }
+      val requests = List[Option[Request[Unit]]](
+        authRequestOpt, selectRequestOpt, setNameRequestOpt
+      ).flatten
+      
+      initializationRequestsCount = requests.size
+      
+      if (initializationRequestsCount > 0) {
+        send(requests: _*)
+        become(initializing)
+      } else {
+        onInitialized()
+        sendAllQueuedRequests()
+        if (isShuttingDown) {
+          become(shuttingDown)
+        } else {
+          become(initialized)
         }
       }
       
-      authFuture.andThen {
-        case Success(_) => selectFuture.andThen {
-          case Success(_) =>
-          case Failure(e) => logger.error(s"Could not select database '$database' in $remote", e)
-        }
-        case Failure(e) => logger.error(s"Could not authenticate to $remote", e)
+      authFuture.recover {
+        case e: Throwable => logger.error(s"Could not authenticate to $remote", e)
+      }
+      selectFuture.recover {
+        case e: Throwable => logger.error(s"Could not select database '$database' in $remote", e)
+      }
+      setNameFuture.recover {
+        case e: Throwable => logger.error(s"Could not set client name in $remote", e)
       }
     }
     case ReceiveTimeout =>
@@ -407,7 +428,7 @@ class ListenerActor(
     case Terminated(_) => {
       decodersCount -= 1
       if (decodersCount == 0) {
-        logger.info("Connection has been gracefully shutdown")
+        logger.info("Connection has been shutdown gracefully")
         context.stop(self)
       }
     }

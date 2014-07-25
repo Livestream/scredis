@@ -436,7 +436,7 @@ class ServerCommandsSpec extends WordSpec
       client.slowLogReset().futureValue should be (())
     }
   }
-
+  
   Time.toString should {
     "return the current server UNIX timestamp with microseconds" taggedAs (V260) in {
       val (seconds, microseconds) = client.time().futureValue
@@ -444,12 +444,12 @@ class ServerCommandsSpec extends WordSpec
       microseconds should be >= (0l)
     }
   }
-
+  
   override def afterAll(): Unit = {
     client.flushAll().!
     client.quit().!
     client1.flushAll().!
     client1.quit().!
   }
-
+  
 }

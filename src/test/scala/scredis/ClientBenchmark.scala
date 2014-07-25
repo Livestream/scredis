@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 
 import scala.concurrent.{ Future, Await }
 import scala.concurrent.duration._
-
+/*
 object ClientBenchmark extends PerformanceTest {
   
   private var system: ActorSystem = _
@@ -57,4 +57,4 @@ object ClientBenchmark extends PerformanceTest {
     }
   }
   
-}
+}*/

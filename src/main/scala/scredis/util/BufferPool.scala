@@ -5,9 +5,9 @@ import scala.annotation.tailrec
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
-class BufferPool(maxEntries: Int, isDirect: Boolean = false) {
+class BufferPool(maxCapacity: Int, maxBufferSize: Int, isDirect: Boolean = false) {
   private[this] val locked = new AtomicBoolean(false)
-  private[this] val pool = new Array[ByteBuffer](maxEntries)
+  private[this] val pool = new Array[ByteBuffer](maxCapacity)
   private[this] var size: Int = 0
   
   @inline
@@ -44,9 +44,13 @@ class BufferPool(maxEntries: Int, isDirect: Boolean = false) {
 
   @tailrec
   final def release(buffer: ByteBuffer): Unit = {
+    if (buffer.capacity > maxBufferSize) {
+      return
+    }
+    
     if (locked.compareAndSet(false, true)) {
       try {
-        if (size < maxEntries) {
+        if (size < maxCapacity) {
           pool(size) = buffer
           size += 1
         }

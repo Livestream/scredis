@@ -19,16 +19,29 @@ class SubscriberListenerActor(
   host: String,
   port: Int,
   passwordOpt: Option[String],
-  database: Int,
+  nameOpt: Option[String],
   decodersCount: Int,
-  receiveTimeoutOpt: Option[FiniteDuration]
+  receiveTimeoutOpt: Option[FiniteDuration],
+  connectTimeout: FiniteDuration,
+  maxWriteBatchSize: Int,
+  tcpSendBufferSizeHint: Int,
+  tcpReceiveBufferSizeHint: Int,
+  akkaIODispatcherPath: String,
+  akkaDecoderDispatcherPath: String
 ) extends ListenerActor(
-  host,
-  port,
-  passwordOpt,
-  database,
-  decodersCount,
-  receiveTimeoutOpt
+  host = host,
+  port = port,
+  passwordOpt = passwordOpt,
+  database = 0,
+  nameOpt = nameOpt,
+  decodersCount = decodersCount,
+  receiveTimeoutOpt = receiveTimeoutOpt,
+  connectTimeout = connectTimeout,
+  maxWriteBatchSize = maxWriteBatchSize,
+  tcpSendBufferSizeHint = tcpSendBufferSizeHint,
+  tcpReceiveBufferSizeHint = tcpReceiveBufferSizeHint,
+  akkaIODispatcherPath = akkaIODispatcherPath,
+  akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
 ) {
   
   import SubscriberListenerActor._

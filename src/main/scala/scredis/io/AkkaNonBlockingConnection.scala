@@ -7,6 +7,7 @@ import akka.actor._
 import scredis.Transaction
 import scredis.exceptions._
 import scredis.protocol._
+import scredis.util.UniqueNameGenerator
 
 import scala.util.Try
 import scala.concurrent.{ ExecutionContext, Future, Await }
@@ -16,7 +17,7 @@ import java.net.InetSocketAddress
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /**
- * This trait represents a connection to a `Redis` server.
+ * This trait represents a non-blocking connection to a `Redis` server.
  */
 abstract class AkkaNonBlockingConnection(
   system: ActorSystem,
@@ -24,16 +25,32 @@ abstract class AkkaNonBlockingConnection(
   port: Int,
   passwordOpt: Option[String],
   database: Int,
-  decodersCount: Int = 3,
-  receiveTimeoutOpt: Option[FiniteDuration] = Some(5 seconds)
+  nameOpt: Option[String],
+  decodersCount: Int,
+  receiveTimeoutOpt: Option[FiniteDuration],
+  connectTimeout: FiniteDuration,
+  maxWriteBatchSize: Int,
+  tcpSendBufferSizeHint: Int,
+  tcpReceiveBufferSizeHint: Int,
+  akkaListenerDispatcherPath: String,
+  akkaIODispatcherPath: String,
+  akkaDecoderDispatcherPath: String
 ) extends AbstractAkkaConnection(
   system = system,
   host = host,
   port = port,
   passwordOpt = passwordOpt,
   database = database,
+  nameOpt = nameOpt,
   decodersCount = decodersCount,
-  receiveTimeoutOpt = receiveTimeoutOpt
+  receiveTimeoutOpt = receiveTimeoutOpt,
+  connectTimeout = connectTimeout,
+  maxWriteBatchSize = maxWriteBatchSize,
+  tcpSendBufferSizeHint = tcpSendBufferSizeHint,
+  tcpReceiveBufferSizeHint = tcpReceiveBufferSizeHint,
+  akkaListenerDispatcherPath = akkaListenerDispatcherPath,
+  akkaIODispatcherPath = akkaIODispatcherPath,
+  akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
 ) with NonBlockingConnection with TransactionEnabledConnection {
   
   private val lock = new ReentrantReadWriteLock()
@@ -45,12 +62,17 @@ abstract class AkkaNonBlockingConnection(
       port,
       passwordOpt,
       database,
+      nameOpt,
       decodersCount,
-      receiveTimeoutOpt
-    ).withDispatcher(
-      "scredis.akka.listener-dispatcher"
-    ),
-    Connection.getUniqueName(s"listener-actor-$host-$port")
+      receiveTimeoutOpt,
+      connectTimeout,
+      maxWriteBatchSize,
+      tcpSendBufferSizeHint,
+      tcpReceiveBufferSizeHint,
+      akkaIODispatcherPath,
+      akkaDecoderDispatcherPath
+    ).withDispatcher(akkaListenerDispatcherPath),
+    UniqueNameGenerator.getUniqueName(s"${nameOpt.getOrElse(s"$host-$port")}-listener-actor")
   )
   
   override protected def send[A](request: Request[A]): Future[A] = {

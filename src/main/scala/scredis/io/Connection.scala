@@ -38,15 +38,3 @@ trait SubscriberConnection {
   protected def sendAsSubscriber(request: Request[_]): Future[Int]
   protected def setSubscription(subscription: Subscription): Unit
 }
-
-object Connection {
-  private val ids = MMap[String, AtomicInteger]()
-  
-  private[io] def getUniqueName(name: String): String = {
-    val counter = ids.synchronized {
-      ids.getOrElseUpdate(name, new AtomicInteger(0))
-    }
-    s"$name-${counter.incrementAndGet()}"
-  }
-  
-}

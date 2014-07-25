@@ -7,6 +7,7 @@ import akka.routing._
 
 import scredis.io.AkkaNonBlockingConnection
 import scredis.commands._
+import scredis.util.UniqueNameGenerator
 
 import scala.util.{ Success, Failure }
 import scala.concurrent.Future
@@ -18,13 +19,21 @@ import scala.concurrent.duration._
  * @define tc com.typesafe.Config
  */
 final class Redis(protected val config: RedisConfig) extends AkkaNonBlockingConnection(
-  ActorSystem(),
-  host = config.Client.Host,
-  port = config.Client.Port,
-  passwordOpt = config.Client.Password,
-  database = config.Client.Database,
-  decodersCount = 2,
-  receiveTimeoutOpt = Some(5 seconds)
+  system = ActorSystem(UniqueNameGenerator.getUniqueName(config.IO.Akka.ActorSystemName)),
+  host = config.Redis.Host,
+  port = config.Redis.Port,
+  passwordOpt = config.Redis.PasswordOpt,
+  database = config.Redis.Database,
+  nameOpt = config.Redis.NameOpt,
+  connectTimeout = config.IO.ConnectTimeout,
+  receiveTimeoutOpt = config.IO.ReceiveTimeoutOpt,
+  maxWriteBatchSize = config.IO.MaxWriteBatchSize,
+  tcpSendBufferSizeHint = config.IO.TCPSendBufferSizeHint,
+  tcpReceiveBufferSizeHint = config.IO.TCPReceiveBufferSizeHint,
+  akkaListenerDispatcherPath = config.IO.Akka.ListenerDispatcherPath,
+  akkaIODispatcherPath = config.IO.Akka.IODispatcherPath,
+  akkaDecoderDispatcherPath = config.IO.Akka.DecoderDispatcherPath,
+  decodersCount = 2
 ) with ConnectionCommands
   with ServerCommands
   with KeyCommands
@@ -148,6 +157,8 @@ final class Redis(protected val config: RedisConfig) extends AkkaNonBlockingConn
       case e: Throwable => logger.error("Could not shutdown subscriber client", e)
     }.flatMap { _ =>
       super.quit()
+    }.map { _ =>
+      system.shutdown()
     }
   }
 

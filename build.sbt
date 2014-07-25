@@ -10,7 +10,7 @@ version := "1.1.2"
 
 scalaVersion := "2.11.1"
 
-scalacOptions ++= Seq("-deprecation", "-optimize")
+scalacOptions ++= Seq("-deprecation")
 
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",

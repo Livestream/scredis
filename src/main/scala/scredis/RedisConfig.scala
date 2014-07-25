@@ -22,177 +22,84 @@ class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
   private val referenceConfig = ConfigFactory.defaultReference().getConfig("scredis")
   private val mergedConfig = config.withFallback(referenceConfig)
   mergedConfig.checkValid(referenceConfig)
-
-  private val client = mergedConfig.getConfig("client")
-  private val pool = mergedConfig.getConfig("pool")
-  private val poolEviction = pool.getConfig("eviction")
-  private val async = mergedConfig.getConfig("async")
-  private val asyncExecutors = async.getConfig("executors")
-
-  private def parseDuration(value: String): Duration = {
-    val duration = Duration.create(value)
-    if (!duration.isFinite || duration.toMillis <= 0) Duration.Inf else duration
+  
+  private def optionally[A](key: String)(f: => A)(implicit config: Config): Option[A] = {
+    if (config.hasPath(key)) {
+      Some(f)
+    } else {
+      None
+    }
   }
   
-  private def parseFiniteDuration(key: String, value: String): FiniteDuration = {
-    val duration = parseDuration(value)
-    if(duration.isFinite) FiniteDuration(duration.length, duration.unit)
-    else throw new IllegalArgumentException(s"$key must be finite")
-  }
-
-  object Client {
-    val Host = client.getString("host")
-    val Port = client.getInt("port")
-    val Password = client.hasPath("password") match {
-      case true => Some(client.getString("password"))
-      case false => None
-    }
-    val Database = client.getInt("database")
-    val Timeout = client.hasPath("timeout") match {
-      case true => parseDuration(client.getString("timeout"))
-      case false => Duration.Inf
-    }
-    val Tries = client.getInt("tries") match {
-      case x if x >= 1 => x
-      case _ => 1
-    }
-    val Sleep = client.hasPath("sleep") match {
-      case true => Some(parseFiniteDuration("sleep", client.getString("sleep")))
-      case false => None
-    }
-  }
-
-  object Pool {
-    val Lifo = pool.getBoolean("lifo")
-    val MaxActive = pool.getInt("max-active")
-    val MaxIdle = pool.getInt("max-idle")
-    
-    val WhenExhaustedAction = pool.getString("when-exhausted-action").toLowerCase match {
-      case "fail"   => GenericObjectPool.WHEN_EXHAUSTED_FAIL
-      case "grow"   => GenericObjectPool.WHEN_EXHAUSTED_GROW
-      case "block"  => GenericObjectPool.WHEN_EXHAUSTED_BLOCK
-      case _        => throw new IllegalArgumentException(
-        "when-exhausted-action can only be fail, grow or block"
-      )
-    }
-    val MaxWait = parseDuration(pool.getString("max-wait"))
-    
-    val TestWithPing = pool.getBoolean("test-with-ping")
-    
-    val TestOnBorrow = pool.getBoolean("test-on-borrow")
-    val TestOnReturn = pool.getBoolean("test-on-return")
-    
-    object Eviction {
-      val EvictionRunInterval = if(poolEviction.hasPath("eviction-run-interval")) {
-        Some(parseFiniteDuration(
-          "eviction-run-interval",
-          poolEviction.getString("eviction-run-interval")
-        ))
-      } else {
-        None
-      }
-      val EvictableAfter = if(poolEviction.hasPath("evictable-after")) {
-        Some(parseFiniteDuration(
-          "evictable-after",
-          poolEviction.getString("evictable-after")
-        ))
-      } else {
-        None
-      }
-      val SoftEvictableAfter = if(poolEviction.hasPath("soft-evictable-after")) {
-        Some(parseFiniteDuration(
-          "soft-evictable-after",
-          poolEviction.getString("soft-evictable-after")
-        ))
-      } else {
-        None
-      }
-      val MinIdle = poolEviction.getInt("min-idle")
-      val TestsPerEvictionRun = poolEviction.getInt("tests-per-eviction-run")
-      val TestWhileIdle = poolEviction.getBoolean("test-while-idle")
-    }
-    
-    val Config = new GenericObjectPool.Config()
-    Config.lifo = Lifo
-    Config.maxActive = MaxActive
-    Config.maxIdle = MaxIdle
-    Config.minIdle = Eviction.MinIdle
-    Config.whenExhaustedAction = WhenExhaustedAction
-    Config.maxWait = if(MaxWait.isFinite) {
-      FiniteDuration(MaxWait.length, MaxWait.unit).toMillis
+  private def parseDuration(key: String)(implicit config: Config): Duration = {
+    val duration = Duration.create(config.getString(key))
+    if (!duration.isFinite || duration.toMillis <= 0) {
+      Duration.Inf
     } else {
-      -1
+      duration
     }
-    Config.testOnBorrow = TestOnBorrow
-    Config.testOnReturn = TestOnReturn
-    Config.timeBetweenEvictionRunsMillis = Eviction.EvictionRunInterval match {
-      case Some(duration) => duration.toMillis
-      case None => -1
+  }
+  
+  private def parseFiniteDuration(key: String)(implicit config: Config): FiniteDuration = {
+    val duration = parseDuration(key)
+    if (duration.isFinite) {
+      FiniteDuration(duration.length, duration.unit)
+    } else {
+      throw new IllegalArgumentException(s"$key must be finite")
     }
-    Config.minEvictableIdleTimeMillis = Eviction.EvictableAfter match {
-      case Some(duration) => duration.toMillis
-      case None => -1
-    }
-    Config.softMinEvictableIdleTimeMillis = Eviction.SoftEvictableAfter match {
-      case Some(duration) => duration.toMillis
-      case None => -1
-    }
-    Config.numTestsPerEvictionRun = Eviction.TestsPerEvictionRun
-    Config.testWhileIdle = Eviction.TestWhileIdle
   }
 
-  object Async {
-    val IsAutomaticPipeliningEnabled = async.getBoolean("auto-pipeline")
-    val Threshold = async.hasPath("auto-pipeline-threshold") match {
-      case true => async.getInt("auto-pipeline-threshold") match {
-        case x if x == 0 => None
-        case x => Some(x)
-      }
-      case false => None
+  object Redis {
+    private implicit val config = mergedConfig.getConfig("redis")
+    val Host = config.getString("host")
+    val Port = config.getInt("port")
+    val PasswordOpt = optionally("password") {
+      config.getString("password")
     }
-    val Interval = parseFiniteDuration(
-      "auto-pipeline-interval",
-      async.getString("auto-pipeline-interval")
-    )
-    val TimerThreadNamingPattern = async.getString("timer-thread-naming-pattern")
+    val Database = config.getInt("database")
+    val NameOpt = optionally("name") {
+      config.getString("name")
+    }
+  }
+  
+  object IO {
+    private implicit val config = mergedConfig.getConfig("io")
+    val ConnectTimeout = parseFiniteDuration("connect-timeout")
+    val ReceiveTimeoutOpt = optionally("receive-timeout") {
+      parseFiniteDuration("receive-timeout")
+    }
     
-    object Executors {
-      object Internal {
-        private val config = asyncExecutors.getConfig("internal")
-        val MaxConcurrent = config.getInt("max-concurrent")
-        val ThreadsNamingPattern = config.getString("threads-naming-pattern")
-        val DaemonThreads = config.getBoolean("daemon-threads")
-        val ThreadsPriority = config.getString("threads-priority").toLowerCase match {
-          case "min"    => Thread.MIN_PRIORITY
-          case "normal" => Thread.NORM_PRIORITY
-          case "max"    => Thread.MAX_PRIORITY
-          case _        => throw new IllegalArgumentException(
-            "threads-priority can only be min, normal or max"
-          )
-        }
-      }
-      object Callback {
-        private val config = asyncExecutors.getConfig("callback")
-        val MaxConcurrent = config.getInt("max-concurrent")
-        val ThreadsNamingPattern = config.getString("threads-naming-pattern")
-        val DaemonThreads = config.getBoolean("daemon-threads")
-        val ThreadsPriority = config.getString("threads-priority").toLowerCase match {
-          case "min"    => Thread.MIN_PRIORITY
-          case "normal" => Thread.NORM_PRIORITY
-          case "max"    => Thread.MAX_PRIORITY
-          case _        => throw new IllegalArgumentException(
-            "threads-priority can only be min, normal or max"
-          )
-        }
-      }
+    val MaxWriteBatchSize = config.getInt("max-write-batch-size")
+    val TCPSendBufferSizeHint = config.getInt("tcp-send-buffer-size-hint")
+    val TCPReceiveBufferSizeHint = config.getInt("tcp-receive-buffer-size-hint")
+    
+    object Akka {
+      private implicit val config = IO.config.getConfig("akka")
+      val ActorSystemName = config.getString("actor-system-name")
+      val IODispatcherPath = config.getString("io-dispatcher-path")
+      val ListenerDispatcherPath = config.getString("listener-dispatcher-path")
+      val DecoderDispatcherPath = config.getString("decoder-dispatcher-path")
+    }
+  }
+  
+  object Global {
+    private implicit val config = mergedConfig.getConfig("global")
+    val MaxConcurrentRequestsOpt = optionally("max-concurrent-requests") {
+      config.getInt("max-concurrent-requests")
+    }
+    
+    object EncodeBufferPool {
+      private implicit val config = Global.config.getConfig("encode-buffer-pool")
+      val PoolMaxCapacity = config.getInt("pool-max-capacity")
+      val BufferMaxSize = config.getInt("buffer-max-size")
     }
   }
   
   // Initialization
-  Client
-  Pool
-  Async
-
+  Redis
+  IO
+  Global
+  
 }
 
 object RedisConfig {
@@ -204,7 +111,7 @@ object RedisConfig {
 
 object RedisConfigDefaults {
   val Config = new RedisConfig()
-  val Client = Config.Client
-  val Pool = Config.Pool
-  val Async = Config.Async
+  val Redis = Config.Redis
+  val IO = Config.IO
+  val Global = Config.Global
 }

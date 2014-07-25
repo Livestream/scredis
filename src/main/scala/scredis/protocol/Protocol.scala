@@ -55,8 +55,15 @@ object Protocol {
   private val CrLf = "\r\n".getBytes(Encoding)
   private val CrLfLength = CrLf.length
   
-  private val bufferPool = new BufferPool(30500)
-  private val concurrentOpt: Option[(Semaphore, Boolean)] = Some(new Semaphore(30000), true)
+  private val bufferPool = new BufferPool(
+    maxCapacity = RedisConfigDefaults.Global.EncodeBufferPool.PoolMaxCapacity,
+    maxBufferSize = RedisConfigDefaults.Global.EncodeBufferPool.BufferMaxSize
+  )
+  private val concurrentOpt: Option[(Semaphore, Boolean)] = {
+    RedisConfigDefaults.Global.MaxConcurrentRequestsOpt.map { concurrent =>
+      (new Semaphore(30000), true)
+    }
+  }
   
   private def aquire(count: Int = 1): Unit = concurrentOpt.foreach {
     case (semaphore, true) => semaphore.acquire(count)

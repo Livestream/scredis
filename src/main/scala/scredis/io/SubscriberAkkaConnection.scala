@@ -9,6 +9,7 @@ import scredis.protocol._
 import scredis.protocol.requests.PubSubRequests._
 import scredis.protocol.requests.ConnectionRequests.{ Auth, Quit }
 import scredis.exceptions.RedisIOException
+import scredis.util.UniqueNameGenerator
 
 import scala.util.Try
 import scala.concurrent.{ ExecutionContext, Future, Await }
@@ -25,17 +26,32 @@ abstract class SubscriberAkkaConnection(
   host: String,
   port: Int,
   passwordOpt: Option[String],
-  database: Int,
-  decodersCount: Int = 3,
-  receiveTimeoutOpt: Option[FiniteDuration] = Some(5 seconds)
+  nameOpt: Option[String],
+  decodersCount: Int,
+  receiveTimeoutOpt: Option[FiniteDuration],
+  connectTimeout: FiniteDuration,
+  maxWriteBatchSize: Int,
+  tcpSendBufferSizeHint: Int,
+  tcpReceiveBufferSizeHint: Int,
+  akkaListenerDispatcherPath: String,
+  akkaIODispatcherPath: String,
+  akkaDecoderDispatcherPath: String
 ) extends AbstractAkkaConnection(
   system = system,
   host = host,
   port = port,
   passwordOpt = passwordOpt,
-  database = database,
+  database = 0,
+  nameOpt = nameOpt,
   decodersCount = decodersCount,
-  receiveTimeoutOpt = receiveTimeoutOpt
+  receiveTimeoutOpt = receiveTimeoutOpt,
+  connectTimeout = connectTimeout,
+  maxWriteBatchSize = maxWriteBatchSize,
+  tcpSendBufferSizeHint = tcpSendBufferSizeHint,
+  tcpReceiveBufferSizeHint = tcpReceiveBufferSizeHint,
+  akkaListenerDispatcherPath = akkaListenerDispatcherPath,
+  akkaIODispatcherPath = akkaIODispatcherPath,
+  akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
 ) with SubscriberConnection {
   
   private val lock = new Semaphore(1)
@@ -46,13 +62,17 @@ abstract class SubscriberAkkaConnection(
       host,
       port,
       passwordOpt,
-      database,
+      nameOpt,
       decodersCount,
-      receiveTimeoutOpt
-    ).withDispatcher(
-      "scredis.akka.listener-dispatcher"
-    ),
-    Connection.getUniqueName(s"listener-actor-$host-$port")
+      receiveTimeoutOpt,
+      connectTimeout,
+      maxWriteBatchSize,
+      tcpSendBufferSizeHint,
+      tcpReceiveBufferSizeHint,
+      akkaIODispatcherPath,
+      akkaDecoderDispatcherPath
+    ).withDispatcher(akkaListenerDispatcherPath),
+    UniqueNameGenerator.getUniqueName(s"${nameOpt.getOrElse(s"$host-$port")}-listener-actor")
   )
   
   private def unsubscribeAndThen(f: => Any): Unit = {
