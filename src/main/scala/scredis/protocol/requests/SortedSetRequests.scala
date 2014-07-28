@@ -33,7 +33,7 @@ object SortedSetRequests {
   
   private val WithScores = "WITHSCORES"
   private val Weights = "WEIGHTS"
-  private val Aggregate = "AGGREGATE"
+  private val AggregateName = "AGGREGATE"
   private val Limit = "LIMIT"
   
   case class ZAdd[W](key: String, members: Map[W, scredis.Score])(
@@ -75,7 +75,7 @@ object SortedSetRequests {
   case class ZInterStore(
     destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
-    ZInterStore, destination +: keys.size +: keys :+ Aggregate :+ aggregate.name: _*
+    ZInterStore, destination +: keys.size +: keys :+ AggregateName :+ aggregate.name: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -87,7 +87,7 @@ object SortedSetRequests {
   ) extends Request[Long](
     ZInterStore, destination :: keyWeightPairs.size :: {
       val (keys, weights) = keyWeightPairs.toList.unzip
-      keys ::: Weights :: weights ::: Aggregate :: aggregate.name :: Nil
+      keys ::: Weights :: weights ::: AggregateName :: aggregate.name :: Nil
     }: _*
   ) {
     override def decode = {
@@ -351,7 +351,7 @@ object SortedSetRequests {
   case class ZUnionStore(
     destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
-    ZUnionStore, destination +: keys.size +: keys :+ Aggregate :+ aggregate.name: _*
+    ZUnionStore, destination +: keys.size +: keys :+ AggregateName :+ aggregate.name: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
@@ -363,7 +363,7 @@ object SortedSetRequests {
   ) extends Request[Long](
     ZUnionStore, destination :: keyWeightPairs.size :: {
       val (keys, weights) = keyWeightPairs.toList.unzip
-      keys ::: Weights :: weights ::: Aggregate :: aggregate.name :: Nil
+      keys ::: Weights :: weights ::: AggregateName :: aggregate.name :: Nil
     }: _*
   ) {
     override def decode = {

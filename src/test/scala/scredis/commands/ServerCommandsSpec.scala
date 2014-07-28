@@ -102,7 +102,9 @@ class ServerCommandsSpec extends WordSpec
     }
     "killing by ids" should {
       "succeed" taggedAs (V2812) in {
+        client1.clientSetName("client1").futureValue should be (())
         client2.clientSetName("client2").futureValue should be (())
+        client3.clientSetName("client3").futureValue should be (())
         val clients = client1.clientList().futureValue
         val client3Id = clients.filter { map =>
           map("name") == "client3"
@@ -113,12 +115,18 @@ class ServerCommandsSpec extends WordSpec
     "killing by type" should {
       Given("that skipMe is true")
       "kill all clients except self" taggedAs (V2812) in {
+        client1.clientSetName("client1").futureValue should be (())
+        client2.clientSetName("client2").futureValue should be (())
+        client3.clientSetName("client3").futureValue should be (())
         client1.clientKillWithFilters(
           typeOpt = Some(ClientType.Normal), skipMe = true
         ).futureValue should be (2)
       }
       Given("that skipMe is false")
       "kill all clients including self" taggedAs (V2812) in {
+        client1.clientSetName("client1").futureValue should be (())
+        client2.clientSetName("client2").futureValue should be (())
+        client3.clientSetName("client3").futureValue should be (())
         client1.clientKillWithFilters(
           typeOpt = Some(ClientType.Normal), skipMe = false
         ).futureValue should be (3)
