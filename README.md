@@ -8,7 +8,7 @@ Scredis is a reactive, non-blocking and ultra-fast Scala [Redis](http://redis.io
 ## Features
 * Supports all Redis commands up to v2.8.13
 * Built on top of Akka non-blocking IO
-* Super fast, see Benchmarks section below
+* Super fast, see [Benchmarks](#benchmarks) section below
 * Automatic reconnection
 * Automatic pipelining
 * Transactions
