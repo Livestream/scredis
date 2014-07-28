@@ -79,7 +79,7 @@ redis.quit()
 
 ## Benchmarks
 
-The following benchmarks have been performed using [ScalaMeter](http://scalameter.github.io/) with the `SeparateJvmsExecutor`, configured with `Warmer.Default`, `Measurer.Default` and `Aggregator.average`.
+The following benchmarks have been performed using [ScalaMeter](http://scalameter.github.io/) with the `SeparateJvmsExecutor`, configured with `Warmer.Default`, `Measurer.Default` and `Aggregator.average`. The source code can be found [here](https://github.com/Livestream/scredis/blob/master/src/test/scala/scredis/ClientBenchmark.scala).
 
 ### Hardware
 * MacBook Pro (15-inch, Early 2011)
