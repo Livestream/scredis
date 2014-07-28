@@ -1,0 +1,352 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>protocol - scredis.protocol</title>
+          <meta name="description" content="protocol - scredis.protocol" />
+          <meta name="keywords" content="protocol scredis.protocol" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'scredis.protocol.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="scredis">scredis</a></p>
+        <h1>protocol</h1> <span class="permalink">
+      <a href="../../index.html#scredis.protocol.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">protocol</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="scredis.protocol"><span>protocol</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scredis.protocol.ArrayResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ArrayResponseextendsResponsewithProductwithSerializable"></a>
+      <a id="ArrayResponse:ArrayResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ArrayResponse.html"><span class="name">ArrayResponse</span></a><span class="params">(<span name="length">length: <span class="extype" name="scala.Int">Int</span></span>, <span name="buffer">buffer: <span class="extype" name="java.nio.ByteBuffer">ByteBuffer</span></span>)</span><span class="result"> extends <a href="Response.html" class="extype" name="scredis.protocol.Response">Response</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@ArrayResponseextendsResponsewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.BulkStringResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BulkStringResponseextendsResponsewithProductwithSerializable"></a>
+      <a id="BulkStringResponse:BulkStringResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BulkStringResponse.html"><span class="name">BulkStringResponse</span></a><span class="params">(<span name="valueOpt">valueOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]]</span>)</span><span class="result"> extends <a href="Response.html" class="extype" name="scredis.protocol.Response">Response</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@BulkStringResponseextendsResponsewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.Command" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CommandextendsAnyRef"></a>
+      <a id="Command:Command"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Command.html"><span class="name">Command</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@CommandextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.Decoder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Decoder[X]=PartialFunction[scredis.protocol.Response,X]"></a>
+      <a id="Decoder[X]:Decoder[X]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Decoder</span><span class="tparams">[<span name="X">X</span>]</span><span class="result"> = <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Response.html" class="extype" name="scredis.protocol.Response">Response</a>, <span class="extype" name="scredis.protocol.Decoder.X">X</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@Decoder[X]=PartialFunction[scredis.protocol.Response,X]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.ErrorResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ErrorResponseextendsResponsewithProductwithSerializable"></a>
+      <a id="ErrorResponse:ErrorResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ErrorResponse.html"><span class="name">ErrorResponse</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Response.html" class="extype" name="scredis.protocol.Response">Response</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@ErrorResponseextendsResponsewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.IntegerResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IntegerResponseextendsResponsewithProductwithSerializable"></a>
+      <a id="IntegerResponse:IntegerResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="IntegerResponse.html"><span class="name">IntegerResponse</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result"> extends <a href="Response.html" class="extype" name="scredis.protocol.Response">Response</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@IntegerResponseextendsResponsewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.Request" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Request[A]extendsAnyRef"></a>
+      <a id="Request[A]:Request[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Request.html"><span class="name">Request</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@Request[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.Response" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ResponseextendsAnyRef"></a>
+      <a id="Response:Response"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Response.html"><span class="name">Response</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@ResponseextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.SimpleStringResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SimpleStringResponseextendsResponsewithProductwithSerializable"></a>
+      <a id="SimpleStringResponse:SimpleStringResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SimpleStringResponse.html"><span class="name">SimpleStringResponse</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Response.html" class="extype" name="scredis.protocol.Response">Response</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@SimpleStringResponseextendsResponsewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.WriteCommand" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="WriteCommandextendsCommand"></a>
+      <a id="WriteCommand:WriteCommand"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="WriteCommand.html"><span class="name">WriteCommand</span></a><span class="result"> extends <a href="Command.html" class="extype" name="scredis.protocol.Command">Command</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@WriteCommandextendsCommand" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.ZeroArgCommand" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ZeroArgCommandextendsCommand"></a>
+      <a id="ZeroArgCommand:ZeroArgCommand"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ZeroArgCommand.html"><span class="name">ZeroArgCommand</span></a><span class="result"> extends <a href="Command.html" class="extype" name="scredis.protocol.Command">Command</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@ZeroArgCommandextendsCommand" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scredis.protocol.Protocol" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Protocol"></a>
+      <a id="Protocol:Protocol"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Protocol$.html"><span class="name">Protocol</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@Protocol" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This object implements various aspects of the <code>Redis</code> protocol.</p>
+    </li><li name="scredis.protocol.requests" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="requests"></a>
+      <a id="requests:requests"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="requests/package.html"><span class="name">requests</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.package@requests" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
