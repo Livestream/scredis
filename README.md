@@ -78,7 +78,81 @@ redis.quit()
 ```
 
 ## Benchmarks
-Coming very soon!
+
+The following benchmarks have been performed using [ScalaMeter](http://scalameter.github.io/) with the `SeparateJvmsExecutor`, configured with `Warmer.Default`, `Measurer.Default` and `Aggregator.average`.
+
+### Hardware
+* MacBook Pro (15-inch, Early 2011)
+* 2.0GHz quad-core Intel Core i7 processor with 6MB shared L3 cache
+* 16GB of 1333MHz DDR3 memory
+* Mac OS X 10.9.4
+
+### Java
+```
+> java -version
+java version "1.7.0_45"
+Java(TM) SE Runtime Environment (build 1.7.0_45-b18)
+Java HotSpot(TM) 64-Bit Server VM (build 24.45-b08, mixed mode)
+```
+
+### Scala
+Scala 2.11.2
+
+### Scredis
+2.0.0-RC1 with default configuration
+
+### Redis
+Redis 2.8.13 running locally (on the same machine)
+
+### Results
+
+```
+[info] :::Summary of regression test results - Accepter():::
+[info] Test group: Client.PING
+[info] - Client.PING.Test-0 measurements:
+[info]   - at size -> 1000000: passed
+[info]     (mean = 1496.30 ms, ci = <1396.51 ms, 1596.10 ms>, significance = 1.0E-10)
+[info]   - at size -> 2000000: passed
+[info]     (mean = 3106.07 ms, ci = <2849.27 ms, 3362.87 ms>, significance = 1.0E-10)
+[info]   - at size -> 3000000: passed
+[info]     (mean = 4735.93 ms, ci = <4494.92 ms, 4976.94 ms>, significance = 1.0E-10)
+[info]
+[info] Test group: Client.GET
+[info] - Client.GET.Test-1 measurements:
+[info]   - at size -> 1000000: passed
+[info]     (mean = 2452.47 ms, ci = <2308.81 ms, 2596.12 ms>, significance = 1.0E-10)
+[info]   - at size -> 2000000: passed
+[info]     (mean = 4880.42 ms, ci = <4629.75 ms, 5131.09 ms>, significance = 1.0E-10)
+[info]   - at size -> 3000000: passed
+[info]     (mean = 7271.20 ms, ci = <6795.45 ms, 7746.94 ms>, significance = 1.0E-10)
+[info]
+[info] Test group: Client.SET
+[info] - Client.SET.Test-2 measurements:
+[info]   - at size -> 1000000: passed
+[info]     (mean = 2969.00 ms, ci = <2768.45 ms, 3169.54 ms>, significance = 1.0E-10)
+[info]   - at size -> 2000000: passed
+[info]     (mean = 5912.59 ms, ci = <5665.94 ms, 6159.24 ms>, significance = 1.0E-10)
+[info]   - at size -> 3000000: passed
+[info]     (mean = 8752.69 ms, ci = <8403.07 ms, 9102.31 ms>, significance = 1.0E-10)
+[info]
+[info]  Summary: 3 tests passed, 0 tests failed.
+```
+
+#### Ping
+* 1,000,000 requests -> 1496.30 ms = 668,315 req/s
+* 2,000,000 requests -> 3106.07 ms = 643,900 req/s
+* 3,000,000 requests -> 4735.93 ms = 633,455 req/s
+
+#### Get
+* 1,000,000 requests -> 2452.47 ms = 407,752 req/s
+* 2,000,000 requests -> 4880.42 ms = 409,801 req/s
+* 3,000,000 requests -> 7271.20 ms = 412,587 req/s
+
+#### Set
+* 1,000,000 requests -> 2969.00 ms = 336,814 req/s
+* 2,000,000 requests -> 5912.59 ms = 338,261 req/s
+* 3,000,000 requests -> 8752.69 ms = 342,752 req/s
+
 
 ## Scredis 1.x.x
 
