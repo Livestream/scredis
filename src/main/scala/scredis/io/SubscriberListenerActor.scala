@@ -52,6 +52,7 @@ class SubscriberListenerActor(
   private val savedSubscribedChannels = MHashSet[String]()
   private val savedSubscribedPatterns = MHashSet[String]()
   
+  private var isInitialized = false
   private var shouldSendRequests = false
   private var requestOpt: Option[Request[_]] = None
   private var requestResponsesCount = 0
@@ -62,6 +63,7 @@ class SubscriberListenerActor(
   private var subscribedPatternsCount = 0
   
   override protected def onConnect(): Unit = {
+    isInitialized = false
     shouldSendRequests = false
     previousSubscriptionOpt = subscriptionOpt
     subscriptionOpt = None
@@ -73,6 +75,7 @@ class SubscriberListenerActor(
   }
   
   override protected def onInitialized(): Unit = {
+    isInitialized = true
     val subscription = previousSubscriptionOpt.getOrElse(PartialFunction.empty)
     subscriptionOpt = Some(subscription)
     decoders.route(Broadcast(DecoderActor.Subscribe(subscription)), self)
@@ -108,8 +111,12 @@ class SubscriberListenerActor(
   
   override protected def always: Receive = super.always orElse {
     case Subscribe(subscription) => {
-      subscriptionOpt = Some(subscription)
-      decoders.route(Broadcast(DecoderActor.Subscribe(subscription)), self)
+      if (isInitialized) {
+        subscriptionOpt = Some(subscription)
+        decoders.route(Broadcast(DecoderActor.Subscribe(subscription)), self)
+      } else {
+        previousSubscriptionOpt = Some(subscription)
+      }
     }
     case Complete(message) => {
       requestResponsesCount += 1

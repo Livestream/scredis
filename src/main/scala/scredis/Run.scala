@@ -55,11 +55,7 @@ object Run {
   }
   
   def main(args: Array[String]): Unit = {
-    //testReconnection()
-    implicit val system = ActorSystem()
-    val client = Client()
-    val client1 = Client(port = 6380, passwordOpt = Some("foobar"))
-    println(Await.result(client1.ping(), 1 second))
+    testReconnection()
     System.exit(0)
   }
   

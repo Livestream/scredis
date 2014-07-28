@@ -18,7 +18,7 @@ trait ConnectionCommands { self: NonBlockingConnection =>
   /**
    * Authenticates to the server.
    * 
-   * @note use the empty string to re-authenticate with no password
+   * @note Use the empty string to re-authenticate with no password.
    *
    * @param password the server password
    * @throws $e if authentication failed

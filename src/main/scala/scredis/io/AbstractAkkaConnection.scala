@@ -15,9 +15,9 @@ abstract class AbstractAkkaConnection(
   protected val system: ActorSystem,
   protected val host: String,
   protected val port: Int,
-  protected var passwordOpt: Option[String],
-  protected var database: Int,
-  protected var nameOpt: Option[String],
+  @volatile protected var passwordOpt: Option[String],
+  @volatile protected var database: Int,
+  @volatile protected var nameOpt: Option[String],
   protected val decodersCount: Int,
   protected val receiveTimeoutOpt: Option[FiniteDuration],
   protected val connectTimeout: FiniteDuration,
@@ -48,5 +48,9 @@ abstract class AbstractAkkaConnection(
     case Quit() | Shutdown(_) => isShuttingDown = true
     case _            =>
   }
+  
+  protected def getPasswordOpt: Option[String] = passwordOpt
+  protected def getDatabase: Int = database
+  protected def getNameOpt: Option[String] = nameOpt
   
 }
