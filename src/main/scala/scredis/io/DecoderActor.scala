@@ -1,7 +1,5 @@
 package scredis.io
 
-import com.codahale.metrics.MetricRegistry
-
 import com.typesafe.scalalogging.slf4j.LazyLogging
 
 import akka.actor.{ Actor, ActorRef }
@@ -23,14 +21,9 @@ class DecoderActor extends Actor with LazyLogging {
   
   private var subscriptionOpt: Option[Subscription] = None
   
-  private val decodeTimer = scredis.protocol.Protocol.metrics.timer(
-    MetricRegistry.name(getClass, "decodeTimer")
-  )
-  
   def receive: Receive = {
     case Partition(data, requests, skip) => {
       val buffer = data.asByteBuffer
-      val decode = decodeTimer.time()
       
       for (i <- 1 to skip) {
         try {
@@ -52,8 +45,6 @@ class DecoderActor extends Actor with LazyLogging {
           }
         }
       }
-      
-      decode.stop()
     }
     case SubscribePartition(data) => {
       val buffer = data.asByteBuffer

@@ -6,22 +6,19 @@ organization := "com.livestream"
 
 name := "scredis"
 
-version := "1.1.2"
+version := "2.0.0-RC1"
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.2"
 
 scalacOptions ++= Seq("-deprecation")
 
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
-  "org.apache.commons" % "commons-lang3" % "3.1",
-  "commons-pool" % "commons-pool" % "1.6",
   "com.typesafe" % "config" % "1.2.0",
   "com.typesafe.akka" %% "akka-actor" % "2.3.3",
-  "com.codahale.metrics" % "metrics-core" % "3.0.1",
   "org.scalatest" %% "scalatest" % "2.2.0" % "test",
   "com.storm-enroute" %% "scalameter" % "0.6" % "test",
-  "org.slf4j" % "slf4j-simple" % "1.7.7"
+  "org.slf4j" % "slf4j-simple" % "1.7.7" % "test"
 )
 
 publishTo <<= version { (v: String) =>

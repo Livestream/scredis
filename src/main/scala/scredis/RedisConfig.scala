@@ -2,13 +2,8 @@ package scredis
 
 import com.typesafe.config.{ ConfigFactory, Config }
 
-import org.apache.commons.pool.impl.GenericObjectPool
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.ThreadPoolExecutor
 
 /**
  * Holds all configurable parameters.

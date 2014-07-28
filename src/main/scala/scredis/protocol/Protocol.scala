@@ -1,7 +1,6 @@
 package scredis.protocol
 
 import com.typesafe.scalalogging.Logging
-import com.codahale.metrics._
 
 import akka.actor.ActorRef
 import akka.util.ByteString
@@ -34,11 +33,6 @@ object Protocol {
     def increment(): Unit = count += 1
     def isCompleted = (count == size)
   }
-  
-  private[scredis] case object IgnoredPubSubMessageException extends Exception
-  
-  private[scredis] val metrics = new MetricRegistry()
-  private val reporter = JmxReporter.forRegistry(metrics).build()
   
   private val Encoding = "UTF-8"
     
@@ -358,7 +352,5 @@ object Protocol {
     listenerActor ! transaction
     transaction.execRequest.future
   }
-  
-  reporter.start()
   
 }
