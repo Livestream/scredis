@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>io - scredis.io</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -26,7 +30,11 @@
       <div id="definition">
         <img src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scredis">scredis</a></p>
-        <h1>io</h1>
+        <h1>io</h1> <span class="permalink">
+      <a href="../../index.html#scredis.io.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -58,7 +66,75 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="scredis.io.Connection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="scredis.io.AbstractAkkaConnection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AbstractAkkaConnectionextendsConnectionwithLazyLogging"></a>
+      <a id="AbstractAkkaConnection:AbstractAkkaConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="AbstractAkkaConnection.html"><span class="name">AbstractAkkaConnection</span></a><span class="result"> extends <a href="Connection.html" class="extype" name="scredis.io.Connection">Connection</a> with <span class="extype" name="com.typesafe.scalalogging.slf4j.LazyLogging">LazyLogging</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@AbstractAkkaConnectionextendsConnectionwithLazyLogging" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.AkkaBlockingConnection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AkkaBlockingConnectionextendsAbstractAkkaConnectionwithBlockingConnection"></a>
+      <a id="AkkaBlockingConnection:AkkaBlockingConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="AkkaBlockingConnection.html"><span class="name">AkkaBlockingConnection</span></a><span class="result"> extends <a href="AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> with <a href="BlockingConnection.html" class="extype" name="scredis.io.BlockingConnection">BlockingConnection</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@AkkaBlockingConnectionextendsAbstractAkkaConnectionwithBlockingConnection" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait represents a blocking connection to a <code>Redis</code> server.</p>
+    </li><li name="scredis.io.AkkaNonBlockingConnection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AkkaNonBlockingConnectionextendsAbstractAkkaConnectionwithNonBlockingConnectionwithTransactionEnabledConnection"></a>
+      <a id="AkkaNonBlockingConnection:AkkaNonBlockingConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="AkkaNonBlockingConnection.html"><span class="name">AkkaNonBlockingConnection</span></a><span class="result"> extends <a href="AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> with <a href="NonBlockingConnection.html" class="extype" name="scredis.io.NonBlockingConnection">NonBlockingConnection</a> with <a href="TransactionEnabledConnection.html" class="extype" name="scredis.io.TransactionEnabledConnection">TransactionEnabledConnection</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@AkkaNonBlockingConnectionextendsAbstractAkkaConnectionwithNonBlockingConnectionwithTransactionEnabledConnection" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait represents a non-blocking connection to a <code>Redis</code> server.</p>
+    </li><li name="scredis.io.BlockingConnection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BlockingConnectionextendsAnyRef"></a>
+      <a id="BlockingConnection:BlockingConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="BlockingConnection.html"><span class="name">BlockingConnection</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@BlockingConnectionextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.Connection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ConnectionextendsAnyRef"></a>
       <a id="Connection:Connection"></a>
       <h4 class="signature">
@@ -69,53 +145,225 @@
       <span class="symbol">
         <a href="Connection.html"><span class="name">Connection</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Represents a connection to a <code>Redis</code> server.</p>
-    </li><li name="scredis.io.ConnectionException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ConnectionExceptionextendsExceptionwithProductwithSerializable"></a>
-      <a id="ConnectionException:ConnectionException"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@ConnectionextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.DecoderActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DecoderActorextendsActorwithLazyLogging"></a>
+      <a id="DecoderActor:DecoderActor"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="ConnectionException.html"><span class="name">ConnectionException</span></a><span class="params">(<span name="exception">exception: <span class="extype" name="scala.Throwable">Throwable</span></span>, <span name="message">message: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="retry">retry: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="scredis.io.ConnectionTimeoutException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ConnectionTimeoutExceptionextendsExceptionwithProductwithSerializable"></a>
-      <a id="ConnectionTimeoutException:ConnectionTimeoutException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="ConnectionTimeoutException.html"><span class="name">ConnectionTimeoutException</span></a><span class="params">(<span name="exception">exception: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="scredis.io.JavaSocketConnection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="JavaSocketConnectionextendsConnection"></a>
-      <a id="JavaSocketConnection:JavaSocketConnection"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="JavaSocketConnection.html"><span class="name">JavaSocketConnection</span></a><span class="result"> extends <a href="Connection.html" class="extype" name="scredis.io.Connection">Connection</a></span>
+        <a href="DecoderActor.html"><span class="name">DecoderActor</span></a><span class="result"> extends <span class="extype" name="akka.actor.Actor">Actor</span> with <span class="extype" name="com.typesafe.scalalogging.slf4j.LazyLogging">LazyLogging</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Implements the <a href="Connection.html" class="extype" name="scredis.io.Connection">scredis.io.Connection</a> trait using a Java Socket.</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@DecoderActorextendsActorwithLazyLogging" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.IOActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IOActorextendsActorwithLazyLogging"></a>
+      <a id="IOActor:IOActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="IOActor.html"><span class="name">IOActor</span></a><span class="result"> extends <span class="extype" name="akka.actor.Actor">Actor</span> with <span class="extype" name="com.typesafe.scalalogging.slf4j.LazyLogging">LazyLogging</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@IOActorextendsActorwithLazyLogging" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.ListenerActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ListenerActorextendsActorwithLazyLogging"></a>
+      <a id="ListenerActor:ListenerActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ListenerActor.html"><span class="name">ListenerActor</span></a><span class="result"> extends <span class="extype" name="akka.actor.Actor">Actor</span> with <span class="extype" name="com.typesafe.scalalogging.slf4j.LazyLogging">LazyLogging</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@ListenerActorextendsActorwithLazyLogging" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.NonBlockingConnection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="NonBlockingConnectionextendsAnyRef"></a>
+      <a id="NonBlockingConnection:NonBlockingConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="NonBlockingConnection.html"><span class="name">NonBlockingConnection</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@NonBlockingConnectionextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.SubscriberAkkaConnection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SubscriberAkkaConnectionextendsAbstractAkkaConnectionwithSubscriberConnection"></a>
+      <a id="SubscriberAkkaConnection:SubscriberAkkaConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SubscriberAkkaConnection.html"><span class="name">SubscriberAkkaConnection</span></a><span class="result"> extends <a href="AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> with <a href="SubscriberConnection.html" class="extype" name="scredis.io.SubscriberConnection">SubscriberConnection</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@SubscriberAkkaConnectionextendsAbstractAkkaConnectionwithSubscriberConnection" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait represents a subscriber connection to a <code>Redis</code> server.</p>
+    </li><li name="scredis.io.SubscriberConnection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SubscriberConnectionextendsAnyRef"></a>
+      <a id="SubscriberConnection:SubscriberConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SubscriberConnection.html"><span class="name">SubscriberConnection</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@SubscriberConnectionextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.SubscriberListenerActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SubscriberListenerActorextendsListenerActor"></a>
+      <a id="SubscriberListenerActor:SubscriberListenerActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SubscriberListenerActor.html"><span class="name">SubscriberListenerActor</span></a><span class="result"> extends <a href="ListenerActor.html" class="extype" name="scredis.io.ListenerActor">ListenerActor</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@SubscriberListenerActorextendsListenerActor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.TransactionEnabledConnection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TransactionEnabledConnectionextendsAnyRef"></a>
+      <a id="TransactionEnabledConnection:TransactionEnabledConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TransactionEnabledConnection.html"><span class="name">TransactionEnabledConnection</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@TransactionEnabledConnectionextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
     </li></ol>
             </div>
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scredis.io.DecoderActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DecoderActor"></a>
+      <a id="DecoderActor:DecoderActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DecoderActor$.html"><span class="name">DecoderActor</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@DecoderActor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.IOActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IOActor"></a>
+      <a id="IOActor:IOActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="IOActor$.html"><span class="name">IOActor</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@IOActor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.ListenerActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ListenerActor"></a>
+      <a id="ListenerActor:ListenerActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ListenerActor$.html"><span class="name">ListenerActor</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@ListenerActor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.io.SubscriberListenerActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SubscriberListenerActor"></a>
+      <a id="SubscriberListenerActor:SubscriberListenerActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SubscriberListenerActor$.html"><span class="name">SubscriberListenerActor</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.package@SubscriberListenerActor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
 
         
 
@@ -139,6 +387,7 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>commands - scredis.commands</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -26,7 +30,11 @@
       <div id="definition">
         <img src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scredis">scredis</a></p>
-        <h1>commands</h1>
+        <h1>commands</h1> <span class="permalink">
+      <a href="../../index.html#scredis.commands.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -58,7 +66,24 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="scredis.commands.ConnectionCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="scredis.commands.BlockingListCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BlockingListCommandsextendsAnyRef"></a>
+      <a id="BlockingListCommands:BlockingListCommands"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="BlockingListCommands.html"><span class="name">BlockingListCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@BlockingListCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements blocking list commands.</p>
+    </li><li name="scredis.commands.ConnectionCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ConnectionCommandsextendsAnyRef"></a>
       <a id="ConnectionCommands:ConnectionCommands"></a>
       <h4 class="signature">
@@ -69,47 +94,80 @@
       <span class="symbol">
         <a href="ConnectionCommands.html"><span class="name">ConnectionCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements connection commands.</p>
-    </li><li name="scredis.commands.HashesCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="HashesCommandsextendsAnyRef"></a>
-      <a id="HashesCommands:HashesCommands"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@ConnectionCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements connection commands.</p>
+    </li><li name="scredis.commands.HashCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="HashCommandsextendsAnyRef"></a>
+      <a id="HashCommands:HashCommands"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="HashesCommands.html"><span class="name">HashesCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="HashCommands.html"><span class="name">HashCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements hashes commands.</p>
-    </li><li name="scredis.commands.KeysCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="KeysCommandsextendsAnyRef"></a>
-      <a id="KeysCommands:KeysCommands"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@HashCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements hash commands.</p>
+    </li><li name="scredis.commands.HyperLogLogCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="HyperLogLogCommandsextendsAnyRef"></a>
+      <a id="HyperLogLogCommands:HyperLogLogCommands"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="KeysCommands.html"><span class="name">KeysCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="HyperLogLogCommands.html"><span class="name">HyperLogLogCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements keys commands.</p>
-    </li><li name="scredis.commands.ListsCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ListsCommandsextendsAnyRef"></a>
-      <a id="ListsCommands:ListsCommands"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@HyperLogLogCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements hyperloglog commands.</p>
+    </li><li name="scredis.commands.KeyCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="KeyCommandsextendsAnyRef"></a>
+      <a id="KeyCommands:KeyCommands"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="ListsCommands.html"><span class="name">ListsCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="KeyCommands.html"><span class="name">KeyCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements lists commands.</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@KeyCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements key commands.</p>
+    </li><li name="scredis.commands.ListCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ListCommandsextendsAnyRef"></a>
+      <a id="ListCommands:ListCommands"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ListCommands.html"><span class="name">ListCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@ListCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements list commands.</p>
     </li><li name="scredis.commands.PubSubCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="PubSubCommandsextendsAnyRef"></a>
       <a id="PubSubCommands:PubSubCommands"></a>
@@ -121,8 +179,12 @@
       <span class="symbol">
         <a href="PubSubCommands.html"><span class="name">PubSubCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements pub/sub commands.</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@PubSubCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements pub/sub commands.</p>
     </li><li name="scredis.commands.ScriptingCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ScriptingCommandsextendsAnyRef"></a>
       <a id="ScriptingCommands:ScriptingCommands"></a>
@@ -134,8 +196,12 @@
       <span class="symbol">
         <a href="ScriptingCommands.html"><span class="name">ScriptingCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements scripting commands.</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@ScriptingCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements scripting commands.</p>
     </li><li name="scredis.commands.ServerCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ServerCommandsextendsAnyRef"></a>
       <a id="ServerCommands:ServerCommands"></a>
@@ -147,82 +213,103 @@
       <span class="symbol">
         <a href="ServerCommands.html"><span class="name">ServerCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements server commands.</p>
-    </li><li name="scredis.commands.SetsCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="SetsCommandsextendsAnyRef"></a>
-      <a id="SetsCommands:SetsCommands"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@ServerCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements server commands.</p>
+    </li><li name="scredis.commands.SetCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SetCommandsextendsAnyRef"></a>
+      <a id="SetCommands:SetCommands"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="SetsCommands.html"><span class="name">SetsCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="SetCommands.html"><span class="name">SetCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements sets commands.</p>
-    </li><li name="scredis.commands.SortedSetsCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="SortedSetsCommandsextendsAnyRef"></a>
-      <a id="SortedSetsCommands:SortedSetsCommands"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@SetCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements set commands.</p>
+    </li><li name="scredis.commands.SortedSetCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SortedSetCommandsextendsAnyRef"></a>
+      <a id="SortedSetCommands:SortedSetCommands"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="SortedSetsCommands.html"><span class="name">SortedSetsCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="SortedSetCommands.html"><span class="name">SortedSetCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements sorted sets commands.</p>
-    </li><li name="scredis.commands.StringsCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="StringsCommandsextendsAnyRef"></a>
-      <a id="StringsCommands:StringsCommands"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@SortedSetCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements sorted set commands.</p>
+    </li><li name="scredis.commands.StringCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="StringCommandsextendsAnyRef"></a>
+      <a id="StringCommands:StringCommands"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="StringsCommands.html"><span class="name">StringsCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="StringCommands.html"><span class="name">StringCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements strings commands.</p>
-    </li><li name="scredis.commands.TransactionalCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="TransactionalCommandsextendsAnyRef"></a>
-      <a id="TransactionalCommands:TransactionalCommands"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@StringCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements string commands.</p>
+    </li><li name="scredis.commands.SubscriberCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SubscriberCommandsextendsAnyRef"></a>
+      <a id="SubscriberCommands:SubscriberCommands"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="TransactionalCommands.html"><span class="name">TransactionalCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="SubscriberCommands.html"><span class="name">SubscriberCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">This trait implements transactional commands and pipelining.</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@SubscriberCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements subscriber commands.</p>
+    </li><li name="scredis.commands.TransactionCommands" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TransactionCommandsextendsAnyRef"></a>
+      <a id="TransactionCommands:TransactionCommands"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TransactionCommands.html"><span class="name">TransactionCommands</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.package@TransactionCommandsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait implements transaction commands.</p>
     </li></ol>
             </div>
 
         
 
-        <div id="values" class="values members">
-              <h3>Value Members</h3>
-              <ol><li name="scredis.commands.async" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="async"></a>
-      <a id="async:async"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a href="async/package.html"><span class="name">async</span></a>
-      </span>
-      </h4>
-      
-    </li></ol>
-            </div>
+        
 
         
 
@@ -246,6 +333,7 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

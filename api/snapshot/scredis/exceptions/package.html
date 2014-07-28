@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>exceptions - scredis.exceptions</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -26,7 +30,11 @@
       <div id="definition">
         <img src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scredis">scredis</a></p>
-        <h1>exceptions</h1>
+        <h1>exceptions</h1> <span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -58,60 +66,79 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="scredis.exceptions.RedisCommandException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RedisCommandExceptionextendsRedisExceptionwithProductwithSerializable"></a>
-      <a id="RedisCommandException:RedisCommandException"></a>
+              <ol><li name="scredis.exceptions.RedisErrorResponseException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisErrorResponseExceptionextendsRedisExceptionwithProductwithSerializable"></a>
+      <a id="RedisErrorResponseException:RedisErrorResponseException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="RedisCommandException.html"><span class="name">RedisCommandException</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="RedisErrorResponseException.html"><span class="name">RedisErrorResponseException</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Exception thrown when the Redis server replies with an error message
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisErrorResponseExceptionextendsRedisExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception thrown when the Redis server replies with an error message
 </p>
-    </li><li name="scredis.exceptions.RedisConnectionException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RedisConnectionExceptionextendsRedisExceptionwithProductwithSerializable"></a>
-      <a id="RedisConnectionException:RedisConnectionException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="RedisConnectionException.html"><span class="name">RedisConnectionException</span></a><span class="params">(<span name="e">e: <span class="extype" name="scala.Throwable">Throwable</span></span>, <span name="message">message: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="objects">objects: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">Exception resulting from a connection error, e.</p>
     </li><li name="scredis.exceptions.RedisException" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="RedisExceptionextendsException"></a>
       <a id="RedisException:RedisException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
+        <span class="modifier">abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
         <a href="RedisException.html"><span class="name">RedisException</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Base class of all Redis exceptions.</p>
-    </li><li name="scredis.exceptions.RedisParsingException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RedisParsingExceptionextendsRedisExceptionwithProductwithSerializable"></a>
-      <a id="RedisParsingException:RedisParsingException"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisExceptionextendsException" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base class of all exceptions thrown by scredis
+</p>
+    </li><li name="scredis.exceptions.RedisIOException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisIOExceptionextendsRedisExceptionwithProductwithSerializable"></a>
+      <a id="RedisIOException:RedisIOException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="RedisParsingException.html"><span class="name">RedisParsingException</span></a><span class="params">(<span name="e">e: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="RedisIOException.html"><span class="name">RedisIOException</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">null</span></span>, <span name="cause">cause: <span class="extype" name="scala.Throwable">Throwable</span> = <span class="symbol">null</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Exception thrown when the input could not be parsed by the provided <a href="../parsing/Parser.html" class="extype" name="scredis.parsing.Parser">scredis.parsing.Parser</a>.</p>
-    </li><li name="scredis.exceptions.RedisProtocolException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisIOExceptionextendsRedisExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Wraps all IO exceptions
+</p>
+    </li><li name="scredis.exceptions.RedisInvalidArgumentException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisInvalidArgumentExceptionextendsRedisExceptionwithProductwithSerializable"></a>
+      <a id="RedisInvalidArgumentException:RedisInvalidArgumentException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RedisInvalidArgumentException.html"><span class="name">RedisInvalidArgumentException</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisInvalidArgumentExceptionextendsRedisExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception thrown when the provided arguments of a command are invalid
+</p>
+    </li><li name="scredis.exceptions.RedisProtocolException" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="RedisProtocolExceptionextendsRedisExceptionwithProductwithSerializable"></a>
       <a id="RedisProtocolException:RedisProtocolException"></a>
       <h4 class="signature">
@@ -120,30 +147,97 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="RedisProtocolException.html"><span class="name">RedisProtocolException</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="objects">objects: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="RedisProtocolException.html"><span class="name">RedisProtocolException</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cause">cause: <span class="extype" name="scala.Throwable">Throwable</span> = <span class="symbol">null</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Exception resulting from an unexpected breach of protocol such as receiving an unexpected reply
-from the <code>Redis</code> server.</p>
-    </li><li name="scredis.exceptions.RedisTransactionException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RedisTransactionExceptionextendsRedisExceptionwithProductwithSerializable"></a>
-      <a id="RedisTransactionException:RedisTransactionException"></a>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisProtocolExceptionextendsRedisExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception resulting from an unexpected breach of protocol such as receiving an unexpected reply
+from the <code>Redis</code> server.</p><div class="fullcomment"><div class="comment cmt"><p>Exception resulting from an unexpected breach of protocol such as receiving an unexpected reply
+from the <code>Redis</code> server. This should never happen in practice.
+</p></div></div>
+    </li><li name="scredis.exceptions.RedisReaderException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisReaderExceptionextendsRedisExceptionwithProductwithSerializable"></a>
+      <a id="RedisReaderException:RedisReaderException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="RedisTransactionException.html"><span class="name">RedisTransactionException</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="RedisReaderException.html"><span class="name">RedisReaderException</span></a><span class="params">(<span name="cause">cause: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Exception resulting from a transaction being discarded.</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisReaderExceptionextendsRedisExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception thrown when part of the response could not be deserialized by the provided
+<a href="../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">scredis.serialization.Reader</a>.</p>
+    </li><li name="scredis.exceptions.RedisTransactionBuilderException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisTransactionBuilderExceptionextendsRedisExceptionwithProductwithSerializable"></a>
+      <a id="RedisTransactionBuilderException:RedisTransactionBuilderException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RedisTransactionBuilderException.html"><span class="name">RedisTransactionBuilderException</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">null</span></span>, <span name="cause">cause: <span class="extype" name="scala.Throwable">Throwable</span> = <span class="symbol">null</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisTransactionBuilderExceptionextendsRedisExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception that can be thrown while building a Transaction
+</p>
+    </li><li name="scredis.exceptions.RedisWriterException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisWriterExceptionextendsRedisExceptionwithProductwithSerializable"></a>
+      <a id="RedisWriterException:RedisWriterException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RedisWriterException.html"><span class="name">RedisWriterException</span></a><span class="params">(<span name="cause">cause: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisWriterExceptionextendsRedisExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception thrown when a command argument could not be serialized by the provided
+<a href="../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">scredis.serialization.Writer</a>.</p>
     </li></ol>
             </div>
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scredis.exceptions.RedisTransactionAbortedException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RedisTransactionAbortedException"></a>
+      <a id="RedisTransactionAbortedException:RedisTransactionAbortedException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RedisTransactionAbortedException$.html"><span class="name">RedisTransactionAbortedException</span></a><span class="result"> extends <a href="RedisException.html" class="extype" name="scredis.exceptions.RedisException">RedisException</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.exceptions.package@RedisTransactionAbortedException" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception resulting from a transaction being aborted due to watched key(s).</p>
+    </li></ol>
+            </div>
 
         
 
@@ -167,6 +261,7 @@ from the <code>Redis</code> server.</p>
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

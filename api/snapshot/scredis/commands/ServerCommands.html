@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>ServerCommands - scredis.commands.ServerCommands</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -26,7 +30,11 @@
       <div id="definition">
         <img src="../../lib/trait_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scredis">scredis</a>.<a href="package.html" class="extype" name="scredis.commands">commands</a></p>
-        <h1>ServerCommands</h1>
+        <h1>ServerCommands</h1> <span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -39,13 +47,13 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This trait implements server commands.</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="scredis.commands.ServerCommands">ServerCommands</a> with <a href="../protocol/Protocol.html" class="extype" name="scredis.protocol.Protocol">Protocol</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This trait implements server commands.</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="scredis.commands.ServerCommands">ServerCommands</a> with <a href="../io/NonBlockingConnection.html" class="extype" name="scredis.io.NonBlockingConnection">NonBlockingConnection</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
-          <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="../Client.html" class="extype" name="scredis.Client">Client</a></div>
-        </div></div>
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="../Client.html" class="extype" name="scredis.Client">Client</a>, <a href="../Redis.html" class="extype" name="scredis.Redis">Redis</a>, <a href="../TransactionBuilder.html" class="extype" name="scredis.TransactionBuilder">TransactionBuilder</a></div>
+          </div></div>
         
 
       <div id="mbrsel">
@@ -89,19 +97,6 @@
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -112,8 +107,12 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -125,22 +124,13 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -151,8 +141,12 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -164,131 +158,168 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#bgRewriteAOF" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="bgRewriteAOF()(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="bgRewriteAOF()(CommandOptions):Unit"></a>
+      <a id="bgRewriteAOF():scala.concurrent.Future[Unit]"></a>
+      <a id="bgRewriteAOF():Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">bgRewriteAOF</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">bgRewriteAOF</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@bgRewriteAOF():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Asynchronously rewrites the append-only file.</p><div class="fullcomment"><div class="comment cmt"><p>Asynchronously rewrites the append-only file.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#bgSave" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="bgSave()(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="bgSave()(CommandOptions):Unit"></a>
+      <a id="bgSave():scala.concurrent.Future[Unit]"></a>
+      <a id="bgSave():Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">bgSave</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">bgSave</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@bgSave():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Asynchronously saves the dataset to disk.</p><div class="fullcomment"><div class="comment cmt"><p>Asynchronously saves the dataset to disk.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if the background save is already in progress
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if the background save is already in progress
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#clientGetName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clientGetName()(implicitopts:scredis.CommandOptions):Option[String]"></a>
-      <a id="clientGetName()(CommandOptions):Option[String]"></a>
+      <a id="clientGetName():scala.concurrent.Future[Option[String]]"></a>
+      <a id="clientGetName():Future[Option[String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clientGetName</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">clientGetName</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@clientGetName():scala.concurrent.Future[Option[String]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Get the current client name.</p><div class="fullcomment"><div class="comment cmt"><p>Get the current client name.
 </p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>option containing the name if it has been set, <code>None</code> otherwise
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.9
 </p></dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#clientKill" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clientKill(addr:String)(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="clientKill(String)(CommandOptions):Unit"></a>
+      <a id="clientKill(ip:String,port:Int):scala.concurrent.Future[Unit]"></a>
+      <a id="clientKill(String,Int):Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clientKill</span><span class="params">(<span name="addr">addr: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">clientKill</span><span class="params">(<span name="ip">ip: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@clientKill(ip:String,port:Int):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Kills the connection of a client.</p><div class="fullcomment"><div class="comment cmt"><p>Kills the connection of a client.
-</p></div><dl class="paramcmts block"><dt class="param">addr</dt><dd class="cmt"><p>string containing ip and port separated by colon, i.e. &quot;ip:port&quot;</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.4.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">RedisCommandException<p>if the the client does not exist
+</p></div><dl class="paramcmts block"><dt class="param">ip</dt><dd class="cmt"><p>ip address of the client to kill</p></dd><dt class="param">port</dt><dd class="cmt"><p>port of the client to kill</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.4.0
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if the the client does not exist
 </p></span></dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#clientKillFromIpPort" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clientKillFromIpPort(ip:String,port:Int)(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="clientKillFromIpPort(String,Int)(CommandOptions):Unit"></a>
+    </li><li name="scredis.commands.ServerCommands#clientKillWithFilters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clientKillWithFilters(addrOpt:Option[(String,Int)],idOpt:Option[Long],typeOpt:Option[scredis.ClientType],skipMe:Boolean):scala.concurrent.Future[Long]"></a>
+      <a id="clientKillWithFilters(Option[(String,Int)],Option[Long],Option[ClientType],Boolean):Future[Long]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clientKillFromIpPort</span><span class="params">(<span name="ip">ip: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">clientKillWithFilters</span><span class="params">(<span name="addrOpt">addrOpt: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Int">Int</span>)] = <span class="symbol">None</span></span>, <span name="idOpt">idOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>] = <span class="symbol">None</span></span>, <span name="typeOpt">typeOpt: <span class="extype" name="scala.Option">Option</span>[<a href="../package$$ClientType.html" class="extype" name="scredis.ClientType">ClientType</a>] = <span class="symbol">None</span></span>, <span name="skipMe">skipMe: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Long">Long</span>]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">Kills the connection of a client.</p><div class="fullcomment"><div class="comment cmt"><p>Kills the connection of a client.
-</p></div><dl class="paramcmts block"><dt class="param">ip</dt><dd class="cmt"><p>ip address of the target client</p></dd><dt class="param">port</dt><dd class="cmt"><p>port of the target client</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.4.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">RedisCommandException<p>if the the client does not exist
-</p></span></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@clientKillWithFilters(addrOpt:Option[(String,Int)],idOpt:Option[Long],typeOpt:Option[scredis.ClientType],skipMe:Boolean):scala.concurrent.Future[Long]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Kills the connection of potentially multiple clients satisfying various filters.</p><div class="fullcomment"><div class="comment cmt"><p>Kills the connection of potentially multiple clients satisfying various filters.
+</p></div><dl class="paramcmts block"><dt class="param">skipMe</dt><dd class="cmt"><p>when <b>true</b>, the calling client will not be killed, when <b>false</b>, the latter can
+be killed</p></dd><dt>returns</dt><dd class="cmt"><p>the number of killed client(s)
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.12
+</p></dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#clientList" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clientList()(implicitopts:scredis.CommandOptions):List[Map[String,String]]"></a>
-      <a id="clientList()(CommandOptions):List[Map[String,String]]"></a>
+      <a id="clientList():scala.concurrent.Future[List[Map[String,String]]]"></a>
+      <a id="clientList():Future[List[Map[String,String]]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clientList</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">clientList</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">Gets the list of client connections.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the list of client connections.
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@clientList():scala.concurrent.Future[List[Map[String,String]]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Lists all client connections.</p><div class="fullcomment"><div class="comment cmt"><p>Lists all client connections.
 </p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>list of clients
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.4.0
 </p></dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#clientListRaw" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clientListRaw()(implicitopts:scredis.CommandOptions):String"></a>
-      <a id="clientListRaw()(CommandOptions):String"></a>
+    </li><li name="scredis.commands.ServerCommands#clientPause" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clientPause(timeoutMillis:Long):scala.concurrent.Future[Unit]"></a>
+      <a id="clientPause(Long):Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clientListRaw</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">clientPause</span><span class="params">(<span name="timeoutMillis">timeoutMillis: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">Gets the list of client connections.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the list of client connections.
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>raw string containing the list of clients as returned by Redis
-</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.4.0
-</p></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@clientPause(timeoutMillis:Long):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Suspends all clients for the specified amount of time.</p><div class="fullcomment"><div class="comment cmt"><p>Suspends all clients for the specified amount of time.
+</p></div><dl class="paramcmts block"><dt class="param">timeoutMillis</dt><dd class="cmt"><p>the amount of time in milliseconds for which clients should be suspended</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.9.50
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if the timeout is invalid
+</p></span></dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#clientSetName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clientSetName(name:String)(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="clientSetName(String)(CommandOptions):Unit"></a>
+      <a id="clientSetName(name:String):scala.concurrent.Future[Unit]"></a>
+      <a id="clientSetName(String):Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clientSetName</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">clientSetName</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@clientSetName(name:String):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Sets the current client name.</p><div class="fullcomment"><div class="comment cmt"><p>Sets the current client name. If the empty string is provided, the name will be unset.
 </p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>name to associate the client to, if empty, unsets the client name
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.9
@@ -304,7 +335,11 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -312,65 +347,185 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#configGet" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="configGet(pattern:String)(implicitopts:scredis.CommandOptions):Option[Map[String,Option[String]]]"></a>
-      <a id="configGet(String)(CommandOptions):Option[Map[String,Option[String]]]"></a>
+    </li><li name="scredis.commands.ServerCommands#command" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="command():scala.concurrent.Future[Map[String,scredis.CommandInfo]]"></a>
+      <a id="command():Future[Map[String,CommandInfo]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">configGet</span><span class="params">(<span name="pattern">pattern: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;*&quot;</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]]</span>
+        <span class="name">command</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../package$$CommandInfo.html" class="extype" name="scredis.CommandInfo">CommandInfo</a>]]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@command():scala.concurrent.Future[Map[String,scredis.CommandInfo]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns details about all <code>Redis</code> commands.</p><div class="fullcomment"><div class="comment cmt"><p>Returns details about all <code>Redis</code> commands.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>map of command name to command info
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.13
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#commandCount" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="commandCount():scala.concurrent.Future[Int]"></a>
+      <a id="commandCount():Future[Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">commandCount</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Int">Int</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@commandCount():scala.concurrent.Future[Int]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns the total number of commands in the target <code>Redis</code> server.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the total number of commands in the target <code>Redis</code> server.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>total number of commands
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.13
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#commandGetKeys" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="commandGetKeys(command:String):scala.concurrent.Future[List[String]]"></a>
+      <a id="commandGetKeys(String):Future[List[String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">commandGetKeys</span><span class="params">(<span name="command">command: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@commandGetKeys(command:String):scala.concurrent.Future[List[String]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns the list of keys part of a full <code>Redis</code> command.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the list of keys part of a full <code>Redis</code> command.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>the list of keys present in the command
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.13
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#commandInfo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="commandInfo(names:String*):scala.concurrent.Future[Map[String,scredis.CommandInfo]]"></a>
+      <a id="commandInfo(String*):Future[Map[String,CommandInfo]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">commandInfo</span><span class="params">(<span name="names">names: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../package$$CommandInfo.html" class="extype" name="scredis.CommandInfo">CommandInfo</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@commandInfo(names:String*):scala.concurrent.Future[Map[String,scredis.CommandInfo]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns details about the specified <code>Redis</code> commands.</p><div class="fullcomment"><div class="comment cmt"><p>Returns details about the specified <code>Redis</code> commands.
+</p></div><dl class="paramcmts block"><dt class="param">names</dt><dd class="cmt"><p>command names</p></dd><dt>returns</dt><dd class="cmt"><p>map of command name to command info
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.13
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#configGet" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="configGet(pattern:String):scala.concurrent.Future[Map[String,String]]"></a>
+      <a id="configGet(String):Future[Map[String,String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">configGet</span><span class="params">(<span name="pattern">pattern: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;*&quot;</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@configGet(pattern:String):scala.concurrent.Future[Map[String,String]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Gets the value of a configuration parameter.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the value of a configuration parameter.
 </p></div><dl class="paramcmts block"><dt class="param">pattern</dt><dd class="cmt"><p>name or pattern of the configuration parameter to get</p></dd><dt>returns</dt><dd class="cmt"><p>option containing the matched parameters, or <code>None</code> if no parameters are matched
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.0.0
 </p></dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#configResetStat" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="configResetStat()(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="configResetStat()(CommandOptions):Unit"></a>
+      <a id="configResetStat():scala.concurrent.Future[Unit]"></a>
+      <a id="configResetStat():Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">configResetStat</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">configResetStat</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@configResetStat():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Resets the stats returned by INFO.</p><div class="fullcomment"><div class="comment cmt"><p>Resets the stats returned by INFO.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2.0.0
 </p></dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#configSet" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="configSet(key:String,value:Any)(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="configSet(String,Any)(CommandOptions):Unit"></a>
+    </li><li name="scredis.commands.ServerCommands#configRewrite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="configRewrite():scala.concurrent.Future[Unit]"></a>
+      <a id="configRewrite():Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">configSet</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">configRewrite</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@configRewrite():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Rewrites the redis.conf file the server was started with, applying the minimal changes
+needed to make it reflect the configuration currently used by the server, which may be
+different compared to the original one because of the use of the CONFIG SET command.</p><div class="fullcomment"><div class="comment cmt"><p>Rewrites the redis.conf file the server was started with, applying the minimal changes
+needed to make it reflect the configuration currently used by the server, which may be
+different compared to the original one because of the use of the CONFIG SET command.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.0
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if the configuration file was not properly written
+</p></span></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#configSet" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="configSet[W](parameter:String,value:W)(implicitevidence$1:scredis.serialization.Writer[W]):scala.concurrent.Future[Unit]"></a>
+      <a id="configSet[W](String,W)(Writer[W]):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">configSet</span><span class="tparams">[<span name="W">W</span>]</span><span class="params">(<span name="parameter">parameter: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scredis.commands.ServerCommands.configSet.W">W</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.commands.ServerCommands.configSet.W">W</span>]</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@configSet[W](parameter:String,value:W)(implicitevidence$1:scredis.serialization.Writer[W]):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Sets a configuration parameter to the given value.</p><div class="fullcomment"><div class="comment cmt"><p>Sets a configuration parameter to the given value.
-</p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>parameter's name</p></dd><dt class="param">value</dt><dd class="cmt"><p>value to set parameter to</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.0.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if the parameter could not be set
+</p></div><dl class="paramcmts block"><dt class="param">parameter</dt><dd class="cmt"><p>parameter's name</p></dd><dt class="param">value</dt><dd class="cmt"><p>value to set parameter to</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.0.0
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if the parameter could not be set
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#dbSize" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="dbSize()(implicitopts:scredis.CommandOptions):Long"></a>
-      <a id="dbSize()(CommandOptions):Long"></a>
+      <a id="dbSize():scala.concurrent.Future[Long]"></a>
+      <a id="dbSize():Future[Long]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">dbSize</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
+        <span class="name">dbSize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Long">Long</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@dbSize():scala.concurrent.Future[Long]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Return the number of keys in the selected database.</p><div class="fullcomment"><div class="comment cmt"><p>Return the number of keys in the selected database.
 </p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>number of keys in the selected database
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
@@ -386,7 +541,11 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a>
@@ -399,7 +558,11 @@
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -412,7 +575,11 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -421,32 +588,40 @@
               
         </dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#flushAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="flushAll()(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="flushAll()(CommandOptions):Unit"></a>
+      <a id="flushAll():scala.concurrent.Future[Unit]"></a>
+      <a id="flushAll():Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">flushAll</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">flushAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@flushAll():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Removes all keys from all databases.</p><div class="fullcomment"><div class="comment cmt"><p>Removes all keys from all databases.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#flushDb" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="flushDb()(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="flushDb()(CommandOptions):Unit"></a>
+    </li><li name="scredis.commands.ServerCommands#flushDB" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="flushDB():scala.concurrent.Future[Unit]"></a>
+      <a id="flushDB():Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">flushDb</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">flushDB</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@flushDB():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Removes all keys from the current database.</p><div class="fullcomment"><div class="comment cmt"><p>Removes all keys from the current database.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd></dl></div>
@@ -461,7 +636,11 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -474,74 +653,34 @@
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#info" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="info()(implicitopts:scredis.CommandOptions):Map[String,String]"></a>
-      <a id="info()(CommandOptions):Map[String,String]"></a>
+      <a id="info(section:String):scala.concurrent.Future[Map[String,String]]"></a>
+      <a id="info(String):Future[Map[String,String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">info</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">info</span><span class="params">(<span name="section">section: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;default&quot;</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">Gets information and statistics about the server.</p><div class="fullcomment"><div class="comment cmt"><p>Gets information and statistics about the server.
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>map of field -&gt; value pairs
-</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
-</p></dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#infoBySection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="infoBySection(section:String)(implicitopts:scredis.CommandOptions):Map[String,String]"></a>
-      <a id="infoBySection(String)(CommandOptions):Map[String,String]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">infoBySection</span><span class="params">(<span name="section">section: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;default&quot;</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@info(section:String):scala.concurrent.Future[Map[String,String]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Gets information and statistics about the server.</p><div class="fullcomment"><div class="comment cmt"><p>Gets information and statistics about the server.
 </p></div><dl class="paramcmts block"><dt class="param">section</dt><dd class="cmt"><p>name of the section for which data should be retrieved</p></dd><dt>returns</dt><dd class="cmt"><p>map of field -&gt; value pairs that match the specified section, or an empty map
 if the section does not exist
-</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#infoBySectionRaw" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="infoBySectionRaw(section:String)(implicitopts:scredis.CommandOptions):String"></a>
-      <a id="infoBySectionRaw(String)(CommandOptions):String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">infoBySectionRaw</span><span class="params">(<span name="section">section: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;default&quot;</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Gets information and statistics about the server.</p><div class="fullcomment"><div class="comment cmt"><p>Gets information and statistics about the server.
-</p></div><dl class="paramcmts block"><dt class="param">section</dt><dd class="cmt"><p>name of the section for which data should be retrieved</p></dd><dt>returns</dt><dd class="cmt"><p>raw string containing lines of field:value pairs that match the specified section,
-as returned by Redis, or an empty string if the section does not exist
-</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#infoRaw" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="infoRaw()(implicitopts:scredis.CommandOptions):String"></a>
-      <a id="infoRaw()(CommandOptions):String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">infoRaw</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Gets information and statistics about the server.</p><div class="fullcomment"><div class="comment cmt"><p>Gets information and statistics about the server.
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>raw string containing lines of field:value pairs as returned by Redis
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
-</p></dd></dl></div>
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>The section can additionally take the following values: <code>all</code> and <code>default</code>.
+</p></span></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -553,20 +692,28 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#lastSave" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="lastSave()(implicitopts:scredis.CommandOptions):Long"></a>
-      <a id="lastSave()(CommandOptions):Long"></a>
+      <a id="lastSave():scala.concurrent.Future[Long]"></a>
+      <a id="lastSave():Future[Long]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">lastSave</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
+        <span class="name">lastSave</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Long">Long</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@lastSave():scala.concurrent.Future[Long]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Gets the UNIX timestamp of the last successful save to disk.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the UNIX timestamp of the last successful save to disk.
 </p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>UNIX timestamp
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
@@ -582,7 +729,11 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -595,7 +746,11 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -608,22 +763,178 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scredis.commands.ServerCommands#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="save()(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="save()(CommandOptions):Unit"></a>
+    </li><li name="scredis.commands.ServerCommands#role" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="role():scala.concurrent.Future[scredis.Role]"></a>
+      <a id="role():Future[Role]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">save</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">role</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="../package$$Role.html" class="extype" name="scredis.Role">Role</a>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@role():scala.concurrent.Future[scredis.Role]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Provides information on the role of a Redis instance in the context of replication,
+by returing if the instance is currently a master, slave, or sentinel.</p><div class="fullcomment"><div class="comment cmt"><p>Provides information on the role of a Redis instance in the context of replication,
+by returing if the instance is currently a master, slave, or sentinel.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>the <a href="../package$$Role.html" class="extype" name="scredis.Role">scredis.Role</a> of the <code>Redis</code> instance
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.8.12
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>The command also returns additional information about the state of the replication
+(if the role is master or slave) or the list of monitored master names (if the role is
+sentinel).
+</p></span></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="save():scala.concurrent.Future[Unit]"></a>
+      <a id="save():Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">save</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@save():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Synchronously saves the dataset to disk.</p><div class="fullcomment"><div class="comment cmt"><p>Synchronously saves the dataset to disk.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#shutdown" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shutdown(modifierOpt:Option[scredis.ShutdownModifier]):scala.concurrent.Future[Unit]"></a>
+      <a id="shutdown(Option[ShutdownModifier]):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shutdown</span><span class="params">(<span name="modifierOpt">modifierOpt: <span class="extype" name="scala.Option">Option</span>[<a href="../package$$ShutdownModifier.html" class="extype" name="scredis.ShutdownModifier">ShutdownModifier</a>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@shutdown(modifierOpt:Option[scredis.ShutdownModifier]):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Gracefully shuts down a <code>Redis</code> server.</p><div class="fullcomment"><div class="comment cmt"><p>Gracefully shuts down a <code>Redis</code> server.
+</p></div><dl class="paramcmts block"><dt class="param">modifierOpt</dt><dd class="cmt"><p>optional <a href="../package$$ShutdownModifier.html" class="extype" name="scredis.ShutdownModifier">scredis.ShutdownModifier</a>
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
+</p></dd><dt>Note</dt><dd><span class="cmt"><p>The command performs the following operations:
+- Stops all the clients
+- Performs a blocking <code>SAVE</code> if at least one <b>save point</b> is configured
+- Flushes the Append Only File if AOF is enabled
+- Quits the server
+</p></span></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#slaveOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slaveOf(host:String,port:Int):scala.concurrent.Future[Unit]"></a>
+      <a id="slaveOf(String,Int):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slaveOf</span><span class="params">(<span name="host">host: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@slaveOf(host:String,port:Int):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Configures the current <code>Redis</code> instance as a slave of another <code>Redis</code> instance.</p><div class="fullcomment"><div class="comment cmt"><p>Configures the current <code>Redis</code> instance as a slave of another <code>Redis</code> instance.
+</p></div><dl class="paramcmts block"><dt class="param">host</dt><dd class="cmt"><p>the host of the master instance</p></dd><dt class="param">port</dt><dd class="cmt"><p>the port of the master instance
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#slaveOfNoOne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slaveOfNoOne():scala.concurrent.Future[Unit]"></a>
+      <a id="slaveOfNoOne():Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slaveOfNoOne</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@slaveOfNoOne():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Breaks the replication of a slave <code>instance</code>, turning it back into a master instance.</p><div class="fullcomment"><div class="comment cmt"><p>Breaks the replication of a slave <code>instance</code>, turning it back into a master instance.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#slowLogGet" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slowLogGet(countOpt:Option[Int]):scala.concurrent.Future[List[scredis.SlowLogEntry]]"></a>
+      <a id="slowLogGet(Option[Int]):Future[List[SlowLogEntry]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slowLogGet</span><span class="params">(<span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.List">List</span>[<a href="../package$$SlowLogEntry.html" class="extype" name="scredis.SlowLogEntry">SlowLogEntry</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@slowLogGet(countOpt:Option[Int]):scala.concurrent.Future[List[scredis.SlowLogEntry]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Retieves entries from the slowlog.</p><div class="fullcomment"><div class="comment cmt"><p>Retieves entries from the slowlog.
+</p></div><dl class="paramcmts block"><dt class="param">countOpt</dt><dd class="cmt"><p>optionally limits the number of retrieved entries</p></dd><dt>returns</dt><dd class="cmt"><p>list of slowlog entries
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.2.12
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#slowLogLen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slowLogLen():scala.concurrent.Future[Long]"></a>
+      <a id="slowLogLen():Future[Long]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slowLogLen</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Long">Long</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@slowLogLen():scala.concurrent.Future[Long]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns the number of entries in the slowlog.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the number of entries in the slowlog.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>number of entries in the slowlog
+</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.2.12
+</p></dd></dl></div>
+    </li><li name="scredis.commands.ServerCommands#slowLogReset" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slowLogReset():scala.concurrent.Future[Unit]"></a>
+      <a id="slowLogReset():Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slowLogReset</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@slowLogReset():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Resets the slowlog.</p><div class="fullcomment"><div class="comment cmt"><p>Resets the slowlog.
+</p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2.2.12
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -636,20 +947,28 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#time" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="time()(implicitopts:scredis.CommandOptions):(Long,Long)"></a>
-      <a id="time()(CommandOptions):(Long,Long)"></a>
+      <a id="time():scala.concurrent.Future[(Long,Long)]"></a>
+      <a id="time():Future[(Long,Long)]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">time</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: (<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Long">Long</span>)</span>
+        <span class="name">time</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Long">Long</span>)]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@time():scala.concurrent.Future[(Long,Long)]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Returns the current server time.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the current server time.
 </p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>pair of longs containing (1) UNIX timestamp and (2) microseconds
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
@@ -665,7 +984,11 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -678,7 +1001,11 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -697,7 +1024,11 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -716,7 +1047,11 @@ as returned by Redis, or an empty string if the section does not exist
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ServerCommands@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -753,6 +1088,7 @@ as returned by Redis, or an empty string if the section does not exist
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

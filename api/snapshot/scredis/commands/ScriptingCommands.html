@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>ScriptingCommands - scredis.commands.ScriptingCommands</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -26,7 +30,11 @@
       <div id="definition">
         <img src="../../lib/trait_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scredis">scredis</a>.<a href="package.html" class="extype" name="scredis.commands">commands</a></p>
-        <h1>ScriptingCommands</h1>
+        <h1>ScriptingCommands</h1> <span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -39,13 +47,13 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This trait implements scripting commands.</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="scredis.commands.ScriptingCommands">ScriptingCommands</a> with <a href="../protocol/Protocol.html" class="extype" name="scredis.protocol.Protocol">Protocol</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This trait implements scripting commands.</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="scredis.commands.ScriptingCommands">ScriptingCommands</a> with <a href="../io/NonBlockingConnection.html" class="extype" name="scredis.io.NonBlockingConnection">NonBlockingConnection</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
-          <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="../Client.html" class="extype" name="scredis.Client">Client</a></div>
-        </div></div>
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="../Client.html" class="extype" name="scredis.Client">Client</a>, <a href="../Redis.html" class="extype" name="scredis.Redis">Redis</a>, <a href="../TransactionBuilder.html" class="extype" name="scredis.TransactionBuilder">TransactionBuilder</a></div>
+          </div></div>
         
 
       <div id="mbrsel">
@@ -89,19 +97,6 @@
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -112,8 +107,12 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -125,22 +124,13 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -151,21 +141,12 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scredis.commands.ScriptingCommands#as" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="as:scredis.protocol.As"></a>
-      <a id="as:As"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">as</span><span class="result">: <span class="extype" name="scredis.protocol.As">As</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -177,7 +158,11 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -190,7 +175,11 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -209,7 +198,11 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a>
@@ -222,139 +215,52 @@
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scredis.commands.ScriptingCommands#eval" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="eval[A](script:String)(as:scredis.protocol.As=&gt;((Char,Array[Byte])=&gt;A))(implicitopts:scredis.CommandOptions):A"></a>
-      <a id="eval[A](String)((As)⇒(Char,Array[Byte])⇒A)(CommandOptions):A"></a>
+      <a id="eval[R,W1,W2](script:String,keys:Seq[W1],args:Seq[W2])(implicitevidence$1:scredis.protocol.Decoder[R],implicitevidence$2:scredis.serialization.Writer[W1],implicitevidence$3:scredis.serialization.Writer[W2]):scala.concurrent.Future[R]"></a>
+      <a id="eval[R,W1,W2](String,Seq[W1],Seq[W2])(Decoder[R],Writer[W1],Writer[W2]):Future[R]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eval</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="script">script: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="as">as: (<span class="extype" name="scredis.protocol.As">As</span>) ⇒ (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scredis.commands.ScriptingCommands.eval.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.ScriptingCommands.eval.A">A</span></span>
+        <span class="name">eval</span><span class="tparams">[<span name="R">R</span>, <span name="W1">W1</span>, <span name="W2">W2</span>]</span><span class="params">(<span name="script">script: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="keys">keys: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scredis.commands.ScriptingCommands.eval.W1">W1</span>] = <span class="symbol">Nil</span></span>, <span name="args">args: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scredis.commands.ScriptingCommands.eval.W2">W2</span>] = <span class="symbol">Nil</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../protocol/package.html#Decoder[X]=PartialFunction[scredis.protocol.Response,X]" class="extmbr" name="scredis.protocol.Decoder">Decoder</a>[<span class="extype" name="scredis.commands.ScriptingCommands.eval.R">R</span>]</span>, <span name="arg1">arg1: <a href="../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.commands.ScriptingCommands.eval.W1">W1</span>]</span>, <span name="arg2">arg2: <a href="../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.commands.ScriptingCommands.eval.W2">W2</span>]</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scredis.commands.ScriptingCommands.eval.R">R</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@eval[R,W1,W2](script:String,keys:Seq[W1],args:Seq[W2])(implicitevidence$1:scredis.protocol.Decoder[R],implicitevidence$2:scredis.serialization.Writer[W1],implicitevidence$3:scredis.serialization.Writer[W2]):scala.concurrent.Future[R]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Executes a Lua script that does not require any keys or arguments.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a Lua script that does not require any keys or arguments.
-</p></div><dl class="paramcmts block"><dt class="param">script</dt><dd class="cmt"><p>set key</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if an error occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
+</p></div><dl class="paramcmts block"><dt class="param">script</dt><dd class="cmt"><p>the LUA script</p></dd><dt class="param">keys</dt><dd class="cmt"><p>keys to be used in the script</p></dd><dt class="param">args</dt><dd class="cmt"><p>arguments to be used in the script</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if an error occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the result could not be decoded by provided <code>Decoder</code>
 </p></span></dd></dl></div>
-    </li><li name="scredis.commands.ScriptingCommands#evalSha" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="evalSha[A](sha1:String)(as:scredis.protocol.As=&gt;((Char,Array[Byte])=&gt;A))(implicitopts:scredis.CommandOptions):A"></a>
-      <a id="evalSha[A](String)((As)⇒(Char,Array[Byte])⇒A)(CommandOptions):A"></a>
+    </li><li name="scredis.commands.ScriptingCommands#evalSHA" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="evalSHA[R,W1,W2](sha1:String,keys:Seq[W1],args:Seq[W2])(implicitevidence$4:scredis.protocol.Decoder[R],implicitevidence$5:scredis.serialization.Writer[W1],implicitevidence$6:scredis.serialization.Writer[W2]):scala.concurrent.Future[R]"></a>
+      <a id="evalSHA[R,W1,W2](String,Seq[W1],Seq[W2])(Decoder[R],Writer[W1],Writer[W2]):Future[R]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">evalSha</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="sha1">sha1: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="as">as: (<span class="extype" name="scredis.protocol.As">As</span>) ⇒ (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scredis.commands.ScriptingCommands.evalSha.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.ScriptingCommands.evalSha.A">A</span></span>
+        <span class="name">evalSHA</span><span class="tparams">[<span name="R">R</span>, <span name="W1">W1</span>, <span name="W2">W2</span>]</span><span class="params">(<span name="sha1">sha1: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="keys">keys: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scredis.commands.ScriptingCommands.evalSHA.W1">W1</span>] = <span class="symbol">Nil</span></span>, <span name="args">args: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scredis.commands.ScriptingCommands.evalSHA.W2">W2</span>] = <span class="symbol">Nil</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../protocol/package.html#Decoder[X]=PartialFunction[scredis.protocol.Response,X]" class="extmbr" name="scredis.protocol.Decoder">Decoder</a>[<span class="extype" name="scredis.commands.ScriptingCommands.evalSHA.R">R</span>]</span>, <span name="arg1">arg1: <a href="../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.commands.ScriptingCommands.evalSHA.W1">W1</span>]</span>, <span name="arg2">arg2: <a href="../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.commands.ScriptingCommands.evalSHA.W2">W2</span>]</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scredis.commands.ScriptingCommands.evalSHA.R">R</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@evalSHA[R,W1,W2](sha1:String,keys:Seq[W1],args:Seq[W2])(implicitevidence$4:scredis.protocol.Decoder[R],implicitevidence$5:scredis.serialization.Writer[W1],implicitevidence$6:scredis.serialization.Writer[W2]):scala.concurrent.Future[R]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Executes a cached Lua script that does not require any keys or arguments by its SHA1 digest.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a cached Lua script that does not require any keys or arguments by its SHA1 digest.
-</p></div><dl class="paramcmts block"><dt class="param">sha1</dt><dd class="cmt"><p>the SHA1 digest</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if there is no script corresponding to the provided SHA1 digest or if an error
-occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
-</p></span></dd></dl></div>
-    </li><li name="scredis.commands.ScriptingCommands#evalShaWithArgs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="evalShaWithArgs[A](sha1:String)(args:Any*)(as:scredis.protocol.As=&gt;((Char,Array[Byte])=&gt;A))(implicitopts:scredis.CommandOptions):A"></a>
-      <a id="evalShaWithArgs[A](String)(Any*)((As)⇒(Char,Array[Byte])⇒A)(CommandOptions):A"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">evalShaWithArgs</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="sha1">sha1: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="args">args: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="params">(<span name="as">as: (<span class="extype" name="scredis.protocol.As">As</span>) ⇒ (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scredis.commands.ScriptingCommands.evalShaWithArgs.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.ScriptingCommands.evalShaWithArgs.A">A</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Executes a cached Lua script with arguments by its SHA1 digest.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a cached Lua script with arguments by its SHA1 digest.
-</p></div><dl class="paramcmts block"><dt class="param">sha1</dt><dd class="cmt"><p>the SHA1 digest</p></dd><dt class="param">args</dt><dd class="cmt"><p>arguments to be used in the script</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if there is no script corresponding to the provided SHA1 digest or if an error
-occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
-</p></span></dd></dl></div>
-    </li><li name="scredis.commands.ScriptingCommands#evalShaWithKeys" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="evalShaWithKeys[A](sha1:String)(keys:String*)(as:scredis.protocol.As=&gt;((Char,Array[Byte])=&gt;A))(implicitopts:scredis.CommandOptions):A"></a>
-      <a id="evalShaWithKeys[A](String)(String*)((As)⇒(Char,Array[Byte])⇒A)(CommandOptions):A"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">evalShaWithKeys</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="sha1">sha1: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="keys">keys: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span name="as">as: (<span class="extype" name="scredis.protocol.As">As</span>) ⇒ (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scredis.commands.ScriptingCommands.evalShaWithKeys.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.ScriptingCommands.evalShaWithKeys.A">A</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Executes a cached Lua script with keys parameter by its SHA1 digest.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a cached Lua script with keys parameter by its SHA1 digest.
-</p></div><dl class="paramcmts block"><dt class="param">sha1</dt><dd class="cmt"><p>the SHA1 digest</p></dd><dt class="param">keys</dt><dd class="cmt"><p>keys to be used in the script</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if there is no script corresponding to the provided SHA1 digest or if an error
-occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
-</p></span></dd></dl></div>
-    </li><li name="scredis.commands.ScriptingCommands#evalShaWithKeysAndArgs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="evalShaWithKeysAndArgs[A](sha1:String)(keys:String*)(args:Any*)(as:scredis.protocol.As=&gt;((Char,Array[Byte])=&gt;A))(implicitopts:scredis.CommandOptions):A"></a>
-      <a id="evalShaWithKeysAndArgs[A](String)(String*)(Any*)((As)⇒(Char,Array[Byte])⇒A)(CommandOptions):A"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">evalShaWithKeysAndArgs</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="sha1">sha1: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="keys">keys: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span name="args">args: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="params">(<span name="as">as: (<span class="extype" name="scredis.protocol.As">As</span>) ⇒ (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scredis.commands.ScriptingCommands.evalShaWithKeysAndArgs.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.ScriptingCommands.evalShaWithKeysAndArgs.A">A</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Executes a cached Lua script with keys and arguments by its SHA1 digest.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a cached Lua script with keys and arguments by its SHA1 digest.
-</p></div><dl class="paramcmts block"><dt class="param">sha1</dt><dd class="cmt"><p>the SHA1 digest</p></dd><dt class="param">keys</dt><dd class="cmt"><p>keys to be used in the script</p></dd><dt class="param">args</dt><dd class="cmt"><p>arguments to be used in the script</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if there is no script corresponding to the provided SHA1 digest or if an error
-occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
-</p></span></dd></dl></div>
-    </li><li name="scredis.commands.ScriptingCommands#evalWithArgs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="evalWithArgs[A](script:String)(args:Any*)(as:scredis.protocol.As=&gt;((Char,Array[Byte])=&gt;A))(implicitopts:scredis.CommandOptions):A"></a>
-      <a id="evalWithArgs[A](String)(Any*)((As)⇒(Char,Array[Byte])⇒A)(CommandOptions):A"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">evalWithArgs</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="script">script: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="args">args: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="params">(<span name="as">as: (<span class="extype" name="scredis.protocol.As">As</span>) ⇒ (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scredis.commands.ScriptingCommands.evalWithArgs.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.ScriptingCommands.evalWithArgs.A">A</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Executes a Lua script with arguments.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a Lua script with arguments.
-</p></div><dl class="paramcmts block"><dt class="param">script</dt><dd class="cmt"><p>set key</p></dd><dt class="param">args</dt><dd class="cmt"><p>arguments to be used in the script</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if an error occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
-</p></span></dd></dl></div>
-    </li><li name="scredis.commands.ScriptingCommands#evalWithKeys" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="evalWithKeys[A](script:String)(keys:String*)(as:scredis.protocol.As=&gt;((Char,Array[Byte])=&gt;A))(implicitopts:scredis.CommandOptions):A"></a>
-      <a id="evalWithKeys[A](String)(String*)((As)⇒(Char,Array[Byte])⇒A)(CommandOptions):A"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">evalWithKeys</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="script">script: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="keys">keys: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span name="as">as: (<span class="extype" name="scredis.protocol.As">As</span>) ⇒ (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scredis.commands.ScriptingCommands.evalWithKeys.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.ScriptingCommands.evalWithKeys.A">A</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Executes a Lua script with keys parameter.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a Lua script with keys parameter.
-</p></div><dl class="paramcmts block"><dt class="param">script</dt><dd class="cmt"><p>set key</p></dd><dt class="param">keys</dt><dd class="cmt"><p>keys to be used in the script</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if an error occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
-</p></span></dd></dl></div>
-    </li><li name="scredis.commands.ScriptingCommands#evalWithKeysAndArgs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="evalWithKeysAndArgs[A](script:String)(keys:String*)(args:Any*)(as:scredis.protocol.As=&gt;((Char,Array[Byte])=&gt;A))(implicitopts:scredis.CommandOptions):A"></a>
-      <a id="evalWithKeysAndArgs[A](String)(String*)(Any*)((As)⇒(Char,Array[Byte])⇒A)(CommandOptions):A"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">evalWithKeysAndArgs</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="script">script: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="keys">keys: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span name="args">args: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="params">(<span name="as">as: (<span class="extype" name="scredis.protocol.As">As</span>) ⇒ (<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]) ⇒ <span class="extype" name="scredis.commands.ScriptingCommands.evalWithKeysAndArgs.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.ScriptingCommands.evalWithKeysAndArgs.A">A</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Executes a Lua script with keys and arguments.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a Lua script with keys and arguments.
-</p></div><dl class="paramcmts block"><dt class="param">script</dt><dd class="cmt"><p>set key</p></dd><dt class="param">keys</dt><dd class="cmt"><p>keys to be used in the script</p></dd><dt class="param">args</dt><dd class="cmt"><p>arguments to be used in the script</p></dd><dt class="param">as</dt><dd class="cmt"><p>result handler</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if an error occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the value returned by the script does not match with the result handler
+</p></div><dl class="paramcmts block"><dt class="param">sha1</dt><dd class="cmt"><p>the SHA1 digest</p></dd><dt class="param">keys</dt><dd class="cmt"><p>keys to be used in the script</p></dd><dt class="param">args</dt><dd class="cmt"><p>arguments to be used in the script</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if there is no script corresponding to the provided SHA1 digest or if an error
+occurs while running the script</p></span><span class="cmt">[[scredis.exceptions.RedisProtocolException]]<p>if the result could not be decoded by provided <code>Decoder</code>
 </p></span></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -367,7 +273,11 @@ occurs while running the script</p></span><span class="cmt">[[scredis.exceptions
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -386,7 +296,11 @@ occurs while running the script</p></span><span class="cmt">[[scredis.exceptions
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -399,7 +313,11 @@ occurs while running the script</p></span><span class="cmt">[[scredis.exceptions
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -412,7 +330,11 @@ occurs while running the script</p></span><span class="cmt">[[scredis.exceptions
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -425,7 +347,11 @@ occurs while running the script</p></span><span class="cmt">[[scredis.exceptions
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -438,7 +364,11 @@ occurs while running the script</p></span><span class="cmt">[[scredis.exceptions
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -451,51 +381,68 @@ occurs while running the script</p></span><span class="cmt">[[scredis.exceptions
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scredis.commands.ScriptingCommands#scriptExists" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="scriptExists(sha1:String,sha1s:String*)(implicitopts:scredis.CommandOptions):IndexedSeq[Boolean]"></a>
-      <a id="scriptExists(String,String*)(CommandOptions):IndexedSeq[Boolean]"></a>
+      <a id="scriptExists(sha1s:String*):scala.concurrent.Future[Map[String,Boolean]]"></a>
+      <a id="scriptExists(String*):Future[Map[String,Boolean]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">scriptExists</span><span class="params">(<span name="sha1">sha1: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="sha1s">sha1s: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scala.Boolean">Boolean</span>]</span>
+        <span class="name">scriptExists</span><span class="params">(<span name="sha1s">sha1s: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Boolean">Boolean</span>]]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@scriptExists(sha1s:String*):scala.concurrent.Future[Map[String,Boolean]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Checks existence of scripts in the script cache.</p><div class="fullcomment"><div class="comment cmt"><p>Checks existence of scripts in the script cache.
-</p></div><dl class="paramcmts block"><dt class="param">sha1</dt><dd class="cmt"><p>the SHA1 digest to check for</p></dd><dt class="param">sha1s</dt><dd class="cmt"><p>additional digests to check for</p></dd><dt>returns</dt><dd class="cmt"><p>indexed sequence of booleans where true means the script is in the cache
+</p></div><dl class="paramcmts block"><dt class="param">sha1s</dt><dd class="cmt"><p>SHA1 digest(s) to check for existence</p></dd><dt>returns</dt><dd class="cmt"><p>SHA1 -&gt; Boolean <code>Map</code> where <b>true</b> means the script associated to the sha1 exists
+in the cache
 </p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
 </p></dd></dl></div>
     </li><li name="scredis.commands.ScriptingCommands#scriptFlush" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="scriptFlush()(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="scriptFlush()(CommandOptions):Unit"></a>
+      <a id="scriptFlush():scala.concurrent.Future[Unit]"></a>
+      <a id="scriptFlush():Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">scriptFlush</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">scriptFlush</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@scriptFlush():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Removes all the scripts from the script cache.</p><div class="fullcomment"><div class="comment cmt"><p>Removes all the scripts from the script cache.
 </p></div><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
 </p></dd></dl></div>
     </li><li name="scredis.commands.ScriptingCommands#scriptKill" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="scriptKill()(implicitopts:scredis.CommandOptions):Unit"></a>
-      <a id="scriptKill()(CommandOptions):Unit"></a>
+      <a id="scriptKill():scala.concurrent.Future[Unit]"></a>
+      <a id="scriptKill():Future[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">scriptKill</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">scriptKill</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@scriptKill():scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Kills the currently executing Lua script, assuming no write operation was yet performed by
 the script.</p><div class="fullcomment"><div class="comment cmt"><p>Kills the currently executing Lua script, assuming no write operation was yet performed by
 the script.
@@ -506,20 +453,24 @@ is able to kill the script, killing the Redis process in an hard way preventing 
 with half-written information.
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.ScriptingCommands#scriptLoad" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="scriptLoad(script:String)(implicitopts:scredis.CommandOptions):String"></a>
-      <a id="scriptLoad(String)(CommandOptions):String"></a>
+      <a id="scriptLoad(script:String):scala.concurrent.Future[String]"></a>
+      <a id="scriptLoad(String):Future[String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">scriptLoad</span><span class="params">(<span name="script">script: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="opts">opts: <a href="../CommandOptions.html" class="extype" name="scredis.CommandOptions">CommandOptions</a> = <span class="symbol"><span class="name"><a href="../protocol/Protocol.html#DefaultCommandOptions:scredis.CommandOptions">DefaultCommandOptions</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">scriptLoad</span><span class="params">(<span name="script">script: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@scriptLoad(script:String):scala.concurrent.Future[String]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Loads or stores the specified Lua script into the script cache.</p><div class="fullcomment"><div class="comment cmt"><p>Loads or stores the specified Lua script into the script cache.
 </p></div><dl class="paramcmts block"><dt class="param">script</dt><dd class="cmt"><p>the script to be loaded into the cache</p></dd><dt>returns</dt><dd class="cmt"><p>the SHA1 digest of the stored script</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>2.6.0
-</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisCommandException]]<p>if a compilation error occurs
+</p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if a compilation error occurs
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>The script is guaranteed to stay in the script cache forever (unless SCRIPT FLUSH
 is called).
 </p></span></dd></dl></div>
@@ -534,7 +485,11 @@ is called).
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -547,7 +502,11 @@ is called).
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -560,7 +519,11 @@ is called).
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -579,7 +542,11 @@ is called).
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -598,7 +565,11 @@ is called).
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.commands.ScriptingCommands@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -635,6 +606,7 @@ is called).
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>
