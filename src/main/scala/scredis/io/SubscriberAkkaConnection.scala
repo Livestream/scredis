@@ -8,6 +8,7 @@ import scredis.{ Subscription, PubSubMessage }
 import scredis.protocol._
 import scredis.protocol.requests.PubSubRequests._
 import scredis.protocol.requests.ConnectionRequests.{ Auth, Quit }
+import scredis.protocol.requests.ServerRequests.ClientSetName
 import scredis.exceptions.RedisIOException
 import scredis.util.UniqueNameGenerator
 
@@ -114,15 +115,31 @@ abstract class SubscriberAkkaConnection(
     val auth = Auth(password)
     listenerActor ! SubscriberListenerActor.SaveSubscriptions
     unsubscribeAndThen {
-      listenerActor ! SubscriberListenerActor.Authenticate(auth)
+      listenerActor ! SubscriberListenerActor.SendAsRegularClient(auth)
     }
     auth.future.onComplete {
       case _ => {
-        listenerActor ! SubscriberListenerActor.Authenticated
+        listenerActor ! SubscriberListenerActor.RecoverPreviousSubscriberState
         lock.release()
       }
     }
     auth.future
+  }
+  
+  protected def setName(name: String): Future[Unit] = {
+    lock.acquire()
+    val setName = ClientSetName(name)
+    listenerActor ! SubscriberListenerActor.SaveSubscriptions
+    unsubscribeAndThen {
+      listenerActor ! SubscriberListenerActor.SendAsRegularClient(setName)
+    }
+    setName.future.onComplete {
+      case _ => {
+        listenerActor ! SubscriberListenerActor.RecoverPreviousSubscriberState
+        lock.release()
+      }
+    }
+    setName.future
   }
   
   protected def shutdown(): Future[Unit] = {

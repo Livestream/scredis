@@ -197,11 +197,11 @@ class SubscriberListenerActor(
       savedSubscribedChannels ++= subscribedChannels
       savedSubscribedPatterns ++= subscribedPatterns
     }
-    case Authenticate(auth) => {
+    case SendAsRegularClient(request) => {
       onConnect()
-      send(auth)
+      send(request)
     }
-    case Authenticated => {
+    case RecoverPreviousSubscriberState => {
       shouldSendRequests = true
       subscribedChannels ++= savedSubscribedChannels
       subscribedPatterns ++= savedSubscribedPatterns
@@ -223,7 +223,7 @@ object SubscriberListenerActor {
   case class Complete(message: PubSubMessage)
   case class Fail(message: String)
   case object SaveSubscriptions
-  case class Authenticate(auth: Auth)
-  case object Authenticated
+  case class SendAsRegularClient(request: Request[_])
+  case object RecoverPreviousSubscriberState
   case class Shutdown(quit: Quit)
 }

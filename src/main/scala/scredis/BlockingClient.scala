@@ -7,6 +7,7 @@ import akka.actor.ActorSystem
 import scredis.io.AkkaBlockingConnection
 import scredis.protocol.Protocol
 import scredis.protocol.requests.ConnectionRequests.{ Auth, Select, Quit }
+import scredis.protocol.requests.ServerRequests.ClientSetName
 import scredis.commands._
 import scredis.exceptions._
 
@@ -121,6 +122,17 @@ final class BlockingClient(
    */
   def this(configName: String, path: String)(implicit system: ActorSystem) = this(
     RedisConfig(configName, path)
+  )
+  
+  /**
+   * Sets the current client name. If the empty string is provided, the name will be unset.
+   *
+   * @param name name to associate the client to, if empty, unsets the client name
+   *
+   * @since 2.6.9
+   */
+  def clientSetName(name: String)(implicit timeout: Duration): Unit = sendBlocking(
+    ClientSetName(name)
   )
   
   /**

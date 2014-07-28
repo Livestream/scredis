@@ -218,6 +218,33 @@ final class Redis(
       super.auth(password)
     }
   }
+  
+  /**
+   * Sets the current client name. If the empty string is provided, the name will be unset.
+   *
+   * @param name name to associate the client to, if empty, unsets the client name
+   *
+   * @since 2.6.9
+   */
+  override def clientSetName(name: String): Future[Unit] = {
+    if (shouldShutdownBlockingClient) {
+      try {
+        blocking.clientSetName(name)(5 seconds)
+      } catch {
+        case e: Throwable => logger.error("Could not set client name on blocking client", e)
+      }
+    }
+    val future = if (shouldShutdownSubscriberClient) {
+      subscriber.clientSetName(name)
+    } else {
+      Future.successful(())
+    }
+    future.recover {
+      case e: Throwable => logger.error("Could not set client name on subscriber client", e)
+    }.flatMap { _ =>
+      super.clientSetName(name)
+    }
+  }
 
   /**
    * Closes the connection.

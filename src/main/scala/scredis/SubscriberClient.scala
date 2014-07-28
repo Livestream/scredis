@@ -125,7 +125,7 @@ final class SubscriberClient(
   /**
    * Authenticates to the server.
    * 
-   * @note use the empty string to re-authenticate with no password
+   * @note Use the empty string to re-authenticate with no password.
    *
    * @param password the server password
    * @throws $e if authentication failed
@@ -133,6 +133,15 @@ final class SubscriberClient(
    * @since 1.0.0
    */
   def auth(password: String): Future[Unit] = authenticate(password)
+  
+  /**
+   * Sets the current client name. If the empty string is provided, the name will be unset.
+   *
+   * @param name name to associate the client to, if empty, unsets the client name
+   *
+   * @since 2.6.9
+   */
+  def clientSetName(name: String): Future[Unit] = setName(name)
   
   /**
    * Unsubscribes from all subscribed channels/patterns and then closes the connection.
