@@ -34,24 +34,24 @@ class ListCommandsSpec extends WordSpec
       "return an error" taggedAs (V200) in {
         client.rPush("LIST", "A")
         a [RedisErrorResponseException] should be thrownBy {
-          blockingClient.blPop(1, "HASH", "LIST")
+          blockingClient.blPop(1, "HASH", "LIST").get
         }
         client.del("LIST")
         a [RedisErrorResponseException] should be thrownBy  {
-          blockingClient.blPop(1, "LIST", "HASH")
+          blockingClient.blPop(1, "LIST", "HASH").get
         }
       }
     }
     "the keys do not exist or are empty" should {
       "succeed" taggedAs (V200) in {
-        blockingClient.blPop(1, "LIST", "LIST2", "LIST3") should be (empty)
+        blockingClient.blPop(1, "LIST", "LIST2", "LIST3").get should be (empty)
       }
     }
     "the timeout is zero" should {
       "block and return as soon as a value is pushed" taggedAs (V200) in {
         val future = Future {
           val start = System.currentTimeMillis
-          val result = blockingClient.blPop(0, "LIST", "LIST2", "LIST3")
+          val result = blockingClient.blPop(0, "LIST", "LIST2", "LIST3").get
           val elapsed = System.currentTimeMillis - start
           (result, elapsed)
         }
@@ -69,11 +69,11 @@ class ListCommandsSpec extends WordSpec
         client.rPush("LIST2", "C")
         client.rPush("LIST3", "D")
         client.rPush("LIST3", "E")
-        blockingClient.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST", "A"))
-        blockingClient.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST", "B"))
-        blockingClient.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST2", "C"))
-        blockingClient.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST3", "D"))
-        blockingClient.blPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST3", "E"))
+        blockingClient.blPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST", "A"))
+        blockingClient.blPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST", "B"))
+        blockingClient.blPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST2", "C"))
+        blockingClient.blPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST3", "D"))
+        blockingClient.blPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST3", "E"))
       }
     }
   }
@@ -83,24 +83,24 @@ class ListCommandsSpec extends WordSpec
       "return an error" taggedAs (V200) in {
         client.lPush("LIST", "A")
         a [RedisErrorResponseException] should be thrownBy {
-          blockingClient.brPop(1, "HASH", "LIST")
+          blockingClient.brPop(1, "HASH", "LIST").get
         }
         client.del("LIST")
         a [RedisErrorResponseException] should be thrownBy  {
-          blockingClient.brPop(1, "LIST", "HASH")
+          blockingClient.brPop(1, "LIST", "HASH").get
         }
       }
     }
     "the keys do not exist or are empty" should {
       "succeed" taggedAs (V200) in {
-        blockingClient.brPop(1, "LIST", "LIST2", "LIST3") should be (empty)
+        blockingClient.brPop(1, "LIST", "LIST2", "LIST3").get should be (empty)
       }
     }
     "the timeout is zero" should {
       "block and return as soon as a value is pushed" taggedAs (V200) in {
         val future = Future {
           val start = System.currentTimeMillis
-          val result = blockingClient.brPop(0, "LIST", "LIST2", "LIST3")
+          val result = blockingClient.brPop(0, "LIST", "LIST2", "LIST3").get
           val elapsed = System.currentTimeMillis - start
           (result, elapsed)
         }
@@ -118,11 +118,11 @@ class ListCommandsSpec extends WordSpec
         client.lPush("LIST2", "C")
         client.lPush("LIST3", "D")
         client.lPush("LIST3", "E")
-        blockingClient.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST", "A"))
-        blockingClient.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST", "B"))
-        blockingClient.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST2", "C"))
-        blockingClient.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST3", "D"))
-        blockingClient.brPop(1, "LIST", "LIST2", "LIST3") should contain (("LIST3", "E"))
+        blockingClient.brPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST", "A"))
+        blockingClient.brPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST", "B"))
+        blockingClient.brPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST2", "C"))
+        blockingClient.brPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST3", "D"))
+        blockingClient.brPop(1, "LIST", "LIST2", "LIST3").get should contain (("LIST3", "E"))
       }
     }
   }
@@ -130,13 +130,13 @@ class ListCommandsSpec extends WordSpec
   BRPopLPush.toString when {
     "the source key does not exist" should {
       "do nothing" taggedAs (V220) in {
-        blockingClient.brPopLPush("LIST", "LIST", 1) should be (empty)
+        blockingClient.brPopLPush("LIST", "LIST", 1).get should be (empty)
       }
     }
     "the source key does not contain a list" should {
       "return an error" taggedAs (V220) in {
         a [RedisErrorResponseException] should be thrownBy {
-          blockingClient.brPopLPush("HASH", "LIST", 1)
+          blockingClient.brPopLPush("HASH", "LIST", 1).get
         }
       }
     }
@@ -144,14 +144,14 @@ class ListCommandsSpec extends WordSpec
       "return an error" taggedAs (V220) in {
         client.lPush("LIST", "A")
         a [RedisErrorResponseException] should be thrownBy {
-          blockingClient.brPopLPush("LIST", "HASH", 1)
+          blockingClient.brPopLPush("LIST", "HASH", 1).get
         }
       }
     }
     "the source and dest keys are correct" should {
       "succeed" taggedAs (V220) in {
-        blockingClient.brPopLPush("LIST", "LIST", 1) should contain ("A")
-        blockingClient.brPopLPush("LIST", "LIST2", 1) should contain ("A")
+        blockingClient.brPopLPush("LIST", "LIST", 1).get should contain ("A")
+        blockingClient.brPopLPush("LIST", "LIST2", 1).get should contain ("A")
         client.lPop("LIST").futureValue should be (empty)
         client.lPop("LIST2").futureValue should contain ("A")
       }

@@ -19,7 +19,7 @@ import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicInteger
 
 trait Connection {
-  protected implicit val ec: ExecutionContext
+  implicit val dispatcher: ExecutionContext
 }
 
 trait NonBlockingConnection {
@@ -31,7 +31,7 @@ trait TransactionEnabledConnection {
 }
 
 trait BlockingConnection {
-  protected def sendBlocking[A](request: Request[A])(implicit timeout: Duration): A
+  protected def sendBlocking[A](request: Request[A])(implicit timeout: Duration): Try[A]
 }
 
 trait SubscriberConnection {

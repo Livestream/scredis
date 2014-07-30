@@ -25,7 +25,7 @@ class RedisSpec extends WordSpec
         redis1.subscriber.subscribe("TEST") {
           case _ =>
         }.futureValue should be (1)
-        redis1.blocking.blPop(1, "LIST") should be (empty)
+        redis1.blocking.blPop(1, "LIST").get should be (empty)
         redis1.ping().futureValue should be ("PONG")
       }
     }
@@ -37,7 +37,7 @@ class RedisSpec extends WordSpec
           }.!
         }
         a [RedisErrorResponseException] should be thrownBy {
-          redis2.blocking.blPop(1, "LIST")
+          redis2.blocking.blPop(1, "LIST").get
         }
         a [RedisErrorResponseException] should be thrownBy {
           redis2.ping().!
@@ -46,7 +46,7 @@ class RedisSpec extends WordSpec
         redis2.subscriber.subscribe("TEST") {
           case _ =>
         }.futureValue should be (1)
-        redis2.blocking.blPop(1, "LIST") should be (empty)
+        redis2.blocking.blPop(1, "LIST").get should be (empty)
         redis2.ping().futureValue should be ("PONG")
       }
     }

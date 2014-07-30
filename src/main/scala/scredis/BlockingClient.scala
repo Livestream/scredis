@@ -11,6 +11,7 @@ import scredis.protocol.requests.ServerRequests.ClientSetName
 import scredis.commands._
 import scredis.exceptions._
 
+import scala.util.Try
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -131,7 +132,7 @@ final class BlockingClient(
    *
    * @since 2.6.9
    */
-  def clientSetName(name: String)(implicit timeout: Duration): Unit = sendBlocking(
+  def clientSetName(name: String)(implicit timeout: Duration): Try[Unit] = sendBlocking(
     ClientSetName(name)
   )
   
@@ -143,7 +144,7 @@ final class BlockingClient(
    *
    * @since 1.0.0
    */
-  def auth(password: String)(implicit timeout: Duration): Unit = sendBlocking(Auth(password))
+  def auth(password: String)(implicit timeout: Duration): Try[Unit] = sendBlocking(Auth(password))
   
   /**
    * Changes the selected database on the current client.
@@ -153,14 +154,14 @@ final class BlockingClient(
    *
    * @since 1.0.0
    */
-  def select(database: Int)(implicit timeout: Duration): Unit = sendBlocking(Select(database))
+  def select(database: Int)(implicit timeout: Duration): Try[Unit] = sendBlocking(Select(database))
   
   /**
    * Closes the connection.
    *
    * @since 1.0.0
    */
-  def quit()(implicit timeout: Duration): Unit = sendBlocking(Quit())
+  def quit()(implicit timeout: Duration): Try[Unit] = sendBlocking(Quit())
   
 }
 

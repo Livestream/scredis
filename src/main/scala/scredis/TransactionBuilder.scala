@@ -9,7 +9,7 @@ import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ ExecutionContext, Future }
 
 final class TransactionBuilder private[scredis] ()(
-  protected implicit val ec: ExecutionContext
+  implicit val dispatcher: ExecutionContext
 ) extends Connection with NonBlockingConnection
   with ConnectionCommands
   with HashCommands

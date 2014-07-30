@@ -31,7 +31,7 @@ abstract class AbstractAkkaConnection(
   
   @volatile protected var isShuttingDown = false
   
-  override protected implicit val ec = system.dispatcher
+  override implicit val dispatcher = system.dispatcher
   
   protected def updateState(request: Request[_]): Unit = request match {
     case Auth(password) => if (password.isEmpty) {

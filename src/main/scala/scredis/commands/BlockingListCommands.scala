@@ -4,6 +4,7 @@ import scredis.io.BlockingConnection
 import scredis.protocol.requests.ListRequests._
 import scredis.serialization.{ Reader, Writer }
 
+import scala.util.Try
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -34,7 +35,7 @@ trait BlockingListCommands { self: BlockingConnection =>
    *
    * @since 2.0.0
    */
-  def blPop[R: Reader](timeoutSeconds: Int, keys: String*): Option[(String, R)] = sendBlocking(
+  def blPop[R: Reader](timeoutSeconds: Int, keys: String*): Try[Option[(String, R)]] = sendBlocking(
     BLPop(timeoutSeconds, keys: _*)
   )(timeoutSeconds)
   
@@ -49,7 +50,7 @@ trait BlockingListCommands { self: BlockingConnection =>
    *
    * @since 2.0.0
    */
-  def brPop[R: Reader](timeoutSeconds: Int, keys: String*): Option[(String, R)] = sendBlocking(
+  def brPop[R: Reader](timeoutSeconds: Int, keys: String*): Try[Option[(String, R)]] = sendBlocking(
     BRPop(timeoutSeconds, keys: _*)
   )(timeoutSeconds)
   
@@ -69,6 +70,6 @@ trait BlockingListCommands { self: BlockingConnection =>
    */
   def brPopLPush[R: Reader](
     sourceKey: String, destKey: String, timeoutSeconds: Int
-  ): Option[R] = sendBlocking(BRPopLPush(sourceKey, destKey, timeoutSeconds))(timeoutSeconds)
+  ): Try[Option[R]] = sendBlocking(BRPopLPush(sourceKey, destKey, timeoutSeconds))(timeoutSeconds)
   
 }

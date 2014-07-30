@@ -90,11 +90,11 @@ abstract class AkkaBlockingConnection(
   
   override protected def sendBlocking[A](request: Request[A])(
     implicit timeout: Duration
-  ): A = withLock {
+  ): Try[A] = withLock {
     logger.debug(s"Sending blocking request: $request")
     updateState(request)
     val future = Protocol.send(request)
-    Await.result(future, timeout)
+    Try(Await.result(future, timeout))
   }
   
 }
