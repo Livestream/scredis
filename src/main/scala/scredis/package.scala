@@ -13,7 +13,15 @@ package object scredis {
   }
   
   implicit val stringReader: Reader[String] = UTF8StringReader
-  implicit val anyWriter: Writer[Any] = AnyWriter
+  
+  implicit val bytesWriter: Writer[Array[Byte]] = BytesWriter
+  implicit val stringWriter: Writer[String] = UTF8StringWriter
+  implicit val booleanWriter: Writer[Boolean] = BooleanWriter
+  implicit val shortWriter: Writer[Short] = ShortWriter
+  implicit val intWriter: Writer[Int] = IntWriter
+  implicit val longWriter: Writer[Long] = LongWriter
+  implicit val floatWriter: Writer[Float] = FloatWriter
+  implicit val doubleWriter: Writer[Double] = DoubleWriter
   
   implicit def shortToScoreValue(value: Short): Score.Value = Score.Value(value)
   implicit def intToScoreValue(value: Int): Score.Value = Score.Value(value)

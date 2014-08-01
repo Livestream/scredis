@@ -34,7 +34,7 @@ class SerializationSpec extends WordSpec
         client.set[Boolean]("boolean", true).futureValue should be (true)
         client.set[Int]("number", 5).futureValue should be (true)
         client.set[Double]("decimal", 5.5).futureValue should be (true)
-        client.rPush[Any]("list", "1", 2, 3, "4", "5").futureValue should be (5)
+        client.rPush[Any]("list", "1", 2, 3, "4", "5")(AnyWriter).futureValue should be (5)
       }
     }
   }

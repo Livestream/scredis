@@ -36,20 +36,36 @@ trait TransactionCommands {
    */
   def unwatch(): Future[Unit] = send(Unwatch())
   
-  def inTransaction(f: TransactionBuilder => Any): Future[IndexedSeq[Try[Any]]] = {
+  /**
+   * Executes a transaction and returns the results of all queued commands.
+   * 
+   * @param build the transaction block
+   * @return vector containing the results of all queued commands
+   *
+   * @since 1.2.0
+   */
+  def inTransaction(build: TransactionBuilder => Any): Future[Vector[Try[Any]]] = {
     val builder = new TransactionBuilder()
     try {
-      f(builder)
+      build(builder)
       send(builder.result())
     } catch {
       case e: Throwable => Future.failed(RedisTransactionBuilderException(cause = e))
     }
   }
   
-  def withTransaction[A](f: TransactionBuilder => A): A = {
+  /**
+   * Executes a transaction and returns whatever the transaction block returns.
+   * 
+   * @param build the transaction block
+   * @return whatever 'build' returns
+   *
+   * @since 1.2.0
+   */
+  def withTransaction[A](build: TransactionBuilder => A): A = {
     val builder = new TransactionBuilder()
     try {
-      val result = f(builder)
+      val result = build(builder)
       send(builder.result())
       result
     } catch {

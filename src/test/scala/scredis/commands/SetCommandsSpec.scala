@@ -440,18 +440,18 @@ class SetCommandsSpec extends WordSpec
 
         val member1 = client.sPop("SET").futureValue
         member1 should contain oneOf ("A", "B", "C")
-        client.sIsMember("SET", member1).futureValue should be (false)
+        client.sIsMember("SET", member1.get).futureValue should be (false)
 
         val member2 = client.sPop("SET").futureValue
         member2 should contain oneOf ("A", "B", "C")
         member2 should not contain (member1)
-        client.sIsMember("SET", member2).futureValue should be (false)
+        client.sIsMember("SET", member2.get).futureValue should be (false)
 
         val member3 = client.sPop("SET").futureValue
         member3 should contain oneOf ("A", "B", "C")
         member3 should not contain (member1)
         member3 should not contain (member2)
-        client.sIsMember("SET", member3).futureValue should be (false)
+        client.sIsMember("SET", member3.get).futureValue should be (false)
 
         client.sPop("SET").futureValue should be (empty)
       }
