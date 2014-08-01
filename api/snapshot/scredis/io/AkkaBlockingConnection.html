@@ -310,23 +310,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
-    </li><li name="scredis.io.AbstractAkkaConnection#ec" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ec:scala.concurrent.ExecutionContextExecutor"></a>
-      <a id="ec:ExecutionContextExecutor"></a>
+    </li><li name="scredis.io.AbstractAkkaConnection#dispatcher" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dispatcher:scala.concurrent.ExecutionContextExecutor"></a>
+      <a id="dispatcher:ExecutionContextExecutor"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">ec</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContextExecutor">ExecutionContextExecutor</span></span>
+        <span class="name">dispatcher</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContextExecutor">ExecutionContextExecutor</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scredis.io.AkkaBlockingConnection@ec:scala.concurrent.ExecutionContextExecutor" title="Permalink" target="_top">
+      <a href="../../index.html#scredis.io.AkkaBlockingConnection@dispatcher:scala.concurrent.ExecutionContextExecutor" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> → <a href="Connection.html" class="extype" name="scredis.io.Connection">Connection</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> → <a href="Connection.html" class="extype" name="scredis.io.Connection">Connection</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -691,18 +691,18 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
     </li><li name="scredis.io.AkkaBlockingConnection#sendBlocking" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="sendBlocking[A](request:scredis.protocol.Request[A])(implicittimeout:scala.concurrent.duration.Duration):A"></a>
-      <a id="sendBlocking[A](Request[A])(Duration):A"></a>
+      <a id="sendBlocking[A](request:scredis.protocol.Request[A])(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[A]"></a>
+      <a id="sendBlocking[A](Request[A])(Duration):Try[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sendBlocking</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="request">request: <a href="../protocol/Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.io.AkkaBlockingConnection.sendBlocking.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scredis.io.AkkaBlockingConnection.sendBlocking.A">A</span></span>
+        <span class="name">sendBlocking</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="request">request: <a href="../protocol/Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.io.AkkaBlockingConnection.sendBlocking.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scredis.io.AkkaBlockingConnection.sendBlocking.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scredis.io.AkkaBlockingConnection@sendBlocking[A](request:scredis.protocol.Request[A])(implicittimeout:scala.concurrent.duration.Duration):A" title="Permalink" target="_top">
+      <a href="../../index.html#scredis.io.AkkaBlockingConnection@sendBlocking[A](request:scredis.protocol.Request[A])(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" />
       </a>
     </span>

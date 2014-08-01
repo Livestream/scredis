@@ -914,6 +914,23 @@ a string that cannot be represented as integer
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/KeyCommands.html" class="extype" name="scredis.commands.KeyCommands">KeyCommands</a></dd><dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>a key is ignored if it does not exist
 </p></span></dd></dl></div>
+    </li><li name="scredis.io.AbstractAkkaConnection#dispatcher" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dispatcher:scala.concurrent.ExecutionContextExecutor"></a>
+      <a id="dispatcher:ExecutionContextExecutor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dispatcher</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContextExecutor">ExecutionContextExecutor</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Client@dispatcher:scala.concurrent.ExecutionContextExecutor" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> → <a href="io/Connection.html" class="extype" name="scredis.io.Connection">Connection</a></dd></dl></div>
     </li><li name="scredis.commands.KeyCommands#dump" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="dump(key:String):scala.concurrent.Future[Option[Array[Byte]]]"></a>
       <a id="dump(String):Future[Option[Array[Byte]]]"></a>
@@ -934,23 +951,6 @@ a string that cannot be represented as integer
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to dump</p></dd><dt>returns</dt><dd class="cmt"><p>the serialized value or <code>None</code> if the key does not exist
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/KeyCommands.html" class="extype" name="scredis.commands.KeyCommands">KeyCommands</a></dd><dt>Since</dt><dd><p>2.6.0
 </p></dd></dl></div>
-    </li><li name="scredis.io.AbstractAkkaConnection#ec" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ec:scala.concurrent.ExecutionContextExecutor"></a>
-      <a id="ec:ExecutionContextExecutor"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">ec</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContextExecutor">ExecutionContextExecutor</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../index.html#scredis.Client@ec:scala.concurrent.ExecutionContextExecutor" title="Permalink" target="_top">
-        <img src="../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> → <a href="io/Connection.html" class="extype" name="scredis.io.Connection">Connection</a></dd></dl></div>
     </li><li name="scredis.commands.ConnectionCommands#echo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="echo(message:String):scala.concurrent.Future[String]"></a>
       <a id="echo(String):Future[String]"></a>
@@ -1676,22 +1676,25 @@ key holding a hash is created
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
     </li><li name="scredis.commands.TransactionCommands#inTransaction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="inTransaction(f:scredis.TransactionBuilder=&gt;Any):scala.concurrent.Future[IndexedSeq[scala.util.Try[Any]]]"></a>
-      <a id="inTransaction((TransactionBuilder)⇒Any):Future[IndexedSeq[Try[Any]]]"></a>
+      <a id="inTransaction(build:scredis.TransactionBuilder=&gt;Any):scala.concurrent.Future[Vector[scala.util.Try[Any]]]"></a>
+      <a id="inTransaction((TransactionBuilder)⇒Any):Future[Vector[Try[Any]]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">inTransaction</span><span class="params">(<span name="f">f: (<a href="TransactionBuilder.html" class="extype" name="scredis.TransactionBuilder">TransactionBuilder</a>) ⇒ <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Any">Any</span>]]]</span>
+        <span class="name">inTransaction</span><span class="params">(<span name="build">build: (<a href="TransactionBuilder.html" class="extype" name="scredis.TransactionBuilder">TransactionBuilder</a>) ⇒ <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Vector">Vector</span>[<span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Any">Any</span>]]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.Client@inTransaction(f:scredis.TransactionBuilder=&gt;Any):scala.concurrent.Future[IndexedSeq[scala.util.Try[Any]]]" title="Permalink" target="_top">
+      <a href="../index.html#scredis.Client@inTransaction(build:scredis.TransactionBuilder=&gt;Any):scala.concurrent.Future[Vector[scala.util.Try[Any]]]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/TransactionCommands.html" class="extype" name="scredis.commands.TransactionCommands">TransactionCommands</a></dd></dl></div>
+      <p class="shortcomment cmt">Executes a transaction and returns the results of all queued commands.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a transaction and returns the results of all queued commands.
+</p></div><dl class="paramcmts block"><dt class="param">build</dt><dd class="cmt"><p>the transaction block</p></dd><dt>returns</dt><dd class="cmt"><p>vector containing the results of all queued commands
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/TransactionCommands.html" class="extype" name="scredis.commands.TransactionCommands">TransactionCommands</a></dd><dt>Since</dt><dd><p>1.2.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.StringCommands#incr" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="incr(key:String):scala.concurrent.Future[Long]"></a>
       <a id="incr(String):Future[Long]"></a>
@@ -4050,7 +4053,7 @@ for both cases). In other words, you can simply check the following</p><pre>resu
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/TransactionCommands.html" class="extype" name="scredis.commands.TransactionCommands">TransactionCommands</a></dd><dt>Since</dt><dd><p>2.2.0
 </p></dd></dl></div>
     </li><li name="scredis.commands.TransactionCommands#withTransaction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withTransaction[A](f:scredis.TransactionBuilder=&gt;A):A"></a>
+      <a id="withTransaction[A](build:scredis.TransactionBuilder=&gt;A):A"></a>
       <a id="withTransaction[A]((TransactionBuilder)⇒A):A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -4058,14 +4061,17 @@ for both cases). In other words, you can simply check the following</p><pre>resu
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withTransaction</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: (<a href="TransactionBuilder.html" class="extype" name="scredis.TransactionBuilder">TransactionBuilder</a>) ⇒ <span class="extype" name="scredis.commands.TransactionCommands.withTransaction.A">A</span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.TransactionCommands.withTransaction.A">A</span></span>
+        <span class="name">withTransaction</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="build">build: (<a href="TransactionBuilder.html" class="extype" name="scredis.TransactionBuilder">TransactionBuilder</a>) ⇒ <span class="extype" name="scredis.commands.TransactionCommands.withTransaction.A">A</span></span>)</span><span class="result">: <span class="extype" name="scredis.commands.TransactionCommands.withTransaction.A">A</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.Client@withTransaction[A](f:scredis.TransactionBuilder=&gt;A):A" title="Permalink" target="_top">
+      <a href="../index.html#scredis.Client@withTransaction[A](build:scredis.TransactionBuilder=&gt;A):A" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/TransactionCommands.html" class="extype" name="scredis.commands.TransactionCommands">TransactionCommands</a></dd></dl></div>
+      <p class="shortcomment cmt">Executes a transaction and returns whatever the transaction block returns.</p><div class="fullcomment"><div class="comment cmt"><p>Executes a transaction and returns whatever the transaction block returns.
+</p></div><dl class="paramcmts block"><dt class="param">build</dt><dd class="cmt"><p>the transaction block</p></dd><dt>returns</dt><dd class="cmt"><p>whatever 'build' returns
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/TransactionCommands.html" class="extype" name="scredis.commands.TransactionCommands">TransactionCommands</a></dd><dt>Since</dt><dd><p>1.2.0
+</p></dd></dl></div>
     </li><li name="scredis.commands.SortedSetCommands#zAdd" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="zAdd[W](key:String,members:Map[W,scredis.Score])(implicitevidence$2:scredis.serialization.Writer[W]):scala.concurrent.Future[Long]"></a>
       <a id="zAdd[W](String,Map[W,Score])(Writer[W]):Future[Long]"></a>

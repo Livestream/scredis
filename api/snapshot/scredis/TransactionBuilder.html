@@ -710,6 +710,23 @@ a string that cannot be represented as integer
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/KeyCommands.html" class="extype" name="scredis.commands.KeyCommands">KeyCommands</a></dd><dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Note</dt><dd><span class="cmt"><p>a key is ignored if it does not exist
 </p></span></dd></dl></div>
+    </li><li name="scredis.TransactionBuilder#dispatcher" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dispatcher:scala.concurrent.ExecutionContext"></a>
+      <a id="dispatcher:ExecutionContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dispatcher</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.TransactionBuilder@dispatcher:scala.concurrent.ExecutionContext" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.TransactionBuilder">TransactionBuilder</a> → <a href="io/Connection.html" class="extype" name="scredis.io.Connection">Connection</a></dd></dl></div>
     </li><li name="scredis.commands.KeyCommands#dump" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="dump(key:String):scala.concurrent.Future[Option[Array[Byte]]]"></a>
       <a id="dump(String):Future[Option[Array[Byte]]]"></a>
@@ -730,23 +747,6 @@ a string that cannot be represented as integer
 </p></div><dl class="paramcmts block"><dt class="param">key</dt><dd class="cmt"><p>key to dump</p></dd><dt>returns</dt><dd class="cmt"><p>the serialized value or <code>None</code> if the key does not exist
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/KeyCommands.html" class="extype" name="scredis.commands.KeyCommands">KeyCommands</a></dd><dt>Since</dt><dd><p>2.6.0
 </p></dd></dl></div>
-    </li><li name="scredis.TransactionBuilder#ec" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ec:scala.concurrent.ExecutionContext"></a>
-      <a id="ec:ExecutionContext"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">ec</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../index.html#scredis.TransactionBuilder@ec:scala.concurrent.ExecutionContext" title="Permalink" target="_top">
-        <img src="../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.TransactionBuilder">TransactionBuilder</a> → <a href="io/Connection.html" class="extype" name="scredis.io.Connection">Connection</a></dd></dl></div>
     </li><li name="scredis.commands.ConnectionCommands#echo" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="echo(message:String):scala.concurrent.Future[String]"></a>
       <a id="echo(String):Future[String]"></a>

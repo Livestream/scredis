@@ -315,18 +315,18 @@ This constructor is equivalent to </p><pre><span class="kw">new</span> Client(co
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scredis.BlockingClient#auth" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="auth(password:String)(implicittimeout:scala.concurrent.duration.Duration):Unit"></a>
-      <a id="auth(String)(Duration):Unit"></a>
+      <a id="auth(password:String)(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[Unit]"></a>
+      <a id="auth(String)(Duration):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">auth</span><span class="params">(<span name="password">password: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">auth</span><span class="params">(<span name="password">password: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@auth(password:String)(implicittimeout:scala.concurrent.duration.Duration):Unit" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@auth(password:String)(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[Unit]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
@@ -335,18 +335,18 @@ This constructor is equivalent to </p><pre><span class="kw">new</span> Client(co
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if authentication failed
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.BlockingListCommands#blPop" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="blPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$1:scredis.serialization.Reader[R]):Option[(String,R)]"></a>
-      <a id="blPop[R](Int,String*)(Reader[R]):Option[(String,R)]"></a>
+      <a id="blPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$1:scredis.serialization.Reader[R]):scala.util.Try[Option[(String,R)]]"></a>
+      <a id="blPop[R](Int,String*)(Reader[R]):Try[Option[(String,R)]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">blPop</span><span class="tparams">[<span name="R">R</span>]</span><span class="params">(<span name="timeoutSeconds">timeoutSeconds: <span class="extype" name="scala.Int">Int</span></span>, <span name="keys">keys: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.commands.BlockingListCommands.blPop.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scredis.commands.BlockingListCommands.blPop.R">R</span>)]</span>
+        <span class="name">blPop</span><span class="tparams">[<span name="R">R</span>]</span><span class="params">(<span name="timeoutSeconds">timeoutSeconds: <span class="extype" name="scala.Int">Int</span></span>, <span name="keys">keys: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.commands.BlockingListCommands.blPop.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scredis.commands.BlockingListCommands.blPop.R">R</span>)]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@blPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$1:scredis.serialization.Reader[R]):Option[(String,R)]" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@blPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$1:scredis.serialization.Reader[R]):scala.util.Try[Option[(String,R)]]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
@@ -356,18 +356,18 @@ an element is available</p></dd><dt class="param">keys</dt><dd class="cmt"><p>li
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if a key contains a non-list value
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.BlockingListCommands#brPop" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="brPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$2:scredis.serialization.Reader[R]):Option[(String,R)]"></a>
-      <a id="brPop[R](Int,String*)(Reader[R]):Option[(String,R)]"></a>
+      <a id="brPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$2:scredis.serialization.Reader[R]):scala.util.Try[Option[(String,R)]]"></a>
+      <a id="brPop[R](Int,String*)(Reader[R]):Try[Option[(String,R)]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">brPop</span><span class="tparams">[<span name="R">R</span>]</span><span class="params">(<span name="timeoutSeconds">timeoutSeconds: <span class="extype" name="scala.Int">Int</span></span>, <span name="keys">keys: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.commands.BlockingListCommands.brPop.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scredis.commands.BlockingListCommands.brPop.R">R</span>)]</span>
+        <span class="name">brPop</span><span class="tparams">[<span name="R">R</span>]</span><span class="params">(<span name="timeoutSeconds">timeoutSeconds: <span class="extype" name="scala.Int">Int</span></span>, <span name="keys">keys: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.commands.BlockingListCommands.brPop.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scredis.commands.BlockingListCommands.brPop.R">R</span>)]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@brPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$2:scredis.serialization.Reader[R]):Option[(String,R)]" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@brPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$2:scredis.serialization.Reader[R]):scala.util.Try[Option[(String,R)]]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
@@ -377,18 +377,18 @@ an element is available in at least one of the provided lists</p></dd><dt class=
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if a key contains a non-list value
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.BlockingListCommands#brPopLPush" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="brPopLPush[R](sourceKey:String,destKey:String,timeoutSeconds:Int)(implicitevidence$3:scredis.serialization.Reader[R]):Option[R]"></a>
-      <a id="brPopLPush[R](String,String,Int)(Reader[R]):Option[R]"></a>
+      <a id="brPopLPush[R](sourceKey:String,destKey:String,timeoutSeconds:Int)(implicitevidence$3:scredis.serialization.Reader[R]):scala.util.Try[Option[R]]"></a>
+      <a id="brPopLPush[R](String,String,Int)(Reader[R]):Try[Option[R]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">brPopLPush</span><span class="tparams">[<span name="R">R</span>]</span><span class="params">(<span name="sourceKey">sourceKey: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="destKey">destKey: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="timeoutSeconds">timeoutSeconds: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.commands.BlockingListCommands.brPopLPush.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scredis.commands.BlockingListCommands.brPopLPush.R">R</span>]</span>
+        <span class="name">brPopLPush</span><span class="tparams">[<span name="R">R</span>]</span><span class="params">(<span name="sourceKey">sourceKey: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="destKey">destKey: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="timeoutSeconds">timeoutSeconds: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.commands.BlockingListCommands.brPopLPush.R">R</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scredis.commands.BlockingListCommands.brPopLPush.R">R</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@brPopLPush[R](sourceKey:String,destKey:String,timeoutSeconds:Int)(implicitevidence$3:scredis.serialization.Reader[R]):Option[R]" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@brPopLPush[R](sourceKey:String,destKey:String,timeoutSeconds:Int)(implicitevidence$3:scredis.serialization.Reader[R]):scala.util.Try[Option[R]]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
@@ -401,18 +401,18 @@ occurs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if sourceKey or destKey contain non-list values
 </p></span></dd></dl></div>
     </li><li name="scredis.BlockingClient#clientSetName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clientSetName(name:String)(implicittimeout:scala.concurrent.duration.Duration):Unit"></a>
-      <a id="clientSetName(String)(Duration):Unit"></a>
+      <a id="clientSetName(name:String)(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[Unit]"></a>
+      <a id="clientSetName(String)(Duration):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clientSetName</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">clientSetName</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@clientSetName(name:String)(implicittimeout:scala.concurrent.duration.Duration):Unit" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@clientSetName(name:String)(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[Unit]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
@@ -494,23 +494,23 @@ occurs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
-    </li><li name="scredis.io.AbstractAkkaConnection#ec" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ec:scala.concurrent.ExecutionContextExecutor"></a>
-      <a id="ec:ExecutionContextExecutor"></a>
+    </li><li name="scredis.io.AbstractAkkaConnection#dispatcher" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dispatcher:scala.concurrent.ExecutionContextExecutor"></a>
+      <a id="dispatcher:ExecutionContextExecutor"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">ec</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContextExecutor">ExecutionContextExecutor</span></span>
+        <span class="name">dispatcher</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContextExecutor">ExecutionContextExecutor</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@ec:scala.concurrent.ExecutionContextExecutor" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@dispatcher:scala.concurrent.ExecutionContextExecutor" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> → <a href="io/Connection.html" class="extype" name="scredis.io.Connection">Connection</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a> → <a href="io/Connection.html" class="extype" name="scredis.io.Connection">Connection</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -858,18 +858,18 @@ occurs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
     </li><li name="scredis.BlockingClient#quit" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="quit()(implicittimeout:scala.concurrent.duration.Duration):Unit"></a>
-      <a id="quit()(Duration):Unit"></a>
+      <a id="quit()(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[Unit]"></a>
+      <a id="quit()(Duration):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">quit</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">quit</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@quit()(implicittimeout:scala.concurrent.duration.Duration):Unit" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@quit()(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[Unit]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
@@ -894,18 +894,18 @@ occurs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
     </li><li name="scredis.BlockingClient#select" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="select(database:Int)(implicittimeout:scala.concurrent.duration.Duration):Unit"></a>
-      <a id="select(Int)(Duration):Unit"></a>
+      <a id="select(database:Int)(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[Unit]"></a>
+      <a id="select(Int)(Duration):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">select</span><span class="params">(<span name="database">database: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">select</span><span class="params">(<span name="database">database: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@select(database:Int)(implicittimeout:scala.concurrent.duration.Duration):Unit" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@select(database:Int)(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[Unit]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
@@ -914,18 +914,18 @@ occurs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if the database index is invalid
 </p></span></dd></dl></div>
     </li><li name="scredis.io.AkkaBlockingConnection#sendBlocking" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="sendBlocking[A](request:scredis.protocol.Request[A])(implicittimeout:scala.concurrent.duration.Duration):A"></a>
-      <a id="sendBlocking[A](Request[A])(Duration):A"></a>
+      <a id="sendBlocking[A](request:scredis.protocol.Request[A])(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[A]"></a>
+      <a id="sendBlocking[A](Request[A])(Duration):Try[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sendBlocking</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="request">request: <a href="protocol/Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.io.AkkaBlockingConnection.sendBlocking.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scredis.io.AkkaBlockingConnection.sendBlocking.A">A</span></span>
+        <span class="name">sendBlocking</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="request">request: <a href="protocol/Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.io.AkkaBlockingConnection.sendBlocking.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scredis.io.AkkaBlockingConnection.sendBlocking.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../index.html#scredis.BlockingClient@sendBlocking[A](request:scredis.protocol.Request[A])(implicittimeout:scala.concurrent.duration.Duration):A" title="Permalink" target="_top">
+      <a href="../index.html#scredis.BlockingClient@sendBlocking[A](request:scredis.protocol.Request[A])(implicittimeout:scala.concurrent.duration.Duration):scala.util.Try[A]" title="Permalink" target="_top">
         <img src="../lib/permalink.png" />
       </a>
     </span>
