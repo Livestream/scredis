@@ -16,7 +16,7 @@ Scredis is a reactive, non-blocking and ultra-fast Scala [Redis](http://redis.io
   * Subscribe selectively with partial functions
   * Tracked Subscribe and Unsubscribe commands (they return a Future as any other commands)
   * Automatically resubscribes to previously subscribed channels/patterns upon reconnection
-* Serialization and deserialization of command inputs and outputs
+* Customizable serialization and deserialization of command inputs and outputs
 * Fully configurable
   * Akka dispatchers
   * Pipelined write batch size
@@ -48,11 +48,13 @@ libraryDependencies += "com.livestream" %% "scredis" % "2.0.0-SNAPSHOT"
 ```scala
 import scredis._
 import scala.util.{ Success, Failure }
-import scala.concurrent.ExecutionContext.Implicits.global
 
 // Creates a Redis instance with default configuration.
 // See reference.conf for the complete list of configurable parameters.
 val redis = Redis()
+
+// Import internal ActorSystem's dispatcher (execution context) to register callbacks
+import redis.dispatcher
 
 // Executing a non-blocking command and registering callbacks on the returned Future
 redis.hGetAll("my-hash") onComplete {
