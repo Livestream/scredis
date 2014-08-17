@@ -1,0 +1,1266 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>SortedSetRequests - scredis.protocol.requests.SortedSetRequests</title>
+          <meta name="description" content="SortedSetRequests - scredis.protocol.requests.SortedSetRequests" />
+          <meta name="keywords" content="SortedSetRequests scredis.protocol.requests.SortedSetRequests" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'scredis.protocol.requests.SortedSetRequests$';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/object_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="scredis">scredis</a>.<a href="../package.html" class="extype" name="scredis.protocol">protocol</a>.<a href="package.html" class="extype" name="scredis.protocol.requests">requests</a></p>
+        <h1>SortedSetRequests</h1> <span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SortedSetRequests</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="scredis.protocol.requests.SortedSetRequests"><span>SortedSetRequests</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scredis.protocol.requests.SortedSetRequests.ZAdd" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZAdd[W]extendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZAdd[W]:ZAdd[W]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZAdd.html"><span class="name">ZAdd</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="members">members: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZAdd.W">W</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <a href="../../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZAdd.W">W</span>]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZAdd[W]extendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZCard" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZCardextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZCard:ZCard"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZCard.html"><span class="name">ZCard</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZCardextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZCount" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZCountextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZCount:ZCount"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZCount.html"><span class="name">ZCount</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="min">min: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="max">max: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZCountextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZIncrBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZIncrBy[W]extendsRequest[Double]withProductwithSerializable"></a>
+      <a id="ZIncrBy[W]:ZIncrBy[W]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZIncrBy.html"><span class="name">ZIncrBy</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="increment">increment: <span class="extype" name="scala.Double">Double</span></span>, <span name="member">member: <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZIncrBy.W">W</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZIncrBy.W">W</span>]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Double">Double</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZIncrBy[W]extendsRequest[Double]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZInterStore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZInterStoreextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZInterStore:ZInterStore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZInterStore.html"><span class="name">ZInterStore</span></a><span class="params">(<span name="destination">destination: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="keys">keys: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="aggregate">aggregate: <a href="../../package$$Aggregate.html" class="extype" name="scredis.Aggregate">Aggregate</a></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZInterStoreextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZInterStoreWeighted" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZInterStoreWeightedextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZInterStoreWeighted:ZInterStoreWeighted"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZInterStoreWeighted.html"><span class="name">ZInterStoreWeighted</span></a><span class="params">(<span name="destination">destination: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="keyWeightPairs">keyWeightPairs: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Double">Double</span>]</span>, <span name="aggregate">aggregate: <a href="../../package$$Aggregate.html" class="extype" name="scredis.Aggregate">Aggregate</a></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZInterStoreWeightedextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZLexCount" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZLexCountextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZLexCount:ZLexCount"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZLexCount.html"><span class="name">ZLexCount</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="min">min: <a href="../../package$$LexicalScoreLimit.html" class="extype" name="scredis.LexicalScoreLimit">LexicalScoreLimit</a></span>, <span name="max">max: <a href="../../package$$LexicalScoreLimit.html" class="extype" name="scredis.LexicalScoreLimit">LexicalScoreLimit</a></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZLexCountextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRange" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRange[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable"></a>
+      <a id="ZRange[R,CC[X]&lt;:Traversable[X]]:ZRange[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRange.html"><span class="name">ZRange</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRange.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="start">start: <span class="extype" name="scala.Long">Long</span></span>, <span name="stop">stop: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$2">evidence$2: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRange.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRange.R">R</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRange.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRange.R">R</span>]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRange.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRange.R">R</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRange[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRangeByLex[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable"></a>
+      <a id="ZRangeByLex[R,CC[X]&lt;:Traversable[X]]:ZRangeByLex[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRangeByLex.html"><span class="name">ZRangeByLex</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="min">min: <a href="../../package$$LexicalScoreLimit.html" class="extype" name="scredis.LexicalScoreLimit">LexicalScoreLimit</a></span>, <span name="max">max: <a href="../../package$$LexicalScoreLimit.html" class="extype" name="scredis.LexicalScoreLimit">LexicalScoreLimit</a></span>, <span name="limitOpt">limitOpt: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Int">Int</span>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$4">evidence$4: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex.R">R</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex.R">R</span>]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex.R">R</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRangeByLex[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRangeByScore[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable"></a>
+      <a id="ZRangeByScore[R,CC[X]&lt;:Traversable[X]]:ZRangeByScore[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRangeByScore.html"><span class="name">ZRangeByScore</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="min">min: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="max">max: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="limitOpt">limitOpt: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Int">Int</span>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$5">evidence$5: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore.R">R</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore.R">R</span>]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore.R">R</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRangeByScore[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRangeByScoreWithScores[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[(R,scredis.Score)]]withProductwithSerializable"></a>
+      <a id="ZRangeByScoreWithScores[R,CC[X]&lt;:Traversable[X]]:ZRangeByScoreWithScores[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRangeByScoreWithScores.html"><span class="name">ZRangeByScoreWithScores</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="min">min: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="max">max: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="limitOpt">limitOpt: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Int">Int</span>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$6">evidence$6: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, (<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>), <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRangeByScoreWithScores[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[(R,scredis.Score)]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRangeWithScores[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[(R,scredis.Score)]]withProductwithSerializable"></a>
+      <a id="ZRangeWithScores[R,CC[X]&lt;:Traversable[X]]:ZRangeWithScores[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRangeWithScores.html"><span class="name">ZRangeWithScores</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="start">start: <span class="extype" name="scala.Long">Long</span></span>, <span name="stop">stop: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$3">evidence$3: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, (<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>), <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRangeWithScores[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[(R,scredis.Score)]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRank" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRank[W]extendsRequest[Option[Long]]withProductwithSerializable"></a>
+      <a id="ZRank[W]:ZRank[W]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRank.html"><span class="name">ZRank</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="member">member: <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRank.W">W</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$7">evidence$7: <a href="../../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRank.W">W</span>]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRank[W]extendsRequest[Option[Long]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRem" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRem[W]extendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZRem[W]:ZRem[W]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRem.html"><span class="name">ZRem</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="members">members: <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRem.W">W</span>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <a href="../../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRem.W">W</span>]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRem[W]extendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByLex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRemRangeByLexextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZRemRangeByLex:ZRemRangeByLex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRemRangeByLex.html"><span class="name">ZRemRangeByLex</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="min">min: <a href="../../package$$LexicalScoreLimit.html" class="extype" name="scredis.LexicalScoreLimit">LexicalScoreLimit</a></span>, <span name="max">max: <a href="../../package$$LexicalScoreLimit.html" class="extype" name="scredis.LexicalScoreLimit">LexicalScoreLimit</a></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRemRangeByLexextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByRank" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRemRangeByRankextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZRemRangeByRank:ZRemRangeByRank"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRemRangeByRank.html"><span class="name">ZRemRangeByRank</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="start">start: <span class="extype" name="scala.Long">Long</span></span>, <span name="stop">stop: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRemRangeByRankextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByScore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRemRangeByScoreextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZRemRangeByScore:ZRemRangeByScore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRemRangeByScore.html"><span class="name">ZRemRangeByScore</span></a><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="min">min: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="max">max: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRemRangeByScoreextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRevRange" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRevRange[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable"></a>
+      <a id="ZRevRange[R,CC[X]&lt;:Traversable[X]]:ZRevRange[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRevRange.html"><span class="name">ZRevRange</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRange.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="start">start: <span class="extype" name="scala.Long">Long</span></span>, <span name="stop">stop: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$8">evidence$8: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRange.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRange.R">R</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRange.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRange.R">R</span>]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRange.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRange.R">R</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRevRange[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRevRangeByScore[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable"></a>
+      <a id="ZRevRangeByScore[R,CC[X]&lt;:Traversable[X]]:ZRevRangeByScore[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRevRangeByScore.html"><span class="name">ZRevRangeByScore</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="max">max: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="min">min: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="limitOpt">limitOpt: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Int">Int</span>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$10">evidence$10: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore.R">R</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore.R">R</span>]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore.CC">CC</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore.R">R</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRevRangeByScore[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[R]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRevRangeByScoreWithScores[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[(R,scredis.Score)]]withProductwithSerializable"></a>
+      <a id="ZRevRangeByScoreWithScores[R,CC[X]&lt;:Traversable[X]]:ZRevRangeByScoreWithScores[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRevRangeByScoreWithScores.html"><span class="name">ZRevRangeByScoreWithScores</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="max">max: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="min">min: <a href="../../package$$ScoreLimit.html" class="extype" name="scredis.ScoreLimit">ScoreLimit</a></span>, <span name="limitOpt">limitOpt: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scala.Int">Int</span>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$11">evidence$11: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, (<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>), <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRevRangeByScoreWithScores[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[(R,scredis.Score)]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRevRangeWithScores[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[(R,scredis.Score)]]withProductwithSerializable"></a>
+      <a id="ZRevRangeWithScores[R,CC[X]&lt;:Traversable[X]]:ZRevRangeWithScores[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRevRangeWithScores.html"><span class="name">ZRevRangeWithScores</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="start">start: <span class="extype" name="scala.Long">Long</span></span>, <span name="stop">stop: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$9">evidence$9: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, (<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>), <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRevRangeWithScores[R,CC[X]&lt;:Traversable[X]]extendsRequest[CC[(R,scredis.Score)]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRevRank" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRevRank[W]extendsRequest[Option[Long]]withProductwithSerializable"></a>
+      <a id="ZRevRank[W]:ZRevRank[W]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRevRank.html"><span class="name">ZRevRank</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="member">member: <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRank.W">W</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$12">evidence$12: <a href="../../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRank.W">W</span>]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRevRank[W]extendsRequest[Option[Long]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZScan" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZScan[R,CC[X]&lt;:Traversable[X]]extendsRequest[(Long,CC[(R,scredis.Score)])]withProductwithSerializable"></a>
+      <a id="ZScan[R,CC[X]&lt;:Traversable[X]]:ZScan[R,CC]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZScan.html"><span class="name">ZScan</span></a><span class="tparams">[<span name="R">R</span>, <span name="CC">CC<span class="tparams">[<span name="X">X</span>]</span> &lt;: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScan.CC.X">X</span>]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cursor">cursor: <span class="extype" name="scala.Long">Long</span></span>, <span name="matchOpt">matchOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="countOpt">countOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$13">evidence$13: <a href="../../serialization/Reader.html" class="extype" name="scredis.serialization.Reader">Reader</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScan.R">R</span>]</span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="scala.Nothing">Nothing</span>, (<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScan.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>), <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScan.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScan.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)]]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[(<span class="extype" name="scala.Long">Long</span>, <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScan.CC">CC</span>[(<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScan.R">R</span>, <a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>)])] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZScan[R,CC[X]&lt;:Traversable[X]]extendsRequest[(Long,CC[(R,scredis.Score)])]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZScore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZScore[W]extendsRequest[Option[scredis.Score]]withProductwithSerializable"></a>
+      <a id="ZScore[W]:ZScore[W]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZScore.html"><span class="name">ZScore</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="member">member: <span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScore.W">W</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$14">evidence$14: <a href="../../serialization/Writer.html" class="extype" name="scredis.serialization.Writer">Writer</a>[<span class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScore.W">W</span>]</span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Option">Option</span>[<a href="../../package$$Score.html" class="extype" name="scredis.Score">Score</a>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZScore[W]extendsRequest[Option[scredis.Score]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZUnionStore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZUnionStoreextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZUnionStore:ZUnionStore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZUnionStore.html"><span class="name">ZUnionStore</span></a><span class="params">(<span name="destination">destination: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="keys">keys: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="aggregate">aggregate: <a href="../../package$$Aggregate.html" class="extype" name="scredis.Aggregate">Aggregate</a></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZUnionStoreextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZUnionStoreWeighted" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZUnionStoreWeightedextendsRequest[Long]withProductwithSerializable"></a>
+      <a id="ZUnionStoreWeighted:ZUnionStoreWeighted"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZUnionStoreWeighted.html"><span class="name">ZUnionStoreWeighted</span></a><span class="params">(<span name="destination">destination: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="keyWeightPairs">keyWeightPairs: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Double">Double</span>]</span>, <span name="aggregate">aggregate: <a href="../../package$$Aggregate.html" class="extype" name="scredis.Aggregate">Aggregate</a></span>)</span><span class="result"> extends <a href="../Request.html" class="extype" name="scredis.protocol.Request">Request</a>[<span class="extype" name="scala.Long">Long</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZUnionStoreWeightedextendsRequest[Long]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@##():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZAdd" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZAdd"></a>
+      <a id="ZAdd:ZAdd"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZAdd$.html"><span class="name">ZAdd</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <a href="../WriteCommand.html" class="extype" name="scredis.protocol.WriteCommand">WriteCommand</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZAdd" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZCard" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZCard"></a>
+      <a id="ZCard:ZCard"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZCard$.html"><span class="name">ZCard</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZCard" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZCount" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZCount"></a>
+      <a id="ZCount:ZCount"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZCount$.html"><span class="name">ZCount</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZCount" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZIncrBy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZIncrBy"></a>
+      <a id="ZIncrBy:ZIncrBy"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZIncrBy$.html"><span class="name">ZIncrBy</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <a href="../WriteCommand.html" class="extype" name="scredis.protocol.WriteCommand">WriteCommand</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZIncrBy" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZInterStore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZInterStore"></a>
+      <a id="ZInterStore:ZInterStore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZInterStore$.html"><span class="name">ZInterStore</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <a href="../WriteCommand.html" class="extype" name="scredis.protocol.WriteCommand">WriteCommand</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZInterStore" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZLexCount" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZLexCount"></a>
+      <a id="ZLexCount:ZLexCount"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZLexCount$.html"><span class="name">ZLexCount</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZLexCount" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRange" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRange"></a>
+      <a id="ZRange:ZRange"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRange$.html"><span class="name">ZRange</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRange" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRangeByLex"></a>
+      <a id="ZRangeByLex:ZRangeByLex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRangeByLex$.html"><span class="name">ZRangeByLex</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRangeByLex" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRangeByScore"></a>
+      <a id="ZRangeByScore:ZRangeByScore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRangeByScore$.html"><span class="name">ZRangeByScore</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRangeByScore" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRank" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRank"></a>
+      <a id="ZRank:ZRank"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRank$.html"><span class="name">ZRank</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRank" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRem" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRem"></a>
+      <a id="ZRem:ZRem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRem$.html"><span class="name">ZRem</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <a href="../WriteCommand.html" class="extype" name="scredis.protocol.WriteCommand">WriteCommand</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRem" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByLex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRemRangeByLex"></a>
+      <a id="ZRemRangeByLex:ZRemRangeByLex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRemRangeByLex$.html"><span class="name">ZRemRangeByLex</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <a href="../WriteCommand.html" class="extype" name="scredis.protocol.WriteCommand">WriteCommand</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRemRangeByLex" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByRank" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRemRangeByRank"></a>
+      <a id="ZRemRangeByRank:ZRemRangeByRank"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRemRangeByRank$.html"><span class="name">ZRemRangeByRank</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <a href="../WriteCommand.html" class="extype" name="scredis.protocol.WriteCommand">WriteCommand</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRemRangeByRank" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByScore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRemRangeByScore"></a>
+      <a id="ZRemRangeByScore:ZRemRangeByScore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRemRangeByScore$.html"><span class="name">ZRemRangeByScore</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <a href="../WriteCommand.html" class="extype" name="scredis.protocol.WriteCommand">WriteCommand</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRemRangeByScore" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRevRange" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRevRange"></a>
+      <a id="ZRevRange:ZRevRange"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRevRange$.html"><span class="name">ZRevRange</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRevRange" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRevRangeByScore"></a>
+      <a id="ZRevRangeByScore:ZRevRangeByScore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRevRangeByScore$.html"><span class="name">ZRevRangeByScore</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRevRangeByScore" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZRevRank" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZRevRank"></a>
+      <a id="ZRevRank:ZRevRank"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZRevRank$.html"><span class="name">ZRevRank</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZRevRank" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZScan" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZScan"></a>
+      <a id="ZScan:ZScan"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZScan$.html"><span class="name">ZScan</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZScan" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZScore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZScore"></a>
+      <a id="ZScore:ZScore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZScore$.html"><span class="name">ZScore</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZScore" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scredis.protocol.requests.SortedSetRequests.ZUnionStore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ZUnionStore"></a>
+      <a id="ZUnionStore:ZUnionStore"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SortedSetRequests$$ZUnionStore$.html"><span class="name">ZUnionStore</span></a><span class="result"> extends <a href="../Command.html" class="extype" name="scredis.protocol.Command">Command</a> with <a href="../WriteCommand.html" class="extype" name="scredis.protocol.WriteCommand">WriteCommand</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ZUnionStore" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@clone():Object" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@toString():String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scredis.protocol.requests.SortedSetRequests$@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
