@@ -37,6 +37,7 @@ abstract class Request[A](command: Command, args: Any*) {
       case response => try {
         success(decode(response))
       } catch {
+        case e @ RedisTransactionAbortedException => failure(e)
         case e: RedisReaderException => failure(e)
         case e: Throwable => failure(
           RedisProtocolException(s"Unexpected response for request '$this': $response", e)

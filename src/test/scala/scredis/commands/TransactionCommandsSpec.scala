@@ -91,6 +91,20 @@ class TransactionCommandsSpec extends WordSpec
         f3.futureValue should contain (SomeValue)
       }
     }
+    "a watched key is modified before the EXEC call" should {
+      "throw RedisTransactionAbortedException" taggedAs (V220) in {
+        client.set("foo", "bar").futureValue should be (true)
+        client.watch("foo")
+        client.set("foo", "xyz").futureValue should be (true)
+        val exception = the [RedisException] thrownBy {
+          client.inTransaction { t =>
+            t.set("foo", "foo")
+          }.!
+        }
+        exception should be (RedisTransactionAbortedException)
+        client.get("foo").futureValue should contain ("xyz")
+      }
+    }
   }
   
   "withTransaction" when {
@@ -127,6 +141,20 @@ class TransactionCommandsSpec extends WordSpec
           f2.!
         }
         f3.futureValue should contain (SomeValue)
+      }
+    }
+    "a watched key is modified before the EXEC call" should {
+      "throw RedisTransactionAbortedException" taggedAs (V220) in {
+        client.set("foo", "bar").futureValue should be (true)
+        client.watch("foo")
+        client.set("foo", "xyz").futureValue should be (true)
+        val exception = the [RedisException] thrownBy {
+          client.withTransaction { t =>
+            t.set("foo", "foo")
+          }.!
+        }
+        exception should be (RedisTransactionAbortedException)
+        client.get("foo").futureValue should contain ("xyz")
       }
     }
   }
