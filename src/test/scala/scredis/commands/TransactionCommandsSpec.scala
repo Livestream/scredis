@@ -54,6 +54,11 @@ class TransactionCommandsSpec extends WordSpec
   }
   
   "inTransaction" when {
+    "no commands are queued" should {
+      "succeed" taggedAs (V120) in {
+        client.inTransaction(_ => ()).futureValue should be (empty)
+      }
+    }
     "all commands are valid" should {
       "succeed" taggedAs (V120) in {
         client.set("STR", SomeValue)
@@ -108,6 +113,11 @@ class TransactionCommandsSpec extends WordSpec
   }
   
   "withTransaction" when {
+    "no commands are queued" should {
+      "succeed" taggedAs (V120) in {
+        client.withTransaction(_ => ()) should be (())
+      }
+    }
     "all commands are valid" should {
       "succeed" taggedAs (V120) in {
         client.set("STR", SomeValue)

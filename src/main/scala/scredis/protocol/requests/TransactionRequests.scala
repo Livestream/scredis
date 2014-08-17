@@ -23,7 +23,7 @@ object TransactionRequests {
     decoders: Seq[Decoder[Any]]
   ) extends Request[Vector[Try[Any]]](Exec) {
     override def decode = {
-      case a: ArrayResponse => if (a.length > 0) {
+      case a: ArrayResponse => if (a.length >= 0) {
         a.parsed[Vector](decoders)
       } else {
         throw RedisTransactionAbortedException
