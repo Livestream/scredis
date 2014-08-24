@@ -1,0 +1,592 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>Request - scredis.protocol.Request</title>
+          <meta name="description" content="Request - scredis.protocol.Request" />
+          <meta name="keywords" content="Request scredis.protocol.Request" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'scredis.protocol.Request';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../../lib/class_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="scredis">scredis</a>.<a href="package.html" class="extype" name="scredis.protocol">protocol</a></p>
+        <h1>Request</h1> <span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Request</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block">
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="requests/StringRequests$$Append.html" class="extype" name="scredis.protocol.requests.StringRequests.Append">Append</a>, <a href="requests/ConnectionRequests$$Auth.html" class="extype" name="scredis.protocol.requests.ConnectionRequests.Auth">Auth</a>, <a href="requests/ServerRequests$$BGRewriteAOF.html" class="extype" name="scredis.protocol.requests.ServerRequests.BGRewriteAOF">BGRewriteAOF</a>, <a href="requests/ServerRequests$$BGSave.html" class="extype" name="scredis.protocol.requests.ServerRequests.BGSave">BGSave</a>, <a href="requests/ListRequests$$BLPop.html" class="extype" name="scredis.protocol.requests.ListRequests.BLPop">BLPop</a>, <a href="requests/ListRequests$$BRPop.html" class="extype" name="scredis.protocol.requests.ListRequests.BRPop">BRPop</a>, <a href="requests/ListRequests$$BRPopLPush.html" class="extype" name="scredis.protocol.requests.ListRequests.BRPopLPush">BRPopLPush</a>, <a href="requests/StringRequests$$BitCount.html" class="extype" name="scredis.protocol.requests.StringRequests.BitCount">BitCount</a>, <a href="requests/StringRequests$$BitOp.html" class="extype" name="scredis.protocol.requests.StringRequests.BitOp">BitOp</a>, <a href="requests/StringRequests$$BitPos.html" class="extype" name="scredis.protocol.requests.StringRequests.BitPos">BitPos</a>, <a href="requests/ServerRequests$$ClientGetName.html" class="extype" name="scredis.protocol.requests.ServerRequests.ClientGetName">ClientGetName</a>, <a href="requests/ServerRequests$$ClientKill.html" class="extype" name="scredis.protocol.requests.ServerRequests.ClientKill">ClientKill</a>, <a href="requests/ServerRequests$$ClientKillWithFilters.html" class="extype" name="scredis.protocol.requests.ServerRequests.ClientKillWithFilters">ClientKillWithFilters</a>, <a href="requests/ServerRequests$$ClientList.html" class="extype" name="scredis.protocol.requests.ServerRequests.ClientList">ClientList</a>, <a href="requests/ServerRequests$$ClientPause.html" class="extype" name="scredis.protocol.requests.ServerRequests.ClientPause">ClientPause</a>, <a href="requests/ServerRequests$$ClientSetName.html" class="extype" name="scredis.protocol.requests.ServerRequests.ClientSetName">ClientSetName</a>, <a href="requests/ServerRequests$$Command.html" class="extype" name="scredis.protocol.requests.ServerRequests.Command">Command</a>, <a href="requests/ServerRequests$$CommandCount.html" class="extype" name="scredis.protocol.requests.ServerRequests.CommandCount">CommandCount</a>, <a href="requests/ServerRequests$$CommandGetKeys.html" class="extype" name="scredis.protocol.requests.ServerRequests.CommandGetKeys">CommandGetKeys</a>, <a href="requests/ServerRequests$$CommandInfo.html" class="extype" name="scredis.protocol.requests.ServerRequests.CommandInfo">CommandInfo</a>, <a href="requests/ServerRequests$$ConfigGet.html" class="extype" name="scredis.protocol.requests.ServerRequests.ConfigGet">ConfigGet</a>, <a href="requests/ServerRequests$$ConfigResetStat.html" class="extype" name="scredis.protocol.requests.ServerRequests.ConfigResetStat">ConfigResetStat</a>, <a href="requests/ServerRequests$$ConfigRewrite.html" class="extype" name="scredis.protocol.requests.ServerRequests.ConfigRewrite">ConfigRewrite</a>, <a href="requests/ServerRequests$$ConfigSet.html" class="extype" name="scredis.protocol.requests.ServerRequests.ConfigSet">ConfigSet</a>, <a href="requests/ServerRequests$$DBSize.html" class="extype" name="scredis.protocol.requests.ServerRequests.DBSize">DBSize</a>, <a href="requests/StringRequests$$Decr.html" class="extype" name="scredis.protocol.requests.StringRequests.Decr">Decr</a>, <a href="requests/StringRequests$$DecrBy.html" class="extype" name="scredis.protocol.requests.StringRequests.DecrBy">DecrBy</a>, <a href="requests/KeyRequests$$Del.html" class="extype" name="scredis.protocol.requests.KeyRequests.Del">Del</a>, <a href="requests/TransactionRequests$$Discard.html" class="extype" name="scredis.protocol.requests.TransactionRequests.Discard">Discard</a>, <a href="requests/KeyRequests$$Dump.html" class="extype" name="scredis.protocol.requests.KeyRequests.Dump">Dump</a>, <a href="requests/ConnectionRequests$$Echo.html" class="extype" name="scredis.protocol.requests.ConnectionRequests.Echo">Echo</a>, <a href="requests/ScriptingRequests$$Eval.html" class="extype" name="scredis.protocol.requests.ScriptingRequests.Eval">Eval</a>, <a href="requests/ScriptingRequests$$EvalSHA.html" class="extype" name="scredis.protocol.requests.ScriptingRequests.EvalSHA">EvalSHA</a>, <a href="requests/TransactionRequests$$Exec.html" class="extype" name="scredis.protocol.requests.TransactionRequests.Exec">Exec</a>, <a href="requests/KeyRequests$$Exists.html" class="extype" name="scredis.protocol.requests.KeyRequests.Exists">Exists</a>, <a href="requests/KeyRequests$$Expire.html" class="extype" name="scredis.protocol.requests.KeyRequests.Expire">Expire</a>, <a href="requests/KeyRequests$$ExpireAt.html" class="extype" name="scredis.protocol.requests.KeyRequests.ExpireAt">ExpireAt</a>, <a href="requests/ServerRequests$$FlushAll.html" class="extype" name="scredis.protocol.requests.ServerRequests.FlushAll">FlushAll</a>, <a href="requests/ServerRequests$$FlushDB.html" class="extype" name="scredis.protocol.requests.ServerRequests.FlushDB">FlushDB</a>, <a href="requests/StringRequests$$Get.html" class="extype" name="scredis.protocol.requests.StringRequests.Get">Get</a>, <a href="requests/StringRequests$$GetBit.html" class="extype" name="scredis.protocol.requests.StringRequests.GetBit">GetBit</a>, <a href="requests/StringRequests$$GetRange.html" class="extype" name="scredis.protocol.requests.StringRequests.GetRange">GetRange</a>, <a href="requests/StringRequests$$GetSet.html" class="extype" name="scredis.protocol.requests.StringRequests.GetSet">GetSet</a>, <a href="requests/HashRequests$$HDel.html" class="extype" name="scredis.protocol.requests.HashRequests.HDel">HDel</a>, <a href="requests/HashRequests$$HExists.html" class="extype" name="scredis.protocol.requests.HashRequests.HExists">HExists</a>, <a href="requests/HashRequests$$HGet.html" class="extype" name="scredis.protocol.requests.HashRequests.HGet">HGet</a>, <a href="requests/HashRequests$$HGetAll.html" class="extype" name="scredis.protocol.requests.HashRequests.HGetAll">HGetAll</a>, <a href="requests/HashRequests$$HIncrBy.html" class="extype" name="scredis.protocol.requests.HashRequests.HIncrBy">HIncrBy</a>, <a href="requests/HashRequests$$HIncrByFloat.html" class="extype" name="scredis.protocol.requests.HashRequests.HIncrByFloat">HIncrByFloat</a>, <a href="requests/HashRequests$$HKeys.html" class="extype" name="scredis.protocol.requests.HashRequests.HKeys">HKeys</a>, <a href="requests/HashRequests$$HLen.html" class="extype" name="scredis.protocol.requests.HashRequests.HLen">HLen</a>, <a href="requests/HashRequests$$HMGet.html" class="extype" name="scredis.protocol.requests.HashRequests.HMGet">HMGet</a>, <a href="requests/HashRequests$$HMGetAsMap.html" class="extype" name="scredis.protocol.requests.HashRequests.HMGetAsMap">HMGetAsMap</a>, <a href="requests/HashRequests$$HMSet.html" class="extype" name="scredis.protocol.requests.HashRequests.HMSet">HMSet</a>, <a href="requests/HashRequests$$HScan.html" class="extype" name="scredis.protocol.requests.HashRequests.HScan">HScan</a>, <a href="requests/HashRequests$$HSet.html" class="extype" name="scredis.protocol.requests.HashRequests.HSet">HSet</a>, <a href="requests/HashRequests$$HSetNX.html" class="extype" name="scredis.protocol.requests.HashRequests.HSetNX">HSetNX</a>, <a href="requests/HashRequests$$HVals.html" class="extype" name="scredis.protocol.requests.HashRequests.HVals">HVals</a>, <a href="requests/StringRequests$$Incr.html" class="extype" name="scredis.protocol.requests.StringRequests.Incr">Incr</a>, <a href="requests/StringRequests$$IncrBy.html" class="extype" name="scredis.protocol.requests.StringRequests.IncrBy">IncrBy</a>, <a href="requests/StringRequests$$IncrByFloat.html" class="extype" name="scredis.protocol.requests.StringRequests.IncrByFloat">IncrByFloat</a>, <a href="requests/ServerRequests$$Info.html" class="extype" name="scredis.protocol.requests.ServerRequests.Info">Info</a>, <a href="requests/KeyRequests$$Keys.html" class="extype" name="scredis.protocol.requests.KeyRequests.Keys">Keys</a>, <a href="requests/ListRequests$$LIndex.html" class="extype" name="scredis.protocol.requests.ListRequests.LIndex">LIndex</a>, <a href="requests/ListRequests$$LInsert.html" class="extype" name="scredis.protocol.requests.ListRequests.LInsert">LInsert</a>, <a href="requests/ListRequests$$LLen.html" class="extype" name="scredis.protocol.requests.ListRequests.LLen">LLen</a>, <a href="requests/ListRequests$$LPop.html" class="extype" name="scredis.protocol.requests.ListRequests.LPop">LPop</a>, <a href="requests/ListRequests$$LPush.html" class="extype" name="scredis.protocol.requests.ListRequests.LPush">LPush</a>, <a href="requests/ListRequests$$LPushX.html" class="extype" name="scredis.protocol.requests.ListRequests.LPushX">LPushX</a>, <a href="requests/ListRequests$$LRange.html" class="extype" name="scredis.protocol.requests.ListRequests.LRange">LRange</a>, <a href="requests/ListRequests$$LRem.html" class="extype" name="scredis.protocol.requests.ListRequests.LRem">LRem</a>, <a href="requests/ListRequests$$LSet.html" class="extype" name="scredis.protocol.requests.ListRequests.LSet">LSet</a>, <a href="requests/ListRequests$$LTrim.html" class="extype" name="scredis.protocol.requests.ListRequests.LTrim">LTrim</a>, <a href="requests/ServerRequests$$LastSave.html" class="extype" name="scredis.protocol.requests.ServerRequests.LastSave">LastSave</a>, <a href="requests/StringRequests$$MGet.html" class="extype" name="scredis.protocol.requests.StringRequests.MGet">MGet</a>, <a href="requests/StringRequests$$MGetAsMap.html" class="extype" name="scredis.protocol.requests.StringRequests.MGetAsMap">MGetAsMap</a>, <a href="requests/StringRequests$$MSet.html" class="extype" name="scredis.protocol.requests.StringRequests.MSet">MSet</a>, <a href="requests/StringRequests$$MSetNX.html" class="extype" name="scredis.protocol.requests.StringRequests.MSetNX">MSetNX</a>, <a href="requests/KeyRequests$$Migrate.html" class="extype" name="scredis.protocol.requests.KeyRequests.Migrate">Migrate</a>, <a href="requests/KeyRequests$$Move.html" class="extype" name="scredis.protocol.requests.KeyRequests.Move">Move</a>, <a href="requests/TransactionRequests$$Multi.html" class="extype" name="scredis.protocol.requests.TransactionRequests.Multi">Multi</a>, <a href="requests/KeyRequests$$ObjectEncoding.html" class="extype" name="scredis.protocol.requests.KeyRequests.ObjectEncoding">ObjectEncoding</a>, <a href="requests/KeyRequests$$ObjectIdleTime.html" class="extype" name="scredis.protocol.requests.KeyRequests.ObjectIdleTime">ObjectIdleTime</a>, <a href="requests/KeyRequests$$ObjectRefCount.html" class="extype" name="scredis.protocol.requests.KeyRequests.ObjectRefCount">ObjectRefCount</a>, <a href="requests/KeyRequests$$PExpire.html" class="extype" name="scredis.protocol.requests.KeyRequests.PExpire">PExpire</a>, <a href="requests/KeyRequests$$PExpireAt.html" class="extype" name="scredis.protocol.requests.KeyRequests.PExpireAt">PExpireAt</a>, <a href="requests/HyperLogLogRequests$$PFAdd.html" class="extype" name="scredis.protocol.requests.HyperLogLogRequests.PFAdd">PFAdd</a>, <a href="requests/HyperLogLogRequests$$PFCount.html" class="extype" name="scredis.protocol.requests.HyperLogLogRequests.PFCount">PFCount</a>, <a href="requests/HyperLogLogRequests$$PFMerge.html" class="extype" name="scredis.protocol.requests.HyperLogLogRequests.PFMerge">PFMerge</a>, <a href="requests/StringRequests$$PSetEX.html" class="extype" name="scredis.protocol.requests.StringRequests.PSetEX">PSetEX</a>, <a href="requests/PubSubRequests$$PSubscribe.html" class="extype" name="scredis.protocol.requests.PubSubRequests.PSubscribe">PSubscribe</a>, <a href="requests/KeyRequests$$PTTL.html" class="extype" name="scredis.protocol.requests.KeyRequests.PTTL">PTTL</a>, <a href="requests/PubSubRequests$$PUnsubscribe.html" class="extype" name="scredis.protocol.requests.PubSubRequests.PUnsubscribe">PUnsubscribe</a>, <a href="requests/KeyRequests$$Persist.html" class="extype" name="scredis.protocol.requests.KeyRequests.Persist">Persist</a>, <a href="requests/ConnectionRequests$$Ping.html" class="extype" name="scredis.protocol.requests.ConnectionRequests.Ping">Ping</a>, <a href="requests/PubSubRequests$$PubSubChannels.html" class="extype" name="scredis.protocol.requests.PubSubRequests.PubSubChannels">PubSubChannels</a>, <a href="requests/PubSubRequests$$PubSubNumPat.html" class="extype" name="scredis.protocol.requests.PubSubRequests.PubSubNumPat">PubSubNumPat</a>, <a href="requests/PubSubRequests$$PubSubNumSub.html" class="extype" name="scredis.protocol.requests.PubSubRequests.PubSubNumSub">PubSubNumSub</a>, <a href="requests/PubSubRequests$$Publish.html" class="extype" name="scredis.protocol.requests.PubSubRequests.Publish">Publish</a>, <a href="requests/ConnectionRequests$$Quit.html" class="extype" name="scredis.protocol.requests.ConnectionRequests.Quit">Quit</a>, <a href="requests/ListRequests$$RPop.html" class="extype" name="scredis.protocol.requests.ListRequests.RPop">RPop</a>, <a href="requests/ListRequests$$RPopLPush.html" class="extype" name="scredis.protocol.requests.ListRequests.RPopLPush">RPopLPush</a>, <a href="requests/ListRequests$$RPush.html" class="extype" name="scredis.protocol.requests.ListRequests.RPush">RPush</a>, <a href="requests/ListRequests$$RPushX.html" class="extype" name="scredis.protocol.requests.ListRequests.RPushX">RPushX</a>, <a href="requests/KeyRequests$$RandomKey.html" class="extype" name="scredis.protocol.requests.KeyRequests.RandomKey">RandomKey</a>, <a href="requests/KeyRequests$$Rename.html" class="extype" name="scredis.protocol.requests.KeyRequests.Rename">Rename</a>, <a href="requests/KeyRequests$$RenameNX.html" class="extype" name="scredis.protocol.requests.KeyRequests.RenameNX">RenameNX</a>, <a href="requests/KeyRequests$$Restore.html" class="extype" name="scredis.protocol.requests.KeyRequests.Restore">Restore</a>, <a href="requests/ServerRequests$$Role.html" class="extype" name="scredis.protocol.requests.ServerRequests.Role">Role</a>, <a href="requests/SetRequests$$SAdd.html" class="extype" name="scredis.protocol.requests.SetRequests.SAdd">SAdd</a>, <a href="requests/SetRequests$$SCard.html" class="extype" name="scredis.protocol.requests.SetRequests.SCard">SCard</a>, <a href="requests/SetRequests$$SDiff.html" class="extype" name="scredis.protocol.requests.SetRequests.SDiff">SDiff</a>, <a href="requests/SetRequests$$SDiffStore.html" class="extype" name="scredis.protocol.requests.SetRequests.SDiffStore">SDiffStore</a>, <a href="requests/SetRequests$$SInter.html" class="extype" name="scredis.protocol.requests.SetRequests.SInter">SInter</a>, <a href="requests/SetRequests$$SInterStore.html" class="extype" name="scredis.protocol.requests.SetRequests.SInterStore">SInterStore</a>, <a href="requests/SetRequests$$SIsMember.html" class="extype" name="scredis.protocol.requests.SetRequests.SIsMember">SIsMember</a>, <a href="requests/SetRequests$$SMembers.html" class="extype" name="scredis.protocol.requests.SetRequests.SMembers">SMembers</a>, <a href="requests/SetRequests$$SMove.html" class="extype" name="scredis.protocol.requests.SetRequests.SMove">SMove</a>, <a href="requests/SetRequests$$SPop.html" class="extype" name="scredis.protocol.requests.SetRequests.SPop">SPop</a>, <a href="requests/SetRequests$$SRandMember.html" class="extype" name="scredis.protocol.requests.SetRequests.SRandMember">SRandMember</a>, <a href="requests/SetRequests$$SRandMembers.html" class="extype" name="scredis.protocol.requests.SetRequests.SRandMembers">SRandMembers</a>, <a href="requests/SetRequests$$SRem.html" class="extype" name="scredis.protocol.requests.SetRequests.SRem">SRem</a>, <a href="requests/SetRequests$$SScan.html" class="extype" name="scredis.protocol.requests.SetRequests.SScan">SScan</a>, <a href="requests/SetRequests$$SUnion.html" class="extype" name="scredis.protocol.requests.SetRequests.SUnion">SUnion</a>, <a href="requests/SetRequests$$SUnionStore.html" class="extype" name="scredis.protocol.requests.SetRequests.SUnionStore">SUnionStore</a>, <a href="requests/ServerRequests$$Save.html" class="extype" name="scredis.protocol.requests.ServerRequests.Save">Save</a>, <a href="requests/KeyRequests$$Scan.html" class="extype" name="scredis.protocol.requests.KeyRequests.Scan">Scan</a>, <a href="requests/ScriptingRequests$$ScriptExists.html" class="extype" name="scredis.protocol.requests.ScriptingRequests.ScriptExists">ScriptExists</a>, <a href="requests/ScriptingRequests$$ScriptFlush.html" class="extype" name="scredis.protocol.requests.ScriptingRequests.ScriptFlush">ScriptFlush</a>, <a href="requests/ScriptingRequests$$ScriptKill.html" class="extype" name="scredis.protocol.requests.ScriptingRequests.ScriptKill">ScriptKill</a>, <a href="requests/ScriptingRequests$$ScriptLoad.html" class="extype" name="scredis.protocol.requests.ScriptingRequests.ScriptLoad">ScriptLoad</a>, <a href="requests/ConnectionRequests$$Select.html" class="extype" name="scredis.protocol.requests.ConnectionRequests.Select">Select</a>, <a href="requests/StringRequests$$Set.html" class="extype" name="scredis.protocol.requests.StringRequests.Set">Set</a>, <a href="requests/StringRequests$$SetBit.html" class="extype" name="scredis.protocol.requests.StringRequests.SetBit">SetBit</a>, <a href="requests/StringRequests$$SetEX.html" class="extype" name="scredis.protocol.requests.StringRequests.SetEX">SetEX</a>, <a href="requests/StringRequests$$SetNX.html" class="extype" name="scredis.protocol.requests.StringRequests.SetNX">SetNX</a>, <a href="requests/StringRequests$$SetRange.html" class="extype" name="scredis.protocol.requests.StringRequests.SetRange">SetRange</a>, <a href="requests/ServerRequests$$Shutdown.html" class="extype" name="scredis.protocol.requests.ServerRequests.Shutdown">Shutdown</a>, <a href="requests/ServerRequests$$SlaveOf.html" class="extype" name="scredis.protocol.requests.ServerRequests.SlaveOf">SlaveOf</a>, <a href="requests/ServerRequests$$SlaveOfNoOne.html" class="extype" name="scredis.protocol.requests.ServerRequests.SlaveOfNoOne">SlaveOfNoOne</a>, <a href="requests/ServerRequests$$SlowLogGet.html" class="extype" name="scredis.protocol.requests.ServerRequests.SlowLogGet">SlowLogGet</a>, <a href="requests/ServerRequests$$SlowLogLen.html" class="extype" name="scredis.protocol.requests.ServerRequests.SlowLogLen">SlowLogLen</a>, <a href="requests/ServerRequests$$SlowLogReset.html" class="extype" name="scredis.protocol.requests.ServerRequests.SlowLogReset">SlowLogReset</a>, <a href="requests/KeyRequests$$Sort.html" class="extype" name="scredis.protocol.requests.KeyRequests.Sort">Sort</a>, <a href="requests/KeyRequests$$SortAndStore.html" class="extype" name="scredis.protocol.requests.KeyRequests.SortAndStore">SortAndStore</a>, <a href="requests/StringRequests$$StrLen.html" class="extype" name="scredis.protocol.requests.StringRequests.StrLen">StrLen</a>, <a href="requests/PubSubRequests$$Subscribe.html" class="extype" name="scredis.protocol.requests.PubSubRequests.Subscribe">Subscribe</a>, <a href="requests/KeyRequests$$TTL.html" class="extype" name="scredis.protocol.requests.KeyRequests.TTL">TTL</a>, <a href="requests/ServerRequests$$Time.html" class="extype" name="scredis.protocol.requests.ServerRequests.Time">Time</a>, <a href="requests/KeyRequests$$Type.html" class="extype" name="scredis.protocol.requests.KeyRequests.Type">Type</a>, <a href="requests/PubSubRequests$$Unsubscribe.html" class="extype" name="scredis.protocol.requests.PubSubRequests.Unsubscribe">Unsubscribe</a>, <a href="requests/TransactionRequests$$Unwatch.html" class="extype" name="scredis.protocol.requests.TransactionRequests.Unwatch">Unwatch</a>, <a href="requests/TransactionRequests$$Watch.html" class="extype" name="scredis.protocol.requests.TransactionRequests.Watch">Watch</a>, <a href="requests/SortedSetRequests$$ZAdd.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZAdd">ZAdd</a>, <a href="requests/SortedSetRequests$$ZCard.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZCard">ZCard</a>, <a href="requests/SortedSetRequests$$ZCount.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZCount">ZCount</a>, <a href="requests/SortedSetRequests$$ZIncrBy.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZIncrBy">ZIncrBy</a>, <a href="requests/SortedSetRequests$$ZInterStore.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZInterStore">ZInterStore</a>, <a href="requests/SortedSetRequests$$ZInterStoreWeighted.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZInterStoreWeighted">ZInterStoreWeighted</a>, <a href="requests/SortedSetRequests$$ZLexCount.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZLexCount">ZLexCount</a>, <a href="requests/SortedSetRequests$$ZRange.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRange">ZRange</a>, <a href="requests/SortedSetRequests$$ZRangeByLex.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByLex">ZRangeByLex</a>, <a href="requests/SortedSetRequests$$ZRangeByScore.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScore">ZRangeByScore</a>, <a href="requests/SortedSetRequests$$ZRangeByScoreWithScores.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeByScoreWithScores">ZRangeByScoreWithScores</a>, <a href="requests/SortedSetRequests$$ZRangeWithScores.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRangeWithScores">ZRangeWithScores</a>, <a href="requests/SortedSetRequests$$ZRank.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRank">ZRank</a>, <a href="requests/SortedSetRequests$$ZRem.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRem">ZRem</a>, <a href="requests/SortedSetRequests$$ZRemRangeByLex.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByLex">ZRemRangeByLex</a>, <a href="requests/SortedSetRequests$$ZRemRangeByRank.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByRank">ZRemRangeByRank</a>, <a href="requests/SortedSetRequests$$ZRemRangeByScore.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRemRangeByScore">ZRemRangeByScore</a>, <a href="requests/SortedSetRequests$$ZRevRange.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRange">ZRevRange</a>, <a href="requests/SortedSetRequests$$ZRevRangeByScore.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScore">ZRevRangeByScore</a>, <a href="requests/SortedSetRequests$$ZRevRangeByScoreWithScores.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeByScoreWithScores">ZRevRangeByScoreWithScores</a>, <a href="requests/SortedSetRequests$$ZRevRangeWithScores.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRangeWithScores">ZRevRangeWithScores</a>, <a href="requests/SortedSetRequests$$ZRevRank.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZRevRank">ZRevRank</a>, <a href="requests/SortedSetRequests$$ZScan.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScan">ZScan</a>, <a href="requests/SortedSetRequests$$ZScore.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZScore">ZScore</a>, <a href="requests/SortedSetRequests$$ZUnionStore.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZUnionStore">ZUnionStore</a>, <a href="requests/SortedSetRequests$$ZUnionStoreWeighted.html" class="extype" name="scredis.protocol.requests.SortedSetRequests.ZUnionStoreWeighted">ZUnionStoreWeighted</a></div>
+          </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="scredis.protocol.Request"><span>Request</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="scredis.protocol.Request#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(command:scredis.protocol.Command,args:Any*):scredis.protocol.Request[A]"></a>
+      <a id="&lt;init&gt;:Request[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Request</span><span class="params">(<span name="command">command: <a href="Command.html" class="extype" name="scredis.protocol.Command">Command</a></span>, <span name="args">args: <span class="extype" name="scala.Any">Any</span>*</span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@&lt;init&gt;(command:scredis.protocol.Command,args:Any*):scredis.protocol.Request[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="scredis.protocol.Request#decode" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="decode:scredis.protocol.Decoder[A]"></a>
+      <a id="decode:Decoder[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">decode</span><span class="result">: <a href="package.html#Decoder[X]=PartialFunction[scredis.protocol.Response,X]" class="extmbr" name="scredis.protocol.Decoder">Decoder</a>[<span class="extype" name="scredis.protocol.Request.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@decode:scredis.protocol.Decoder[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        <div id="values" class="values members">
+              <h3>Concrete Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scredis.protocol.Request#argsCount" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="argsCount:Int"></a>
+      <a id="argsCount:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">argsCount</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@argsCount:Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scredis.protocol.Request#future" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="future:scala.concurrent.Future[A]"></a>
+      <a id="future:Future[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">future</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scredis.protocol.Request.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@future:scala.concurrent.Future[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scredis.protocol.Request#isReadOnly" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isReadOnly:Boolean"></a>
+      <a id="isReadOnly:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isReadOnly</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@isReadOnly:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scredis.protocol.Request#repliesCount" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="repliesCount:Int"></a>
+      <a id="repliesCount:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">repliesCount</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@repliesCount:Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scredis.protocol.Request#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.protocol.Request">Request</a> → AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.protocol.Request@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
