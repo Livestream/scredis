@@ -33,7 +33,7 @@ Scredis 2.x.x is compatible with Scala 2.10 and 2.11. Binary releases are hosted
 ```scala
 resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
-libraryDependencies += "com.livestream" %% "scredis" % "2.0.1"
+libraryDependencies += "com.livestream" %% "scredis" % "2.0.2"
 ```
 
 Snapshots are hosted on a separate repository.
@@ -41,7 +41,7 @@ Snapshots are hosted on a separate repository.
 ```scala
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-libraryDependencies += "com.livestream" %% "scredis" % "2.0.1-SNAPSHOT"
+libraryDependencies += "com.livestream" %% "scredis" % "2.0.2-SNAPSHOT"
 ```
 
 ### Quick example
