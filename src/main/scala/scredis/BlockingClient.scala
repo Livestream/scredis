@@ -163,6 +163,8 @@ final class BlockingClient(
    */
   def quit()(implicit timeout: Duration): Try[Unit] = sendBlocking(Quit())
   
+  watchTermination()
+  
 }
 
 /**

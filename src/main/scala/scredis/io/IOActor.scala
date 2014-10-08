@@ -74,12 +74,6 @@ class IOActor(
     become(awaitingAbort)
   }
   
-  protected def stop(): Unit = {
-    logger.trace("Stopping Actor...")
-    //listenerActor ! PoisonPill
-    context.stop(self)
-  }
-  
   protected def encode(request: Request[_]): Int = {
     request.encode()
     request.encoded match {

@@ -255,12 +255,15 @@ final class Redis(
     if (shouldShutdownBlockingClient) {
       try {
         blocking.quit()(5 seconds)
+        blocking.awaitTermination(3 seconds)
       } catch {
         case e: Throwable => logger.error("Could not shutdown blocking client", e)
       }
     }
     val future = if (shouldShutdownSubscriberClient) {
-      subscriber.quit()
+      subscriber.quit().map { _ =>
+        subscriber.awaitTermination(3 seconds)
+      }
     } else {
       Future.successful(())
     }
@@ -269,6 +272,7 @@ final class Redis(
     }.flatMap { _ =>
       super.quit()
     }.map { _ =>
+      awaitTermination(3 seconds)
       system.shutdown()
     }
   }
@@ -291,6 +295,8 @@ final class Redis(
     }
     super.select(database)
   }
+  
+  watchTermination()
   
 }
 

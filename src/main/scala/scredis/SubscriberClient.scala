@@ -148,6 +148,8 @@ final class SubscriberClient(
    */
   def quit(): Future[Unit] = shutdown()
   
+  watchTermination()
+  
 }
 
 /**

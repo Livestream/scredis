@@ -137,6 +137,8 @@ final class Client(
     RedisConfig(configName, path)
   )
   
+  watchTermination()
+  
 }
 
 /**

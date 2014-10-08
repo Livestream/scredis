@@ -54,6 +54,7 @@ class ListenerActor(
   private var initializationRequestsCount = 0
   private var isConnecting = false
   private var isShuttingDown = false
+  private var isShuttingDownBeforeConnected = false
   private var isReceiveTimeout = false
   private var timeoutCancellableOpt: Option[Cancellable] = None
   
@@ -284,7 +285,7 @@ class ListenerActor(
     case request: Quit => {
       request.success(())
       failAllQueuedRequests(RedisIOException("Connection has been shutdown by QUIT command"))
-      shutdown()
+      isShuttingDownBeforeConnected = true
     }
     case request: Request[_] => {
       queuedRequests.addLast(request)
@@ -305,60 +306,64 @@ class ListenerActor(
     case Connected => {
       isConnecting = false
       
-      onConnect()
-      
-      val authRequestOpt = passwordOpt.map { password =>
-        Auth(password)
-      }
-      val selectRequestOpt = if (database > 0) {
-        Some(Select(database))
+      if (isShuttingDownBeforeConnected) {
+        shutdown()
       } else {
-        None
-      }
-      val setNameRequestOpt = nameOpt.map { name =>
-        ServerRequests.ClientSetName(name)
-      }
-      
-      val authFuture = authRequestOpt match {
-        case Some(request) => request.future
-        case None => Future.successful(())
-      }
-      val selectFuture = selectRequestOpt match {
-        case Some(request) => request.future
-        case None => Future.successful(())
-      }
-      val setNameFuture = setNameRequestOpt match {
-        case Some(request) => request.future
-        case None => Future.successful(())
-      }
-      
-      val requests = List[Option[Request[Unit]]](
-        authRequestOpt, selectRequestOpt, setNameRequestOpt
-      ).flatten
-      
-      initializationRequestsCount = requests.size
-      
-      if (initializationRequestsCount > 0) {
-        send(requests: _*)
-        become(initializing)
-      } else {
-        onInitialized()
-        sendAllQueuedRequests()
-        if (isShuttingDown) {
-          become(shuttingDown)
-        } else {
-          become(initialized)
+        onConnect()
+        
+        val authRequestOpt = passwordOpt.map { password =>
+          Auth(password)
         }
-      }
-      
-      authFuture.recover {
-        case e: Throwable => logger.error(s"Could not authenticate to $remote", e)
-      }
-      selectFuture.recover {
-        case e: Throwable => logger.error(s"Could not select database '$database' in $remote", e)
-      }
-      setNameFuture.recover {
-        case e: Throwable => logger.error(s"Could not set client name in $remote", e)
+        val selectRequestOpt = if (database > 0) {
+          Some(Select(database))
+        } else {
+          None
+        }
+        val setNameRequestOpt = nameOpt.map { name =>
+          ServerRequests.ClientSetName(name)
+        }
+        
+        val authFuture = authRequestOpt match {
+          case Some(request) => request.future
+          case None => Future.successful(())
+        }
+        val selectFuture = selectRequestOpt match {
+          case Some(request) => request.future
+          case None => Future.successful(())
+        }
+        val setNameFuture = setNameRequestOpt match {
+          case Some(request) => request.future
+          case None => Future.successful(())
+        }
+        
+        val requests = List[Option[Request[Unit]]](
+          authRequestOpt, selectRequestOpt, setNameRequestOpt
+        ).flatten
+        
+        initializationRequestsCount = requests.size
+        
+        if (initializationRequestsCount > 0) {
+          send(requests: _*)
+          become(initializing)
+        } else {
+          onInitialized()
+          sendAllQueuedRequests()
+          if (isShuttingDown) {
+            become(shuttingDown)
+          } else {
+            become(initialized)
+          }
+        }
+        
+        authFuture.recover {
+          case e: Throwable => logger.error(s"Could not authenticate to $remote", e)
+        }
+        selectFuture.recover {
+          case e: Throwable => logger.error(s"Could not select database '$database' in $remote", e)
+        }
+        setNameFuture.recover {
+          case e: Throwable => logger.error(s"Could not set client name in $remote", e)
+        }
       }
     }
     case ReceiveTimeout =>
