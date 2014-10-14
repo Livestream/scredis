@@ -395,6 +395,7 @@ object Redis {
     maxWriteBatchSize = maxWriteBatchSize,
     tcpSendBufferSizeHint = tcpSendBufferSizeHint,
     tcpReceiveBufferSizeHint = tcpSendBufferSizeHint,
+    actorSystemName = actorSystemName,
     akkaListenerDispatcherPath = akkaListenerDispatcherPath,
     akkaIODispatcherPath = akkaIODispatcherPath,
     akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
