@@ -39,7 +39,7 @@
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">final </span>
+        <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -333,6 +333,26 @@ This constructor is equivalent to </p><pre><span class="kw">new</span> Client(co
       <p class="shortcomment cmt">Authenticates to the server.</p><div class="fullcomment"><div class="comment cmt"><p>Authenticates to the server.
 </p></div><dl class="paramcmts block"><dt class="param">password</dt><dd class="cmt"><p>the server password</p></dd></dl><dl class="attributes block"> <dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if authentication failed
+</p></span></dd></dl></div>
+    </li><li name="scredis.io.AbstractAkkaConnection#awaitTermination" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="awaitTermination(timeout:scala.concurrent.duration.Duration):Unit"></a>
+      <a id="awaitTermination(Duration):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">awaitTermination</span><span class="params">(<span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">Duration.Inf</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.BlockingClient@awaitTermination(timeout:scala.concurrent.duration.Duration):Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Waits for all the internal actors to be shutdown.</p><div class="fullcomment"><div class="comment cmt"><p>Waits for all the internal actors to be shutdown.
+</p></div><dl class="paramcmts block"><dt class="param">timeout</dt><dd class="cmt"><p>amount of time to wait
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd><dt>Note</dt><dd><span class="cmt"><p>This method is usually called after issuing a QUIT command
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.BlockingListCommands#blPop" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="blPop[R](timeoutSeconds:Int,keys:String*)(implicitevidence$1:scredis.serialization.Reader[R]):scala.util.Try[Option[(String,R)]]"></a>
@@ -720,7 +740,7 @@ occurs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AkkaBlockingConnection.html" class="extype" name="scredis.io.AkkaBlockingConnection">AkkaBlockingConnection</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AkkaBlockingConnection.html" class="extype" name="scredis.io.AkkaBlockingConnection">AkkaBlockingConnection</a> → <a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
     </li><li name="com.typesafe.scalalogging.slf4j.LazyLogging#logger" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="logger:com.typesafe.scalalogging.slf4j.Logger"></a>
       <a id="logger:Logger"></a>
@@ -1101,6 +1121,23 @@ occurs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="scredis.io.AbstractAkkaConnection#watchTermination" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="watchTermination():Unit"></a>
+      <a id="watchTermination():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">watchTermination</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.BlockingClient@watchTermination():Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
     </li></ol>
             </div>
 

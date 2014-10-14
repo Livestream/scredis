@@ -200,8 +200,7 @@ This constructor is equivalent to </p><pre>Redis(configName, <span class="lit">"
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config
-</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config.
 </p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
 </p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The config must contain the scredis object at its root.
 </p></span></dd></dl></div>
@@ -221,8 +220,7 @@ This constructor is equivalent to </p><pre>Redis(configName, <span class="lit">"
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>
-</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>.
 </p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p><a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
 </p></dd></dl></div>
     </li><li name="scredis.Redis#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -260,9 +258,7 @@ This constructor is equivalent to </p><pre>Redis(configName, <span class="lit">"
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Defines a <code>Redis</code> <a href="Client.html" class="extype" name="scredis.Client">scredis.Client</a> supporting all non-blocking commands along with a lazily
-initialized <a href="BlockingClient.html" class="extype" name="scredis.BlockingClient">scredis.BlockingClient</a> and <a href="SubscriberClient.html" class="extype" name="scredis.SubscriberClient">scredis.SubscriberClient</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Defines a <code>Redis</code> <a href="Client.html" class="extype" name="scredis.Client">scredis.Client</a> supporting all non-blocking commands along with a lazily
-initialized <a href="BlockingClient.html" class="extype" name="scredis.BlockingClient">scredis.BlockingClient</a> and <a href="SubscriberClient.html" class="extype" name="scredis.SubscriberClient">scredis.SubscriberClient</a>.
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance using provided parameters.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance using provided parameters.
 </p></div><dl class="paramcmts block"><dt class="param">host</dt><dd class="cmt"><p>server address</p></dd><dt class="param">port</dt><dd class="cmt"><p>server port</p></dd><dt class="param">passwordOpt</dt><dd class="cmt"><p>optional server password</p></dd><dt class="param">database</dt><dd class="cmt"><p>database index to select</p></dd><dt class="param">nameOpt</dt><dd class="cmt"><p>optional client name (available since 2.6.9)</p></dd><dt class="param">connectTimeout</dt><dd class="cmt"><p>connection timeout</p></dd><dt class="param">receiveTimeoutOpt</dt><dd class="cmt"><p>optional batch receive timeout</p></dd><dt class="param">maxWriteBatchSize</dt><dd class="cmt"><p>max number of bytes to send as part of a batch</p></dd><dt class="param">tcpSendBufferSizeHint</dt><dd class="cmt"><p>size hint of the tcp send buffer, in bytes</p></dd><dt class="param">tcpReceiveBufferSizeHint</dt><dd class="cmt"><p>size hint of the tcp receive buffer, in bytes</p></dd><dt class="param">actorSystemName</dt><dd class="cmt"><p>name of the actor system</p></dd><dt class="param">akkaListenerDispatcherPath</dt><dd class="cmt"><p>path to listener dispatcher definition</p></dd><dt class="param">akkaIODispatcherPath</dt><dd class="cmt"><p>path to io dispatcher definition</p></dd><dt class="param">akkaDecoderDispatcherPath</dt><dd class="cmt"><p>path to decoder dispatcher definition</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
 </p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -567,6 +563,127 @@ initialized <a href="BlockingClient.html" class="extype" name="scredis.BlockingC
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="scredis.Redis#withActorSystem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withActorSystem(configName:String,path:String)(implicitsystem:akka.actor.ActorSystem):scredis.Redis"></a>
+      <a id="withActorSystem(String,String)(ActorSystem):Redis"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withActorSystem</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="system">system: <span class="extype" name="akka.actor.ActorSystem">ActorSystem</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Redis$@withActorSystem(configName:String,path:String)(implicitsystem:akka.actor.ActorSystem):scredis.Redis" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file and using the provided path.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file and using the provided path.
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt class="param">path</dt><dd class="cmt"><p>path pointing to the scredis config object</p></dd><dt class="param">system</dt><dd class="cmt"><p>implicit <code>ActorSystem</code></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The provided <code>ActorSystem</code> will not be shutdown after invoking <code>quit</code>.
+</p></span>, <span class="cmt"><p>The path must include to the scredis object, e.g. x.y.scredis</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withActorSystem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withActorSystem(configName:String)(implicitsystem:akka.actor.ActorSystem):scredis.Redis"></a>
+      <a id="withActorSystem(String)(ActorSystem):Redis"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withActorSystem</span><span class="params">(<span name="configName">configName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="system">system: <span class="extype" name="akka.actor.ActorSystem">ActorSystem</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Redis$@withActorSystem(configName:String)(implicitsystem:akka.actor.ActorSystem):scredis.Redis" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a config file.
+</p></div><dl class="paramcmts block"><dt class="param">configName</dt><dd class="cmt"><p>config filename</p></dd><dt class="param">system</dt><dd class="cmt"><p>implicit <code>ActorSystem</code></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The provided <code>ActorSystem</code> will not be shutdown after invoking <code>quit</code>.
+</p></span>, <span class="cmt"><p>The config file must contain the scredis object at its root.
+This constructor is equivalent to </p><pre>Redis(configName, <span class="lit">"scredis"</span>)</pre></span></dd></dl></div>
+    </li><li name="scredis.Redis#withActorSystem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withActorSystem(config:com.typesafe.config.Config)(implicitsystem:akka.actor.ActorSystem):scredis.Redis"></a>
+      <a id="withActorSystem(Config)(ActorSystem):Redis"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withActorSystem</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="system">system: <span class="extype" name="akka.actor.ActorSystem">ActorSystem</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Redis$@withActorSystem(config:com.typesafe.config.Config)(implicitsystem:akka.actor.ActorSystem):scredis.Redis" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a com.typesafe.Config.
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>com.typesafe.Config</p></dd><dt class="param">system</dt><dd class="cmt"><p>implicit <code>ActorSystem</code></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The provided <code>ActorSystem</code> will not be shutdown after invoking <code>quit</code>.
+</p></span>, <span class="cmt"><p>The config must contain the scredis object at its root.</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withActorSystem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withActorSystem(config:scredis.RedisConfig)(implicitsystem:akka.actor.ActorSystem):scredis.Redis"></a>
+      <a id="withActorSystem(RedisConfig)(ActorSystem):Redis"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withActorSystem</span><span class="params">(<span name="config">config: <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">RedisConfig</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="system">system: <span class="extype" name="akka.actor.ActorSystem">ActorSystem</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Redis$@withActorSystem(config:scredis.RedisConfig)(implicitsystem:akka.actor.ActorSystem):scredis.Redis" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>.
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p><a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a></p></dd><dt class="param">system</dt><dd class="cmt"><p>implicit <code>ActorSystem</code></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The provided <code>ActorSystem</code> will not be shutdown after invoking <code>quit</code>.
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withActorSystem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withActorSystem()(implicitsystem:akka.actor.ActorSystem):scredis.Redis"></a>
+      <a id="withActorSystem()(ActorSystem):Redis"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withActorSystem</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="system">system: <span class="extype" name="akka.actor.ActorSystem">ActorSystem</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Redis$@withActorSystem()(implicitsystem:akka.actor.ActorSystem):scredis.Redis" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance using the default config.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance using the default config.
+</p></div><dl class="paramcmts block"><dt class="param">system</dt><dd class="cmt"><p>implicit <code>ActorSystem</code></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The provided <code>ActorSystem</code> will not be shutdown after invoking <code>quit</code>.
+</p></span></dd></dl></div>
+    </li><li name="scredis.Redis#withActorSystem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withActorSystem(host:String,port:Int,passwordOpt:Option[String],database:Int,nameOpt:Option[String],connectTimeout:scala.concurrent.duration.FiniteDuration,receiveTimeoutOpt:Option[scala.concurrent.duration.FiniteDuration],maxWriteBatchSize:Int,tcpSendBufferSizeHint:Int,tcpReceiveBufferSizeHint:Int,akkaListenerDispatcherPath:String,akkaIODispatcherPath:String,akkaDecoderDispatcherPath:String)(implicitsystem:akka.actor.ActorSystem):scredis.Redis"></a>
+      <a id="withActorSystem(String,Int,Option[String],Int,Option[String],FiniteDuration,Option[FiniteDuration],Int,Int,Int,String,String,String)(ActorSystem):Redis"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withActorSystem</span><span class="params">(<span name="host">host: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol"><span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.Redis.Host</a></span></span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span> = <span class="symbol"><span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.Redis.Port</a></span></span></span>, <span name="passwordOpt">passwordOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.Redis.PasswordOpt</a></span>'>...</span></span>, <span name="database">database: <span class="extype" name="scala.Int">Int</span> = <span class="symbol"><span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.Redis.Database</a></span></span></span>, <span name="nameOpt">nameOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol"><span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.Redis.NameOpt</a></span></span></span>, <span name="connectTimeout">connectTimeout: <span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span> = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.IO.ConnectTimeout</a></span>'>...</span></span>, <span name="receiveTimeoutOpt">receiveTimeoutOpt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.duration.FiniteDuration">FiniteDuration</span>] = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.IO.ReceiveTimeoutOpt</a></span>'>...</span></span>, <span name="maxWriteBatchSize">maxWriteBatchSize: <span class="extype" name="scala.Int">Int</span> = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.IO.MaxWriteBatchSize</a></span>'>...</span></span>, <span name="tcpSendBufferSizeHint">tcpSendBufferSizeHint: <span class="extype" name="scala.Int">Int</span> = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.IO.TCPSendBufferSizeHint</a></span>'>...</span></span>, <span name="tcpReceiveBufferSizeHint">tcpReceiveBufferSizeHint: <span class="extype" name="scala.Int">Int</span> = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.IO.TCPReceiveBufferSizeHint</a></span>'>...</span></span>, <span name="akkaListenerDispatcherPath">akkaListenerDispatcherPath: <span class="extype" name="scala.Predef.String">String</span> = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.IO.Akka.ListenerDispatcherPath</a></span>'>...</span></span>, <span name="akkaIODispatcherPath">akkaIODispatcherPath: <span class="extype" name="scala.Predef.String">String</span> = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.IO.Akka.IODispatcherPath</a></span>'>...</span></span>, <span name="akkaDecoderDispatcherPath">akkaDecoderDispatcherPath: <span class="extype" name="scala.Predef.String">String</span> = <span class="defval" name='<span class="name"><a href="RedisConfigDefaults$.html">RedisConfigDefaults.IO.Akka.DecoderDispatcherPath</a></span>'>...</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="system">system: <span class="extype" name="akka.actor.ActorSystem">ActorSystem</span></span>)</span><span class="result">: <a href="Redis.html" class="extype" name="scredis.Redis">Redis</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Redis$@withActorSystem(host:String,port:Int,passwordOpt:Option[String],database:Int,nameOpt:Option[String],connectTimeout:scala.concurrent.duration.FiniteDuration,receiveTimeoutOpt:Option[scala.concurrent.duration.FiniteDuration],maxWriteBatchSize:Int,tcpSendBufferSizeHint:Int,tcpReceiveBufferSizeHint:Int,akkaListenerDispatcherPath:String,akkaIODispatcherPath:String,akkaDecoderDispatcherPath:String)(implicitsystem:akka.actor.ActorSystem):scredis.Redis" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance using provided parameters.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a> instance using provided parameters.
+</p></div><dl class="paramcmts block"><dt class="param">host</dt><dd class="cmt"><p>server address</p></dd><dt class="param">port</dt><dd class="cmt"><p>server port</p></dd><dt class="param">passwordOpt</dt><dd class="cmt"><p>optional server password</p></dd><dt class="param">database</dt><dd class="cmt"><p>database index to select</p></dd><dt class="param">nameOpt</dt><dd class="cmt"><p>optional client name (available since 2.6.9)</p></dd><dt class="param">connectTimeout</dt><dd class="cmt"><p>connection timeout</p></dd><dt class="param">receiveTimeoutOpt</dt><dd class="cmt"><p>optional batch receive timeout</p></dd><dt class="param">maxWriteBatchSize</dt><dd class="cmt"><p>max number of bytes to send as part of a batch</p></dd><dt class="param">tcpSendBufferSizeHint</dt><dd class="cmt"><p>size hint of the tcp send buffer, in bytes</p></dd><dt class="param">tcpReceiveBufferSizeHint</dt><dd class="cmt"><p>size hint of the tcp receive buffer, in bytes</p></dd><dt class="param">akkaListenerDispatcherPath</dt><dd class="cmt"><p>path to listener dispatcher definition</p></dd><dt class="param">akkaIODispatcherPath</dt><dd class="cmt"><p>path to io dispatcher definition</p></dd><dt class="param">akkaDecoderDispatcherPath</dt><dd class="cmt"><p>path to decoder dispatcher definition</p></dd><dt class="param">system</dt><dd class="cmt"><p>implicit <code>ActorSystem</code></p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="Redis.html" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The provided <code>ActorSystem</code> will not be shutdown after invoking <code>quit</code>.
+</p></span></dd></dl></div>
     </li></ol>
             </div>
 

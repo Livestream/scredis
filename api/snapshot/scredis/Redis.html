@@ -39,7 +39,7 @@
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">final </span>
+        <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -48,8 +48,7 @@
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Defines a <code>Redis</code> <a href="Client.html" class="extype" name="scredis.Client">scredis.Client</a> supporting all non-blocking commands along with a lazily
-initialized <a href="BlockingClient.html" class="extype" name="scredis.BlockingClient">scredis.BlockingClient</a> and <a href="SubscriberClient.html" class="extype" name="scredis.SubscriberClient">scredis.SubscriberClient</a>.
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.Redis">scredis.Redis</a></p></dd></dl><div class="toggleContainer block">
+initialized <a href="BlockingClient.html" class="extype" name="scredis.BlockingClient">scredis.BlockingClient</a> and <a href="SubscriberClient.html" class="extype" name="scredis.SubscriberClient">scredis.SubscriberClient</a>.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="commands/TransactionCommands.html" class="extype" name="scredis.commands.TransactionCommands">TransactionCommands</a>, <a href="commands/PubSubCommands.html" class="extype" name="scredis.commands.PubSubCommands">PubSubCommands</a>, <a href="commands/HyperLogLogCommands.html" class="extype" name="scredis.commands.HyperLogLogCommands">HyperLogLogCommands</a>, <a href="commands/ScriptingCommands.html" class="extype" name="scredis.commands.ScriptingCommands">ScriptingCommands</a>, <a href="commands/SortedSetCommands.html" class="extype" name="scredis.commands.SortedSetCommands">SortedSetCommands</a>, <a href="commands/SetCommands.html" class="extype" name="scredis.commands.SetCommands">SetCommands</a>, <a href="commands/ListCommands.html" class="extype" name="scredis.commands.ListCommands">ListCommands</a>, <a href="commands/HashCommands.html" class="extype" name="scredis.commands.HashCommands">HashCommands</a>, <a href="commands/StringCommands.html" class="extype" name="scredis.commands.StringCommands">StringCommands</a>, <a href="commands/KeyCommands.html" class="extype" name="scredis.commands.KeyCommands">KeyCommands</a>, <a href="commands/ServerCommands.html" class="extype" name="scredis.commands.ServerCommands">ServerCommands</a>, <a href="commands/ConnectionCommands.html" class="extype" name="scredis.commands.ConnectionCommands">ConnectionCommands</a>, <a href="io/AkkaNonBlockingConnection.html" class="extype" name="scredis.io.AkkaNonBlockingConnection">AkkaNonBlockingConnection</a>, <a href="io/TransactionEnabledConnection.html" class="extype" name="scredis.io.TransactionEnabledConnection">TransactionEnabledConnection</a>, <a href="io/NonBlockingConnection.html" class="extype" name="scredis.io.NonBlockingConnection">NonBlockingConnection</a>, <a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a>, <span class="extype" name="com.typesafe.scalalogging.slf4j.LazyLogging">LazyLogging</span>, <span class="extype" name="com.typesafe.scalalogging.Logging">Logging</span>, <a href="io/Connection.html" class="extype" name="scredis.io.Connection">Connection</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -184,7 +183,7 @@ This constructor is equivalent to </p><pre><span class="kw">new</span> Redis(con
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.Redis">scredis.Redis</a> instance using from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.Redis">scredis.Redis</a> instance using from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>.
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.Redis">scredis.Redis</a> instance from a <a href="RedisConfig.html" class="extype" name="scredis.RedisConfig">scredis.RedisConfig</a>.
 </p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.Redis">scredis.Redis</a>
 </p></dd></dl></div>
     </li><li name="scredis.Redis#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -203,7 +202,9 @@ This constructor is equivalent to </p><pre><span class="kw">new</span> Redis(con
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">host</dt><dd class="cmt"><p>server address</p></dd><dt class="param">port</dt><dd class="cmt"><p>server port</p></dd><dt class="param">passwordOpt</dt><dd class="cmt"><p>optional server password</p></dd><dt class="param">database</dt><dd class="cmt"><p>database index to select</p></dd><dt class="param">nameOpt</dt><dd class="cmt"><p>optional client name (available since 2.6.9)</p></dd><dt class="param">connectTimeout</dt><dd class="cmt"><p>connection timeout</p></dd><dt class="param">receiveTimeoutOpt</dt><dd class="cmt"><p>optional batch receive timeout</p></dd><dt class="param">maxWriteBatchSize</dt><dd class="cmt"><p>max number of bytes to send as part of a batch</p></dd><dt class="param">tcpSendBufferSizeHint</dt><dd class="cmt"><p>size hint of the tcp send buffer, in bytes</p></dd><dt class="param">tcpReceiveBufferSizeHint</dt><dd class="cmt"><p>size hint of the tcp receive buffer, in bytes</p></dd><dt class="param">actorSystemName</dt><dd class="cmt"><p>name of the actor system</p></dd><dt class="param">akkaListenerDispatcherPath</dt><dd class="cmt"><p>path to listener dispatcher definition</p></dd><dt class="param">akkaIODispatcherPath</dt><dd class="cmt"><p>path to io dispatcher definition</p></dd><dt class="param">akkaDecoderDispatcherPath</dt><dd class="cmt"><p>path to decoder dispatcher definition</p></dd></dl></div>
+      <p class="shortcomment cmt">Constructs a <a href="" class="extype" name="scredis.Redis">scredis.Redis</a> instance using provided parameters.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <a href="" class="extype" name="scredis.Redis">scredis.Redis</a> instance using provided parameters.
+</p></div><dl class="paramcmts block"><dt class="param">host</dt><dd class="cmt"><p>server address</p></dd><dt class="param">port</dt><dd class="cmt"><p>server port</p></dd><dt class="param">passwordOpt</dt><dd class="cmt"><p>optional server password</p></dd><dt class="param">database</dt><dd class="cmt"><p>database index to select</p></dd><dt class="param">nameOpt</dt><dd class="cmt"><p>optional client name (available since 2.6.9)</p></dd><dt class="param">connectTimeout</dt><dd class="cmt"><p>connection timeout</p></dd><dt class="param">receiveTimeoutOpt</dt><dd class="cmt"><p>optional batch receive timeout</p></dd><dt class="param">maxWriteBatchSize</dt><dd class="cmt"><p>max number of bytes to send as part of a batch</p></dd><dt class="param">tcpSendBufferSizeHint</dt><dd class="cmt"><p>size hint of the tcp send buffer, in bytes</p></dd><dt class="param">tcpReceiveBufferSizeHint</dt><dd class="cmt"><p>size hint of the tcp receive buffer, in bytes</p></dd><dt class="param">actorSystemName</dt><dd class="cmt"><p>name of the actor system</p></dd><dt class="param">akkaListenerDispatcherPath</dt><dd class="cmt"><p>path to listener dispatcher definition</p></dd><dt class="param">akkaIODispatcherPath</dt><dd class="cmt"><p>path to io dispatcher definition</p></dd><dt class="param">akkaDecoderDispatcherPath</dt><dd class="cmt"><p>path to decoder dispatcher definition</p></dd><dt>returns</dt><dd class="cmt"><p>the constructed <a href="" class="extype" name="scredis.Redis">scredis.Redis</a>
+</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -372,6 +373,26 @@ This constructor is equivalent to </p><pre><span class="kw">new</span> Redis(con
 </p></div><dl class="paramcmts block"><dt class="param">password</dt><dd class="cmt"><p>the server password</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scredis.Redis">Redis</a> → <a href="commands/ConnectionCommands.html" class="extype" name="scredis.commands.ConnectionCommands">ConnectionCommands</a></dd><dt>Since</dt><dd><p>1.0.0
 </p></dd><dt>Exceptions thrown</dt><dd><span class="cmt">[[scredis.exceptions.RedisErrorResponseException]]<p>if authentication failed
 </p></span></dd><dt>Note</dt><dd><span class="cmt"><p>Use the empty string to re-authenticate with no password.
+</p></span></dd></dl></div>
+    </li><li name="scredis.io.AbstractAkkaConnection#awaitTermination" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="awaitTermination(timeout:scala.concurrent.duration.Duration):Unit"></a>
+      <a id="awaitTermination(Duration):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">awaitTermination</span><span class="params">(<span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">Duration.Inf</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Redis@awaitTermination(timeout:scala.concurrent.duration.Duration):Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Waits for all the internal actors to be shutdown.</p><div class="fullcomment"><div class="comment cmt"><p>Waits for all the internal actors to be shutdown.
+</p></div><dl class="paramcmts block"><dt class="param">timeout</dt><dd class="cmt"><p>amount of time to wait
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd><dt>Note</dt><dd><span class="cmt"><p>This method is usually called after issuing a QUIT command
 </p></span></dd></dl></div>
     </li><li name="scredis.commands.ServerCommands#bgRewriteAOF" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="bgRewriteAOF():scala.concurrent.Future[Unit]"></a>
@@ -2124,7 +2145,7 @@ end is larger than the end of the list, Redis will treat it like the last elemen
         <img src="../lib/permalink.png" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AkkaNonBlockingConnection.html" class="extype" name="scredis.io.AkkaNonBlockingConnection">AkkaNonBlockingConnection</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AkkaNonBlockingConnection.html" class="extype" name="scredis.io.AkkaNonBlockingConnection">AkkaNonBlockingConnection</a> → <a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
     </li><li name="com.typesafe.scalalogging.slf4j.LazyLogging#logger" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="logger:com.typesafe.scalalogging.slf4j.Logger"></a>
       <a id="logger:Logger"></a>
@@ -4104,6 +4125,23 @@ for both cases). In other words, you can simply check the following</p><pre>resu
 </p></div><dl class="paramcmts block"><dt class="param">keys</dt><dd class="cmt"><p>keys to watch
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="commands/TransactionCommands.html" class="extype" name="scredis.commands.TransactionCommands">TransactionCommands</a></dd><dt>Since</dt><dd><p>2.2.0
 </p></dd></dl></div>
+    </li><li name="scredis.io.AbstractAkkaConnection#watchTermination" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="watchTermination():Unit"></a>
+      <a id="watchTermination():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">watchTermination</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#scredis.Redis@watchTermination():Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="io/AbstractAkkaConnection.html" class="extype" name="scredis.io.AbstractAkkaConnection">AbstractAkkaConnection</a></dd></dl></div>
     </li><li name="scredis.commands.TransactionCommands#withTransaction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withTransaction[A](build:scredis.TransactionBuilder=&gt;A):A"></a>
       <a id="withTransaction[A]((TransactionBuilder)⇒A):A"></a>

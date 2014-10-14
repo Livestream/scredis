@@ -112,10 +112,30 @@
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="scredis.io.AbstractAkkaConnection#listenerActor" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="listenerActor:akka.actor.ActorRef"></a>
+      <a id="listenerActor:ActorRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">listenerActor</span><span class="result">: <span class="extype" name="akka.actor.ActorRef">ActorRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.AbstractAkkaConnection@listenerActor:akka.actor.ActorRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li></ol>
+            </div>
 
         <div id="values" class="values members">
-              <h3>Value Members</h3>
+              <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
@@ -235,6 +255,26 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scredis.io.AbstractAkkaConnection#awaitTermination" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="awaitTermination(timeout:scala.concurrent.duration.Duration):Unit"></a>
+      <a id="awaitTermination(Duration):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">awaitTermination</span><span class="params">(<span name="timeout">timeout: <span class="extype" name="scala.concurrent.duration.Duration">Duration</span> = <span class="symbol">Duration.Inf</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.AbstractAkkaConnection@awaitTermination(timeout:scala.concurrent.duration.Duration):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Waits for all the internal actors to be shutdown.</p><div class="fullcomment"><div class="comment cmt"><p>Waits for all the internal actors to be shutdown.
+</p></div><dl class="paramcmts block"><dt class="param">timeout</dt><dd class="cmt"><p>amount of time to wait
+</p></dd></dl><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>This method is usually called after issuing a QUIT command
+</p></span></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -843,6 +883,23 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="scredis.io.AbstractAkkaConnection#watchTermination" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="watchTermination():Unit"></a>
+      <a id="watchTermination():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">watchTermination</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scredis.io.AbstractAkkaConnection@watchTermination():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li></ol>
             </div>
 
