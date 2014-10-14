@@ -17,43 +17,30 @@ import scala.concurrent.duration._
  * Defines a `Redis` [[scredis.Client]] supporting all non-blocking commands along with a lazily
  * initialized [[scredis.BlockingClient]] and [[scredis.SubscriberClient]].
  * 
- * @param host server address
- * @param port server port
- * @param passwordOpt optional server password
- * @param database database index to select
- * @param nameOpt optional client name (available since 2.6.9)
- * @param connectTimeout connection timeout
- * @param receiveTimeoutOpt optional batch receive timeout
- * @param maxWriteBatchSize max number of bytes to send as part of a batch
- * @param tcpSendBufferSizeHint size hint of the tcp send buffer, in bytes
- * @param tcpReceiveBufferSizeHint size hint of the tcp receive buffer, in bytes
- * @param actorSystemName name of the actor system
- * @param akkaListenerDispatcherPath path to listener dispatcher definition
- * @param akkaIODispatcherPath path to io dispatcher definition
- * @param akkaDecoderDispatcherPath path to decoder dispatcher definition
- * @return the constructed $redis
- * 
  * @define e [[scredis.exceptions.RedisErrorResponseException]]
  * @define redis [[scredis.Redis]]
  * @define tc com.typesafe.Config
  */
-final class Redis(
-  host: String = RedisConfigDefaults.Redis.Host,
-  port: Int = RedisConfigDefaults.Redis.Port,
-  passwordOpt: Option[String] = RedisConfigDefaults.Redis.PasswordOpt,
-  database: Int = RedisConfigDefaults.Redis.Database,
-  nameOpt: Option[String] = RedisConfigDefaults.Redis.NameOpt,
-  connectTimeout: FiniteDuration = RedisConfigDefaults.IO.ConnectTimeout,
-  receiveTimeoutOpt: Option[FiniteDuration] = RedisConfigDefaults.IO.ReceiveTimeoutOpt,
-  maxWriteBatchSize: Int = RedisConfigDefaults.IO.MaxWriteBatchSize,
-  tcpSendBufferSizeHint: Int = RedisConfigDefaults.IO.TCPSendBufferSizeHint,
-  tcpReceiveBufferSizeHint: Int = RedisConfigDefaults.IO.TCPReceiveBufferSizeHint,
-  actorSystemName: String = RedisConfigDefaults.IO.Akka.ActorSystemName,
-  akkaListenerDispatcherPath: String = RedisConfigDefaults.IO.Akka.ListenerDispatcherPath,
-  akkaIODispatcherPath: String = RedisConfigDefaults.IO.Akka.IODispatcherPath,
-  akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath
+class Redis private[scredis] (
+  systemOrName: Either[ActorSystem, String],
+  host: String,
+  port: Int,
+  passwordOpt: Option[String],
+  database: Int,
+  nameOpt: Option[String],
+  connectTimeout: FiniteDuration,
+  receiveTimeoutOpt: Option[FiniteDuration],
+  maxWriteBatchSize: Int,
+  tcpSendBufferSizeHint: Int,
+  tcpReceiveBufferSizeHint: Int,
+  akkaListenerDispatcherPath: String,
+  akkaIODispatcherPath: String,
+  akkaDecoderDispatcherPath: String
 ) extends AkkaNonBlockingConnection(
-  system = ActorSystem(UniqueNameGenerator.getUniqueName(actorSystemName)),
+  system = systemOrName match {
+    case Left(system) => system
+    case Right(name) => ActorSystem(UniqueNameGenerator.getUniqueName(name))
+  },
   host = host,
   port = port,
   passwordOpt = passwordOpt,
@@ -126,8 +113,60 @@ final class Redis(
     )(system)
   }
   
+  
   /**
-   * Constructs a $redis instance using from a [[scredis.RedisConfig]].
+   * Constructs a $redis instance using provided parameters.
+   * 
+   * @param host server address
+   * @param port server port
+   * @param passwordOpt optional server password
+   * @param database database index to select
+   * @param nameOpt optional client name (available since 2.6.9)
+   * @param connectTimeout connection timeout
+   * @param receiveTimeoutOpt optional batch receive timeout
+   * @param maxWriteBatchSize max number of bytes to send as part of a batch
+   * @param tcpSendBufferSizeHint size hint of the tcp send buffer, in bytes
+   * @param tcpReceiveBufferSizeHint size hint of the tcp receive buffer, in bytes
+   * @param actorSystemName name of the actor system
+   * @param akkaListenerDispatcherPath path to listener dispatcher definition
+   * @param akkaIODispatcherPath path to io dispatcher definition
+   * @param akkaDecoderDispatcherPath path to decoder dispatcher definition
+   * @return the constructed $redis
+   */
+  def this(
+    host: String = RedisConfigDefaults.Redis.Host,
+    port: Int = RedisConfigDefaults.Redis.Port,
+    passwordOpt: Option[String] = RedisConfigDefaults.Redis.PasswordOpt,
+    database: Int = RedisConfigDefaults.Redis.Database,
+    nameOpt: Option[String] = RedisConfigDefaults.Redis.NameOpt,
+    connectTimeout: FiniteDuration = RedisConfigDefaults.IO.ConnectTimeout,
+    receiveTimeoutOpt: Option[FiniteDuration] = RedisConfigDefaults.IO.ReceiveTimeoutOpt,
+    maxWriteBatchSize: Int = RedisConfigDefaults.IO.MaxWriteBatchSize,
+    tcpSendBufferSizeHint: Int = RedisConfigDefaults.IO.TCPSendBufferSizeHint,
+    tcpReceiveBufferSizeHint: Int = RedisConfigDefaults.IO.TCPReceiveBufferSizeHint,
+    actorSystemName: String = RedisConfigDefaults.IO.Akka.ActorSystemName,
+    akkaListenerDispatcherPath: String = RedisConfigDefaults.IO.Akka.ListenerDispatcherPath,
+    akkaIODispatcherPath: String = RedisConfigDefaults.IO.Akka.IODispatcherPath,
+    akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath
+  ) = this(
+    systemOrName = Right(actorSystemName),
+    host = host,
+    port = port,
+    passwordOpt = passwordOpt,
+    database = database,
+    nameOpt = nameOpt,
+    connectTimeout = connectTimeout,
+    receiveTimeoutOpt = receiveTimeoutOpt,
+    maxWriteBatchSize = maxWriteBatchSize,
+    tcpSendBufferSizeHint = tcpSendBufferSizeHint,
+    tcpReceiveBufferSizeHint = tcpReceiveBufferSizeHint,
+    akkaListenerDispatcherPath = akkaListenerDispatcherPath,
+    akkaIODispatcherPath = akkaIODispatcherPath,
+    akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
+  )
+  
+  /**
+   * Constructs a $redis instance from a [[scredis.RedisConfig]].
    * 
    * @return the constructed $redis
    */
@@ -273,7 +312,10 @@ final class Redis(
       super.quit()
     }.map { _ =>
       awaitTermination(3 seconds)
-      system.shutdown()
+      systemOrName match {
+        case Left(system) => // Do not shutdown provided ActorSystem
+        case Right(name) => system.shutdown()
+      }
     }
   }
 
@@ -309,8 +351,7 @@ final class Redis(
 object Redis {
   
   /**
-   * Defines a `Redis` [[scredis.Client]] supporting all non-blocking commands along with a lazily
-   * initialized [[scredis.BlockingClient]] and [[scredis.SubscriberClient]].
+   * Constructs a $redis instance using provided parameters.
    * 
    * @param host server address
    * @param port server port
@@ -367,7 +408,7 @@ object Redis {
   def apply() = new Redis(RedisConfig())
   
   /**
-   * Constructs a $redis instance from a [[scredis.RedisConfig]]
+   * Constructs a $redis instance from a [[scredis.RedisConfig]].
    * 
    * @param config [[scredis.RedisConfig]]
    * @return the constructed $redis
@@ -375,7 +416,7 @@ object Redis {
   def apply(config: RedisConfig): Redis = new Redis(config)
   
   /**
-   * Constructs a $redis instance from a $tc
+   * Constructs a $redis instance from a $tc.
    * 
    * @note The config must contain the scredis object at its root.
    * 
@@ -407,5 +448,139 @@ object Redis {
    * @return the constructed $redis
    */
   def apply(configName: String, path: String): Redis = new Redis(configName, path)
+  
+  /**
+   * Constructs a $redis instance using provided parameters.
+   * 
+   * @note The provided `ActorSystem` will not be shutdown after invoking `quit`.
+   * 
+   * @param host server address
+   * @param port server port
+   * @param passwordOpt optional server password
+   * @param database database index to select
+   * @param nameOpt optional client name (available since 2.6.9)
+   * @param connectTimeout connection timeout
+   * @param receiveTimeoutOpt optional batch receive timeout
+   * @param maxWriteBatchSize max number of bytes to send as part of a batch
+   * @param tcpSendBufferSizeHint size hint of the tcp send buffer, in bytes
+   * @param tcpReceiveBufferSizeHint size hint of the tcp receive buffer, in bytes
+   * @param akkaListenerDispatcherPath path to listener dispatcher definition
+   * @param akkaIODispatcherPath path to io dispatcher definition
+   * @param akkaDecoderDispatcherPath path to decoder dispatcher definition
+   * @param system implicit `ActorSystem`
+   * @return the constructed $redis
+   */
+  def withActorSystem(
+    host: String = RedisConfigDefaults.Redis.Host,
+    port: Int = RedisConfigDefaults.Redis.Port,
+    passwordOpt: Option[String] = RedisConfigDefaults.Redis.PasswordOpt,
+    database: Int = RedisConfigDefaults.Redis.Database,
+    nameOpt: Option[String] = RedisConfigDefaults.Redis.NameOpt,
+    connectTimeout: FiniteDuration = RedisConfigDefaults.IO.ConnectTimeout,
+    receiveTimeoutOpt: Option[FiniteDuration] = RedisConfigDefaults.IO.ReceiveTimeoutOpt,
+    maxWriteBatchSize: Int = RedisConfigDefaults.IO.MaxWriteBatchSize,
+    tcpSendBufferSizeHint: Int = RedisConfigDefaults.IO.TCPSendBufferSizeHint,
+    tcpReceiveBufferSizeHint: Int = RedisConfigDefaults.IO.TCPReceiveBufferSizeHint,
+    akkaListenerDispatcherPath: String = RedisConfigDefaults.IO.Akka.ListenerDispatcherPath,
+    akkaIODispatcherPath: String = RedisConfigDefaults.IO.Akka.IODispatcherPath,
+    akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath
+  )(implicit system: ActorSystem): Redis = new Redis(
+    systemOrName = Left(system),
+    host = host,
+    port = port,
+    passwordOpt = passwordOpt,
+    database = database,
+    nameOpt = nameOpt,
+    connectTimeout = connectTimeout,
+    receiveTimeoutOpt = receiveTimeoutOpt,
+    maxWriteBatchSize = maxWriteBatchSize,
+    tcpSendBufferSizeHint = tcpSendBufferSizeHint,
+    tcpReceiveBufferSizeHint = tcpSendBufferSizeHint,
+    akkaListenerDispatcherPath = akkaListenerDispatcherPath,
+    akkaIODispatcherPath = akkaIODispatcherPath,
+    akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
+  )
+  
+  /**
+   * Constructs a $redis instance using the default config.
+   * 
+   * @note The provided `ActorSystem` will not be shutdown after invoking `quit`.
+   * 
+   * @param system implicit `ActorSystem`
+   * @return the constructed $redis
+   */
+  def withActorSystem()(implicit system: ActorSystem): Redis = withActorSystem(RedisConfig())
+  
+  /**
+   * Constructs a $redis instance from a [[scredis.RedisConfig]].
+   * 
+   * @note The provided `ActorSystem` will not be shutdown after invoking `quit`.
+   * 
+   * @param config [[scredis.RedisConfig]]
+   * @param system implicit `ActorSystem`
+   * @return the constructed $redis
+   */
+  def withActorSystem(config: RedisConfig)(implicit system: ActorSystem): Redis = new Redis(
+    systemOrName = Left(system),
+    host = config.Redis.Host,
+    port = config.Redis.Port,
+    passwordOpt = config.Redis.PasswordOpt,
+    database = config.Redis.Database,
+    nameOpt = config.Redis.NameOpt,
+    connectTimeout = config.IO.ConnectTimeout,
+    receiveTimeoutOpt = config.IO.ReceiveTimeoutOpt,
+    maxWriteBatchSize = config.IO.MaxWriteBatchSize,
+    tcpSendBufferSizeHint = config.IO.TCPSendBufferSizeHint,
+    tcpReceiveBufferSizeHint = config.IO.TCPReceiveBufferSizeHint,
+    akkaListenerDispatcherPath = config.IO.Akka.ListenerDispatcherPath,
+    akkaIODispatcherPath = config.IO.Akka.IODispatcherPath,
+    akkaDecoderDispatcherPath = config.IO.Akka.DecoderDispatcherPath
+  )
+  
+  /**
+   * Constructs a $redis instance from a $tc.
+   * 
+   * @note The config must contain the scredis object at its root.
+   * @note The provided `ActorSystem` will not be shutdown after invoking `quit`.
+   * 
+   * @param config $tc
+   * @param system implicit `ActorSystem`
+   * @return the constructed $redis
+   */
+  def withActorSystem(config: Config)(implicit system: ActorSystem): Redis = withActorSystem(
+    RedisConfig(config)
+  )
+  
+  /**
+   * Constructs a $redis instance from a config file.
+   * 
+   * @note The config file must contain the scredis object at its root.
+   * This constructor is equivalent to {{{
+   * Redis(configName, "scredis")
+   * }}}
+   * @note The provided `ActorSystem` will not be shutdown after invoking `quit`.
+   * 
+   * @param configName config filename
+   * @param system implicit `ActorSystem`
+   * @return the constructed $redis
+   */
+  def withActorSystem(configName: String)(implicit system: ActorSystem): Redis = withActorSystem(
+    RedisConfig(configName)
+  )
+  
+  /**
+   * Constructs a $redis instance from a config file and using the provided path.
+   * 
+   * @note The path must include to the scredis object, e.g. x.y.scredis
+   * @note The provided `ActorSystem` will not be shutdown after invoking `quit`.
+   * 
+   * @param configName config filename
+   * @param path path pointing to the scredis config object
+   * @param system implicit `ActorSystem`
+   * @return the constructed $redis
+   */
+  def withActorSystem(configName: String, path: String)(
+    implicit system: ActorSystem
+  ): Redis = withActorSystem(RedisConfig(configName, path))
   
 }

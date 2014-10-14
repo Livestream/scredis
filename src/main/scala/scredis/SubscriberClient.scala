@@ -32,7 +32,7 @@ import scala.concurrent.duration._
  * @define client [[scredis.SubscriberClient]]
  * @define tc com.typesafe.Config
  */
-final class SubscriberClient(
+class SubscriberClient(
   host: String = RedisConfigDefaults.Redis.Host,
   port: Int = RedisConfigDefaults.Redis.Port,
   passwordOpt: Option[String] = RedisConfigDefaults.Redis.PasswordOpt,
