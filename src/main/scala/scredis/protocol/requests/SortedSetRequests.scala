@@ -9,7 +9,7 @@ object SortedSetRequests {
   
   import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.doubleReader
-
+  
   object ZAdd extends Command("ZADD") with WriteCommand
   object ZCard extends Command("ZCARD")
   object ZCount extends Command("ZCOUNT")
@@ -30,12 +30,12 @@ object SortedSetRequests {
   object ZScan extends Command("ZSCAN")
   object ZScore extends Command("ZSCORE")
   object ZUnionStore extends Command("ZUNIONSTORE") with WriteCommand
-
+  
   private val WithScores = "WITHSCORES"
   private val Weights = "WEIGHTS"
   private val AggregateName = "AGGREGATE"
   private val Limit = "LIMIT"
-
+  
   case class ZAdd[W](key: String, members: Map[W, scredis.Score])(
     implicit writer: Writer[W]
   ) extends Request[Long](
@@ -49,13 +49,13 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZCard(key: String) extends Request[Long](ZCard, key) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZCount(
     key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit
   ) extends Request[Long](ZCount, key, min.stringValue, max.stringValue) {
@@ -63,7 +63,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZIncrBy[W: Writer](key: String, increment: Double, member: W) extends Request[Double](
     ZIncrBy, key, increment, implicitly[Writer[W]].write(member)
   ) {
@@ -71,7 +71,7 @@ object SortedSetRequests {
       case b: BulkStringResponse => b.flattened[Double]
     }
   }
-
+  
   case class ZInterStore(
     destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
@@ -81,7 +81,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZInterStoreWeighted(
     destination: String, keyWeightPairs: Map[String, Double], aggregate: scredis.Aggregate
   ) extends Request[Long](
@@ -94,7 +94,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZLexCount(
     key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
   ) extends Request[Long](ZLexCount, key, min.stringValue, max.stringValue) {
@@ -102,7 +102,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZRange[R: Reader, CC[X] <: Traversable[X]](key: String, start: Long, stop: Long)(
     implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
   ) extends Request[CC[R]](ZRange, key, start, stop) {
@@ -112,7 +112,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRangeWithScores[R: Reader, CC[X] <: Traversable[X]](
     key: String, start: Long, stop: Long
   )(
@@ -126,7 +126,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRangeByLex[R: Reader, CC[X] <: Traversable[X]](
     key: String,
     min: scredis.LexicalScoreLimit,
@@ -146,7 +146,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRangeByScore[R: Reader, CC[X] <: Traversable[X]](
     key: String,
     min: scredis.ScoreLimit,
@@ -166,7 +166,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRangeByScoreWithScores[R: Reader, CC[X] <: Traversable[X]](
     key: String,
     min: scredis.ScoreLimit,
@@ -190,7 +190,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRank[W: Writer](key: String, member: W) extends Request[Option[Long]](
     ZRank, key, implicitly[Writer[W]].write(member)
   ) {
@@ -199,7 +199,7 @@ object SortedSetRequests {
       case BulkStringResponse(None) => None
     }
   }
-
+  
   case class ZRem[W](key: String, members: W*)(implicit writer: Writer[W]) extends Request[Long](
     ZRem, key +: members.map(writer.write): _*
   ) {
@@ -207,7 +207,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZRemRangeByLex(
     key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
   ) extends Request[Long](
@@ -217,7 +217,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZRemRangeByRank(key: String, start: Long, stop: Long) extends Request[Long](
     ZRemRangeByRank, key, start, stop
   ) {
@@ -225,7 +225,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZRemRangeByScore(
     key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit
   ) extends Request[Long](
@@ -235,7 +235,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZRevRange[R: Reader, CC[X] <: Traversable[X]](key: String, start: Long, stop: Long)(
     implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
   ) extends Request[CC[R]](ZRevRange, key, start, stop) {
@@ -245,7 +245,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRevRangeWithScores[R: Reader, CC[X] <: Traversable[X]](
     key: String, start: Long, stop: Long
   )(
@@ -259,7 +259,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRevRangeByScore[R: Reader, CC[X] <: Traversable[X]](
     key: String,
     max: scredis.ScoreLimit,
@@ -279,7 +279,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRevRangeByScoreWithScores[R: Reader, CC[X] <: Traversable[X]](
     key: String,
     max: scredis.ScoreLimit,
@@ -303,7 +303,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZRevRank[W: Writer](key: String, member: W) extends Request[Option[Long]](
     ZRevRank, key, implicitly[Writer[W]].write(member)
   ) {
@@ -312,7 +312,7 @@ object SortedSetRequests {
       case BulkStringResponse(None) => None
     }
   }
-
+  
   case class ZScan[R: Reader, CC[X] <: Traversable[X]](
     key: String,
     cursor: Long,
@@ -339,7 +339,7 @@ object SortedSetRequests {
       }
     }
   }
-
+  
   case class ZScore[W: Writer](key: String, member: W) extends Request[Option[scredis.Score]](
     ZScore, key, implicitly[Writer[W]].write(member)
   ) {
@@ -347,7 +347,7 @@ object SortedSetRequests {
       case b: BulkStringResponse => b.parsed[String].map(scredis.Score.apply)
     }
   }
-
+  
   case class ZUnionStore(
     destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
@@ -357,7 +357,7 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
   case class ZUnionStoreWeighted(
     destination: String, keyWeightPairs: Map[String, Double], aggregate: scredis.Aggregate
   ) extends Request[Long](
@@ -370,5 +370,5 @@ object SortedSetRequests {
       case IntegerResponse(value) => value
     }
   }
-
+  
 }
