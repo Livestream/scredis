@@ -38,9 +38,11 @@ object SortedSetRequests {
 
   case class ZAdd[W](key: String, members: Map[W, scredis.Score])(
     implicit writer: Writer[W]
-    ) extends Request[Long](
+  ) extends Request[Long](
     ZAdd, key +: unpair(
-      (members toList).map(f => (f._2.stringValue, writer.write(f._1)))
+      (members toList).map {
+        case (member, score) => (score.stringValue, writer.write(member))
+      }
     ): _*
   ) {
     override def decode = {
