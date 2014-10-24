@@ -6,7 +6,7 @@ import scredis.serialization.{ Reader, Writer }
 import scala.collection.generic.CanBuildFrom
 
 object SortedSetRequests {
-
+  
   import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.doubleReader
 
