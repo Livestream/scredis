@@ -86,11 +86,11 @@ class SortedSetCommandsSpec extends WordSpec
       "add the provided members only if they are not already contained " +
         "in the sorted set" taggedAs (V240) in {
           client.zAdd("SET", Map("A" -> 2.5, "B" -> 3.8)).futureValue should be (0)
-          client.zAdd("SET", Map("C" -> -1.3, "D" -> -2.6)).futureValue should be (2)
+          client.zAdd("SET", Map("C" -> -1.3, "D" -> -2.6, "E" -> -2.6)).futureValue should be (3)
           client.zRangeWithScores(
             "SET"
           ).futureValue should contain theSameElementsInOrderAs List[(String, Score)](
-            ("D", -2.6), ("C", -1.3), ("A", 2.5), ("B", 3.8)
+            ("D", -2.6), ("E", -2.6), ("C", -1.3), ("A", 2.5), ("B", 3.8)
           )
           client.del("SET")
         }
