@@ -40,7 +40,7 @@ object SortedSetRequests {
     implicit writer: Writer[W]
   ) extends Request[Long](
     ZAdd, key +: unpair(
-      members.map {
+      (members toList).map {
         case (member, score) => (score.stringValue, writer.write(member))
       }
     ): _*
