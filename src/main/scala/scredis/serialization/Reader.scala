@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets
  * @define e [[scredis.exceptions.RedisReaderException]]
  * 
  */
-abstract class Reader[A] {
+trait Reader[A] {
   
   /**
    * Internal read method to be implemented.

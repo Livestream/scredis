@@ -111,11 +111,9 @@ class SubscriberListenerActor(
   
   override protected def always: Receive = super.always orElse {
     case Subscribe(subscription) => {
+      subscriptionOpt = Some(subscription)
       if (isInitialized) {
-        subscriptionOpt = Some(subscription)
         decoders.route(Broadcast(DecoderActor.Subscribe(subscription)), self)
-      } else {
-        previousSubscriptionOpt = Some(subscription)
       }
     }
     case Complete(message) => {

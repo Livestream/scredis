@@ -15,8 +15,8 @@ import java.util.concurrent.{ CountDownLatch, TimeUnit }
 
 abstract class AbstractAkkaConnection(
   protected val system: ActorSystem,
-  protected val host: String,
-  protected val port: Int,
+  val host: String,
+  val port: Int,
   @volatile protected var passwordOpt: Option[String],
   @volatile protected var database: Int,
   @volatile protected var nameOpt: Option[String],

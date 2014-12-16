@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets
  * @define e [[scredis.exceptions.RedisWriterException]]
  * 
  */
-abstract class Writer[-A] {
+trait Writer[A] {
   
   /**
    * Internal write method to be implemented.
