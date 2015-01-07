@@ -6,14 +6,14 @@ organization := "com.livestream"
 
 name := "scredis"
 
-version := "2.0.6"
+version := "2.0.7-SNAPSHOT"
 
 scalaVersion := "2.11.2"
 
 scalacOptions ++= Seq("-deprecation")
 
 libraryDependencies ++= Seq(
-  "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "com.typesafe" % "config" % "1.2.0",
   "com.typesafe.akka" %% "akka-actor" % "2.3.3",
   "org.scalatest" %% "scalatest" % "2.2.0" % "test",

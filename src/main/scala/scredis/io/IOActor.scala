@@ -1,6 +1,6 @@
 package scredis.io
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.LazyLogging
 
 import akka.actor._
 import akka.io.{ IO, Tcp }

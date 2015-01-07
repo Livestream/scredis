@@ -1,6 +1,6 @@
 package scredis.protocol
 
-import com.typesafe.scalalogging.Logging
+import com.typesafe.scalalogging.LazyLogging
 
 import akka.actor.ActorRef
 import akka.util.ByteString
