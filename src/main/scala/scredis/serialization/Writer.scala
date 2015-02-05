@@ -1,9 +1,9 @@
 package scredis.serialization
 
-import scredis.exceptions.RedisWriterException
+import java.nio.ByteBuffer
+import java.util.UUID
 
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
+import scredis.exceptions.RedisWriterException
 
 /**
  * Represents the base class of all writers. You can define new writers by extending this class and
@@ -71,6 +71,15 @@ object FloatWriter extends Writer[Float] {
 
 object DoubleWriter extends Writer[Double] {
   protected def writeImpl(value: Double): Array[Byte] = UTF8StringWriter.write(value.toString())
+}
+
+object UUIDWriter extends Writer[UUID] {
+  protected def writeImpl(value: UUID): Array[Byte] = {
+    val bb = ByteBuffer.wrap(new Array[Byte](16))
+    bb.putLong(value.getMostSignificantBits)
+    bb.putLong(value.getLeastSignificantBits)
+    bb.array()
+  }
 }
 
 object AnyWriter extends Writer[Any] {

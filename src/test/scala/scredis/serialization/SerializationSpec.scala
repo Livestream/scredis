@@ -1,5 +1,7 @@
 package scredis.serialization
 
+import java.util.UUID
+
 import org.scalatest._
 import org.scalatest.concurrent._
 import scredis._
@@ -21,6 +23,7 @@ class SerializationSpec extends WordSpec
     array
   }
   private val Value = "Hello World! @#%*^!:/'asd}!虫àéç蟲"
+  private val Uuid = UUID.fromString("de305d54-75b4-431b-adb2-eb6b9e546013")
     
   private val client = Client()
   
@@ -33,6 +36,7 @@ class SerializationSpec extends WordSpec
         client.set[String, Boolean]("boolean", true).futureValue should be (true)
         client.set[String, Int]("number", 5).futureValue should be (true)
         client.set[String, Double]("decimal", 5.5).futureValue should be (true)
+        client.set[String, UUID]("uuid", Uuid).futureValue should be (true)
         client.rPush[String, Any]("list", "1", 2, 3, "4", "5")(UTF8StringWriter, AnyWriter).futureValue should be (5)
       }
     }
@@ -44,6 +48,7 @@ class SerializationSpec extends WordSpec
         client.set[Boolean, String](true, Value).futureValue should be(true)
         client.set[Int, String](5, Value).futureValue should be(true)
         client.set[Double, String](5.5, Value).futureValue should be(true)
+        client.set[UUID, String](Uuid, Value).futureValue should be(true)
         client.set[Any, String](5, Value)(AnyWriter, UTF8StringWriter).futureValue should be(true)
       }
     }
@@ -64,6 +69,8 @@ class SerializationSpec extends WordSpec
         client.get[String, Long]("number").futureValue should contain (5L)
         client.get[String, Float]("decimal").futureValue should contain (5.5)
         client.get[String, Double]("decimal").futureValue should contain (5.5)
+        client.get[String, UUID]("uuid").futureValue should contain (Uuid)
+        client.get[String, UUID]("str").futureValue should contain (null)
         client.lRange[String, Int]("list").futureValue should contain theSameElementsInOrderAs List(
           1, 2, 3, 4, 5
         )
@@ -76,6 +83,18 @@ class SerializationSpec extends WordSpec
         a [RedisReaderException] should be thrownBy {
           client.lRange[String, Boolean]("list").!
         }
+      }
+    }
+    "keys are stored with different types" should {
+      "correctly parse various types" taggedAs (V100) in {
+        client.get[Array[Byte], String](Bytes).futureValue should contain(Value)
+        client.get[Array[Byte], String](Value.getBytes("UTF-16")).futureValue should contain(Value)
+        client.get[String, String]("str").futureValue should contain(Value)
+        client.get[Boolean, String](true).futureValue should contain(Value)
+        client.get[Int, String](5).futureValue should contain(Value)
+        client.get[Double, String](5.5).futureValue should contain(Value)
+        client.get[UUID, String](Uuid).futureValue should contain(Value)
+        client.get[Any, String](5)(AnyWriter, UTF8StringReader).futureValue should contain(Value)
       }
     }
   }

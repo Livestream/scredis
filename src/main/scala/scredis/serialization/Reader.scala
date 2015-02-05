@@ -1,9 +1,8 @@
 package scredis.serialization
 
-import scredis.exceptions.RedisReaderException
+import java.util.UUID
 
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
+import scredis.exceptions.RedisReaderException
 
 /**
  * Represents the base class of all readers. You can define new readers by extending this class and
@@ -71,5 +70,22 @@ object FloatReader extends Reader[Float] {
 
 object DoubleReader extends Reader[Double] {
   protected def readImpl(bytes: Array[Byte]): Double = UTF8StringReader.read(bytes).toDouble
+}
+
+object UUIDReader extends Reader[UUID] {
+  protected def readImpl(bytes: Array[Byte]): UUID =
+    bytes.length == 16 match {
+      case false => null
+      case true =>
+        var msb = 0L
+        var lsb = 0L
+        for (i <- 0 until 8) {
+          msb = (msb << 8) | (bytes(i) & 0xff)
+        }
+        for (i <- 8 until 16) {
+          lsb = (lsb << 8) | (bytes(i) & 0xff)
+        }
+        new UUID(msb, lsb)
+    }
 }
 
