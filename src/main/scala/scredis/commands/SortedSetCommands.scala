@@ -32,7 +32,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zAdd[W: Writer](key: String, member: W, score: scredis.Score): Future[Boolean] = send(
+  def zAdd[K: Writer, W: Writer](key: K, member: W, score: scredis.Score): Future[Boolean] = send(
     ZAdd(key, Map(member -> score))
   ).map {
     case 0 => false
@@ -53,7 +53,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.4
    */
-  def zAdd[W: Writer](key: String, members: Map[W, scredis.Score]): Future[Long] = {
+  def zAdd[K: Writer, W: Writer](key: K, members: Map[W, scredis.Score]): Future[Long] = {
     if (members.isEmpty) {
       Future.successful(0)
     } else {
@@ -70,7 +70,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zCard(key: String): Future[Long] = send(ZCard(key))
+  def zCard[K: Writer](key: K): Future[Long] = send(ZCard(key))
   
   /**
    * Returns the number of elements of a sorted set belonging to a given score range.
@@ -83,7 +83,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zCount(key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit): Future[Long] = send(
+  def zCount[K: Writer](key: K, min: scredis.ScoreLimit, max: scredis.ScoreLimit): Future[Long] = send(
     ZCount(key, min, max)
   )
   
@@ -98,7 +98,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zIncrBy[W: Writer](key: String, member: W, increment: Double): Future[Double] = send(
+  def zIncrBy[K: Writer, W: Writer](key: K, member: W, increment: Double): Future[Double] = send(
     ZIncrBy(key, increment, member)
   )
   
@@ -113,8 +113,8 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zInterStore(
-    destKey: String,
+  def zInterStore[K: Writer](
+    destKey: K,
     keys: Seq[String],
     aggregate: scredis.Aggregate = scredis.Aggregate.Sum
   ): Future[Long] = send(ZInterStore(destKey, keys, aggregate))
@@ -130,8 +130,8 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zInterStoreWeighted(
-    destKey: String,
+  def zInterStoreWeighted[K: Writer](
+    destKey: K,
     keysWeightPairs: Map[String, Double],
     aggregate: scredis.Aggregate = scredis.Aggregate.Sum
   ): Future[Long] = send(ZInterStoreWeighted(destKey, keysWeightPairs, aggregate))
@@ -150,8 +150,8 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.8.9
    */
-  def zLexCount(
-    key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
+  def zLexCount[K: Writer](
+    key: K, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
   ): Future[Long] = send(ZLexCount(key, min, max))
   
   /**
@@ -174,9 +174,9 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zRange[R: Reader](
-    key: String, start: Long = 0, stop: Long = -1
-  ): Future[LinkedHashSet[R]] = send(ZRange[R, LinkedHashSet](key, start, stop))
+  def zRange[K: Writer, R: Reader](
+    key: K, start: Long = 0, stop: Long = -1
+  ): Future[LinkedHashSet[R]] = send(ZRange[K, R, LinkedHashSet](key, start, stop))
   
   /**
    * Returns a range of members with associated scores in a sorted set, by index.
@@ -198,10 +198,10 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zRangeWithScores[R: Reader](
-    key: String, start: Long = 0, stop: Long = -1
+  def zRangeWithScores[K: Writer, R: Reader](
+    key: K, start: Long = 0, stop: Long = -1
   ): Future[LinkedHashSet[(R, scredis.Score)]] = send(
-    ZRangeWithScores[R, LinkedHashSet](key, start, stop)
+    ZRangeWithScores[K, R, LinkedHashSet](key, start, stop)
   )
   
   /**
@@ -220,12 +220,12 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.8.9
    */
-  def zRangeByLex[R: Reader](
-    key: String,
+  def zRangeByLex[K: Writer, R: Reader](
+    key: K,
     min: scredis.LexicalScoreLimit,
     max: scredis.LexicalScoreLimit,
     limitOpt: Option[(Long, Int)] = None
-  ): Future[LinkedHashSet[R]] = send(ZRangeByLex[R, LinkedHashSet](key, min, max, limitOpt))
+  ): Future[LinkedHashSet[R]] = send(ZRangeByLex[K, R, LinkedHashSet](key, min, max, limitOpt))
   
   /**
    * Returns a range of members in a sorted set, by score.
@@ -244,13 +244,13 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def zRangeByScore[R: Reader](
-    key: String,
+  def zRangeByScore[K: Writer, R: Reader](
+    key: K,
     min: scredis.ScoreLimit,
     max: scredis.ScoreLimit,
     limitOpt: Option[(Long, Int)] = None
   ): Future[LinkedHashSet[R]] = send(
-    ZRangeByScore[R, LinkedHashSet](key, min, max, limitOpt)
+    ZRangeByScore[K, R, LinkedHashSet](key, min, max, limitOpt)
   )
   
   /**
@@ -270,13 +270,13 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zRangeByScoreWithScores[R: Reader](
-    key: String,
+  def zRangeByScoreWithScores[K: Writer, R: Reader](
+    key: K,
     min: scredis.ScoreLimit,
     max: scredis.ScoreLimit,
     limitOpt: Option[(Long, Int)] = None
   ): Future[LinkedHashSet[(R, scredis.Score)]] = send(
-    ZRangeByScoreWithScores[R, LinkedHashSet](key, min, max, limitOpt)
+    ZRangeByScoreWithScores[K, R, LinkedHashSet](key, min, max, limitOpt)
   )
   
   /**
@@ -290,7 +290,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zRank[W: Writer](key: String, member: W): Future[Option[Long]] = send(
+  def zRank[K: Writer, W: Writer](key: K, member: W): Future[Option[Long]] = send(
     ZRank(key, member)
   )
   
@@ -307,7 +307,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zRem[W: Writer](key: String, members: W*): Future[Long] = send(
+  def zRem[K: Writer, W: Writer](key: K, members: W*): Future[Long] = send(
     ZRem(key, members: _*)
   )
   
@@ -325,8 +325,8 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.8.9
    */
-  def zRemRangeByLex(
-    key: String,
+  def zRemRangeByLex[K: Writer](
+    key: K,
     min: scredis.LexicalScoreLimit,
     max: scredis.LexicalScoreLimit
   ): Future[Long] = send(ZRemRangeByLex(key, min, max))
@@ -347,7 +347,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zRemRangeByRank(key: String, start: Long, stop: Long): Future[Long] = send(
+  def zRemRangeByRank[K: Writer](key: K, start: Long, stop: Long): Future[Long] = send(
     ZRemRangeByRank(key, start, stop)
   )
   
@@ -364,8 +364,8 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zRemRangeByScore(
-    key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit
+  def zRemRangeByScore[K: Writer](
+    key: K, min: scredis.ScoreLimit, max: scredis.ScoreLimit
   ): Future[Long] = send(
     ZRemRangeByScore(key, min, max)
   )
@@ -384,10 +384,10 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zRevRange[R: Reader](
-    key: String, start: Long = 0, stop: Long = -1
+  def zRevRange[K: Writer, R: Reader](
+    key: K, start: Long = 0, stop: Long = -1
   ): Future[LinkedHashSet[R]] = send(
-    ZRevRange[R, LinkedHashSet](key, start, stop)
+    ZRevRange[K, R, LinkedHashSet](key, start, stop)
   )
   
   /**
@@ -405,10 +405,10 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zRevRangeWithScores[R: Reader](
-    key: String, start: Long = 0, stop: Long = -1
+  def zRevRangeWithScores[K: Writer, R: Reader](
+    key: K, start: Long = 0, stop: Long = -1
   ): Future[LinkedHashSet[(R, scredis.Score)]] = send(
-    ZRevRangeWithScores[R, LinkedHashSet](key, start, stop)
+    ZRevRangeWithScores[K, R, LinkedHashSet](key, start, stop)
   )
   
   /**
@@ -427,13 +427,13 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def zRevRangeByScore[R: Reader](
-    key: String,
+  def zRevRangeByScore[K: Writer, R: Reader](
+    key: K,
     max: scredis.ScoreLimit,
     min: scredis.ScoreLimit,
     limitOpt: Option[(Long, Int)] = None
   ): Future[LinkedHashSet[R]] = send(
-    ZRevRangeByScore[R, LinkedHashSet](key, max, min, limitOpt)
+    ZRevRangeByScore[K, R, LinkedHashSet](key, max, min, limitOpt)
   )
   
   /**
@@ -453,13 +453,13 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def zRevRangeByScoreWithScores[R: Reader](
-    key: String,
+  def zRevRangeByScoreWithScores[K: Writer, R: Reader](
+    key: K,
     max: scredis.ScoreLimit,
     min: scredis.ScoreLimit,
     limitOpt: Option[(Long, Int)] = None
   ): Future[LinkedHashSet[(R, scredis.Score)]] = send(
-    ZRevRangeByScoreWithScores[R, LinkedHashSet](key, max, min, limitOpt)
+    ZRevRangeByScoreWithScores[K, R, LinkedHashSet](key, max, min, limitOpt)
   )
   
   /**
@@ -473,7 +473,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zRevRank[W: Writer](key: String, member: W): Future[Option[Long]] = send(
+  def zRevRank[K: Writer, W: Writer](key: K, member: W): Future[Option[Long]] = send(
     ZRevRank(key, member)
   )
   
@@ -488,13 +488,13 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.8.0
    */
-  def zScan[R: Reader](
-    key: String,
+  def zScan[K: Writer, R: Reader](
+    key: K,
     cursor: Long,
     matchOpt: Option[String] = None,
     countOpt: Option[Int] = None
   ): Future[(Long, LinkedHashSet[(R, scredis.Score)])] = send(
-    ZScan[R, LinkedHashSet](
+    ZScan[K, R, LinkedHashSet](
       key = key,
       cursor = cursor,
       matchOpt = matchOpt,
@@ -513,7 +513,7 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def zScore[W: Writer](key: String, member: W): Future[Option[scredis.Score]] = send(
+  def zScore[K: Writer, W: Writer](key: K, member: W): Future[Option[scredis.Score]] = send(
     ZScore(key, member)
   )
   
@@ -528,9 +528,9 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def zUnionStore(
-    destKey: String,
-    keys: Seq[String],
+  def zUnionStore[KD: Writer, K: Writer](
+    destKey: KD,
+    keys: Seq[K],
     aggregate: scredis.Aggregate = scredis.Aggregate.Sum
   ): Future[Long] = send(ZUnionStore(destKey, keys, aggregate))
   
@@ -538,16 +538,16 @@ trait SortedSetCommands { self: Connection with NonBlockingConnection =>
    * Computes the union of multiple sorted sets and stores the resulting sorted set in a new key.
    *
    * @param destKey sorted set key
-   * @param keyWeightPairs key to weight pairs
+   * @param keysWeightPairs key to weight pairs
    * @param aggregate aggregation function (default is Sum)
    * @return the number of elements in the resulting sorted set stored at destKey
    * @throws $e if key contains a value that is not a sorted set
    *
    * @since 2.0.0
    */
-  def zUnionStoreWeighted(
-    destKey: String,
-    keysWeightPairs: Map[String, Double],
+  def zUnionStoreWeighted[KD: Writer, K: Writer](
+    destKey: KD,
+    keysWeightPairs: Map[K, Double],
     aggregate: scredis.Aggregate = scredis.Aggregate.Sum
   ): Future[Long] = send(ZUnionStoreWeighted(destKey, keysWeightPairs, aggregate))
   

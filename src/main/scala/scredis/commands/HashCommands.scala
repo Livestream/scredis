@@ -31,7 +31,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hDel(key: String, fields: String*): Future[Long] = send(HDel(key, fields: _*))
+  def hDel[K: Writer](key: K, fields: String*): Future[Long] = send(HDel(key, fields: _*))
   
   /**
    * Determines if a hash field exists.
@@ -44,7 +44,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hExists(key: String, field: String): Future[Boolean] = send(HExists(key, field))
+  def hExists[K: Writer](key: K, field: String): Future[Boolean] = send(HExists(key, field))
   
   /**
    * Returns the value of a hash field.
@@ -57,7 +57,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hGet[R: Reader](key: String, field: String): Future[Option[R]] = send(HGet(key, field))
+  def hGet[K: Writer, R: Reader](key: K, field: String): Future[Option[R]] = send(HGet(key, field))
   
   /**
    * Returns all the fields and values in a hash.
@@ -69,7 +69,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hGetAll[R: Reader](key: String): Future[Option[Map[String, R]]] = send(HGetAll(key)).map {
+  def hGetAll[K: Writer, R: Reader](key: K): Future[Option[Map[String, R]]] = send(HGetAll(key)).map {
     data => if (data.isEmpty) {
       None
     } else {
@@ -92,7 +92,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hIncrBy(key: String, field: String, count: Long): Future[Long] = send(
+  def hIncrBy[K: Writer](key: K, field: String, count: Long): Future[Long] = send(
     HIncrBy(key, field, count)
   )
   
@@ -111,7 +111,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def hIncrByFloat(key: String, field: String, count: Double): Future[Double] = send(
+  def hIncrByFloat[K: Writer](key: K, field: String, count: Double): Future[Double] = send(
     HIncrByFloat(key, field, count)
   )
   
@@ -124,7 +124,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hKeys(key: String): Future[Set[String]] = send(HKeys[Set](key))
+  def hKeys[K: Writer](key: K): Future[Set[String]] = send(HKeys[K, Set](key))
   
   /**
    * Returns the number of fields contained in the hash stored at key.
@@ -135,7 +135,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hLen(key: String): Future[Long] = send(HLen(key))
+  def hLen[K: Writer](key: K): Future[Long] = send(HLen(key))
   
   /**
    * Returns the values associated to the specified hash fields.
@@ -149,8 +149,8 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hmGet[R: Reader](key: String, fields: String*): Future[List[Option[R]]] = send(
-    HMGet[R, List](key, fields: _*)
+  def hmGet[K: Writer, R: Reader](key: K, fields: String*): Future[List[Option[R]]] = send(
+    HMGet[K, R, List](key, fields: _*)
   )
   
   /**
@@ -165,7 +165,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hmGetAsMap[R: Reader](key: String, fields: String*): Future[Map[String, R]] = send(
+  def hmGetAsMap[K: Writer, R: Reader](key: K, fields: String*): Future[Map[String, R]] = send(
     HMGetAsMap(key, fields: _*)
   )
   
@@ -181,7 +181,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hmSet[W: Writer](key: String, fieldValuePairs: Map[String, W]): Future[Unit] = send(
+  def hmSet[K: Writer, W: Writer](key: K, fieldValuePairs: Map[String, W]): Future[Unit] = send(
     HMSet(key, fieldValuePairs.toList: _*)
   )
   
@@ -196,13 +196,13 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.8.0
    */
-  def hScan[R: Reader](
-    key: String,
+  def hScan[K: Writer, R: Reader](
+    key: K,
     cursor: Long,
     matchOpt: Option[String] = None,
     countOpt: Option[Int] = None
   ): Future[(Long, List[(String, R)])] = send(
-    HScan[R, List](
+    HScan[K, R, List](
       key = key,
       cursor = cursor,
       matchOpt = matchOpt,
@@ -224,7 +224,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hSet[W: Writer](key: String, field: String, value: W): Future[Boolean] = send(
+  def hSet[K: Writer, W: Writer](key: K, field: String, value: W): Future[Boolean] = send(
     HSet(key, field, value)
   )
   
@@ -240,7 +240,7 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hSetNX[W: Writer](key: String, field: String, value: W): Future[Boolean] = send(
+  def hSetNX[K: Writer, W: Writer](key: K, field: String, value: W): Future[Boolean] = send(
     HSetNX(key, field, value)
   )
 
@@ -253,6 +253,6 @@ trait HashCommands { self: Connection with NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def hVals[R: Reader](key: String): Future[List[R]] = send(HVals[R, List](key))
+  def hVals[K: Writer, R: Reader](key: K): Future[List[R]] = send(HVals[K, R, List](key))
   
 }

@@ -2,6 +2,7 @@ package scredis.protocol.requests
 
 import scredis.protocol._
 import scredis.exceptions.RedisTransactionAbortedException
+import scredis.serialization.Writer
 
 import scala.util.Try
 
@@ -43,7 +44,9 @@ object TransactionRequests {
     }
   }
   
-  case class Watch(keys: String*) extends Request[Unit](Watch, keys: _*) {
+  case class Watch[K](keys: K*)(implicit keyWriter: Writer[K]) extends Request[Unit](
+    Watch, keys.map(keyWriter.write): _*
+  ) {
     override def decode = {  
       case SimpleStringResponse(value) => ()
     }

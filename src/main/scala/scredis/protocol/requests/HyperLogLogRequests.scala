@@ -9,22 +9,28 @@ object HyperLogLogRequests {
   object PFCount extends Command("PFCOUNT")
   object PFMerge extends Command("PFMERGE") with WriteCommand
   
-  case class PFAdd[W](key: String, elements: W*)(
-    implicit writer: Writer[W]
-  ) extends Request[Boolean](PFAdd, key +: elements.map(writer.write): _*) {
+  case class PFAdd[K, W](key: K, elements: W*)(
+    implicit keyWriter: Writer[K], writer: Writer[W]
+  ) extends Request[Boolean](
+    PFAdd, keyWriter.write(key) +: elements.map(writer.write): _*
+  ) {
     override def decode = {  
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class PFCount(keys: String*) extends Request[Long](PFCount, keys: _*) {
+  case class PFCount[K](keys: K*)(implicit keyWriter: Writer[K]) extends Request[Long](
+    PFCount, keys.map(keyWriter.write): _*
+  ) {
     override def decode = {  
       case IntegerResponse(value) => value
     }
   }
   
-  case class PFMerge(destination: String, keys: String*) extends Request[Unit](
-    PFMerge, destination +: keys: _*
+  case class PFMerge[KD, K](destination: KD, keys: K*)(
+    implicit destKeyWriter: Writer[KD], keyWriter: Writer[K]
+  ) extends Request[Unit](
+    PFMerge, destKeyWriter.write(destination) +: keys.map(keyWriter.write): _*
   ) {
     override def decode = {  
       case SimpleStringResponse(_) => ()

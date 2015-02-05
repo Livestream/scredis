@@ -1,13 +1,13 @@
 package scredis.commands
 
 import scredis.TransactionBuilder
-import scredis.io.{ Connection, NonBlockingConnection, TransactionEnabledConnection }
-import scredis.protocol.requests.TransactionRequests._
 import scredis.exceptions.RedisTransactionBuilderException
+import scredis.io.{Connection, NonBlockingConnection, TransactionEnabledConnection}
+import scredis.protocol.requests.TransactionRequests._
+import scredis.serialization.Writer
 
-import scala.util.Try
 import scala.concurrent.Future
-import scredis.TransactionBuilder
+import scala.util.Try
 
 /**
  * This trait implements transaction commands.
@@ -27,7 +27,7 @@ trait TransactionCommands {
    *
    * @since 2.2.0
    */
-  def watch(keys: String*): Future[Unit] = send(Watch(keys: _*))
+  def watch[K: Writer](keys: K*): Future[Unit] = send(Watch(keys: _*))
   
   /**
    * Forgets about all watched keys.

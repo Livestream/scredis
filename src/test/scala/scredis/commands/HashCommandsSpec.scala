@@ -346,7 +346,7 @@ class HashCommandsSpec extends WordSpec
   HScan.toString when {
     "the key does not exist" should {
       "return an empty set" taggedAs (V280) in {
-        val (next, list) = client.hScan[String]("NONEXISTENTKEY", 0).!
+        val (next, list) = client.hScan[String, String]("NONEXISTENTKEY", 0).!
         next should be (0)
         list should be (empty)
       }
@@ -354,7 +354,7 @@ class HashCommandsSpec extends WordSpec
     "the key does not contain a hash" should {
       "return an error" taggedAs (V280) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.hScan[String]("LIST", 0).!
+          client.hScan[String, String]("LIST", 0).!
         }
       }
     }
@@ -363,7 +363,7 @@ class HashCommandsSpec extends WordSpec
         for (i <- 1 to 5) {
           client.hSet("HASH", "key" + i, "value" + i)
         }
-        val (next, list) = client.hScan[String]("HASH", 0).!
+        val (next, list) = client.hScan[String, String]("HASH", 0).!
         next should be (0)
         list should contain theSameElementsAs List(
           ("key1", "value1"),
@@ -391,7 +391,7 @@ class HashCommandsSpec extends WordSpec
         val elements = ListBuffer[(String, String)]()
         var cursor = 0L
         do {
-          val (next, list) = client.hScan[String]("HASH", cursor).!
+          val (next, list) = client.hScan[String, String]("HASH", cursor).!
           elements ++= list
           cursor = next
         }
@@ -403,7 +403,7 @@ class HashCommandsSpec extends WordSpec
         val elements = ListBuffer[(String, String)]()
         var cursor = 0L
         do {
-          val (next, list) = client.hScan[String](
+          val (next, list) = client.hScan[String, String](
             "HASH", cursor, matchOpt = Some("foo*")
           ).!
           elements ++= list
@@ -419,7 +419,7 @@ class HashCommandsSpec extends WordSpec
         val elements = ListBuffer[(String, String)]()
         var cursor = 0L
         do {
-          val (next, list) = client.hScan[String](
+          val (next, list) = client.hScan[String, String](
             "HASH", cursor, matchOpt = Some("foo*"), countOpt = Some(100)
           ).!
           list should have size (10)

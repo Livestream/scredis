@@ -584,14 +584,14 @@ class KeyCommandsSpec extends WordSpec
           Some("1"), Some("2"), Some("3"), Some("4"), Some("5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "LIST", desc = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("5"), Some("4"), Some("3"), Some("2"), Some("1")
         )
         
-        client.sort[String](
-          "LIST", desc = true, limitOpt = Some((1, 2))
+        client.sort[String, String](
+          "LIST", desc = true, limitOpt = Some((1L, 2L))
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("4"), Some("3")
         )
@@ -602,13 +602,13 @@ class KeyCommandsSpec extends WordSpec
           Some("1"), Some("2"), Some("3"), Some("4"), Some("5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "LIST", get = List("VALUE-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("V1"), Some("V2"), Some("V3"), Some("V4"), Some("V5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "LIST", get = List("VALUE-*", "WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("V1"),
@@ -625,43 +625,43 @@ class KeyCommandsSpec extends WordSpec
       }
       Given("that the list contains strings")
       "lexicographically sort the list" taggedAs (V100) in {
-        client.sort[String](
+        client.sort[String, String](
           "LIST-ALPHA", alpha = true, byOpt = Some("NOSORT")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("A"), Some("C"), Some("E"), Some("B"), Some("D")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "LIST-ALPHA", alpha = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("A"), Some("B"), Some("C"), Some("D"), Some("E")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "LIST-ALPHA", alpha = true, desc = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("E"), Some("D"), Some("C"), Some("B"), Some("A")
         )
         
-        client.sort[String](
-          "LIST-ALPHA", alpha = true, desc = true, limitOpt = Some((1, 2))
+        client.sort[String, String](
+          "LIST-ALPHA", alpha = true, desc = true, limitOpt = Some((1L, 2L))
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("D"), Some("C")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "LIST-ALPHA", alpha = true, byOpt = Some("WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("A"), Some("B"), Some("C"), Some("D"), Some("E")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "LIST-ALPHA", alpha = true, get = List("VALUE-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("VA"), Some("VB"), Some("VC"), Some("VD"), Some("VE")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "LIST-ALPHA", alpha = true, get = List("VALUE-*", "WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("VA"),
@@ -690,31 +690,31 @@ class KeyCommandsSpec extends WordSpec
           Some("1"), Some("2"), Some("3"), Some("4"), Some("5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET", desc = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("5"), Some("4"), Some("3"), Some("2"), Some("1")
         )
         
-        client.sort[String](
-          "SET", desc = true, limitOpt = Some((1, 2))
+        client.sort[String, String](
+          "SET", desc = true, limitOpt = Some((1L, 2L))
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("4"), Some("3")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET", byOpt = Some("WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("1"), Some("2"), Some("3"), Some("4"), Some("5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET", get = List("VALUE-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("V1"), Some("V2"), Some("V3"), Some("V4"), Some("V5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET", get = List("VALUE-*", "WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("V1"),
@@ -731,43 +731,43 @@ class KeyCommandsSpec extends WordSpec
       }
       Given("that the set contains strings")
       "lexicographically sort the set" taggedAs (V100) in {
-        client.sort[String](
+        client.sort[String, String](
           "SET-ALPHA", alpha = true, byOpt = Some("NOSORT")
         ).futureValue should contain theSameElementsAs List(
           Some("A"), Some("B"), Some("C"), Some("D"), Some("E")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET-ALPHA", alpha = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("A"), Some("B"), Some("C"), Some("D"), Some("E")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET-ALPHA", alpha = true, desc = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("E"), Some("D"), Some("C"), Some("B"), Some("A")
         )
         
-        client.sort[String](
-          "SET-ALPHA", alpha = true, desc = true, limitOpt = Some((1, 2))
+        client.sort[String, String](
+          "SET-ALPHA", alpha = true, desc = true, limitOpt = Some((1L, 2L))
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("D"), Some("C")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET-ALPHA", alpha = true, byOpt = Some("WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("A"), Some("B"), Some("C"), Some("D"), Some("E")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET-ALPHA", alpha = true, get = List("VALUE-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("VA"), Some("VB"), Some("VC"), Some("VD"), Some("VE")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "SET-ALPHA", alpha = true, get = List("VALUE-*", "WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("VA"),
@@ -796,31 +796,31 @@ class KeyCommandsSpec extends WordSpec
           Some("1"), Some("2"), Some("3"), Some("4"), Some("5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET", desc = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("5"), Some("4"), Some("3"), Some("2"), Some("1")
         )
         
-        client.sort[String](
-          "ZSET", desc = true, limitOpt = Some((1, 2))
+        client.sort[String, String](
+          "ZSET", desc = true, limitOpt = Some((1L, 2L))
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("4"), Some("3")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET", byOpt = Some("WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("1"), Some("2"), Some("3"), Some("4"), Some("5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET", get = List("VALUE-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("V1"), Some("V2"), Some("V3"), Some("V4"), Some("V5")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET", get = List("VALUE-*", "WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("V1"),
@@ -837,43 +837,43 @@ class KeyCommandsSpec extends WordSpec
       }
       Given("that the sorted set contains strings")
       "lexicographically sort the sorted set" taggedAs (V100) in {
-        client.sort[String](
+        client.sort[String, String](
           "ZSET-ALPHA", alpha = true, byOpt = Some("NOSORT")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("E"), Some("D"), Some("C"), Some("B"), Some("A")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET-ALPHA", alpha = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("A"), Some("B"), Some("C"), Some("D"), Some("E")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET-ALPHA", alpha = true, desc = true
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("E"), Some("D"), Some("C"), Some("B"), Some("A")
         )
         
-        client.sort[String](
-          "ZSET-ALPHA", alpha = true, desc = true, limitOpt = Some((1, 2))
+        client.sort[String, String](
+          "ZSET-ALPHA", alpha = true, desc = true, limitOpt = Some((1L, 2L))
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("D"), Some("C")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET-ALPHA", alpha = true, byOpt = Some("WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("A"), Some("B"), Some("C"), Some("D"), Some("E")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET-ALPHA", alpha = true, get = List("VALUE-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("VA"), Some("VB"), Some("VC"), Some("VD"), Some("VE")
         )
         
-        client.sort[String](
+        client.sort[String, String](
           "ZSET-ALPHA", alpha = true, get = List("VALUE-*", "WEIGHT-*")
         ).futureValue should contain theSameElementsInOrderAs List(
           Some("VA"),
