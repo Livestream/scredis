@@ -1,23 +1,18 @@
 package scredis.io
 
-import com.typesafe.scalalogging.LazyLogging
-
-import akka.actor.{ Actor, ActorRef }
+import akka.actor.Actor
 import akka.util.ByteString
-
-import scredis.{ PubSubMessage, Subscription }
-import scredis.protocol.{ Protocol, Request, ErrorResponse }
+import com.typesafe.scalalogging.LazyLogging
 import scredis.exceptions.RedisProtocolException
+import scredis.protocol.{ErrorResponse, Protocol, Request}
+import scredis.{PubSubMessage, Subscription}
 
-import scala.util.Success
-import scala.collection.mutable.{ Queue => MQueue }
-import scala.concurrent.{ ExecutionContext, Future }
-
-import java.nio.ByteBuffer
+import scala.collection.mutable.{Queue => MQueue}
+import scala.concurrent.{ExecutionContext, Future}
 
 class DecoderActor extends Actor with LazyLogging {
   
-  import DecoderActor._
+  import scredis.io.DecoderActor._
   
   private var subscriptionOpt: Option[Subscription] = None
   
@@ -77,22 +72,20 @@ class DecoderActor extends Actor with LazyLogging {
                   subscription.apply(message)
                 }(ExecutionContext.global)
               } else {
-                logger.debug(s"Received unregistered PubSubMessage: $message")
+                logger.debug("Received unregistered PubSubMessage: %s", message)
               }
               case None => logger.error("Received SubscribePartition without any subscription")
             }
           }
         } catch {
-          case e: Throwable => logger.error(
-            s"Could not decode PubSubMessage: " 
-              +s"${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}",
-            e
-          )
+          case e: Throwable =>
+            val decoded = data.decodeString("UTF-8").replace("\r\n", "\\r\\n")
+            logger.error(s"Could not decode PubSubMessage: $decoded", e)
         }
       }
     }
     case Subscribe(subscription) => subscriptionOpt = Some(subscription)
-    case x => logger.error(s"Received unexpected message: $x")
+    case x: AnyRef => logger.error("Received unexpected message: %s", x)
   }
   
 }
