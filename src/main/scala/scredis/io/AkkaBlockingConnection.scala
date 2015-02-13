@@ -1,15 +1,22 @@
 package scredis.io
 
-import java.util.concurrent.locks.ReentrantLock
+import com.typesafe.scalalogging.LazyLogging
 
 import akka.actor._
+
+import scredis.Transaction
 import scredis.exceptions._
 import scredis.protocol._
+import scredis.protocol.requests.ConnectionRequests.Quit
+import scredis.protocol.requests.ServerRequests.Shutdown
 import scredis.util.UniqueNameGenerator
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.util.Try
+import scala.concurrent.{ ExecutionContext, Future, Await }
+import scala.concurrent.duration._
+
+import java.net.InetSocketAddress
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * This trait represents a blocking connection to a `Redis` server.
@@ -84,7 +91,7 @@ abstract class AkkaBlockingConnection(
   override protected def sendBlocking[A](request: Request[A])(
     implicit timeout: Duration
   ): Try[A] = withLock {
-    logger.debug("Sending blocking request: %s", request)
+    logger.debug(s"Sending blocking request: $request")
     updateState(request)
     val future = Protocol.send(request)
     Try(Await.result(future, timeout))

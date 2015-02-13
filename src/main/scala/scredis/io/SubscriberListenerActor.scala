@@ -81,7 +81,7 @@ class SubscriberListenerActor(
     decoders.route(Broadcast(DecoderActor.Subscribe(subscription)), self)
     
     subscribedChannels.foreach { channel =>
-      logger.info("Automatically re-subscribing to channel: %s", channel)
+      logger.info(s"Automatically re-subscribing to channel: $channel")
       val request = PubSubRequests.Subscribe(channel)
       if (shouldSendRequests) {
         send(request)
@@ -90,7 +90,7 @@ class SubscriberListenerActor(
       }
     }
     subscribedPatterns.foreach { pattern =>
-      logger.info("Automatically re-subscribing to pattern: %s", pattern)
+      logger.info(s"Automatically re-subscribing to pattern: $pattern")
       val request = PubSubRequests.PSubscribe(pattern)
       if (shouldSendRequests) {
         send(request)
@@ -120,14 +120,14 @@ class SubscriberListenerActor(
       requestResponsesCount += 1
       val count = message match {
         case PubSubMessage.Subscribe(channel, count) => {
-          logger.info("Subscribed to channel: %s", channel)
+          logger.info(s"Subscribed to channel: $channel")
           subscribedChannels += channel
           subscribedCount += 1
           subscribedChannelsCount += 1
           count
         }
         case PubSubMessage.PSubscribe(pattern, count) => {
-          logger.info("Subscribed to pattern: %s", pattern)
+          logger.info(s"Subscribed to pattern: $pattern")
           subscribedPatterns += pattern
           subscribedCount += 1
           subscribedPatternsCount += 1
@@ -135,7 +135,7 @@ class SubscriberListenerActor(
         }
         case PubSubMessage.Unsubscribe(channelOpt, count) => {
           channelOpt.foreach { channel =>
-            logger.info("Unsubscribed from channel: %s", channel)
+            logger.info(s"Unsubscribed from channel: $channel")
             subscribedChannels -= channel
           }
           val difference = subscribedCount - count
@@ -145,7 +145,7 @@ class SubscriberListenerActor(
         }
         case PubSubMessage.PUnsubscribe(patternOpt, count) => {
           patternOpt.foreach { pattern =>
-            logger.info("Unsubscribed from pattern: %s", pattern)
+            logger.info(s"Unsubscribed from pattern: $pattern")
             subscribedPatterns -= pattern
           }
           val difference = subscribedCount - count

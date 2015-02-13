@@ -1,18 +1,23 @@
 package scredis.io
 
-import akka.actor.Actor
-import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
-import scredis.exceptions.RedisProtocolException
-import scredis.protocol.{ErrorResponse, Protocol, Request}
-import scredis.{PubSubMessage, Subscription}
 
-import scala.collection.mutable.{Queue => MQueue}
-import scala.concurrent.{ExecutionContext, Future}
+import akka.actor.{ Actor, ActorRef }
+import akka.util.ByteString
+
+import scredis.{ PubSubMessage, Subscription }
+import scredis.protocol.{ Protocol, Request, ErrorResponse }
+import scredis.exceptions.RedisProtocolException
+
+import scala.util.Success
+import scala.collection.mutable.{ Queue => MQueue }
+import scala.concurrent.{ ExecutionContext, Future }
+
+import java.nio.ByteBuffer
 
 class DecoderActor extends Actor with LazyLogging {
   
-  import scredis.io.DecoderActor._
+  import DecoderActor._
   
   private var subscriptionOpt: Option[Subscription] = None
   
@@ -72,20 +77,22 @@ class DecoderActor extends Actor with LazyLogging {
                   subscription.apply(message)
                 }(ExecutionContext.global)
               } else {
-                logger.debug("Received unregistered PubSubMessage: %s", message)
+                logger.debug(s"Received unregistered PubSubMessage: $message")
               }
               case None => logger.error("Received SubscribePartition without any subscription")
             }
           }
         } catch {
-          case e: Throwable =>
-            val decoded = data.decodeString("UTF-8").replace("\r\n", "\\r\\n")
-            logger.error(s"Could not decode PubSubMessage: $decoded", e)
+          case e: Throwable => logger.error(
+            s"Could not decode PubSubMessage: " 
+              +s"${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}",
+            e
+          )
         }
       }
     }
     case Subscribe(subscription) => subscriptionOpt = Some(subscription)
-    case x: AnyRef => logger.error("Received unexpected message: %s", x)
+    case x => logger.error(s"Received unexpected message: $x")
   }
   
 }

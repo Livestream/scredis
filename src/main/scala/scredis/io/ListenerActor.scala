@@ -168,11 +168,8 @@ class ListenerActor(
   }
   
   protected def receive(data: ByteString): Int = {
-    // don't bother decoding data if debug is not enabled
-    if (logger.underlying.isDebugEnabled) {
-      logger.debug(s"Received data: %s", data.decodeString("UTF-8").replace("\r\n", "\\r\\n"))
-    }
-
+    logger.debug(s"Received data: ${data.decodeString("UTF-8").replace("\r\n", "\\r\\n")}")
+    
     timeoutCancellableOpt.foreach(_.cancel())
     timeoutCancellableOpt = None
     
@@ -203,7 +200,7 @@ class ListenerActor(
   }
   
   protected def unhandled: Receive = {
-    case x: AnyRef => logger.error(s"Received unexpected message: %s", x)
+    case x => logger.error(s"Received unexpected message: $x")
   }
   
   protected def always: Receive = {
@@ -392,7 +389,7 @@ class ListenerActor(
     }
     case ReceiveTimeout => handleReceiveTimeout()
     case Terminated(_) => {
-      logger.error("Could not initialize connection to %s", remote)
+      logger.error(s"Could not initialize connection to $remote")
       failAllQueuedRequests(RedisIOException(s"Could not initialize connection to $remote"))
       reconnect()
     }

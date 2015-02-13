@@ -1,17 +1,22 @@
 package scredis.io
 
-import java.net.InetSocketAddress
-import java.util.LinkedList
+import com.typesafe.scalalogging.LazyLogging
 
 import akka.actor._
-import akka.io.{IO, Tcp}
+import akka.io.{ IO, Tcp }
 import akka.util.ByteString
-import com.typesafe.scalalogging.LazyLogging
-import scredis.exceptions.RedisIOException
-import scredis.protocol.{Protocol, Request}
+import akka.event.LoggingReceive
 
+import scredis.protocol.{ Protocol, Request }
+import scredis.exceptions.RedisIOException
+
+import scala.util.{ Success, Failure }
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.{ Future, Await }
 import scala.concurrent.duration._
+
+import java.util.LinkedList
+import java.net.InetSocketAddress
 
 class IOActor(
   listenerActor: ActorRef,
@@ -22,9 +27,10 @@ class IOActor(
   tcpReceiveBufferSizeHint: Int
 ) extends Actor with LazyLogging {
   
-  import akka.io.Tcp._
-  import context.{dispatcher, system}
-  import scredis.io.IOActor._
+  import Tcp._
+  import IOActor._
+  import context.system
+  import context.dispatcher
   
   private val scheduler = context.system.scheduler
   
@@ -41,7 +47,7 @@ class IOActor(
   protected var connection: ActorRef = _
   
   protected def connect(): Unit = {
-    logger.info("Connecting to %s", remote)
+    logger.info(s"Connecting to $remote")
     IO(Tcp) ! Connect(
       remoteAddress = remote,
       options = List[akka.io.Inet.SocketOption](
@@ -92,10 +98,7 @@ class IOActor(
     }
     buffer.flip()
     val data = ByteString(buffer)
-    // don't bother decoding data if trace is not enabled
-    if (logger.underlying.isTraceEnabled) {
-      logger.trace(s"Writing data: %s", data.decodeString("UTF-8"))
-    }
+    logger.trace(s"Writing data: ${data.decodeString("UTF-8")}")
     connection ! Write(data, WriteAck)
     bufferPool.release(buffer)
     canWrite = false
@@ -130,7 +133,7 @@ class IOActor(
   }
   
   protected def fail: Receive = {
-    case x: AnyRef => logger.error("Received unhandled message: %s", x)
+    case x => logger.error(s"Received unhandled message: $x")
   }
   
   protected def become(state: Receive): Unit = context.become(state orElse always orElse fail)
@@ -144,7 +147,7 @@ class IOActor(
   
   def connecting: Receive = {
     case Connected(remote, local) => {
-      logger.info("Connected to %s", remote)
+      logger.info(s"Connected to $remote")
       connection = sender
       connection ! Register(listenerActor)
       context.watch(connection)
@@ -156,12 +159,12 @@ class IOActor(
       become(connected)
     }
     case CommandFailed(_: Connect) => {
-      logger.error("Could not connect to %s: Command failed", remote)
+      logger.error(s"Could not connect to $remote: Command failed")
       timeoutCancellableOpt.foreach(_.cancel())
       context.stop(self)
     }
     case ConnectTimeout => {
-      logger.error("Could not connect to %s: Connect timeout", remote)
+      logger.error(s"Could not connect to $remote: Connect timeout")
       context.stop(self)
     }
   }
@@ -178,14 +181,14 @@ class IOActor(
       write()
     }
     case CommandFailed(_: Write) => {
-      logger.error("Write failed")
+      logger.error(s"Write failed")
       write()
     }
   }
   
   def awaitingShutdown: Receive = {
     case request: Request[_] => {
-      request.failure(RedisIOException("Connection is being shutdown"))
+      request.failure(RedisIOException("Connection is beeing shutdown"))
       listenerActor ! ListenerActor.Remove(1)
     }
     case WriteAck =>
@@ -195,7 +198,7 @@ class IOActor(
   
   def awaitingAbort: Receive = {
     case request: Request[_] => {
-      request.failure(RedisIOException("Connection is being reset"))
+      request.failure(RedisIOException("Connection is beeing reset"))
       listenerActor ! ListenerActor.Remove(1)
     }
     case WriteAck =>
@@ -218,7 +221,7 @@ class IOActor(
       context.stop(self)
     }
     case AbortTimeout => {
-      logger.error("A timeout occurred while resetting the connection")
+      logger.error(s"A timeout occurred while resetting the connection")
       context.stop(connection)
     }
   }
