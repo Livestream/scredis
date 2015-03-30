@@ -2,7 +2,9 @@
 .classpath
 .project
 .settings/
+.idea
 target/
 /bin
 appendonly.aof
 dump.rdb
+tmp/
