@@ -429,7 +429,7 @@ class PubSubCommandsSpec extends WordSpec
     }
   }
   
-  PubSubRequests.PubSubNumSub.toString should {
+  PubSubRequests.PubSubNumSub.toString ignore {
     "return the number of subscribers for the specified channel(s)" taggedAs (V280) in {
       client.subscribe("CHANNEL1", "CHANNEL2", "CHANNEL3")(pf).futureValue should be (3)
       client.pSubscribe("BLAH*")(pf).futureValue should be (4)
