@@ -106,6 +106,13 @@ Scala 2.11.2
 ### Redis
 Redis 2.8.13 running locally (on the same machine)
 
+## Developing
+
+### Running the tests
+
+The tests require two Redis instances to be running with some specific configuration options set. 
+They can be started with the start-redis-test-instances.sh script.
+
 ### Results
 
 ```

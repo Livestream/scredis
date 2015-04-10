@@ -23,18 +23,18 @@ trait Connection {
 }
 
 trait NonBlockingConnection {
-  protected def send[A](request: Request[A]): Future[A]
+  protected[scredis] def send[A](request: Request[A]): Future[A]
 }
 
 trait TransactionEnabledConnection {
-  protected def send(transaction: Transaction): Future[Vector[Try[Any]]]
+  protected[scredis] def send(transaction: Transaction): Future[Vector[Try[Any]]]
 }
 
 trait BlockingConnection {
-  protected def sendBlocking[A](request: Request[A])(implicit timeout: Duration): Try[A]
+  protected[scredis] def sendBlocking[A](request: Request[A])(implicit timeout: Duration): Try[A]
 }
 
 trait SubscriberConnection {
-  protected def sendAsSubscriber(request: Request[_]): Future[Int]
-  protected def setSubscription(subscription: Subscription): Unit
+  protected[scredis] def sendAsSubscriber(request: Request[_]): Future[Int]
+  protected[scredis] def setSubscription(subscription: Subscription): Unit
 }

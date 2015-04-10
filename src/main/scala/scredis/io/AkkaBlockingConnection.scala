@@ -88,7 +88,7 @@ abstract class AkkaBlockingConnection(
     }
   }
   
-  override protected def sendBlocking[A](request: Request[A])(
+  override protected[scredis] def sendBlocking[A](request: Request[A])(
     implicit timeout: Duration
   ): Try[A] = withLock {
     logger.debug(s"Sending blocking request: $request")

@@ -75,7 +75,7 @@ abstract class AkkaNonBlockingConnection(
     UniqueNameGenerator.getUniqueName(s"${nameOpt.getOrElse(s"$host-$port")}-listener-actor")
   )
   
-  override protected def send[A](request: Request[A]): Future[A] = {
+  override protected[scredis] def send[A](request: Request[A]): Future[A] = {
     if (isShuttingDown) {
       Future.failed(RedisIOException("Connection has been shutdown"))
     } else {
@@ -85,7 +85,7 @@ abstract class AkkaNonBlockingConnection(
     }
   }
   
-  override protected def send(transaction: Transaction): Future[Vector[Try[Any]]] = {
+  override protected[scredis] def send(transaction: Transaction): Future[Vector[Try[Any]]] = {
     if (isShuttingDown) {
       Future.failed(RedisIOException("Connection has been shutdown"))
     } else {
