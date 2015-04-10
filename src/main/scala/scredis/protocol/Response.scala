@@ -26,8 +26,10 @@ sealed trait ClusterError
 case class Moved(hashSlot: Int, host: String, port: Int) extends ClusterError
 case class Ask(hashSlot: Int, host: String, port: Int) extends ClusterError
 case object TryAgain extends ClusterError
+case object ClusterDown extends ClusterError
+case object CrossSlot extends ClusterError
 
-case class ClusterErrorResponse(err: ClusterError) extends Response
+case class ClusterErrorResponse(error: ClusterError, message: String) extends Response
 
 case class BulkStringResponse(valueOpt: Option[Array[Byte]]) extends Response {
   def parsed[R](implicit reader: Reader[R]): Option[R] = valueOpt.map(reader.read)

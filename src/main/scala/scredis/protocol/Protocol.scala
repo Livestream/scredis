@@ -1,25 +1,19 @@
 package scredis.protocol
 
-import com.typesafe.scalalogging.LazyLogging
+import java.nio.ByteBuffer
+import java.util.concurrent.Semaphore
 
 import akka.actor.ActorRef
-import akka.util.ByteString
-
 import scredis._
 import scredis.exceptions._
 import scredis.serialization.UTF8StringReader
 import scredis.util.BufferPool
 
-import scala.collection.mutable.{ ArrayBuilder, ListBuffer, Stack }
-import scala.util.{ Try, Success, Failure }
-import scala.concurrent.{ ExecutionContext, Future, Promise, Await }
-import scala.concurrent.duration.Duration
 import scala.annotation.tailrec
-
-import java.nio.{ ByteBuffer, CharBuffer }
-import java.util.concurrent.Semaphore
-
+import scala.collection.mutable
+import scala.concurrent.Future
 import scala.language.higherKinds
+import scala.util.Try
 
 /**
  * This object implements various aspects of the `Redis` protocol.
@@ -117,8 +111,7 @@ object Protocol {
   }
   
   private def parseString(buffer: ByteBuffer): String = {
-    val bytes = new ArrayBuilder.ofByte()
-    var count = 0
+    val bytes = new mutable.ArrayBuilder.ofByte()
     var char = buffer.get()
     while (char != '\r') {
       bytes += char
@@ -196,7 +189,7 @@ object Protocol {
     var requests = 0
     var position = -1
     var arrayPosition = -1
-    val arrayStack = Stack[ArrayState]()
+    val arrayStack = mutable.Stack[ArrayState]()
     var isFragmented = false
     
     @inline @tailrec
@@ -264,7 +257,7 @@ object Protocol {
       }
     }
     
-    if (!arrayStack.isEmpty) {
+    if (arrayStack.nonEmpty) {
       isFragmented = true
     }
     
@@ -280,13 +273,53 @@ object Protocol {
   }
   
   private[scredis] def decode(buffer: ByteBuffer): Response = buffer.get() match {
-    case ErrorResponseByte         => ErrorResponse(parseString(buffer))
+    case ErrorResponseByte         => decodeError(parseString(buffer))
     case SimpleStringResponseByte  => SimpleStringResponse(parseString(buffer))
     case IntegerResponseByte       => IntegerResponse(parseLong(buffer))
     case BulkStringResponseByte    => decodeBulkStringResponse(buffer)
     case ArrayResponseByte         => ArrayResponse(parseInt(buffer), buffer)
   }
-  
+
+  /** Decode specific error responses to give clients more information for error handling. */
+  private def decodeError(message: String): Response = {
+    lazy val default = ErrorResponse(message)
+    // match for known error messages
+    val space = message.indexOf(' ')
+    if (space < 0) {
+      val errString = message.substring(0, space)
+       errString match {
+        case "MOVED" | "ASK" =>
+          try {
+            val error = decodeMoveAsk(errString, message.substring(space+1))
+            ClusterErrorResponse(error, message)
+          } catch {
+            case x: Throwable => throw RedisProtocolException(s"invalid format for MOVED or ASK error: $message" , x)
+          }
+        case "TRYAGAIN" => ClusterErrorResponse(TryAgain, message)
+        case "CLUSTERDOWN" => ClusterErrorResponse(ClusterDown, message)
+        case "CROSSSLOT" => ClusterErrorResponse(CrossSlot, message)
+
+        case _ => default // we can't explicitly encode this error, but that's probably fine.
+      }}
+
+    else default
+  }
+
+  private def decodeMoveAsk(err: String, msg: String): ClusterError = {
+    // shape of response: -MOVED 3999 127.0.0.1:6381
+    // let's just omit error handling here and leave it to the caller
+    val space = msg.indexOf(' ')
+    val hashSlot = Integer.parseInt(msg.substring(0, space))
+    val colon = msg.indexOf(':',space)
+    val host = msg.substring(space + 1, colon)
+    val port = Integer.parseInt(msg.substring(colon+1))
+
+    err match {
+      case "MOVED" => Moved(hashSlot,host,port)
+      case "ASK" => Ask(hashSlot,host,port)
+    }
+  }
+
   private[scredis] def decodePubSubResponse(
     response: Response
   ): Either[ErrorResponse, PubSubMessage] = response match {
