@@ -49,18 +49,22 @@ abstract class Request[A](command: Command, args: Any*) {
   private[scredis] def success(value: Any): Unit = {
     try {
       promise.success(value.asInstanceOf[A])
-      Protocol.release()
     } catch {
       case e: IllegalStateException =>
+    } finally {
+      // make sure we release a connection
+      Protocol.release()
     }
   }
   
   private[scredis] def failure(throwable: Throwable): Unit = {
     try {
       promise.failure(throwable)
-      Protocol.release()
     } catch {
       case e: IllegalStateException =>
+    } finally {
+      // make sure we release a connection
+      Protocol.release()
     }
   }
   
