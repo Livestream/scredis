@@ -38,7 +38,7 @@ object StringRequests {
   
   case class Append[W: Writer](key: String, value: W) extends Request[Long](
     Append, key, implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -46,7 +46,7 @@ object StringRequests {
   
   case class BitCount(
     key: String, start: Long, end: Long
-  ) extends Request[Long](BitCount, key, start, end) {
+  ) extends Request[Long](BitCount, key, start, end) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -54,10 +54,12 @@ object StringRequests {
   
   case class BitOp(
     operation: scredis.BitOp, destKey: String, keys: String*
-  ) extends Request[Long](BitOp, operation.name +: destKey +: keys: _*) {
+  ) extends Request[Long](BitOp, operation.name +: destKey +: keys: _*) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
+
+    override val key: String = destKey
   }
   
   case class BitPos(
@@ -68,31 +70,31 @@ object StringRequests {
     if (bit) 1 else 0,
     start,
     end
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class Decr(key: String) extends Request[Long](Decr, key) {
+  case class Decr(key: String) extends Request[Long](Decr, key) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class DecrBy(key: String, value: Long) extends Request[Long](DecrBy, key, value) {
+  case class DecrBy(key: String, value: Long) extends Request[Long](DecrBy, key, value) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class Get[R: Reader](key: String) extends Request[Option[R]](Get, key) {
+  case class Get[R: Reader](key: String) extends Request[Option[R]](Get, key) with Key {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class GetBit(key: String, offset: Long) extends Request[Boolean](GetBit, key, offset) {
+  case class GetBit(key: String, offset: Long) extends Request[Boolean](GetBit, key, offset) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -100,7 +102,7 @@ object StringRequests {
   
   case class GetRange[R: Reader](key: String, start: Long, end: Long) extends Request[R](
     GetRange, key, start, end
-  ) {
+  ) with Key {
     override def decode = {
       case b: BulkStringResponse => b.flattened[R]
     }
@@ -108,19 +110,19 @@ object StringRequests {
   
   case class GetSet[R: Reader, W: Writer](key: String, value: W) extends Request[Option[R]](
     GetSet, key, implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class Incr(key: String) extends Request[Long](Incr, key) {
+  case class Incr(key: String) extends Request[Long](Incr, key) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class IncrBy(key: String, value: Long) extends Request[Long](IncrBy, key, value) {
+  case class IncrBy(key: String, value: Long) extends Request[Long](IncrBy, key, value) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -128,7 +130,7 @@ object StringRequests {
   
   case class IncrByFloat(key: String, value: Double) extends Request[Double](
     IncrByFloat, key, value
-  ) {
+  ) with Key {
     override def decode = {
       case b: BulkStringResponse => b.flattened[Double]
     }
@@ -136,15 +138,17 @@ object StringRequests {
   
   case class MGet[R: Reader, CC[X] <: Traversable[X]](keys: String*)(
     implicit cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
-  ) extends Request[CC[Option[R]]](MGet, keys: _*) {
+  ) extends Request[CC[Option[R]]](MGet, keys: _*) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[Option[R], CC] {
         case b: BulkStringResponse => b.parsed[R]
       }
     }
+
+    override val key: String = keys.head
   }
   
-  case class MGetAsMap[R: Reader](keys: String*) extends Request[Map[String, R]](MGet, keys: _*) {
+  case class MGetAsMap[R: Reader](keys: String*) extends Request[Map[String, R]](MGet, keys: _*) with Key {
     override def decode = {
       case a: ArrayResponse => {
         val values = a.parsed[Option[R], List] {
@@ -156,6 +160,8 @@ object StringRequests {
         }.toMap
       }
     }
+
+    override val key: String = keys.head
   }
   
   case class MSet[W: Writer](keyValuePairs: Map[String, W]) extends Request[Unit](
@@ -165,10 +171,12 @@ object StringRequests {
         case (key, value) => (key, implicitly[Writer[W]].write(value))
       }
     ): _*
-  ) {
+  ) with Key  {
     override def decode = {
       case s: SimpleStringResponse => ()
     }
+
+    override val key: String = keyValuePairs.head._1
   }
   
   case class MSetNX[W: Writer](keyValuePairs: Map[String, W]) extends Request[Boolean](
@@ -178,15 +186,17 @@ object StringRequests {
         case (key, value) => (key, implicitly[Writer[W]].write(value))
       }
     ): _*
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
+
+    override val key: String = keyValuePairs.head._1
   }
   
   case class PSetEX[W: Writer](key: String, ttlMillis: Long, value: W) extends Request[Unit](
     PSetEX, key, ttlMillis, implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case s: SimpleStringResponse => ()
     }
@@ -208,7 +218,7 @@ object StringRequests {
       }
       args.toList
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case SimpleStringResponse(_)  => true
       case BulkStringResponse(None) => false
@@ -220,7 +230,7 @@ object StringRequests {
     key,
     offset,
     if (value) 1 else 0
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -228,7 +238,7 @@ object StringRequests {
   
   case class SetEX[W: Writer](key: String, ttlSeconds: Int, value: W) extends Request[Unit](
     SetEX, key, ttlSeconds, implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case SimpleStringResponse(_) => ()
     }
@@ -236,7 +246,7 @@ object StringRequests {
   
   case class SetNX[W: Writer](key: String, value: W) extends Request[Boolean](
     SetNX, key, implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -244,13 +254,13 @@ object StringRequests {
   
   case class SetRange[W: Writer](key: String, offset: Long, value: W) extends Request[Long](
     SetRange, key, offset, implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(length) => length
     }
   }
   
-  case class StrLen(key: String) extends Request[Long](StrLen, key) {
+  case class StrLen(key: String) extends Request[Long](StrLen, key) with Key {
     override def decode = {
       case IntegerResponse(length) => length
     }

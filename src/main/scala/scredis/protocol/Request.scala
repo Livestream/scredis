@@ -10,6 +10,11 @@ import scala.concurrent.Promise
 
 import java.nio.ByteBuffer
 
+/** A trait for requests which operate on at least one key. */
+trait Key {
+  val key: String
+}
+
 abstract class Request[A](command: Command, args: Any*) {
   private val promise = Promise[A]()
   private var _buffer: ByteBuffer = null
@@ -65,7 +70,7 @@ abstract class Request[A](command: Command, args: Any*) {
   }
   
   def decode: Decoder[A]
-  
+
   def argsCount: Int = args.size
   def isReadOnly: Boolean = command.isReadOnly
   
