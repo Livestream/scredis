@@ -165,6 +165,7 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
       val decoder = decodersIterator.next()
       val result = response match {
         case ErrorResponse(message) => Failure(RedisErrorResponseException(message))
+        case ClusterErrorResponse(error, message) => Failure(RedisClusterErrorResponseException(error, message))
         case reply => if (decoder.isDefinedAt(reply)) {
           try {
             Success(decoder.apply(reply))
