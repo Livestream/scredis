@@ -281,11 +281,12 @@ object Protocol {
   }
 
   /** Decode specific error responses to give clients more information for error handling. */
-  private def decodeError(message: String): Response = {
+  private[scredis] def decodeError(message: String): Response = {
+    println(s"decoding: $message")
     lazy val default = ErrorResponse(message)
     // match for known error messages
     val space = message.indexOf(' ')
-    if (space < 0) {
+    if (space > 0) {
       val errString = message.substring(0, space)
        errString match {
         case "MOVED" | "ASK" =>
@@ -302,10 +303,10 @@ object Protocol {
         case _ => default // we can't explicitly encode this error, but that's probably fine.
       }}
 
-    else default
+    else default // error doesn't have an expected shape, just use the message
   }
 
-  private def decodeMoveAsk(err: String, msg: String): ClusterError = {
+  private[scredis] def decodeMoveAsk(err: String, msg: String): ClusterError = {
     // shape of response: -MOVED 3999 127.0.0.1:6381
     // let's just omit error handling here and leave it to the caller
     val space = msg.indexOf(' ')

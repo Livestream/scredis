@@ -1,13 +1,12 @@
 package scredis.protocol
 
-import org.scalatest._
-import org.scalatest.concurrent._
 
 import akka.util.ByteString
+import org.scalatest._
+import org.scalacheck.Gen
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-import scredis.PubSubMessage
-
-class ProtocolSpec extends WordSpec
+class ProtocolSpec extends WordSpec with GeneratorDrivenPropertyChecks with Inside
   with GivenWhenThen
   with BeforeAndAfterAll
   with Matchers {
@@ -26,7 +25,7 @@ class ProtocolSpec extends WordSpec
     NegativeInteger ++
     BulkString ++
     Array
-  
+
   "count" when {
     "receiving different types of response" should {
       "correctly count them" in {
@@ -94,5 +93,54 @@ class ProtocolSpec extends WordSpec
       arrayResponse.length should be (3)
     }
   }
-  
+
+  val hosts = for {
+    a <- Gen.choose(0,255)
+    b <- Gen.choose(0,255)
+    c <- Gen.choose(0,255)
+    d <- Gen.choose(0,255)
+  } yield s"$a.$b.$c.$d"
+
+  val ports = Gen.choose(1,65535)
+  val slots = Gen.choose(0,16384)
+
+  "decodeMoveAsk" should {
+    "extract slot, host and port with MOVE" in {
+      forAll (slots,hosts,ports) { (slot,host,port) =>
+        val cmd = "MOVED"
+        val args = s"$slot $host:$port"
+        val Moved(slot1,host1,port1) = Protocol.decodeMoveAsk(cmd,args)
+        slot1 should be (slot)
+        host1 should be (host)
+        port1 should be (port)
+      }
+    }
+
+    "extract slot, host and port with ASK" in {
+      forAll (slots,hosts,ports) { (slot,host,port) =>
+        val cmd = "ASK"
+        val args = s"$slot $host:$port"
+        val Ask(slot1,host1,port1) = Protocol.decodeMoveAsk(cmd,args)
+        slot1 should be (slot)
+        host1 should be (host)
+        port1 should be (port)
+      }
+    }
+  }
+
+  "decodeError" should {
+    "decode a MOVED error" in {
+      forAll (slots,hosts,ports) { (slot, host, port) =>
+        val errMsg = s"MOVED $slot $host:$port"
+        val err = Protocol.decodeError(errMsg)
+        inside (err) { case (ClusterErrorResponse(Moved(s, h, p), msg)) =>
+          s should be (slot)
+          h should be (host)
+          p should be (port)
+          msg should include ("MOVED")
+        }
+      }
+    }
+  }
+
 }
