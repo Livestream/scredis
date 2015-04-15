@@ -10,17 +10,25 @@ import scala.concurrent.Promise
 
 import java.nio.ByteBuffer
 
-/** A trait for requests which operate on at least one key. */
+/** A trait for requests which operate on at least one key.
+  * Needed to handle cluster sharding. */
 trait Key {
   val key: String
 }
 
 abstract class Request[A](command: Command, args: Any*) {
-  private val promise = Promise[A]()
+  private var promise = Promise[A]()
   private var _buffer: ByteBuffer = null
   private var _bytes: Array[Byte] = null
-  val future = promise.future
+  def future = promise.future
   val repliesCount = 1
+
+  /** Reset the state of this Request to reuse it. */
+  private[scredis] def reset(): Unit = {
+    promise = Promise[A]()
+    _buffer = null
+    _bytes = null
+  }
   
   private[scredis] def encode(): Unit = if (_buffer == null && _bytes == null) {
     command match {
@@ -38,6 +46,7 @@ abstract class Request[A](command: Command, args: Any*) {
   private[scredis] def complete(response: Response): Unit = {
     response match {
       case SimpleStringResponse("QUEUED") =>
+      case ClusterErrorResponse(error,message) => failure(RedisClusterErrorResponseException(error,message))
       case ErrorResponse(message) => failure(RedisErrorResponseException(message))
       case response => try {
         success(decode(response))
