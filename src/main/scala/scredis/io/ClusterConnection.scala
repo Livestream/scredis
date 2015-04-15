@@ -6,23 +6,20 @@ import scredis.exceptions._
 import scredis.protocol._
 import scredis.util.UniqueNameGenerator
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 case class Server(host: String, port: Int, passwordOpt: Option[String])
 
 /**
- * The connection logic for a whole cluster.
+ * The connection logic for a whole Redis cluster. Handles redirection and sharding logic as specified in
+ * http://redis.io/topics/cluster-spec
  */
-class ClusterConnection(val nodes: List[Server]) extends NonBlockingConnection {
+abstract class ClusterConnection(val nodes: List[Server]) extends NonBlockingConnection {
 
   // TODO evaluate thread safety
   // hypothesis: there is no correctness issue with multiple threads updating the slot cache,
   // but there may be redundant work and inefficiencies
-
-//  class NodeConnection extends AkkaNonBlockingConnection {
-//
-//  }
 
 
   /** hash slot - connection mapping */
@@ -38,7 +35,8 @@ class ClusterConnection(val nodes: List[Server]) extends NonBlockingConnection {
     val system = ActorSystem(UniqueNameGenerator.getUniqueName(systemName))
 
     new AkkaNonBlockingConnection(
-      system = system, host = server.host, port = server.port, passwordOpt = None,
+      // TODO get these as parameters
+      system = system, host = server.host, port = server.port, passwordOpt = server.passwordOpt,
       database = 0, nameOpt = None, decodersCount = 2,
       receiveTimeoutOpt = RedisConfigDefaults.IO.ReceiveTimeoutOpt,
       connectTimeout = RedisConfigDefaults.IO.ConnectTimeout,
@@ -58,7 +56,7 @@ class ClusterConnection(val nodes: List[Server]) extends NonBlockingConnection {
   private def hashSlot(key: String): Int = 0 // FIXME dummy implementation
 
 
-  private def send[A](request: Request[A] with Key, server: Server, retry: Int): Future[A] = {
+  private def send[A](request: Request[A], server: Server, retry: Int): Future[A] = {
     // TODO better retry information, perhaps redirect limit too?
     if (retry <= 0) Future.failed(RedisIOException(s"Gave up on request after several retries: $request"))
     else {
@@ -70,17 +68,20 @@ class ClusterConnection(val nodes: List[Server]) extends NonBlockingConnection {
       connection.send(request).recoverWith {
 
         case RedisClusterErrorResponseException(Moved(slot, host, port), _) =>
-          val server: Server = Server(host, port, None)
-          hashSlots = hashSlots.updated(slot, Option(server))
-          send(request, server, retry)
-        case RedisClusterErrorResponseException(Ask(hashSlot, host, port), _) =>
-          val server = Server(host,port,None)
-          send(request, server, retry)
-        case RedisClusterErrorResponseException(TryAgain, _) =>
-          // TODO wait a bit? limited retry semantics?
-          send(request, server, retry - 1)
+          val movedServer: Server = Server(host, port, None)
+          hashSlots = hashSlots.updated(slot, Option(movedServer))
+          request.reset
+          send(request, movedServer, retry - 1)
 
-          // TODO other error cases?
+        case RedisClusterErrorResponseException(Ask(hashSlot, host, port), _) =>
+          val askServer = Server(host,port,None)
+          request.reset
+          send(request, askServer, retry - 1)
+
+        case RedisClusterErrorResponseException(TryAgain, _) =>
+          // TODO wait a bit? what's the intended semantics?
+          request.reset
+          send(request, server, retry - 1)
       }
     }
   }

@@ -11,3 +11,7 @@ with KeyCommands
 with StringCommands {
 
 }
+
+object RedisCluster {
+  def apply(nodes: List[Server]): RedisCluster = new RedisCluster(nodes)
+}

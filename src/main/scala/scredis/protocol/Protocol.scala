@@ -282,7 +282,6 @@ object Protocol {
 
   /** Decode specific error responses to give clients more information for error handling. */
   private[scredis] def decodeError(message: String): Response = {
-    println(s"decoding: $message")
     lazy val default = ErrorResponse(message)
     // match for known error messages
     val space = message.indexOf(' ')
