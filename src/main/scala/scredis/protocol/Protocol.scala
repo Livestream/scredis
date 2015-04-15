@@ -28,7 +28,7 @@ object Protocol {
     def isCompleted = (count == size)
   }
   
-  private val Encoding = "UTF-8"
+  private[scredis] val Encoding = "UTF-8"
     
   private val CrByte = '\r'.toByte
   private val CfByte = '\n'.toByte
