@@ -1,15 +1,11 @@
 package scredis
 
-import com.typesafe.config.Config
-
 import akka.actor._
-import akka.routing._
-
-import scredis.io.AkkaNonBlockingConnection
+import com.typesafe.config.Config
 import scredis.commands._
+import scredis.io.AkkaNonBlockingConnection
 import scredis.util.UniqueNameGenerator
 
-import scala.util.{ Success, Failure }
 import scala.concurrent.Future
 import scala.concurrent.duration._
 

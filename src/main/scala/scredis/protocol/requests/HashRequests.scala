@@ -27,13 +27,13 @@ object HashRequests {
   
   case class HDel(key: String, fields: String*) extends Request[Long](
     HDel, key +: fields: _*
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class HExists(key: String, field: String) extends Request[Boolean](HExists, key, field) {
+  case class HExists(key: String, field: String) extends Request[Boolean](HExists, key, field)  with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -41,13 +41,13 @@ object HashRequests {
   
   case class HGet[R: Reader](key: String, field: String) extends Request[Option[R]](
     HGet, key, field
-  ) {
+  )  with Key {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class HGetAll[R: Reader](key: String) extends Request[Map[String, R]](HGetAll, key) {
+  case class HGetAll[R: Reader](key: String) extends Request[Map[String, R]](HGetAll, key)  with Key {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairsMap[String, R, Map] {
         case b: BulkStringResponse => b.flattened[String]
@@ -59,7 +59,7 @@ object HashRequests {
   
   case class HIncrBy(key: String, field: String, value: Long) extends Request[Long](
     HIncrBy, key, field, value
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -67,7 +67,7 @@ object HashRequests {
   
   case class HIncrByFloat(key: String, field: String, value: Double) extends Request[Double](
     HIncrByFloat, key, field, value
-  ) {
+  ) with Key {
     override def decode = {
       case b: BulkStringResponse => b.flattened[Double]
     }
@@ -75,7 +75,7 @@ object HashRequests {
   
   case class HKeys[CC[X] <: Traversable[X]](key: String)(
     implicit cbf: CanBuildFrom[Nothing, String, CC[String]]
-  ) extends Request[CC[String]](HKeys, key) {
+  ) extends Request[CC[String]](HKeys, key) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[String, CC] {
         case b: BulkStringResponse => b.flattened[String]
@@ -83,7 +83,7 @@ object HashRequests {
     }
   }
   
-  case class HLen(key: String) extends Request[Long](HLen, key) {
+  case class HLen(key: String) extends Request[Long](HLen, key) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -91,7 +91,7 @@ object HashRequests {
   
   case class HMGet[R: Reader, CC[X] <: Traversable[X]](key: String, fields: String*)(
     implicit cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
-  ) extends Request[CC[Option[R]]](HMGet, key +: fields: _*) {
+  ) extends Request[CC[Option[R]]](HMGet, key +: fields: _*) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[Option[R], CC] {
         case b: BulkStringResponse => b.parsed[R]
@@ -101,7 +101,7 @@ object HashRequests {
   
   case class HMGetAsMap[R: Reader](key: String, fields: String*) extends Request[Map[String, R]](
     HMGet, key +: fields: _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => {
         val values = a.parsed[Option[R], List] {
@@ -124,7 +124,7 @@ object HashRequests {
         case (field, value) => (field, writer.write(value))
       }
     ): _*
-  ) {
+  ) with Key {
     override def decode = {
       case SimpleStringResponse(_) => ()
     }
@@ -145,7 +145,7 @@ object HashRequests {
       matchOpt = matchOpt,
       countOpt = countOpt
     ): _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsedAsScanResponse[(String, R), CC] {
         case a: ArrayResponse => a.parsedAsPairs[String, R, CC] {
@@ -159,7 +159,7 @@ object HashRequests {
   
   case class HSet[W: Writer](key: String, field: String, value: W) extends Request[Boolean](
     HSet, key, field, implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -167,7 +167,7 @@ object HashRequests {
   
   case class HSetNX[W: Writer](key: String, field: String, value: W) extends Request[Boolean](
     HSetNX, key, field, implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -175,7 +175,7 @@ object HashRequests {
   
   case class HVals[R: Reader, CC[X] <: Traversable[X]](key: String)(
     implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](HVals, key) {
+  ) extends Request[CC[R]](HVals, key) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
