@@ -29,6 +29,8 @@ object Protocol {
   }
   
   private[scredis] val Encoding = "UTF-8"
+
+  private[scredis] val CLUSTER_HASHSLOTS = 16384
     
   private val CrByte = '\r'.toByte
   private val CfByte = '\n'.toByte

@@ -2,14 +2,12 @@ package scredis.protocol
 
 /**
  * CRC16 Implementation according to CCITT standard Polynomial : 1021 (x^16 + x^12 + x^5 + 1)
- * his implementation is based directly on the Jedis code for the same purpose
+ * This implementation is based directly on the Jedis code for the same purpose.
  *
  * @see http://redis.io/topics/cluster-spec Appendix A. CRC16 reference implementation in ANSI C
  * @see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/util/JedisClusterCRC16.java
  */
 object ClusterCRC16 {
-
-  private val SLOTS = 16384
 
   private val LOOKUP_TABLE: Array[Int] = Array( 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5,
     0x60C6, 0x70E7, 0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF, 0x1231,
@@ -47,7 +45,7 @@ object ClusterCRC16 {
     }
     // optimization with modulo operator with power of 2
     // equivalent to getCRC16(key) % 16384
-    getCRC16(k) & (SLOTS - 1)
+    getCRC16(k) & (Protocol.CLUSTER_HASHSLOTS - 1)
   }
 
   /**
@@ -57,17 +55,19 @@ object ClusterCRC16 {
    * @return CRC16 as integer value
    * @see https://github.com/xetorthio/jedis/pull/733#issuecomment-55840331
    */
-  private def getCRC16(bytes: Array[Byte]): Int = {
+  private[scredis] def getCRC16(bytes: Array[Byte]): Int = {
     var crc: Int = 0x0000
-
-    bytes.foreach { (b: Byte) =>
+    val len = bytes.length
+    var i = 0
+    while ( i < len ) {
+      val b = bytes(i)
       crc = (crc << 8) ^ LOOKUP_TABLE(((crc >>> 8) ^ (b & 0xFF)) & 0xFF)
+      i += 1
     }
-
     crc & 0xFFFF
   }
 
-  private def getCRC16(key: String): Int = {
+  private[scredis] def getCRC16(key: String): Int = {
     getCRC16(key.getBytes(Protocol.Encoding))
   }
 

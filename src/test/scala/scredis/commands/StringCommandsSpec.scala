@@ -2,6 +2,7 @@ package scredis.commands
 
 import org.scalatest._
 import org.scalatest.concurrent._
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 import scredis._
 import scredis.protocol.requests.StringRequests._
@@ -11,11 +12,14 @@ import scredis.util.TestUtils._
 
 import scala.concurrent.duration._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class StringCommandsSpec extends WordSpec
   with GivenWhenThen
   with BeforeAndAfterAll
   with Matchers
-  with ScalaFutures {
+  with ScalaFutures
+  with GeneratorDrivenPropertyChecks {
   
   private val client = Client()
   private val SomeValue = "HelloWorld!虫àéç蟲"
@@ -576,6 +580,19 @@ class StringCommandsSpec extends WordSpec
         client.lPush("LIST", "A")
       }
     }
+    "setting an arbitrary key and value" should {
+      "succeed for all String inputs" taggedAs (V100) in {
+        forAll { (key:String, value: String) =>
+          val res = for {
+            s <- client.set(key, value)
+            g <- client.get(key)
+            d <- client.del(key)
+          } yield (s,d,g.get)
+          res.futureValue should be (true,1,value)
+        }
+      }
+    }
+
     "setWithOptions" should {
       client.del("KEY")
       

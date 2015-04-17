@@ -9,6 +9,7 @@ import scredis.util.UniqueNameGenerator
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+// TODO move this
 case class Server(host: String, port: Int)
 
 /**
@@ -20,7 +21,7 @@ case class Server(host: String, port: Int)
 abstract class ClusterConnection(val nodes: List[Server]) extends NonBlockingConnection {
 
   /** hash slot - connection mapping */
-  private var hashSlots: Vector[Option[Server]] = Vector.fill(ClusterConnection.HASHSLOTS)(None)
+  private var hashSlots: Vector[Option[Server]] = Vector.fill(Protocol.CLUSTER_HASHSLOTS)(None)
 
   /** Set of active cluster node connections. */
   // TODO it may be more efficient to save the connections in hashSlots directly
@@ -103,8 +104,4 @@ abstract class ClusterConnection(val nodes: List[Server]) extends NonBlockingCon
     }
 
   // TODO at init: fetch all hash slot-node associations: CLUSTER SLOTS
-}
-
-object ClusterConnection {
-  val HASHSLOTS = 16384
 }

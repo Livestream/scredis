@@ -102,10 +102,10 @@ class ProtocolSpec extends WordSpec with GeneratorDrivenPropertyChecks with Insi
   } yield s"$a.$b.$c.$d"
 
   val ports = Gen.choose(1,65535)
-  val slots = Gen.choose(0,16384)
+  val slots = Gen.choose(0,Protocol.CLUSTER_HASHSLOTS)
 
   "decodeMoveAsk" should {
-    "extract slot, host and port with MOVE" in {
+    "extract slot, host and port from MOVED error" in {
       forAll (slots,hosts,ports) { (slot,host,port) =>
         val cmd = "MOVED"
         val args = s"$slot $host:$port"
@@ -116,7 +116,7 @@ class ProtocolSpec extends WordSpec with GeneratorDrivenPropertyChecks with Insi
       }
     }
 
-    "extract slot, host and port with ASK" in {
+    "extract slot, host and port from ASK error" in {
       forAll (slots,hosts,ports) { (slot,host,port) =>
         val cmd = "ASK"
         val args = s"$slot $host:$port"

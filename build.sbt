@@ -31,6 +31,9 @@ publishTo <<= version { (v: String) =>
     Some("releases" at repository + "service/local/staging/deploy/maven2")
 }
 
+// required so that test actor systems don't get messed up
+fork in Test := true
+
 publishMavenStyle := true
 
 publishArtifact in Test := false
