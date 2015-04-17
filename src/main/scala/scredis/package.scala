@@ -403,5 +403,13 @@ package object scredis {
     
     override def toString = set.mkString("[", ", ", "]")
   }
+
+  /**
+   * Information about slot ranges returned by the CLUSTER SLOTS command.
+   * @param range Range of slots covered by the nodes in his range
+   * @param master the master node for this slot range
+   * @param replicas replicas of the master
+   */
+  case class ClusterSlotRange(range: (Long,Long), master: (String,Long), replicas: List[(String,Long)])
   
 }

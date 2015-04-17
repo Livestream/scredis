@@ -1,15 +1,14 @@
 package scredis.protocol
 
-import akka.util.ByteString
+import java.nio.ByteBuffer
 
+import akka.util.ByteString
+import scredis.ClusterSlotRange
 import scredis.exceptions._
 import scredis.serialization.Reader
 
-import scala.util.{Try, Success, Failure}
 import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.ListBuffer
-
-import java.nio.ByteBuffer
+import scala.util.{Failure, Success, Try}
 
 sealed trait Response
 
@@ -152,6 +151,49 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
       )
       case x => throw RedisProtocolException(s"Unexpected response for scan elements: $x")
     }
+  }
+
+  def parsedAsClusterSlotsResponse[CC[X] <: Traversable[X]](
+    implicit cbf: CanBuildFrom[Nothing, ClusterSlotRange, CC[ClusterSlotRange]]) : CC[ClusterSlotRange] = {
+    val builder = cbf()
+    var i = 0
+    try {
+      while (i < length) {
+        Protocol.decode(buffer) match {
+          case a: ArrayResponse =>
+            val slotrange = {
+              val begin = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
+              val end = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
+              Protocol.decode(buffer).asInstanceOf[ArrayResponse]
+              val masterHost = Protocol.decode(buffer).asInstanceOf[SimpleStringResponse].value
+              val masterPort = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
+
+              val replicas = Protocol.decode(buffer).asInstanceOf[ArrayResponse]
+              var r = 0
+              var replicaList: List[(String, Long)] = Nil
+              while (r < replicas.length) {
+                val replicaHost = Protocol.decode(buffer).asInstanceOf[SimpleStringResponse].value
+                val replicaPort = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
+                replicaList = (replicaHost, replicaPort) :: replicaList
+                r += 1
+              }
+
+              ClusterSlotRange((begin, end), (masterHost, masterPort), replicaList)
+            }
+
+            builder += slotrange
+
+          case other => throw RedisProtocolException(s"Expected an array parsing CLUSTER SLOTS reply, got $other")
+        }
+
+        i += 1
+      }
+    } catch {
+      case rpe: RedisProtocolException => throw rpe
+      case x: Exception => throw RedisProtocolException("Unexpected values parsing CLUSTER SLOTS reply", x)
+    }
+
+    builder.result()
   }
 
   def parsed[CC[X] <: Traversable[X]](decoders: Traversable[Decoder[Any]])(

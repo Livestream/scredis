@@ -15,6 +15,7 @@ class RedisClusterSpec extends WordSpec
   val keys = org.scalacheck.Arbitrary.arbString.arbitrary
 
   // we assume there is a local cluster started on ports 7000 - 7005
+  // see testing.md
   val cluster = RedisCluster(Server("localhost",7000) :: Nil)
 
   "writes to cluster" should {
@@ -44,5 +45,7 @@ class RedisClusterSpec extends WordSpec
       }
     }
   }
+
+  // TODO basic test for each supported / unsupported command
 
 }

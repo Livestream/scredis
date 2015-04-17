@@ -112,8 +112,6 @@ object KeyRequests {
         case b: BulkStringResponse => b.flattened[String]
       }
     }
-
-
   }
   
   case class Migrate(

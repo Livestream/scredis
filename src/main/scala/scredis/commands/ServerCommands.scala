@@ -2,10 +2,9 @@ package scredis.commands
 
 import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.ServerRequests._
-import scredis.serialization.{ Reader, Writer }
+import scredis.serialization.Writer
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 /**
  * This trait implements server commands.
