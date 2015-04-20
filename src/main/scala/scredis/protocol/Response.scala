@@ -161,27 +161,27 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
       while (i < length) {
         Protocol.decode(buffer) match {
           case a: ArrayResponse =>
-            val slotrange = {
-              val begin = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
-              val end = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
-              Protocol.decode(buffer).asInstanceOf[ArrayResponse]
-              val masterHost = Protocol.decode(buffer).asInstanceOf[SimpleStringResponse].value
-              val masterPort = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
+            val begin = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
+            val end = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
 
-              val replicas = Protocol.decode(buffer).asInstanceOf[ArrayResponse]
-              var r = 0
-              var replicaList: List[(String, Long)] = Nil
-              while (r < replicas.length) {
-                val replicaHost = Protocol.decode(buffer).asInstanceOf[SimpleStringResponse].value
-                val replicaPort = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
-                replicaList = (replicaHost, replicaPort) :: replicaList
-                r += 1
-              }
+            // master for this slotrange
+            Protocol.decode(buffer).asInstanceOf[ArrayResponse] // mast host/port header
+            val masterHost = Protocol.decode(buffer).asInstanceOf[BulkStringResponse].parsed[String].get
+            val masterPort = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
 
-              ClusterSlotRange((begin, end), (masterHost, masterPort), replicaList)
+
+
+            var r = 3 // first replica begins at index 3
+            var replicaList: List[(String, Long)] = Nil
+            while (r < a.length) {
+              Protocol.decode(buffer).asInstanceOf[ArrayResponse] // replica header
+              val replicaHost = Protocol.decode(buffer).asInstanceOf[BulkStringResponse].parsed[String].get
+              val replicaPort = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
+              replicaList = (replicaHost, replicaPort) :: replicaList
+              r += 1
             }
 
-            builder += slotrange
+            builder += ClusterSlotRange((begin, end), (masterHost, masterPort), replicaList)
 
           case other => throw RedisProtocolException(s"Expected an array parsing CLUSTER SLOTS reply, got $other")
         }
