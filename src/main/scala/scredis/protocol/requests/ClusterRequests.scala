@@ -26,7 +26,7 @@ object ClusterRequests {
   object ClusterSlaves extends Command("CLUSTER","SLAVES")
   object ClusterSlots extends ZeroArgCommand("CLUSTER","SLOTS")
 
-  case class ClusterAddSlots(slot: Long, slots: Long*) extends Request[Unit](ClusterAddSlots, (slot +: slots): _*) {
+  case class ClusterAddSlots(slots: Long*) extends Request[Unit](ClusterAddSlots, slots: _*) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -44,7 +44,7 @@ object ClusterRequests {
     }
   }
 
-  case class ClusterDelSlots(slot: Long, slots: Long*) extends Request[Unit](ClusterDelSlots, (slot +: slots): _*) {
+  case class ClusterDelSlots(slots: Long*) extends Request[Unit](ClusterDelSlots, slots: _*) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -68,7 +68,7 @@ object ClusterRequests {
     }
   }
 
-  case class ClusterForget(node: String) extends Request[Unit](ClusterForget, node) {
+  case class ClusterForget(nodeId: String) extends Request[Unit](ClusterForget, nodeId) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -106,7 +106,7 @@ object ClusterRequests {
     }
   }
 
-  case class ClusterMeet(ip: String, port: Int) extends Request[Unit](ClusterMeet, ip, port) {
+  case class ClusterMeet(ip: String, port: Long) extends Request[Unit](ClusterMeet, ip, port) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -119,7 +119,7 @@ object ClusterRequests {
     }
   }
 
-  case class ClusterReplicate(node: String) extends Request[Unit](ClusterReplicate, node) {
+  case class ClusterReplicate(nodeId: String) extends Request[Unit](ClusterReplicate, nodeId) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -166,7 +166,7 @@ object ClusterRequests {
       case SimpleStringResponse(_) => ()
     }
   }
-  case class ClusterSetSlotNode(slot: Long, node: String) extends Request[Unit](ClusterSetSlot, slot, "NODE", node) {
+  case class ClusterSetSlotNode(slot: Long, nodeId: String) extends Request[Unit](ClusterSetSlot, slot, "NODE", nodeId) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -178,7 +178,7 @@ object ClusterRequests {
     }
   }
 
-  case class ClusterSlaves(node: String) extends Request[String](ClusterSlaves) {
+  case class ClusterSlaves(nodeId: String) extends Request[String](ClusterSlaves) {
     override def decode: Decoder[String] = {
       // TODO decode the full structure of this reply
       case b: BulkStringResponse => b.flattened[String]
