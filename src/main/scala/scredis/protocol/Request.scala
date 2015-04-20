@@ -16,6 +16,9 @@ trait Key {
   val key: String
 }
 
+/** Marker trait for requests that make sense on any member of a cluster. */
+trait Cluster
+
 abstract class Request[A](command: Command, args: Any*) {
   private var promise = Promise[A]()
   private var _buffer: ByteBuffer = null
