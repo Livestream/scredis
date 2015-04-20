@@ -3,10 +3,12 @@ package scredis
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{Matchers, WordSpec}
-import scredis.io.Server
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+/**
+ * Functionality test of Cluster client.
+ */
 class RedisClusterSpec extends WordSpec
   with Matchers
   with ScalaFutures
@@ -16,7 +18,17 @@ class RedisClusterSpec extends WordSpec
 
   // we assume there is a local cluster started on ports 7000 - 7005
   // see testing.md
-  val cluster = RedisCluster(Server("localhost",7000) :: Nil)
+  val cluster = RedisCluster(Server("localhost",7000))
+
+  "connection to cluster" should {
+    "be as expected" in {
+      val info = cluster.clusterInfo().futureValue
+
+      info("cluster_state") should be ("ok")
+      info("cluster_known_nodes").toInt should be (6) // 6 total nodes
+      info("cluster_size").toInt should be (3) // 3 master nodes
+    }
+  }
 
   "writes to cluster" should {
     "be readable" in {
