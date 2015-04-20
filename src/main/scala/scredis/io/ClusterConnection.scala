@@ -1,7 +1,7 @@
 package scredis.io
 
 import akka.actor.ActorSystem
-import scredis.RedisConfigDefaults
+import scredis.{Server, RedisConfigDefaults}
 import scredis.exceptions._
 import scredis.protocol._
 import scredis.util.UniqueNameGenerator
@@ -9,16 +9,13 @@ import scredis.util.UniqueNameGenerator
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-// TODO move this
-case class Server(host: String, port: Int)
-
 /**
  * The connection logic for a whole Redis cluster. Handles redirection and sharding logic as specified in
  * http://redis.io/topics/cluster-spec
  *
  * @param nodes List of servers to initialize the cluster connection with.
  */
-abstract class ClusterConnection(val nodes: List[Server]) extends NonBlockingConnection {
+abstract class ClusterConnection(val nodes: Seq[Server]) extends NonBlockingConnection {
 
   /** hash slot - connection mapping */
   private var hashSlots: Vector[Option[Server]] = Vector.fill(Protocol.CLUSTER_HASHSLOTS)(None)
@@ -52,11 +49,10 @@ abstract class ClusterConnection(val nodes: List[Server]) extends NonBlockingCon
     *
     * Algorithm specification: http://redis.io/topics/cluster-spec#keys-hash-tags
     */
-  private def hashSlot(key: String): Int = ClusterCRC16.getSlot(key) // FIXME dummy implementation
+  private def hashSlot(key: String): Int = ClusterCRC16.getSlot(key)
 
 
   private def send[A](request: Request[A], server: Server, retry: Int): Future[A] = {
-    // TODO better retry information, perhaps redirect limit too?
     if (retry <= 0) Future.failed(RedisIOException(s"Gave up on request after several retries: $request"))
     else {
       val connection = connections.getOrElse(server, {
@@ -95,9 +91,12 @@ abstract class ClusterConnection(val nodes: List[Server]) extends NonBlockingCon
   override protected[scredis] def send[A](request: Request[A]): Future[A] =
     request match {
       case keyReq: Request[A] with Key =>
-        // TODO perhaps choose a random server instead?
+        // TODO perhaps choose a random server instead when we can't get a cached one?
         val server = hashSlots(hashSlot(keyReq.key)).getOrElse(connections.head._1)
         send(keyReq, server, 3)
+      case clusterReq: Request[A] with Cluster =>
+        val server = connections.head._1 // TODO again, find more sane choice
+        send(clusterReq, server, 3)
       case _ =>
         // TODO what to do about non-key requests? they would be valid for any individual cluster node
         Future.failed(RedisInvalidArgumentException("This command is not supported for clusters"))

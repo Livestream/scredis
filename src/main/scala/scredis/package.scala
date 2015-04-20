@@ -411,5 +411,11 @@ package object scredis {
    * @param replicas replicas of the master
    */
   case class ClusterSlotRange(range: (Long,Long), master: (String,Long), replicas: List[(String,Long)])
-  
+
+  /**
+   * Connection information for a server node in a Redis cluster
+   * @param host host name or ip of the server
+   * @param port port of the server
+   */
+  case class Server(host: String, port: Int)
 }

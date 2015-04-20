@@ -1,15 +1,14 @@
 package scredis
 
 import scredis.commands._
-import scredis.io.{Connection, ClusterConnection, Server}
+import scredis.io.{Connection, ClusterConnection}
 
 import scala.concurrent.ExecutionContext
 
-/**
- * Created by justin on 09.04.15.
- */
-class RedisCluster private[scredis] (nodes: List[Server])
+
+private[scredis] class RedisCluster(nodes: Seq[Server])
   extends ClusterConnection(nodes) with Connection
+  with ClusterCommands
   with HashCommands
   with HyperLogLogCommands
   with KeyCommands
@@ -26,5 +25,6 @@ class RedisCluster private[scredis] (nodes: List[Server])
 }
 
 object RedisCluster {
-  def apply(nodes: List[Server]): RedisCluster = new RedisCluster(nodes)
+  // TODO all those other parameters, as applicable
+  def apply(node: Server, nodes: Server*): RedisCluster = new RedisCluster(node +: nodes)
 }
