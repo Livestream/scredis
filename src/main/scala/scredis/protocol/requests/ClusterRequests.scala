@@ -190,8 +190,14 @@ object ClusterRequests {
 
   case class ClusterSlaves(nodeId: String) extends Request[Seq[ClusterNode]](ClusterSlaves, nodeId) with Cluster {
     override def decode: Decoder[Seq[ClusterNode]] = {
-      // TODO decode the full structure of this reply
-      case b: BulkStringResponse => parseClusterNodes(b.flattened[String])
+      case a: ArrayResponse =>
+        a.parsed[ClusterNode,Vector] {
+          case b: BulkStringResponse => parseClusterNode(b.flattened)
+        }
+      case b: BulkStringResponse =>
+        // documentation says response has same format as CLUSTER NODES, but it's actually array response here
+        // let's just handle both cases, in case they change it
+        parseClusterNodes(b.flattened[String])
     }
   }
 
@@ -202,28 +208,33 @@ object ClusterRequests {
     }
   }
 
+  def clusterNodeDecoder: Decoder[ClusterNode] = {
+    case SimpleStringResponse(s) => parseClusterNode(s)
+  }
+
+  def parseClusterNode(line: String): ClusterNode = {
+    val fields = line.split(' ')
+    val id = fields(0)
+    val Array(host,port) = fields(1).split(':')
+    val flags = fields(2).split(',').toVector
+    val master = if (fields(3) == "-") None else Some(fields(3))
+    val pingSent = fields(4).toLong
+    val pongRecv = fields(5).toLong
+    val configEpoch = fields(6).toLong
+    val linkStateConnected = fields(7) == "connected"
+    val slots = fields.slice(8, fields.size).map { slot =>
+      slot.split('-') match {
+        case Array(s) => (s.toLong,s.toLong)
+        case Array(begin,end) => (begin.toLong,end.toLong)
+      }
+    }.toVector
+
+    ClusterNode(id,host,port.toLong,flags,master,pingSent,pongRecv,configEpoch,linkStateConnected,slots)
+  }
 
   def parseClusterNodes(raw: String): Seq[ClusterNode] = {
     // parse according to http://redis.io/commands/cluster-nodes#serialization-format
     val lines = raw.split('\n')
-    lines.map { line =>
-      val fields = line.split(' ')
-      val id = fields(0)
-      val Array(host,port) = fields(1).split(':')
-      val flags = fields(2).split(',').toVector
-      val master = if (fields(3) == "-") None else Some(fields(3))
-      val pingSent = fields(4).toLong
-      val pongRecv = fields(5).toLong
-      val configEpoch = fields(6).toLong
-      val linkStateConnected = if (fields(7) == "connected") true else false
-      val slots = fields.slice(8, fields.size).map { slot =>
-        slot.split('-') match {
-          case Array(s) => (s.toLong,s.toLong)
-          case Array(begin,end) => (begin.toLong,end.toLong)
-        }
-      }.toVector
-
-      ClusterNode(id,host,port.toLong,flags,master,pingSent,pongRecv,configEpoch,linkStateConnected,slots)
-    }.toVector
+    lines.map { line => parseClusterNode(line) }.toVector
   }
 }

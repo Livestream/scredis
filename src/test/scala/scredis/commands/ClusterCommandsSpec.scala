@@ -2,23 +2,24 @@ package scredis.commands
 
 import org.scalacheck.Gen
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.prop.{GeneratorDrivenPropertyChecks, TableDrivenPropertyChecks}
 import org.scalatest.{Matchers, WordSpec}
-import scredis.exceptions.{RedisErrorResponseException, RedisProtocolException}
+import scredis.exceptions.RedisErrorResponseException
 import scredis.protocol.Protocol
 import scredis.protocol.requests.ClusterRequests._
-import scredis.{ClusterSlotRange, Server, RedisCluster}
+import scredis.{ClusterSlotRange, RedisCluster, Server}
+
 import scala.concurrent.duration._
 
 
 class ClusterCommandsSpec extends WordSpec
   with Matchers
   with ScalaFutures
-  with GeneratorDrivenPropertyChecks {
+  with GeneratorDrivenPropertyChecks
+  with TableDrivenPropertyChecks {
 
 
   val cluster = RedisCluster(Server("localhost",7000))
-  import cluster.dispatcher
 
   val slots = Gen.choose(0l, Protocol.CLUSTER_HASHSLOTS.toLong - 1)
 
@@ -29,17 +30,24 @@ class ClusterCommandsSpec extends WordSpec
 
   ClusterKeyslot.toString should {
     "return a valid slot for any key" in {
-        forAll { (key: String) =>
+      forAll { (key: String) =>
         val slot = cluster.clusterKeyslot(key).futureValue
         assert( slot >= 0 && slot < Protocol.CLUSTER_HASHSLOTS)
       }
     }
   }
 
-  ClusterCountFailureReports.toString should {
-    "return a number >= 0 for all nodes" in {
-//      cluster.clusterNodes()
-      fail // TODO need the node ids for this
+  ClusterCountFailureReports.toString when {
+    "node ids are available" should {
+      val nodes = cluster.clusterNodes().futureValue
+      val nodeIds = Table("node", nodes.map{ node => node.nodeId}: _*)
+
+      "return a number >= 0 for all nodes" in {
+        forAll(nodeIds) { id =>
+          val failures = cluster.clusterCountFailureReports(id).futureValue
+          failures should be >= 0l
+        }
+      }
     }
   }
 
@@ -61,18 +69,31 @@ class ClusterCommandsSpec extends WordSpec
   }
 
   ClusterNodes.toString should {
-    "return node information" in {
-      cluster.clusterNodes().futureValue should not be empty
-      // TODO better test
+    "return node information with as many masters and slaves as contained in" in {
+      val info = cluster.clusterInfo().futureValue
+      val nodes = cluster.clusterNodes().futureValue
+      nodes should not be empty
+      val slaveCount = nodes.count { node => node.flags.contains("slave")}
+      val masterCount = nodes.size - slaveCount
+
+      val clusterSize = info("cluster_size").toInt
+      masterCount should be (clusterSize)
+      slaveCount should be (info("cluster_known_nodes").toInt - clusterSize)
     }
   }
 
   ClusterSlaves.toString when {
     "a master's id is known" should {
+
+      val nodes = cluster.clusterNodes().futureValue
+      val masterNodes = nodes.filter { node => node.flags.contains("master") }
+      val masters = Table("master", masterNodes:_*)
+
       "return slave information" in {
-  //      cluster.clusterSlaves()
-        // TODO need node information to test this
-        fail
+        forAll(masters) { master =>
+          val slaves = cluster.clusterSlaves(master.nodeId).futureValue
+          assert( slaves.forall { slave => slave.master.get == master.nodeId } )
+        }
       }
     }
 
