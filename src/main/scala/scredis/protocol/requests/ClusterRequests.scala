@@ -1,6 +1,6 @@
 package scredis.protocol.requests
 
-import scredis.{ClusterNode, ClusterSlotRange}
+import scredis.{Server, ClusterNode, ClusterSlotRange}
 import scredis.protocol._
 import scredis.serialization.Reader
 
@@ -229,7 +229,7 @@ object ClusterRequests {
       }
     }.toVector
 
-    ClusterNode(id,host,port.toLong,flags,master,pingSent,pongRecv,configEpoch,linkStateConnected,slots)
+    ClusterNode(id,Server(host,port.toInt),flags,master,pingSent,pongRecv,configEpoch,linkStateConnected,slots)
   }
 
   def parseClusterNodes(raw: String): Seq[ClusterNode] = {

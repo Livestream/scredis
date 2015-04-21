@@ -410,15 +410,14 @@ package object scredis {
    * @param master the master node for this slot range
    * @param replicas replicas of the master
    */
-  case class ClusterSlotRange(range: (Long,Long), master: (String,Long), replicas: List[(String,Long)])
+  case class ClusterSlotRange(range: (Long,Long), master: Server, replicas: List[Server])
 
   /**
    * Information returned by CLUSTER NODES and CLUSTER SLAVES command.
    *
    * @param nodeId The node ID, a 40 characters random string generated when a node is created and never changed again (
    *               unless CLUSTER RESET HARD is used).
-   * @param host The node host where clients should contact the node to run queries.
-   * @param port The node port where clients should contact the node to run queries.
+   * @param server The server (host and port) where clients should contact the node to run queries.
    * @param flags A list of comma separated flags: myself, master, slave, fail?, fail, handshake, noaddr, noflags.
    * @param master If the node is a slave, and the master is known, the master node ID, otherwise `None`
    * @param pingSent Milliseconds unix time at which the currently active ping was sent,
@@ -431,7 +430,7 @@ package object scredis {
    *                           True iff connected.
    * @param slots Slot ranges served by this node.
    */
-  case class ClusterNode(nodeId: String, host: String, port: Long, flags: Seq[String], master: Option[String],
+  case class ClusterNode(nodeId: String, server: Server, flags: Seq[String], master: Option[String],
                          pingSent: Long, pongRecv: Long, configEpoch: Long, linkStateConnected: Boolean, slots: Seq[(Long,Long)])
 
   /**

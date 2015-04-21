@@ -2,11 +2,8 @@ package scredis.protocol.requests
 
 import org.scalatest._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import scredis.ClusterNode
+import scredis.{Server, ClusterNode}
 
-/**
- * Created by justin on 21.04.15.
- */
 class RequestSpec extends WordSpec with GeneratorDrivenPropertyChecks with Inside
   with GivenWhenThen
   with BeforeAndAfterAll
@@ -29,12 +26,12 @@ class RequestSpec extends WordSpec with GeneratorDrivenPropertyChecks with Insid
       inside (res(3)) {
         case ClusterNode(
         "2593da8ffa32710544119ca8cb42a88c566589d3",
-        "127.0.0.1",7000, flags,
+        Server("127.0.0.1",7000), flags,
         None, 0, 0, 1, true,
         slots) =>
           flags should contain theSameElementsAs Seq("myself","master")
           slots should contain theSameElementsAs Seq((0l,5460l),(22l,22l),(1024l,3333l))
-        case _ => fail
+        case _ => fail()
       }
 
     }

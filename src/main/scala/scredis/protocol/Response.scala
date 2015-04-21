@@ -3,7 +3,7 @@ package scredis.protocol
 import java.nio.ByteBuffer
 
 import akka.util.ByteString
-import scredis.ClusterSlotRange
+import scredis.{Server, ClusterSlotRange}
 import scredis.exceptions._
 import scredis.serialization.Reader
 
@@ -172,16 +172,16 @@ case class ArrayResponse(length: Int, buffer: ByteBuffer) extends Response {
 
 
             var r = 3 // first replica begins at index 3
-            var replicaList: List[(String, Long)] = Nil
+            var replicaList: List[Server] = Nil
             while (r < a.length) {
               Protocol.decode(buffer).asInstanceOf[ArrayResponse] // replica header
               val replicaHost = Protocol.decode(buffer).asInstanceOf[BulkStringResponse].parsed[String].get
               val replicaPort = Protocol.decode(buffer).asInstanceOf[IntegerResponse].value
-              replicaList = (replicaHost, replicaPort) :: replicaList
+              replicaList = Server(replicaHost, replicaPort.toInt) :: replicaList
               r += 1
             }
 
-            builder += ClusterSlotRange((begin, end), (masterHost, masterPort), replicaList)
+            builder += ClusterSlotRange((begin, end), Server(masterHost, masterPort.toInt), replicaList)
 
           case other => throw RedisProtocolException(s"Expected an array parsing CLUSTER SLOTS reply, got $other")
         }

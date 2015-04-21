@@ -23,9 +23,6 @@ class ClusterCommandsSpec extends WordSpec
 
   val slots = Gen.choose(0l, Protocol.CLUSTER_HASHSLOTS.toLong - 1)
 
-  // TODO get all the node ids
-  //  cluster.clusterNodes()
-
   // informational commands
 
   ClusterKeyslot.toString should {
@@ -112,12 +109,14 @@ class ClusterCommandsSpec extends WordSpec
   ClusterSlots.toString should {
     "cover all slots" in {
       val slots = cluster.clusterSlots().futureValue
-      val fullrange = slots
+      val fullRange = slots
         .map { case ClusterSlotRange(range,_,_) => range }
         .sorted.foldLeft((0l,0l)) { case((low,high),(begin,end)) => if (begin<=high+1) (low,end) else (low,high)  }
       //         ^ does a kind of merge on the value ranges
 
-      fullrange should be ((0, Protocol.CLUSTER_HASHSLOTS-1))
+      fullRange should be ((0, Protocol.CLUSTER_HASHSLOTS-1))
     }
   }
+
+  // effecty commands
 }
