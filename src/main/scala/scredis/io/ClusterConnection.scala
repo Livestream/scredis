@@ -45,12 +45,14 @@ abstract class ClusterConnection(
 
   // bootstrapping: init with info from cluster
   // TODO is it okay to to a blocking await here? or move it to a factory method?
-  Await.ready(update, connectTimeout)
+  Await.ready(updateCache, connectTimeout)
 
   /**
-   * Update connections, hashSlots
+   * Update the ClusterClient's connections and hash slots cache.
+   * Sends a CLUSTER SLOTS query to the cluster to get a current mapping of hash slots to servers, and updates
+   * the internal cache based on the reply.
    */
-  private def update: Future[Unit] =
+  def updateCache: Future[Unit] =
     send(ClusterSlots()).map { slotRanges =>
       val newConnections = slotRanges.foldLeft(connections) {
         case (cons, ClusterSlotRange(_, master, _)) =>
@@ -124,6 +126,7 @@ abstract class ClusterConnection(
 
         case ex @ RedisIOException(message, cause) =>
           request.reset()
+          // TODO we should keep track of server failures to decide when to evict a node from the cache
           // try any server that isn't the one we tried already
           connections.keys.find { _ != server } match {
             case Some(nextServer) => send(request, nextServer, retry - 1)
