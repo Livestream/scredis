@@ -1,6 +1,6 @@
 package scredis.commands
 
-import scredis.ClusterSlotRange
+import scredis.{ClusterNode, ClusterSlotRange}
 import scredis.io.ClusterConnection
 import scredis.protocol.requests.ClusterRequests._
 
@@ -133,7 +133,7 @@ trait ClusterCommands { self: ClusterConnection =>
    *
    * @since 3.0.0
    */
-  def clusterNodes(): Future[String] = send(ClusterNodes())
+  def clusterNodes(): Future[Seq[ClusterNode]] = send(ClusterNodes())
 
   /**
    * Reconfigure a node as a slave of the specified master node.
@@ -221,7 +221,7 @@ trait ClusterCommands { self: ClusterConnection =>
    *
    * @since 3.0.0
    */
-  def clusterSlaves(nodeId: String): Future[String] = send(ClusterSlaves(nodeId))
+  def clusterSlaves(nodeId: String): Future[Seq[ClusterNode]] = send(ClusterSlaves(nodeId))
 
   /**
    * Get array of Cluster slot to node mappings.
