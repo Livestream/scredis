@@ -11,7 +11,7 @@ version := "2.1.0-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
-scalacOptions ++= Seq("-deprecation")
+scalacOptions ++= Seq("-deprecation","-feature")
 
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",

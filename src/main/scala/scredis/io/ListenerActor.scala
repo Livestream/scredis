@@ -1,28 +1,24 @@
 package scredis.io
 
-import com.typesafe.scalalogging.LazyLogging
+import java.net.InetSocketAddress
+import java.util
 
 import akka.actor._
-import akka.routing._
 import akka.io.Tcp
+import akka.routing._
 import akka.util.ByteString
-
-import scredis.{ Transaction, PubSubMessage }
-import scredis.protocol.{ Protocol, Request }
-import scredis.protocol.requests.ConnectionRequests.{ Auth, Select, Quit }
-import scredis.protocol.requests.ServerRequests
-import scredis.protocol.requests.TransactionRequests.{ Multi, Exec }
+import com.typesafe.scalalogging.LazyLogging
+import scredis.Transaction
 import scredis.exceptions.RedisIOException
+import scredis.protocol.requests.ConnectionRequests.{Auth, Quit, Select}
+import scredis.protocol.requests.ServerRequests
+import scredis.protocol.{Protocol, Request}
 import scredis.util.UniqueNameGenerator
 
-import scala.util.{ Try, Success, Failure }
-import scala.collection.mutable.{ Queue => MQueue, ListBuffer }
-import scala.concurrent.{ ExecutionContext, Promise, Future }
+import scala.collection.mutable.{ListBuffer, Queue => MQueue}
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import java.util.LinkedList
-import java.nio.ByteBuffer
-import java.net.InetSocketAddress
 
 class ListenerActor(
   host: String,
@@ -40,9 +36,8 @@ class ListenerActor(
   akkaDecoderDispatcherPath: String
 ) extends Actor with LazyLogging {
   
-  import context.dispatcher
-  
   import ListenerActor._
+  import context.dispatcher
   
   override val supervisorStrategy = OneForOneStrategy() {
     case e: Exception => SupervisorStrategy.Stop
@@ -58,8 +53,8 @@ class ListenerActor(
   private var isReceiveTimeout = false
   private var timeoutCancellableOpt: Option[Cancellable] = None
   
-  protected val queuedRequests = new LinkedList[Request[_]]()
-  protected val requests = new LinkedList[Request[_]]()
+  protected val queuedRequests = new util.LinkedList[Request[_]]()
+  protected val requests = new util.LinkedList[Request[_]]()
   protected var ioActor: ActorRef = _
   protected var decoders: Router = _
   

@@ -1,15 +1,16 @@
 package scredis.protocol.requests
 
 import scredis.protocol._
-import scredis.serialization.{ Reader, Writer }
+import scredis.serialization.{Reader, Writer}
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.FiniteDuration
+import scala.language.higherKinds
+import scala.language.postfixOps
 
 object StringRequests {
   
-  import scredis.serialization.Implicits.stringReader
   import scredis.serialization.Implicits.doubleReader
   
   object Append extends Command("APPEND") with WriteCommand

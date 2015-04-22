@@ -1,5 +1,6 @@
 package scredis.protocol.requests
 
+import scala.language.higherKinds
 import scredis.protocol._
 import scredis.serialization.{ Reader, Writer }
 

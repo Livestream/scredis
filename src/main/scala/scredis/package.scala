@@ -1,3 +1,5 @@
+
+import scala.language.implicitConversions
 import scala.concurrent.duration.FiniteDuration
 
 import scredis.serialization._

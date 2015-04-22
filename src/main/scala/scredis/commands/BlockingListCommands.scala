@@ -2,11 +2,11 @@ package scredis.commands
 
 import scredis.io.BlockingConnection
 import scredis.protocol.requests.ListRequests._
-import scredis.serialization.{ Reader, Writer }
+import scredis.serialization.Reader
 
-import scala.util.Try
-import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.language.implicitConversions
+import scala.util.Try
 
 /**
  * This trait implements blocking list commands.

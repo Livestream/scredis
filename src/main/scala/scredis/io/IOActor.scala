@@ -1,22 +1,18 @@
 package scredis.io
 
-import com.typesafe.scalalogging.LazyLogging
+import java.net.InetSocketAddress
+import java.util.LinkedList
 
 import akka.actor._
-import akka.io.{ IO, Tcp }
+import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import akka.event.LoggingReceive
-
-import scredis.protocol.{ Protocol, Request }
+import com.typesafe.scalalogging.LazyLogging
 import scredis.exceptions.RedisIOException
+import scredis.protocol.{Protocol, Request}
 
-import scala.util.{ Success, Failure }
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.{ Future, Await }
 import scala.concurrent.duration._
-
-import java.util.LinkedList
-import java.net.InetSocketAddress
+import scala.language.postfixOps
 
 class IOActor(
   listenerActor: ActorRef,
@@ -27,10 +23,9 @@ class IOActor(
   tcpReceiveBufferSizeHint: Int
 ) extends Actor with LazyLogging {
   
-  import Tcp._
   import IOActor._
-  import context.system
-  import context.dispatcher
+  import Tcp._
+  import context.{dispatcher, system}
   
   private val scheduler = context.system.scheduler
   

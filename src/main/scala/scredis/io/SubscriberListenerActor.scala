@@ -1,19 +1,16 @@
 package scredis.io
 
-import akka.actor._
 import akka.routing.Broadcast
 import akka.util.ByteString
-
-import scredis.{ PubSubMessage, Subscription }
-import scredis.protocol.Request
-import scredis.protocol.requests.ConnectionRequests.{ Auth, Quit }
-import scredis.protocol.requests.PubSubRequests
 import scredis.exceptions._
+import scredis.protocol.Request
+import scredis.protocol.requests.ConnectionRequests.Quit
+import scredis.protocol.requests.PubSubRequests
+import scredis.{PubSubMessage, Subscription}
 
-import scala.collection.mutable.{ HashSet => MHashSet }
+import scala.collection.mutable.{HashSet => MHashSet}
 import scala.concurrent.duration._
-
-import java.net.InetSocketAddress
+import scala.language.existentials
 
 class SubscriberListenerActor(
   host: String,
@@ -156,7 +153,7 @@ class SubscriberListenerActor(
         case x => throw RedisProtocolException(s"Unexpected pub sub message received: $x")
       }
       
-      val (request, argsCount) = requestOpt match {
+      val (request: Request[_], argsCount: Int) = requestOpt match {
         case Some(request) => (request, request.argsCount)
         case None => {
           val request = requests.pop()

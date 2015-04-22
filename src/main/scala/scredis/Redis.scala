@@ -8,6 +8,7 @@ import scredis.util.UniqueNameGenerator
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 /**
  * Defines a `Redis` [[scredis.Client]] supporting all non-blocking commands along with a lazily

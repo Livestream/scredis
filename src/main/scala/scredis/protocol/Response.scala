@@ -9,6 +9,7 @@ import scredis.serialization.Reader
 
 import scala.collection.generic.CanBuildFrom
 import scala.util.{Failure, Success, Try}
+import scala.language.higherKinds
 
 sealed trait Response
 

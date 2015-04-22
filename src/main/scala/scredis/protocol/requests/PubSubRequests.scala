@@ -1,16 +1,14 @@
 package scredis.protocol.requests
 
-import scredis.PubSubMessage
 import scredis.protocol._
-import scredis.exceptions.RedisProtocolException
 import scredis.serialization.Writer
 
 import scala.collection.generic.CanBuildFrom
+import scala.language.higherKinds
 
 object PubSubRequests {
   
-  import scredis.serialization.Implicits.stringReader
-  import scredis.serialization.Implicits.intReader
+  import scredis.serialization.Implicits.{intReader, stringReader}
   
   object PSubscribe extends Command("PSUBSCRIBE")
   object Publish extends Command("PUBLISH") with WriteCommand

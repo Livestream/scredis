@@ -1,5 +1,6 @@
 package scredis.commands
 
+import scala.language.postfixOps
 import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.KeyRequests._
 import scredis.serialization.{ Reader, Writer }
