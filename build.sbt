@@ -7,11 +7,11 @@ organization := "com.livestream"
 
 name := "scredis"
 
-version := "2.1.0-SNAPSHOT"
+version := "2.1.0-1and1-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
-scalacOptions ++= Seq("-deprecation","-feature")
+scalacOptions ++= Seq("-deprecation")
 
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
@@ -39,6 +39,8 @@ publishMavenStyle := true
 publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
+
+scalacOptions += "-feature"
 
 pomExtra := (
   <url>https://github.com/Livestream/scredis</url>
