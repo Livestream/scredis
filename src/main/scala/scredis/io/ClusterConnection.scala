@@ -3,13 +3,13 @@ package scredis.io
 import akka.actor.ActorSystem
 import scredis.exceptions._
 import scredis.protocol._
-import scredis.protocol.requests.ClusterRequests.ClusterSlots
+import scredis.protocol.requests.ClusterRequests.{ClusterInfo, ClusterCountKeysInSlot, ClusterSlots}
 import scredis.util.UniqueNameGenerator
 import scredis.{ClusterSlotRange, RedisConfigDefaults, Server}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{Promise, Await, Future}
+import scala.concurrent.duration._
 
 /**
  * The connection logic for a whole Redis cluster. Handles redirection and sharding logic as specified in
@@ -31,6 +31,14 @@ abstract class ClusterConnection(
     akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath
   ) extends NonBlockingConnection {
 
+  // TODO determine good values for these wait durations, make configurable?
+  /** How long to wait after tryAgain error before retrying a send. */
+  private val tryAgainWait = 10.millis
+  /** How long to wait after a CLUSTERDOWN message before retrying a send. */
+  private val clusterDownWait = 100.millis
+
+  private val scheduler = ActorSystem().scheduler
+
   /** Set of active cluster node connections. */
   // TODO it may be more efficient to save the connections in hashSlots directly
   // TODO we need some information about node health for updates
@@ -40,20 +48,23 @@ abstract class ClusterConnection(
 
   // TODO keep master-slave associations to be able to ask slaves for data with appropriate config
 
-  /** hash slot - connection mapping */ // TODO we can probably use a more efficient storage here, but this is simplest
+  /** hash slot - connection mapping */
+  // TODO we can probably use a more efficient storage here, but this is simplest
   private var hashSlots: Vector[Option[Server]] = Vector.fill(Protocol.CLUSTER_HASHSLOTS)(None)
 
   // bootstrapping: init with info from cluster
   // TODO is it okay to to a blocking await here? or move it to a factory method?
-  Await.ready(updateCache, connectTimeout)
+  Await.ready(updateCache(maxRetries), connectTimeout)
 
   /**
    * Update the ClusterClient's connections and hash slots cache.
    * Sends a CLUSTER SLOTS query to the cluster to get a current mapping of hash slots to servers, and updates
    * the internal cache based on the reply.
    */
-  def updateCache: Future[Unit] =
-    send(ClusterSlots()).map { slotRanges =>
+  private def updateCache(retry:Int): Future[Unit] = {
+
+    // only called when cluster is in ok state
+    lazy val upd = send(ClusterSlots()).map { slotRanges =>
       val newConnections = slotRanges.foldLeft(connections) {
         case (cons, ClusterSlotRange(_, master, _)) =>
           if (cons contains master) cons
@@ -72,6 +83,16 @@ abstract class ClusterConnection(
       }
     }
 
+    if (retry < 0) Future.failed(RedisClusterException("cluster_state not ok, aborting cache update"))
+    // ensure availability of cluster first
+    else send(ClusterInfo()).flatMap { info =>
+      info.get("cluster_state") match {
+        case Some("ok") => upd
+        case _ => delayed(clusterDownWait) { updateCache(retry - 1) }
+      }
+    }
+  }
+
   /** Creates a new connection to a server. */
   private def makeConnection(server: Server): NonBlockingConnection = {
     val systemName = RedisConfigDefaults.IO.Akka.ActorSystemName
@@ -86,12 +107,21 @@ abstract class ClusterConnection(
     ) {}
   }
 
+  /** Delay a Future-returning operation. */
+  private def delayed[A](delay: Duration)(f: => Future[A]): Future[A] = {
+    val delayedF = Promise[A]
+    scheduler.scheduleOnce(clusterDownWait) {
+      delayedF.tryCompleteWith(f)
+    }
+    delayedF.future
+  }
+
   /**
-   *
-   * @param request
+   * Send a Redis request object and handle cluster specific error cases
+   * @param request request object
    * @param server server to contact
    * @param retry remaining retries
-   * @tparam A
+   * @tparam A response type
    * @return
    */
   private def send[A](request: Request[A], server: Server, retry: Int): Future[A] = {
@@ -108,6 +138,7 @@ abstract class ClusterConnection(
 
         case RedisClusterErrorResponseException(Moved(slot, host, port), _) =>
           request.reset()
+          // TODO this will usually happen when cache is missed. Keep track of misses and reinitialize fully eventually
           val movedServer: Server = Server(host, port)
           // I believe it is safe to synchronize only updates to hashSlots.
           // If a read is outdated it will be redirected anyway and potentially repeat the update.
@@ -121,8 +152,13 @@ abstract class ClusterConnection(
 
         case RedisClusterErrorResponseException(TryAgain, _) =>
           request.reset()
-          // TODO wait a bit? what's the intended semantics?
-          send(request, server, retry - 1)
+          // TODO what is actually the intended semantics of TryAgain?
+          delayed(tryAgainWait) { send(request, server, retry - 1) }
+
+        case RedisClusterErrorResponseException(ClusterDown, _) =>
+          request.reset()
+          // wait a bit because the cluster may not be fully initialized or fixing itself
+          delayed(clusterDownWait) { send(request, server, retry - 1) }
 
         case ex @ RedisIOException(message, cause) =>
           request.reset()
@@ -132,20 +168,28 @@ abstract class ClusterConnection(
             case Some(nextServer) => send(request, nextServer, retry - 1)
             case None => Future.failed(RedisIOException("No valid connection available.", ex))
           }
-
-        // TODO handle CLUSTERDOWN?
       }
     }
   }
 
   override protected[scredis] def send[A](request: Request[A]): Future[A] =
     request match {
+
+      case req @ ClusterCountKeysInSlot(slot) =>
+        // special case handling for slot counting in clusters: redirect to the proper cluster node
+        if (slot >= Protocol.CLUSTER_HASHSLOTS || slot < 0)
+          Future.failed(RedisInvalidArgumentException(s"Invalid slot number: $slot"))
+        else hashSlots(slot.toInt) match {
+          case None => Future.failed(RedisIOException(s"No cluster slot information available for $slot"))
+          case Some(server) => send(req, server, maxRetries)
+        }
+
       case keyReq: Request[A] with Key =>
         // TODO when we can't get a cached server, just get the first connection
         hashSlots(ClusterCRC16.getSlot(keyReq.key)) match {
           case None =>
             if (connections.isEmpty) Future.failed(RedisIOException("No cluster node connection available"))
-            else send(keyReq, connections.head._1, 3)
+            else send(keyReq, connections.head._1, maxRetries)
           case Some(server) =>
             send(keyReq, server, maxRetries)
         }
