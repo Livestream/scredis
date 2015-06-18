@@ -1,11 +1,10 @@
 package scredis.protocol.requests
 
-import scala.language.higherKinds
-import scredis.{Server, ClusterNode, ClusterSlotRange}
 import scredis.protocol._
-import scredis.serialization.Reader
+import scredis.{ClusterNode, ClusterSlotRange, Server}
 
 import scala.collection.generic.CanBuildFrom
+import scala.language.higherKinds
 
 object ClusterRequests {
 
@@ -28,7 +27,7 @@ object ClusterRequests {
   object ClusterSlaves extends Command("CLUSTER","SLAVES")
   object ClusterSlots extends ZeroArgCommand("CLUSTER","SLOTS")
 
-  case class ClusterAddSlots(slots: Long*) extends Request[Unit](ClusterAddSlots, slots: _*) with Cluster {
+  case class ClusterAddSlots(slots: Long*) extends Request[Unit](ClusterAddSlots, slots: _*) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -49,31 +48,31 @@ object ClusterRequests {
   }
 
   case class ClusterDelSlots(slots: Long*)
-    extends Request[Unit](ClusterDelSlots, slots: _*) with Cluster {
+    extends Request[Unit](ClusterDelSlots, slots: _*) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
-  case class ClusterFailover() extends Request[Unit](ClusterFailover) with Cluster {
+  case class ClusterFailover() extends Request[Unit](ClusterFailover) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
-  case class ClusterFailoverForce() extends Request[Unit](ClusterFailover, "FORCE") with Cluster {
+  case class ClusterFailoverForce() extends Request[Unit](ClusterFailover, "FORCE") {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
-  case class ClusterFailoverTakeover() extends Request[Unit](ClusterFailover, "TAKEOVER") with Cluster {
+  case class ClusterFailoverTakeover() extends Request[Unit](ClusterFailover, "TAKEOVER") {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
-  case class ClusterForget(nodeId: String) extends Request[Unit](ClusterForget, nodeId) with Cluster {
+  case class ClusterForget(nodeId: String) extends Request[Unit](ClusterForget, nodeId) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -81,7 +80,7 @@ object ClusterRequests {
 
   case class ClusterGetKeysInSlot[CC[X] <: Traversable[X]](slot: Long, count: Long)(
     implicit cbf: CanBuildFrom[Nothing, String, CC[String]]
-    ) extends Request[CC[String]](ClusterGetKeysInSlot, slot, count) with Cluster {
+    ) extends Request[CC[String]](ClusterGetKeysInSlot, slot, count) {
 
     override def decode = {
       case a: ArrayResponse => a.parsed[String, CC] {
@@ -112,7 +111,7 @@ object ClusterRequests {
     }
   }
 
-  case class ClusterMeet(ip: String, port: Long) extends Request[Unit](ClusterMeet, ip, port) with Cluster {
+  case class ClusterMeet(ip: String, port: Long) extends Request[Unit](ClusterMeet, ip, port) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -126,7 +125,7 @@ object ClusterRequests {
     }
   }
 
-  case class ClusterReplicate(nodeId: String) extends Request[Unit](ClusterReplicate, nodeId) with Cluster {
+  case class ClusterReplicate(nodeId: String) extends Request[Unit](ClusterReplicate, nodeId) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -138,52 +137,52 @@ object ClusterRequests {
     }
   }
 
-  case class ClusterResetSoft() extends Request[Unit](ClusterReset, "SOFT") with Cluster {
+  case class ClusterResetSoft() extends Request[Unit](ClusterReset, "SOFT") {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
-  case class ClusterResetHard() extends Request[Unit](ClusterReset, "HARD") with Cluster {
+  case class ClusterResetHard() extends Request[Unit](ClusterReset, "HARD") {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
-  case class ClusterSaveConfig() extends Request[Unit](ClusterSaveConfig) with Cluster {
+  case class ClusterSaveConfig() extends Request[Unit](ClusterSaveConfig) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
   case class ClusterSetConfigEpoch(configEpoch: Long)
-    extends Request[Unit](ClusterSetConfigEpoch,configEpoch) with Cluster {
+    extends Request[Unit](ClusterSetConfigEpoch,configEpoch) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
   case class ClusterSetSlotMigrating(slot: Long, destinationNode: String)
-    extends Request[Unit](ClusterSetSlot, slot, "MIGRATING", destinationNode) with Cluster {
+    extends Request[Unit](ClusterSetSlot, slot, "MIGRATING", destinationNode) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
   case class ClusterSetSlotImporting(slot: Long, sourceNode: String)
-    extends Request[Unit](ClusterSetSlot, slot, "IMPORTING", sourceNode) with Cluster {
+    extends Request[Unit](ClusterSetSlot, slot, "IMPORTING", sourceNode) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
   case class ClusterSetSlotNode(slot: Long, nodeId: String)
-    extends Request[Unit](ClusterSetSlot, slot, "NODE", nodeId) with Cluster {
+    extends Request[Unit](ClusterSetSlot, slot, "NODE", nodeId) {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
   }
 
-  case class ClusterSetSlotStable(slot: Long) extends Request[Unit](ClusterSetSlot, slot, "STABLE") with Cluster {
+  case class ClusterSetSlotStable(slot: Long) extends Request[Unit](ClusterSetSlot, slot, "STABLE") {
     override def decode: Decoder[Unit] = {
       case SimpleStringResponse(_) => ()
     }
@@ -223,7 +222,7 @@ object ClusterRequests {
     val pongRecv = fields(5).toLong
     val configEpoch = fields(6).toLong
     val linkStateConnected = fields(7) == "connected"
-    val slots = fields.slice(8, fields.size).map { slot =>
+    val slots = fields.slice(8, fields.length).map { slot =>
       slot.split('-') match {
         case Array(s) => (s.toLong,s.toLong)
         case Array(begin,end) => (begin.toLong,end.toLong)
