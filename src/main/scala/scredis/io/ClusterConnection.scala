@@ -1,6 +1,7 @@
 package scredis.io
 
 import akka.actor.ActorSystem
+import com.typesafe.scalalogging.LazyLogging
 import scredis.exceptions._
 import scredis.protocol._
 import scredis.protocol.requests.ClusterRequests.{ClusterInfo, ClusterCountKeysInSlot, ClusterSlots}
@@ -29,7 +30,7 @@ abstract class ClusterConnection(
     akkaListenerDispatcherPath: String = RedisConfigDefaults.IO.Akka.ListenerDispatcherPath,
     akkaIODispatcherPath: String = RedisConfigDefaults.IO.Akka.IODispatcherPath,
     akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath
-  ) extends NonBlockingConnection {
+  ) extends NonBlockingConnection with LazyLogging {
 
   // TODO determine good values for these wait durations, make configurable?
   /** How long to wait after tryAgain error before retrying a send. */
@@ -81,9 +82,11 @@ abstract class ClusterConnection(
         connections = newConnections
         hashSlots = newSlots
       }
+
+      logger.info("initialized cluster slot cache")
     }
 
-    if (retry < 0) Future.failed(RedisClusterException("cluster_state not ok, aborting cache update"))
+    if (retry <= 0) Future.failed(RedisClusterException("cluster_state not ok, aborting cache update"))
     // ensure availability of cluster first
     else send(ClusterInfo()).flatMap { info =>
       info.get("cluster_state") match {
@@ -109,7 +112,7 @@ abstract class ClusterConnection(
 
   /** Delay a Future-returning operation. */
   private def delayed[A](delay: Duration)(f: => Future[A]): Future[A] = {
-    val delayedF = Promise[A]
+    val delayedF = Promise[A]()
     scheduler.scheduleOnce(clusterDownWait) {
       delayedF.tryCompleteWith(f)
     }
@@ -157,6 +160,7 @@ abstract class ClusterConnection(
 
         case RedisClusterErrorResponseException(ClusterDown, _) =>
           request.reset()
+          logger.debug(s"Received CLUSTERDOWN error from request $request. Retrying ...")
           // wait a bit because the cluster may not be fully initialized or fixing itself
           delayed(clusterDownWait) { send(request, server, retry - 1) }
 
