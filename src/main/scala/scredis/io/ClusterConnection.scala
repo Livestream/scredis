@@ -86,7 +86,7 @@ abstract class ClusterConnection(
       logger.info("initialized cluster slot cache")
     }
 
-    if (retry <= 0) Future.failed(RedisClusterException("cluster_state not ok, aborting cache update"))
+    if (retry <= 0) Future.failed(RedisClusterException(s"cluster_state not ok, aborting cache update after $maxRetries attempts"))
     // ensure availability of cluster first
     else send(ClusterInfo()).flatMap { info =>
       info.get("cluster_state") match {
@@ -124,10 +124,12 @@ abstract class ClusterConnection(
    * @param request request object
    * @param server server to contact
    * @param retry remaining retries
+   * @param remainingTimeout how much longer to retry an action, rather than number of retries
    * @tparam A response type
    * @return
    */
-  private def send[A](request: Request[A], server: Server, retry: Int): Future[A] = {
+  private def send[A](request: Request[A], server: Server,
+                      retry: Int = maxRetries, remainingTimeout: Duration = connectTimeout): Future[A] = {
     if (retry <= 0) Future.failed(RedisIOException(s"Gave up on request after several retries: $request"))
     else {
       val connection = connections.getOrElse(server, {
@@ -146,30 +148,32 @@ abstract class ClusterConnection(
           // I believe it is safe to synchronize only updates to hashSlots.
           // If a read is outdated it will be redirected anyway and potentially repeat the update.
           this.synchronized { hashSlots = hashSlots.updated(slot, Option(movedServer)) }
-          send(request, movedServer, retry - 1)
+          send(request, movedServer, retry - 1, remainingTimeout)
 
         case RedisClusterErrorResponseException(Ask(hashSlot, host, port), _) =>
           request.reset()
           val askServer = Server(host,port)
-          send(request, askServer, retry - 1)
+          send(request, askServer, retry - 1, remainingTimeout)
 
         case RedisClusterErrorResponseException(TryAgain, _) =>
           request.reset()
           // TODO what is actually the intended semantics of TryAgain?
-          delayed(tryAgainWait) { send(request, server, retry - 1) }
+          delayed(tryAgainWait) { send(request, server, retry, remainingTimeout - tryAgainWait) }
 
-        case RedisClusterErrorResponseException(ClusterDown, _) =>
+        case err @ RedisClusterErrorResponseException(ClusterDown, _) =>
           request.reset()
           logger.debug(s"Received CLUSTERDOWN error from request $request. Retrying ...")
+          val nextTimeout = remainingTimeout - clusterDownWait
+          if (nextTimeout <= 0.millis) Future.failed(RedisIOException(s"Aborted request $request after trying for ${connectTimeout}", err))
+          else delayed(clusterDownWait) { send(request, server, retry, nextTimeout) }
           // wait a bit because the cluster may not be fully initialized or fixing itself
-          delayed(clusterDownWait) { send(request, server, retry - 1) }
 
         case ex @ RedisIOException(message, cause) =>
           request.reset()
           // TODO we should keep track of server failures to decide when to evict a node from the cache
           // try any server that isn't the one we tried already
           connections.keys.find { _ != server } match {
-            case Some(nextServer) => send(request, nextServer, retry - 1)
+            case Some(nextServer) => send(request, nextServer, retry - 1, remainingTimeout)
             case None => Future.failed(RedisIOException("No valid connection available.", ex))
           }
       }
@@ -185,7 +189,7 @@ abstract class ClusterConnection(
           Future.failed(RedisInvalidArgumentException(s"Invalid slot number: $slot"))
         else hashSlots(slot.toInt) match {
           case None => Future.failed(RedisIOException(s"No cluster slot information available for $slot"))
-          case Some(server) => send(req, server, maxRetries)
+          case Some(server) => send(req, server)
         }
 
       case keyReq: Request[A] with Key =>
@@ -193,15 +197,15 @@ abstract class ClusterConnection(
         hashSlots(ClusterCRC16.getSlot(keyReq.key)) match {
           case None =>
             if (connections.isEmpty) Future.failed(RedisIOException("No cluster node connection available"))
-            else send(keyReq, connections.head._1, maxRetries)
+            else send(keyReq, connections.head._1)
           case Some(server) =>
-            send(keyReq, server, maxRetries)
+            send(keyReq, server)
         }
 
       case clusterReq: Request[A] with Cluster =>
         // requests that are valid with any cluster node
         val server = connections.head._1
-        send(clusterReq, server, maxRetries)
+        send(clusterReq, server)
       case _ =>
         // TODO what to do about non-key requests? they would be valid for any individual cluster node, but arbitrary choice is probably not what's intended..
         Future.failed(RedisInvalidArgumentException("This command is not supported for clusters"))
