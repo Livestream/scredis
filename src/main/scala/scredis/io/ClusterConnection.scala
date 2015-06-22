@@ -129,8 +129,9 @@ abstract class ClusterConnection(
    * @return
    */
   private def send[A](request: Request[A], server: Server,
-                      retry: Int = maxRetries, remainingTimeout: Duration = connectTimeout): Future[A] = {
-    if (retry <= 0) Future.failed(RedisIOException(s"Gave up on request after several retries: $request"))
+                      retry: Int = maxRetries, remainingTimeout: Duration = connectTimeout,
+                       error: Option[RedisException] = None): Future[A] = {
+    if (retry <= 0) Future.failed(RedisIOException(s"Gave up on request after $maxRetries retries: $request", error.orNull))
     else {
       val connection = connections.getOrElse(server, {
         val con = makeConnection(server)
@@ -141,40 +142,40 @@ abstract class ClusterConnection(
       // handle cases that should be retried (MOVE, ASK, TRYAGAIN)
       connection.send(request).recoverWith {
 
-        case RedisClusterErrorResponseException(Moved(slot, host, port), _) =>
+        case err @ RedisClusterErrorResponseException(Moved(slot, host, port), _) =>
           request.reset()
           // TODO this will usually happen when cache is missed. Keep track of misses and reinitialize fully eventually
           val movedServer: Server = Server(host, port)
           // I believe it is safe to synchronize only updates to hashSlots.
           // If a read is outdated it will be redirected anyway and potentially repeat the update.
           this.synchronized { hashSlots = hashSlots.updated(slot, Option(movedServer)) }
-          send(request, movedServer, retry - 1, remainingTimeout)
+          send(request, movedServer, retry - 1, remainingTimeout, Option(err))
 
-        case RedisClusterErrorResponseException(Ask(hashSlot, host, port), _) =>
+        case err @ RedisClusterErrorResponseException(Ask(hashSlot, host, port), _) =>
           request.reset()
           val askServer = Server(host,port)
-          send(request, askServer, retry - 1, remainingTimeout)
+          send(request, askServer, retry - 1, remainingTimeout, Option(err))
 
-        case RedisClusterErrorResponseException(TryAgain, _) =>
+        case err @ RedisClusterErrorResponseException(TryAgain, _) =>
           request.reset()
           // TODO what is actually the intended semantics of TryAgain?
-          delayed(tryAgainWait) { send(request, server, retry, remainingTimeout - tryAgainWait) }
+          delayed(tryAgainWait) { send(request, server, retry - 1, remainingTimeout - tryAgainWait, Option(err)) }
 
         case err @ RedisClusterErrorResponseException(ClusterDown, _) =>
           request.reset()
           logger.debug(s"Received CLUSTERDOWN error from request $request. Retrying ...")
           val nextTimeout = remainingTimeout - clusterDownWait
           if (nextTimeout <= 0.millis) Future.failed(RedisIOException(s"Aborted request $request after trying for ${connectTimeout}", err))
-          else delayed(clusterDownWait) { send(request, server, retry, nextTimeout) }
+          else delayed(clusterDownWait) { send(request, server, retry, nextTimeout, Option(err)) }
           // wait a bit because the cluster may not be fully initialized or fixing itself
 
-        case ex @ RedisIOException(message, cause) =>
+        case err @ RedisIOException(message, cause) =>
           request.reset()
           // TODO we should keep track of server failures to decide when to evict a node from the cache
           // try any server that isn't the one we tried already
           connections.keys.find { _ != server } match {
-            case Some(nextServer) => send(request, nextServer, retry - 1, remainingTimeout)
-            case None => Future.failed(RedisIOException("No valid connection available.", ex))
+            case Some(nextServer) => send(request, nextServer, retry - 1, remainingTimeout, Option(err))
+            case None => Future.failed(RedisIOException("No valid connection available.", err))
           }
       }
     }
