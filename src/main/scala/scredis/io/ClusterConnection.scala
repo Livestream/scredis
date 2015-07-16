@@ -146,7 +146,7 @@ abstract class ClusterConnection(
           request.reset()
           // TODO this will usually happen when cache is missed. Keep track of misses and reinitialize fully eventually
           val movedServer: Server = Server(host, port)
-          // I believe it is safe to synchronize only updates to hashSlots.
+          // I believe it   is safe to synchronize only updates to hashSlots.
           // If a read is outdated it will be redirected anyway and potentially repeat the update.
           this.synchronized { hashSlots = hashSlots.updated(slot, Option(movedServer)) }
           send(request, movedServer, retry - 1, remainingTimeout, Option(err))
