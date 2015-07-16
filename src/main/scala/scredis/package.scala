@@ -268,7 +268,7 @@ package object scredis {
    */
   object ShutdownModifier {
     case object Save extends ShutdownModifier("SAVE")
-    case object NoSave extends ShutdownModifier("NO SAVE")
+    case object NoSave extends ShutdownModifier("NOSAVE")
   }
   
   /**
