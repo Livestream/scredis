@@ -55,7 +55,7 @@ object Protocol {
     }
   }
   
-  private def aquire(count: Int = 1): Unit = concurrentOpt.foreach {
+  private def acquire(count: Int = 1): Unit = concurrentOpt.foreach {
     case (semaphore, true) => semaphore.acquire(count)
     case (semaphore, false) => if (!semaphore.tryAcquire(count)) {
       throw new Exception("Busy")
@@ -375,7 +375,7 @@ object Protocol {
   private[scredis] def send[A](request: Request[A])(
     implicit listenerActor: ActorRef
   ): Future[A] = {
-    aquire()
+    acquire()
     listenerActor ! request
     request.future
   }
@@ -383,7 +383,7 @@ object Protocol {
   private[scredis] def send[A](transaction: Transaction)(
     implicit listenerActor: ActorRef
   ): Future[Vector[Try[Any]]] = {
-    aquire(1 + transaction.requests.size)
+    acquire(1 + transaction.requests.size)
     listenerActor ! transaction
     transaction.execRequest.future
   }
