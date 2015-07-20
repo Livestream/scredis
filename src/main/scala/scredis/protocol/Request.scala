@@ -1,14 +1,11 @@
 package scredis.protocol
 
-import akka.util.ByteString
+import java.nio.ByteBuffer
 
 import scredis.exceptions._
 import scredis.serialization.UTF8StringReader
 
-import scala.util.{ Try, Success, Failure }
 import scala.concurrent.Promise
-
-import java.nio.ByteBuffer
 
 /** A trait for requests which operate on at least one key.
   * Needed to handle cluster sharding. */

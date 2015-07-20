@@ -1,22 +1,11 @@
 package scredis.io
 
-import com.typesafe.scalalogging.LazyLogging
-
-import akka.actor._
-
-import scredis.{ Transaction, Subscription, PubSubMessage }
-import scredis.exceptions._
 import scredis.protocol._
-import scredis.protocol.requests.ConnectionRequests.Quit
-import scredis.protocol.requests.ServerRequests.Shutdown
+import scredis.{Subscription, Transaction}
 
-import scala.util.Try
-import scala.collection.mutable.{ Map => MMap }
-import scala.concurrent.{ ExecutionContext, Future, Await }
 import scala.concurrent.duration._
-
-import java.net.InetSocketAddress
-import java.util.concurrent.atomic.AtomicInteger
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 trait Connection {
   implicit val dispatcher: ExecutionContext
