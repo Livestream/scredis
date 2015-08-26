@@ -125,6 +125,7 @@ class ListenerActor(
             this.isShuttingDown = true
             doSend(request)
             become(shuttingDown)
+            // FIXME shutdown request does not complete on success
           }
           case _ => doSend(request)
         }
