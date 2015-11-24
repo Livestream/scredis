@@ -1,8 +1,7 @@
 package scredis
 
-import com.typesafe.config.{ ConfigFactory, Config }
+import com.typesafe.config.{Config, ConfigFactory}
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 /**
@@ -74,6 +73,12 @@ class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
       val IODispatcherPath = config.getString("io-dispatcher-path")
       val ListenerDispatcherPath = config.getString("listener-dispatcher-path")
       val DecoderDispatcherPath = config.getString("decoder-dispatcher-path")
+    }
+
+    object Cluster {
+      private implicit val config = IO.config.getConfig("cluster")
+      val TryAgainWait = parseFiniteDuration("try-again-wait")
+      val ClusterDownWait = parseFiniteDuration("clusterdown-wait")
     }
   }
   

@@ -29,29 +29,31 @@ abstract class ClusterConnection(
     tcpReceiveBufferSizeHint: Int = RedisConfigDefaults.IO.TCPReceiveBufferSizeHint,
     akkaListenerDispatcherPath: String = RedisConfigDefaults.IO.Akka.ListenerDispatcherPath,
     akkaIODispatcherPath: String = RedisConfigDefaults.IO.Akka.IODispatcherPath,
-    akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath
+    akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath,
+    tryAgainWait: FiniteDuration = RedisConfigDefaults.IO.Cluster.TryAgainWait,
+    clusterDownWait: FiniteDuration = RedisConfigDefaults.IO.Cluster.ClusterDownWait
+
   ) extends NonBlockingConnection with LazyLogging {
 
-  // TODO determine good values for these wait durations, make configurable?
-  /** How long to wait after tryAgain error before retrying a send. */
-  private val tryAgainWait = 10.millis
-  /** How long to wait after a CLUSTERDOWN message before retrying a send. */
-  private val clusterDownWait = 100.millis
+  private val maxHashMisses = 100
+  private val maxConnectionMisses = 3
 
   private val scheduler = ActorSystem().scheduler
 
   /** Set of active cluster node connections. */
   // TODO it may be more efficient to save the connections in hashSlots directly
   // TODO we need some information about node health for updates
-  private var connections: Map[Server, NonBlockingConnection] =
-    nodes.map { server => (server, makeConnection(server))}.toMap
-
+  private var connections: Map[Server, (NonBlockingConnection, Int)] =
+    nodes.map { server => (server, (makeConnection(server), 0))}.toMap
 
   // TODO keep master-slave associations to be able to ask slaves for data with appropriate config
 
   /** hash slot - connection mapping */
-  // TODO we can probably use a more efficient storage here, but this is simplest
+  // TODO we can probably use a more space-efficient storage here, but this is simplest
   private var hashSlots: Vector[Option[Server]] = Vector.fill(Protocol.CLUSTER_HASHSLOTS)(None)
+
+  /** Miss counter for hashSlots accesses. */
+  private var hashMisses = 0
 
   // bootstrapping: init with info from cluster
   // TODO is it okay to to a blocking await here? or move it to a factory method?
@@ -69,7 +71,7 @@ abstract class ClusterConnection(
       val newConnections = slotRanges.foldLeft(connections) {
         case (cons, ClusterSlotRange(_, master, _)) =>
           if (cons contains master) cons
-          else connections + ((master, makeConnection(master)))
+          else connections + ((master, (makeConnection(master),0)))
       }
 
       val newSlots =
@@ -129,14 +131,17 @@ abstract class ClusterConnection(
    * @return
    */
   private def send[A](request: Request[A], server: Server,
+                      triedServers: Set[Server] = Set.empty,
                       retry: Int = maxRetries, remainingTimeout: Duration = connectTimeout,
-                       error: Option[RedisException] = None): Future[A] = {
+                      error: Option[RedisException] = None): Future[A] = {
     if (retry <= 0) Future.failed(RedisIOException(s"Gave up on request after $maxRetries retries: $request", error.orNull))
     else {
-      val connection = connections.getOrElse(server, {
+      val (connection,_) = connections.getOrElse(server, {
         val con = makeConnection(server)
-        connections = this.synchronized { connections.updated(server, con) }
-        con
+        connections = this.synchronized {
+          connections.updated(server, (con,0))
+        }
+        (con,0)
       })
 
       // handle cases that should be retried (MOVE, ASK, TRYAGAIN)
@@ -144,40 +149,66 @@ abstract class ClusterConnection(
 
         case err @ RedisClusterErrorResponseException(Moved(slot, host, port), _) =>
           request.reset()
-          // TODO this will usually happen when cache is missed. Keep track of misses and reinitialize fully eventually
+          // this will usually happen when cache is missed.
           val movedServer: Server = Server(host, port)
-          // I believe it   is safe to synchronize only updates to hashSlots.
-          // If a read is outdated it will be redirected anyway and potentially repeat the update.
-          this.synchronized { hashSlots = hashSlots.updated(slot, Option(movedServer)) }
-          send(request, movedServer, retry - 1, remainingTimeout, Option(err))
+          updateHashMisses(slot, movedServer)
+
+          send(request, movedServer, triedServers+server, retry - 1, remainingTimeout, Option(err))
 
         case err @ RedisClusterErrorResponseException(Ask(hashSlot, host, port), _) =>
           request.reset()
           val askServer = Server(host,port)
-          send(request, askServer, retry - 1, remainingTimeout, Option(err))
+          send(request, askServer, triedServers+server, retry - 1, remainingTimeout, Option(err))
 
         case err @ RedisClusterErrorResponseException(TryAgain, _) =>
           request.reset()
           // TODO what is actually the intended semantics of TryAgain?
-          delayed(tryAgainWait) { send(request, server, retry - 1, remainingTimeout - tryAgainWait, Option(err)) }
+          delayed(tryAgainWait) { send(request, server, triedServers+server, retry - 1, remainingTimeout - tryAgainWait, Option(err)) }
 
         case err @ RedisClusterErrorResponseException(ClusterDown, _) =>
           request.reset()
           logger.debug(s"Received CLUSTERDOWN error from request $request. Retrying ...")
           val nextTimeout = remainingTimeout - clusterDownWait
           if (nextTimeout <= 0.millis) Future.failed(RedisIOException(s"Aborted request $request after trying for ${connectTimeout}", err))
-          else delayed(clusterDownWait) { send(request, server, retry, nextTimeout, Option(err)) }
+          else delayed(clusterDownWait) { send(request, server, triedServers, retry, nextTimeout, Option(err)) }
           // wait a bit because the cluster may not be fully initialized or fixing itself
 
         case err @ RedisIOException(message, cause) =>
           request.reset()
-          // TODO we should keep track of server failures to decide when to evict a node from the cache
-          // try any server that isn't the one we tried already
-          connections.keys.find { _ != server } match {
-            case Some(nextServer) => send(request, nextServer, retry - 1, remainingTimeout, Option(err))
+          updateServerErrors(server)
+          val nextTriedServers = triedServers + server
+          // try any server that isn't one we tried already
+          connections.keys.find { s => !nextTriedServers.contains(s)  } match {
+            case Some(nextServer) => send(request, nextServer, nextTriedServers, retry - 1, remainingTimeout, Option(err))
             case None => Future.failed(RedisIOException("No valid connection available.", err))
           }
       }
+    }
+  }
+
+  private def updateHashMisses(slot: Int, newServer: Server) = this.synchronized {
+    // I believe it is safe to synchronize only updates to hashSlots.
+    // If another concurrent read is outdated it will be redirected anyway and potentially repeat the update.
+    hashMisses += 1
+
+    // do this update no matter what, updating cache may take a bit
+    hashSlots = hashSlots.updated(slot, Option(newServer))
+
+    if (hashMisses > maxHashMisses) {
+      hashMisses = 0
+      updateCache(maxRetries)
+    }
+  }
+
+  private def updateServerErrors(server: Server): Unit = this.synchronized {
+    for {
+      (con, errors) <- connections.get(server)
+    } {
+      val nextConnections =
+        if (errors >= maxConnectionMisses) connections - server
+        else connections.updated(server, (con,errors+1))
+
+      this.connections = nextConnections
     }
   }
 
@@ -194,11 +225,10 @@ abstract class ClusterConnection(
         }
 
       case keyReq: Request[A] with Key =>
-        // TODO when we can't get a cached server, just get the first connection
         hashSlots(ClusterCRC16.getSlot(keyReq.key)) match {
           case None =>
             if (connections.isEmpty) Future.failed(RedisIOException("No cluster node connection available"))
-            else send(keyReq, connections.head._1)
+            else send(keyReq, connections.head._1) // when we can't get a cached server, just get the first connection
           case Some(server) =>
             send(keyReq, server)
         }
@@ -208,7 +238,8 @@ abstract class ClusterConnection(
         val server = connections.head._1
         send(clusterReq, server)
       case _ =>
-        // TODO what to do about non-key requests? they would be valid for any individual cluster node, but arbitrary choice is probably not what's intended..
+        // TODO what to do about non-key requests? they would be valid for any individual cluster node,
+        // but arbitrary choice is probably not what's intended..
         Future.failed(RedisInvalidArgumentException("This command is not supported for clusters"))
     }
 
