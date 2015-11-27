@@ -21,7 +21,8 @@ import scala.concurrent.duration._
  *                   several nodes before giving up on sending a command.
  */
 abstract class ClusterConnection(
-    nodes: Seq[Server], maxRetries: Int = 4,
+    nodes: Seq[Server],
+    maxRetries: Int = 4,
     receiveTimeoutOpt: Option[FiniteDuration] = RedisConfigDefaults.IO.ReceiveTimeoutOpt,
     connectTimeout: FiniteDuration = RedisConfigDefaults.IO.ConnectTimeout,
     maxWriteBatchSize: Int = RedisConfigDefaults.IO.MaxWriteBatchSize,
@@ -32,7 +33,6 @@ abstract class ClusterConnection(
     akkaDecoderDispatcherPath: String = RedisConfigDefaults.IO.Akka.DecoderDispatcherPath,
     tryAgainWait: FiniteDuration = RedisConfigDefaults.IO.Cluster.TryAgainWait,
     clusterDownWait: FiniteDuration = RedisConfigDefaults.IO.Cluster.ClusterDownWait
-
   ) extends NonBlockingConnection with LazyLogging {
 
   private val maxHashMisses = 100

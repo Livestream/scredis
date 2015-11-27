@@ -2,6 +2,7 @@ package scredis
 
 import com.typesafe.config.{Config, ConfigFactory}
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 /**
@@ -54,6 +55,20 @@ class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
     val NameOpt = optionally("name") {
       config.getString("name")
     }
+
+    val ClusterNodes: List[Server] = config.getStringList("nodes").asScala.map { node =>
+      val hostPort = node.split(':')
+      if (hostPort.size == 1)
+        Server(node, Redis.Port)
+      else if (hostPort.size == 2) {
+        val Array(host,portStr) = hostPort
+        val port = portStr.toInt
+        Server(host, port)
+      }
+      else
+        throw new IllegalArgumentException(s"Bad cluster node setting: $node. Expecting String in the form host:port")
+    }.toList
+
   }
   
   object IO {
@@ -77,6 +92,7 @@ class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
 
     object Cluster {
       private implicit val config = IO.config.getConfig("cluster")
+
       val TryAgainWait = parseFiniteDuration("try-again-wait")
       val ClusterDownWait = parseFiniteDuration("clusterdown-wait")
     }
