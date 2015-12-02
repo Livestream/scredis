@@ -56,7 +56,7 @@ class RedisConfig(config: Config = ConfigFactory.load().getConfig("scredis")) {
       config.getString("name")
     }
 
-    val ClusterNodes: List[Server] = config.getStringList("nodes").asScala.map { node =>
+    val ClusterNodes: List[Server] = config.getStringList("cluster-nodes").asScala.map { node =>
       val hostPort = node.split(':')
       if (hostPort.size == 1)
         Server(node, Redis.Port)
