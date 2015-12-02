@@ -40,17 +40,16 @@ abstract class ClusterConnection(
 
   private val scheduler = ActorSystem().scheduler
 
-  /** Set of active cluster node connections. */
+  /** Set of active cluster node connections. Initialized from `nodes` parameter. */
   // TODO it may be more efficient to save the connections in hashSlots directly
   // TODO we need some information about node health for updates
-  private var connections: Map[Server, (NonBlockingConnection, Int)] =
-    nodes.map { server => (server, (makeConnection(server), 0))}.toMap
+  private[scredis] var connections: Map[Server, (NonBlockingConnection, Int)] = initialConnections
 
   // TODO keep master-slave associations to be able to ask slaves for data with appropriate config
 
   /** hash slot - connection mapping */
   // TODO we can probably use a more space-efficient storage here, but this is simplest
-  private var hashSlots: Vector[Option[Server]] = Vector.fill(Protocol.CLUSTER_HASHSLOTS)(None)
+  private[scredis] var hashSlots: Vector[Option[Server]] = Vector.fill(Protocol.CLUSTER_HASHSLOTS)(None)
 
   /** Miss counter for hashSlots accesses. */
   private var hashMisses = 0
@@ -58,6 +57,10 @@ abstract class ClusterConnection(
   // bootstrapping: init with info from cluster
   // TODO is it okay to to a blocking await here? or move it to a factory method?
   Await.ready(updateCache(maxRetries), connectTimeout)
+
+  /** Set up initial connections from configuration. */
+  private def initialConnections: Map[Server, (NonBlockingConnection, Int)] =
+    nodes.map { server => (server, (makeConnection(server), 0))}.toMap
 
   /**
    * Update the ClusterClient's connections and hash slots cache.
@@ -200,6 +203,7 @@ abstract class ClusterConnection(
     }
   }
 
+  /** Called when `server` has an error to increase its error counter and remove when errors exceed a threshold. */
   private def updateServerErrors(server: Server): Unit = this.synchronized {
     for {
       (con, errors) <- connections.get(server)
@@ -208,7 +212,16 @@ abstract class ClusterConnection(
         if (errors >= maxConnectionMisses) connections - server
         else connections.updated(server, (con,errors+1))
 
-      this.connections = nextConnections
+      this.connections =
+        if (nextConnections.isEmpty) {
+          // TODO how quickly will this happen when a node is failing?
+          // will we have a constant slew of reinit attempts when all is kaput?
+          logger.warn(
+            "No cluster node connection alive. " +
+            s"Attempting to recover with initial node configuration: $nodes")
+          initialConnections
+        }
+        else nextConnections
     }
   }
 
