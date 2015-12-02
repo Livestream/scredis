@@ -118,5 +118,5 @@ class ClusterCommandsSpec extends WordSpec
     }
   }
 
-  // effecty commands
+  // effecty commands elided ... they are somewhat harder to test properly because they change cluster state
 }

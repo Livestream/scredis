@@ -11,8 +11,9 @@ To run the Scredis tests, we need
 From `scredis` directory:
 
     ./start-redis-test-instances.sh
-    
-        
+
+Run tests from sbt as usual.
+
 To shut it down:
 
     killall redis-server
