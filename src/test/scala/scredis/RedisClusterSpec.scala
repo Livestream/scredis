@@ -21,9 +21,18 @@ class RedisClusterSpec extends WordSpec
   val cluster = RedisCluster(Server("localhost",7000))
 
   "connection to cluster" should {
-    "be as expected" in {
+    "work for a single valid seed node" in {
       val info = cluster.clusterInfo().futureValue
 
+      info("cluster_state") should be ("ok")
+      info("cluster_known_nodes").toInt should be (6) // 6 total nodes
+      info("cluster_size").toInt should be (3) // 3 master nodes
+    }
+
+    "work when some of the seed nodes are offline" in {
+      val badSeeds = RedisCluster(Server("localhost",7777), Server("localhost",2302), Server("localhost",7003))
+
+      val info = badSeeds.clusterInfo().futureValue
       info("cluster_state") should be ("ok")
       info("cluster_known_nodes").toInt should be (6) // 6 total nodes
       info("cluster_size").toInt should be (3) // 3 master nodes
@@ -57,6 +66,7 @@ class RedisClusterSpec extends WordSpec
       }
     }
   }
+
 
   // TODO basic test for each supported / unsupported command
 
