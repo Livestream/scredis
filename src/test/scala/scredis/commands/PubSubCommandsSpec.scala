@@ -14,6 +14,7 @@ import scredis.util.TestUtils._
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConversions._
 import scala.concurrent.Promise
+import scala.language.postfixOps
 
 import java.util.concurrent.{ LinkedBlockingQueue, TimeUnit }
 

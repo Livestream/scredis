@@ -13,6 +13,8 @@ import scredis.util.TestUtils._
 import scala.concurrent.duration._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
+import scala.language.implicitConversions
 
 class StringCommandsSpec extends WordSpec
   with GivenWhenThen
