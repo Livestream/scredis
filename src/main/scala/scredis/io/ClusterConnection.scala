@@ -4,13 +4,13 @@ import akka.actor.ActorSystem
 import com.typesafe.scalalogging.LazyLogging
 import scredis.exceptions._
 import scredis.protocol._
-import scredis.protocol.requests.ClusterRequests.{ClusterInfo, ClusterCountKeysInSlot, ClusterSlots}
+import scredis.protocol.requests.ClusterRequests.{ClusterCountKeysInSlot, ClusterInfo, ClusterSlots}
 import scredis.util.UniqueNameGenerator
 import scredis.{ClusterSlotRange, RedisConfigDefaults, Server}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Promise, Await, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future, Promise}
 
 /**
  * The connection logic for a whole Redis cluster. Handles redirection and sharding logic as specified in
@@ -55,26 +55,30 @@ abstract class ClusterConnection(
   private var hashMisses = 0
 
   // bootstrapping: init with info from cluster
-  // TODO is it okay to to a blocking await here? or move it to a factory method?
+  // I guess is it okay to to a blocking await here? or move it to a factory method?
   Await.ready(updateCache(maxRetries), connectTimeout)
 
   /** Set up initial connections from configuration. */
   private def initialConnections: Map[Server, (NonBlockingConnection, Int)] =
     nodes.map { server => (server, (makeConnection(server), 0))}.toMap
 
+
   /**
    * Update the ClusterClient's connections and hash slots cache.
    * Sends a CLUSTER SLOTS query to the cluster to get a current mapping of hash slots to servers, and updates
    * the internal cache based on the reply.
    */
-  private def updateCache(retry:Int): Future[Unit] = {
+  private def updateCache(retry: Int): Future[Unit] = {
 
     // only called when cluster is in ok state
     lazy val upd = send(ClusterSlots()).map { slotRanges =>
       val newConnections = slotRanges.foldLeft(connections) {
-        case (cons, ClusterSlotRange(_, master, _)) =>
-          if (cons contains master) cons
-          else connections + ((master, (makeConnection(master),0)))
+        case (cons, ClusterSlotRange(_, master, slaves)) =>
+          val nodes = master :: slaves
+          cons ++ nodes.flatMap { server =>
+            if (cons contains server) Nil
+            else List( (server, (makeConnection(server),0)) )
+          }
       }
 
       val newSlots =
@@ -88,7 +92,7 @@ abstract class ClusterConnection(
         hashSlots = newSlots
       }
 
-      logger.info("initialized cluster slot cache")
+      logger.info(s"initialized cluster slot cache and connections. Connected to Redis nodes: ${connections.keys}")
     }
 
     if (retry <= 0) Future.failed(RedisClusterException(s"cluster_state not ok, aborting cache update after $maxRetries attempts"))
