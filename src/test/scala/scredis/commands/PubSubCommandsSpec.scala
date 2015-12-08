@@ -1,22 +1,21 @@
 package scredis.commands
 
+import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
+
 import org.scalatest._
 import org.scalatest.concurrent._
-
-import scredis._
 import scredis.PubSubMessage._
+import scredis._
 import scredis.protocol.requests.PubSubRequests
 import scredis.serialization.UTF8StringWriter
-import scredis.exceptions._
 import scredis.tags._
 import scredis.util.TestUtils._
 
-import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.Promise
 import scala.language.postfixOps
-
-import java.util.concurrent.{ LinkedBlockingQueue, TimeUnit }
+import scala.language.implicitConversions
 
 class PubSubCommandsSpec extends WordSpec
   with GivenWhenThen

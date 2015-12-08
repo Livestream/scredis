@@ -3,11 +3,10 @@ package scredis
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{Matchers, WordSpec}
-import scredis.commands.{StringCommands, ClusterCommands}
+import scredis.commands.ClusterCommands
 import scredis.io.ClusterConnection
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 /**
  * Functionality test of Cluster client.
@@ -85,7 +84,7 @@ class RedisClusterSpec extends WordSpec
 
         // why this test works: ClusterConnection always tries the first node in its connection cache for clusterInfo
         // we initialized the thing with badSeed1 and badSeed2 at the first position. these get removed after a few errors.
-        // max failures is hard coded at 3
+        // max failures is hard coded at 3 (as of writing of this comment)
 
         val statusAfterAFewTries = for {
           _ <- cluster.clusterInfo()
