@@ -71,42 +71,7 @@ class RedisClusterSpec extends WordSpec
         }
       }
     }
-
-
-    "failing nodes" should {
-      "be removed from cluster connection cache eventually" in {
-
-        val cluster = new ClusterConnection(badSeeds) with ClusterCommands
-
-        val clusterServers = cluster.connections.keySet
-        clusterServers should contain allOf (badSeed1, badSeed2)
-
-
-        // why this test works: ClusterConnection always tries the first node in its connection cache for clusterInfo
-        // we initialized the thing with badSeed1 and badSeed2 at the first position. these get removed after a few errors.
-        // max failures is hard coded at 3 (as of writing of this comment)
-
-        val statusAfterAFewTries = for {
-          _ <- cluster.clusterInfo()
-          _ <- cluster.clusterInfo()
-          _ <- cluster.clusterInfo()
-          _ <- cluster.clusterInfo()
-          _ <- cluster.clusterInfo()
-          _ <- cluster.clusterInfo()
-        } yield 0
-
-        // just wait for client to do its thing
-        statusAfterAFewTries.futureValue
-
-        cluster.connections.keySet should contain noneOf (badSeed1, badSeed2)
-
-      }
-    }
-
-
   }
-
-
 
   // TODO basic test for each supported / unsupported command
 
