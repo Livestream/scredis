@@ -15,7 +15,7 @@ import scala.concurrent.duration.FiniteDuration
   * @define redisCluster [[scredis.RedisCluster]]
   * @define typesafeConfig com.typesafe.Config
   */
-private[scredis] class RedisCluster(
+class RedisCluster private[scredis](
     nodes: Seq[Server] = RedisConfigDefaults.Redis.ClusterNodes,
     maxRetries: Int = 4,
     receiveTimeoutOpt: Option[FiniteDuration] = RedisConfigDefaults.IO.ReceiveTimeoutOpt,
