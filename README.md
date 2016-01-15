@@ -1,12 +1,13 @@
 # scredis
 
-Scredis is a reactive, non-blocking and ultra-fast Scala [Redis](http://redis.io) client built on top of Akka IO. It has been (and still is) extensively used in production at Livestream.
+Scredis is a reactive, non-blocking and ultra-fast Scala [Redis](http://redis.io) client built on top of Akka IO. 
+It has been (and still is) extensively used in production at Livestream.
 
 * [Documentation](https://github.com/Livestream/scredis/wiki)
 * [Scaladoc](http://livestream.github.io/scredis/api/snapshot/)
 
 ## Features
-* Supports all Redis commands up to v2.8.13
+* Supports all Redis commands up to v3.0.0
 * Built on top of Akka non-blocking IO
 * Super fast, see [Benchmarks](#benchmarks) section below
 * Automatic reconnection
@@ -16,6 +17,7 @@ Scredis is a reactive, non-blocking and ultra-fast Scala [Redis](http://redis.io
   * Subscribe selectively with partial functions
   * Tracked Subscribe and Unsubscribe commands (they return a Future as any other commands)
   * Automatically resubscribes to previously subscribed channels/patterns upon reconnection
+* Cluster support via `RedisCluster`
 * Customizable serialization and deserialization of command inputs and outputs
 * Fully configurable
   * Akka dispatchers
@@ -81,7 +83,9 @@ redis.quit()
 
 ## Benchmarks
 
-The following benchmarks have been performed using [ScalaMeter](http://scalameter.github.io/) with the `SeparateJvmsExecutor`, configured with `Warmer.Default`, `Measurer.Default` and `Aggregator.average`. The source code can be found [here](https://github.com/Livestream/scredis/blob/master/src/test/scala/scredis/ClientBenchmark.scala).
+The following benchmarks have been performed using [ScalaMeter](http://scalameter.github.io/) with the 
+`SeparateJvmsExecutor`, configured with `Warmer.Default`, `Measurer.Default` and `Aggregator.average`.
+The source code can be found [here](https://github.com/Livestream/scredis/blob/master/src/test/scala/scredis/ClientBenchmark.scala).
 
 ### Hardware
 * MacBook Pro (15-inch, Early 2011)
