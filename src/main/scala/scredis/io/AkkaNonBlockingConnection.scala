@@ -77,7 +77,7 @@ abstract class AkkaNonBlockingConnection(
   
   override protected def send[A](request: Request[A]): Future[A] = {
     if (isShuttingDown) {
-      Future.failed(RedisIOException("Connection has been shutdown"))
+      Future.failed(RedisIOException(s"Connection has been shutdown to $host-$port"))
     } else {
       logger.debug(s"Sending request: $request")
       updateState(request)
@@ -87,7 +87,7 @@ abstract class AkkaNonBlockingConnection(
   
   override protected def send(transaction: Transaction): Future[Vector[Try[Any]]] = {
     if (isShuttingDown) {
-      Future.failed(RedisIOException("Connection has been shutdown"))
+      Future.failed(RedisIOException(s"Connection has been shutdown to $host-$port"))
     } else {
       logger.debug(s"Sending transaction: $transaction")
       transaction.requests.foreach(updateState)

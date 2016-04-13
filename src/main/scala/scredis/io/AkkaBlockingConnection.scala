@@ -84,7 +84,7 @@ abstract class AkkaBlockingConnection(
         lock.unlock()
       }
     } else {
-      throw RedisIOException("Trying to send request on a blocked connection")
+      throw RedisIOException(s"Trying to send request on a blocked connection to $host-$port")
     }
   }
   
