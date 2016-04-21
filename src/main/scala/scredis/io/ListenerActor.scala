@@ -400,7 +400,7 @@ class ListenerActor(
     case ReceiveTimeout => handleReceiveTimeout()
     case Terminated(_) => {
       logger.info("Connection has been shutdown abruptly")
-      failAllSentRequests(RedisIOException(s"Connection has to $remote been shutdown abruptly"))
+      failAllSentRequests(RedisIOException(s"Connection to $remote has been shutdown abruptly"))
       reconnect()
     }
   }

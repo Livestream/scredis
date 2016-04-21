@@ -73,7 +73,7 @@ abstract class AkkaBlockingConnection(
       akkaIODispatcherPath,
       akkaDecoderDispatcherPath
     ).withDispatcher(akkaListenerDispatcherPath),
-    UniqueNameGenerator.getUniqueName(s"${nameOpt.getOrElse(s"$host-$port")}-listener-actor")
+    UniqueNameGenerator.getUniqueName(s"${nameOpt.getOrElse(s"$host:$port")}-listener-actor")
   )
   
   private def withLock[A](f: => A): A = {
@@ -84,7 +84,7 @@ abstract class AkkaBlockingConnection(
         lock.unlock()
       }
     } else {
-      throw RedisIOException(s"Trying to send request on a blocked connection to $host-$port")
+      throw RedisIOException(s"Trying to send request on a blocked connection to $host:$port")
     }
   }
   
