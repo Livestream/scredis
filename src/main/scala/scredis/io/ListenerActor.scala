@@ -104,7 +104,7 @@ class ListenerActor(
     var isShuttingDown = false
     requests.foreach { request =>
       if (isShuttingDown) {
-        request.failure(RedisIOException("Shutting down"))
+        request.failure(RedisIOException(s"Shutting down to $remote"))
       } else {
         request match {
           case auth @ Auth(password) => if (password.isEmpty) {
@@ -200,7 +200,7 @@ class ListenerActor(
   }
   
   protected def unhandled: Receive = {
-    case x => logger.error(s"Received unexpected message: $x")
+    case x => logger.error(s"Received unexpected message: $x for request to $remote")
   }
   
   protected def always: Receive = {
@@ -219,9 +219,9 @@ class ListenerActor(
   }
   
   protected def fail: Receive = {
-    case request: Request[_] => request.failure(RedisIOException("Shutting down"))
+    case request: Request[_] => request.failure(RedisIOException(s"Shutting down to $remote"))
     case transaction: Transaction => transaction.execRequest.failure(
-      RedisIOException("Shutting down")
+      RedisIOException(s"Shutting down to $remote")
     )
   }
   
@@ -284,7 +284,7 @@ class ListenerActor(
   def connecting: Receive = {
     case request: Quit => {
       request.success(())
-      failAllQueuedRequests(RedisIOException("Connection has been shutdown by QUIT command"))
+      failAllQueuedRequests(RedisIOException(s"Connection to $remote has been shutdown by QUIT command"))
       isShuttingDownBeforeConnected = true
     }
     case request: Request[_] => {
@@ -400,7 +400,7 @@ class ListenerActor(
     case ReceiveTimeout => handleReceiveTimeout()
     case Terminated(_) => {
       logger.info("Connection has been shutdown abruptly")
-      failAllSentRequests(RedisIOException("Connection has been shutdown abruptly"))
+      failAllSentRequests(RedisIOException(s"Connection to $remote has been shutdown abruptly"))
       reconnect()
     }
   }
@@ -410,11 +410,11 @@ class ListenerActor(
     case ReceiveTimeout =>
     case Terminated(_) => {
       if (isReceiveTimeout) {
-        logger.info(s"Connection has been reset due to receive timeout")
-        failAllSentRequests(RedisIOException("Receive timeout"))
+        logger.info(s"Connection has been reset due to receive timeout to $remote")
+        failAllSentRequests(RedisIOException(s"Receive timeout to $remote"))
       } else {
-        logger.info(s"Connection has been shutdown abruptly")
-        failAllSentRequests(RedisIOException("Connection has been shutdown abruptly"))
+        logger.info(s"Connection to $remote has been shutdown abruptly")
+        failAllSentRequests(RedisIOException(s"Connection to $remote has been shutdown abruptly"))
       }
       reconnect()
     }
@@ -431,7 +431,7 @@ class ListenerActor(
     case Terminated(_) => {
       decodersCount -= 1
       if (decodersCount == 0) {
-        logger.info("Connection has been shutdown gracefully")
+        logger.info(s"Connection to $remote has been shutdown gracefully")
         context.stop(self)
       }
     }

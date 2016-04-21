@@ -6,7 +6,7 @@ organization := "com.livestream"
 
 name := "scredis"
 
-version := "2.0.7-RC1"
+version := "2.0.8"
 
 scalaVersion := "2.11.2"
 

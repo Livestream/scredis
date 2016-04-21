@@ -153,7 +153,7 @@ class SubscriberListenerActor(
           subscribedPatternsCount -= difference
           count
         }
-        case x => throw RedisProtocolException(s"Unexpected pub sub message received: $x")
+        case x => throw RedisProtocolException(s"Unexpected pub sub message received in response to request to $host:$port: $x")
       }
       
       val (request, argsCount) = requestOpt match {
@@ -170,7 +170,7 @@ class SubscriberListenerActor(
           case PubSubMessage.Unsubscribe(_, count) => (count, subscribedPatternsCount)
           case PubSubMessage.PUnsubscribe(_, count) => (count, subscribedChannelsCount)
           case x => throw RedisProtocolException(
-            s"Unexpected pub sub message received: '$x' in response to '$request'"
+            s"Unexpected pub sub message received: '$x' in response to '$request to $host:$port'"
           )
         }
         if (count == otherCount) {
@@ -190,7 +190,7 @@ class SubscriberListenerActor(
         }
       }
     }
-    case Fail(message) => requests.pop().failure(RedisErrorResponseException(message))
+    case Fail(message) => requests.pop().failure(RedisErrorResponseException(s"Error response upon request to $host:$port: $message"))
     case SaveSubscriptions => {
       savedSubscribedChannels ++= subscribedChannels
       savedSubscribedPatterns ++= subscribedPatterns

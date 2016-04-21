@@ -195,7 +195,6 @@ object Client {
     akkaIODispatcherPath = akkaIODispatcherPath,
     akkaDecoderDispatcherPath = akkaDecoderDispatcherPath
   )
-  
   /**
    * Constructs a $client instance from a [[scredis.RedisConfig]]
    * 
