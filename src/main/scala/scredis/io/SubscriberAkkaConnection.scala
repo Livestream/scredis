@@ -96,7 +96,7 @@ abstract class SubscriberAkkaConnection(
     lock.acquire()
     if (isShuttingDown) {
       lock.release()
-      Future.failed(RedisIOException("Connection has been closed"))
+      Future.failed(RedisIOException(s"Connection to $host:$port has been closed"))
     } else {
       listenerActor ! request
       request.future.onComplete {

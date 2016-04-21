@@ -183,7 +183,7 @@ class IOActor(
   
   def awaitingShutdown: Receive = {
     case request: Request[_] => {
-      request.failure(RedisIOException("Connection is beeing shutdown"))
+      request.failure(RedisIOException(s"Connection is being shutdown to $remote"))
       listenerActor ! ListenerActor.Remove(1)
     }
     case WriteAck =>
@@ -193,7 +193,7 @@ class IOActor(
   
   def awaitingAbort: Receive = {
     case request: Request[_] => {
-      request.failure(RedisIOException("Connection is beeing reset"))
+      request.failure(RedisIOException(s"Connection is being reset to $remote"))
       listenerActor ! ListenerActor.Remove(1)
     }
     case WriteAck =>
