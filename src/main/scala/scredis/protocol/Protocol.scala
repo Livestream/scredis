@@ -55,7 +55,7 @@ object Protocol {
   )
   private val concurrentOpt: Option[(Semaphore, Boolean)] = {
     RedisConfigDefaults.Global.MaxConcurrentRequestsOpt.map { concurrent =>
-      (new Semaphore(30000), true)
+      (new Semaphore(concurrent), true)
     }
   }
   
