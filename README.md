@@ -1,3 +1,7 @@
+
+# This repository is no longer maintained. 
+Please refer to the [scredis organization's repo](https://github.com/scredis/scredis) for an actively developed version
+
 # scredis
 
 Scredis is a reactive, non-blocking and ultra-fast Scala [Redis](http://redis.io) client built on top of Akka IO. It has been (and still is) extensively used in production at Livestream.
