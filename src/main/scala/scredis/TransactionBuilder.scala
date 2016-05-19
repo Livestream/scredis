@@ -26,7 +26,7 @@ final class TransactionBuilder private[scredis] ()(
   private val requests = ListBuffer[Request[_]]()
   @volatile private var isClosed = false
   
-  override protected def send[A](request: Request[A]): Future[A] = {
+  override protected[scredis] def send[A](request: Request[A]): Future[A] = {
     if (isClosed) {
       throw RedisTransactionBuilderException(
         s"Cannot re-use a closed transaction builder; cannot queue '$request'"

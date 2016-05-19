@@ -1,5 +1,7 @@
 package scredis.protocol.requests
 
+import scala.language.postfixOps
+import scala.language.higherKinds
 import scredis.protocol.{ Command => PCommand, _ }
 import scredis.exceptions.RedisProtocolException
 import scredis.serialization.Writer

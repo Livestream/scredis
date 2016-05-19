@@ -1,3 +1,5 @@
+
+import scala.language.implicitConversions
 import scala.concurrent.duration.FiniteDuration
 
 import scredis.serialization._
@@ -266,7 +268,7 @@ package object scredis {
    */
   object ShutdownModifier {
     case object Save extends ShutdownModifier("SAVE")
-    case object NoSave extends ShutdownModifier("NO SAVE")
+    case object NoSave extends ShutdownModifier("NOSAVE")
   }
   
   /**
@@ -403,5 +405,40 @@ package object scredis {
     
     override def toString = set.mkString("[", ", ", "]")
   }
-  
+
+  /**
+   * Information about slot ranges returned by the CLUSTER SLOTS command.
+   * @param range Range of slots covered by the nodes in his range
+   * @param master the master node for this slot range
+   * @param replicas replicas of the master
+   */
+  case class ClusterSlotRange(range: (Long,Long), master: Server, replicas: List[Server])
+
+  /**
+   * Information returned by CLUSTER NODES and CLUSTER SLAVES command.
+   *
+   * @param nodeId The node ID, a 40 characters random string generated when a node is created and never changed again (
+   *               unless CLUSTER RESET HARD is used).
+   * @param server The server (host and port) where clients should contact the node to run queries.
+   * @param flags A list of comma separated flags: myself, master, slave, fail?, fail, handshake, noaddr, noflags.
+   * @param master If the node is a slave, and the master is known, the master node ID, otherwise `None`
+   * @param pingSent Milliseconds unix time at which the currently active ping was sent,
+   *                 or zero if there are no pending pings.
+   * @param pongRecv Milliseconds unix time the last pong was received.
+   * @param configEpoch The configuration epoch (or version) of the current node (or of the current master if the node is a slave).
+   *                    Each time there is a failover, a new, unique, monotonically increasing configuration epoch is created.
+   *                    If multiple nodes claim to serve the same hash slots, the one with higher configuration epoch wins.
+   * @param linkStateConnected The state of the link used for the node-to-node cluster bus. We use this link to communicate with the node.
+   *                           True iff connected.
+   * @param slots Slot ranges served by this node.
+   */
+  case class ClusterNode(nodeId: String, server: Server, flags: Seq[String], master: Option[String],
+                         pingSent: Long, pongRecv: Long, configEpoch: Long, linkStateConnected: Boolean, slots: Seq[(Long,Long)])
+
+  /**
+   * Connection information for a server node in a Redis cluster
+   * @param host host name or ip of the server
+   * @param port port of the server
+   */
+  case class Server(host: String, port: Int)
 }

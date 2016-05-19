@@ -1,6 +1,7 @@
 package scredis.protocol
 
 import scala.collection.mutable.ListBuffer
+import scala.language.higherKinds
 
 package object requests {
   

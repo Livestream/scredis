@@ -1,5 +1,7 @@
 package scredis.protocol.requests
 
+import scala.language.postfixOps
+import scala.language.higherKinds
 import scredis.protocol._
 import scredis.serialization.{ Reader, Writer }
 
@@ -44,13 +46,13 @@ object SortedSetRequests {
         case (member, score) => (score.stringValue, writer.write(member))
       }
     ): _*
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZCard(key: String) extends Request[Long](ZCard, key) {
+  case class ZCard(key: String) extends Request[Long](ZCard, key) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -58,7 +60,7 @@ object SortedSetRequests {
   
   case class ZCount(
     key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit
-  ) extends Request[Long](ZCount, key, min.stringValue, max.stringValue) {
+  ) extends Request[Long](ZCount, key, min.stringValue, max.stringValue) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -66,7 +68,7 @@ object SortedSetRequests {
   
   case class ZIncrBy[W: Writer](key: String, increment: Double, member: W) extends Request[Double](
     ZIncrBy, key, increment, implicitly[Writer[W]].write(member)
-  ) {
+  ) with Key {
     override def decode = {
       case b: BulkStringResponse => b.flattened[Double]
     }
@@ -76,10 +78,11 @@ object SortedSetRequests {
     destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
     ZInterStore, destination +: keys.size +: keys :+ AggregateName :+ aggregate.name: _*
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
+    override val key = keys.head
   }
   
   case class ZInterStoreWeighted(
@@ -89,15 +92,16 @@ object SortedSetRequests {
       val (keys, weights) = keyWeightPairs.toList.unzip
       keys ::: Weights :: weights ::: AggregateName :: aggregate.name :: Nil
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
+    override val key = keyWeightPairs.head._1
   }
   
   case class ZLexCount(
     key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
-  ) extends Request[Long](ZLexCount, key, min.stringValue, max.stringValue) {
+  ) extends Request[Long](ZLexCount, key, min.stringValue, max.stringValue) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -105,7 +109,7 @@ object SortedSetRequests {
   
   case class ZRange[R: Reader, CC[X] <: Traversable[X]](key: String, start: Long, stop: Long)(
     implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](ZRange, key, start, stop) {
+  ) extends Request[CC[R]](ZRange, key, start, stop) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -117,7 +121,7 @@ object SortedSetRequests {
     key: String, start: Long, stop: Long
   )(
     implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
-  ) extends Request[CC[(R, scredis.Score)]](ZRange, key, start, stop, WithScores) {
+  ) extends Request[CC[(R, scredis.Score)]](ZRange, key, start, stop, WithScores) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -139,7 +143,7 @@ object SortedSetRequests {
         case None => Seq.empty
       }
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -159,7 +163,7 @@ object SortedSetRequests {
         case None => Seq.empty
       }
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -181,7 +185,7 @@ object SortedSetRequests {
         case None => Seq.empty
       }
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -193,7 +197,7 @@ object SortedSetRequests {
   
   case class ZRank[W: Writer](key: String, member: W) extends Request[Option[Long]](
     ZRank, key, implicitly[Writer[W]].write(member)
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value)   => Some(value)
       case BulkStringResponse(None) => None
@@ -202,7 +206,7 @@ object SortedSetRequests {
   
   case class ZRem[W](key: String, members: W*)(implicit writer: Writer[W]) extends Request[Long](
     ZRem, key +: members.map(writer.write): _*
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -212,7 +216,7 @@ object SortedSetRequests {
     key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
   ) extends Request[Long](
     ZRemRangeByLex, key, min.stringValue, max.stringValue
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -220,7 +224,7 @@ object SortedSetRequests {
   
   case class ZRemRangeByRank(key: String, start: Long, stop: Long) extends Request[Long](
     ZRemRangeByRank, key, start, stop
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -230,7 +234,7 @@ object SortedSetRequests {
     key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit
   ) extends Request[Long](
     ZRemRangeByScore, key, min.stringValue, max.stringValue
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
@@ -238,7 +242,7 @@ object SortedSetRequests {
   
   case class ZRevRange[R: Reader, CC[X] <: Traversable[X]](key: String, start: Long, stop: Long)(
     implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](ZRevRange, key, start, stop) {
+  ) extends Request[CC[R]](ZRevRange, key, start, stop) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -250,7 +254,7 @@ object SortedSetRequests {
     key: String, start: Long, stop: Long
   )(
     implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
-  ) extends Request[CC[(R, scredis.Score)]](ZRevRange, key, start, stop, WithScores) {
+  ) extends Request[CC[(R, scredis.Score)]](ZRevRange, key, start, stop, WithScores) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -272,7 +276,7 @@ object SortedSetRequests {
         case None => Seq.empty
       }
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -294,7 +298,7 @@ object SortedSetRequests {
         case None => Seq.empty
       }
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -306,7 +310,7 @@ object SortedSetRequests {
   
   case class ZRevRank[W: Writer](key: String, member: W) extends Request[Option[Long]](
     ZRevRank, key, implicitly[Writer[W]].write(member)
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value)   => Some(value)
       case BulkStringResponse(None) => None
@@ -328,7 +332,7 @@ object SortedSetRequests {
       matchOpt = matchOpt,
       countOpt = countOpt
     ): _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsedAsScanResponse[(R, scredis.Score), CC] {
         case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
@@ -342,7 +346,7 @@ object SortedSetRequests {
   
   case class ZScore[W: Writer](key: String, member: W) extends Request[Option[scredis.Score]](
     ZScore, key, implicitly[Writer[W]].write(member)
-  ) {
+  ) with Key {
     override def decode = {
       case b: BulkStringResponse => b.parsed[String].map(scredis.Score.apply)
     }
@@ -352,10 +356,11 @@ object SortedSetRequests {
     destination: String, keys: Seq[String], aggregate: scredis.Aggregate
   ) extends Request[Long](
     ZUnionStore, destination +: keys.size +: keys :+ AggregateName :+ aggregate.name: _*
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
+    override val key: String = keys.head
   }
   
   case class ZUnionStoreWeighted(
@@ -365,10 +370,11 @@ object SortedSetRequests {
       val (keys, weights) = keyWeightPairs.toList.unzip
       keys ::: Weights :: weights ::: AggregateName :: aggregate.name :: Nil
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
+    override val key: String = keyWeightPairs.head._1
   }
   
 }

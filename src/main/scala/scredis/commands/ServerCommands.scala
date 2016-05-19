@@ -2,10 +2,9 @@ package scredis.commands
 
 import scredis.io.NonBlockingConnection
 import scredis.protocol.requests.ServerRequests._
-import scredis.serialization.{ Reader, Writer }
+import scredis.serialization.Writer
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 /**
  * This trait implements server commands.
@@ -241,7 +240,7 @@ trait ServerCommands { self: NonBlockingConnection =>
   
   /**
    * Provides information on the role of a Redis instance in the context of replication,
-   * by returing if the instance is currently a master, slave, or sentinel.
+   * by returning if the instance is currently a master, slave, or sentinel.
    * 
    * @note The command also returns additional information about the state of the replication
    * (if the role is master or slave) or the list of monitored master names (if the role is

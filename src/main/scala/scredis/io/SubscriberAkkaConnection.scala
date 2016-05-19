@@ -92,7 +92,7 @@ abstract class SubscriberAkkaConnection(
     }
   }
   
-  override protected def sendAsSubscriber(request: Request[_]): Future[Int] = {
+  override protected[scredis] def sendAsSubscriber(request: Request[_]): Future[Int] = {
     lock.acquire()
     if (isShuttingDown) {
       lock.release()
@@ -106,7 +106,7 @@ abstract class SubscriberAkkaConnection(
     }
   }
   
-  override protected def setSubscription(subscription: Subscription): Unit = {
+  override protected[scredis] def setSubscription(subscription: Subscription): Unit = {
     listenerActor ! SubscriberListenerActor.Subscribe(subscription)
   }
   

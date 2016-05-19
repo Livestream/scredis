@@ -1,20 +1,16 @@
 package scredis.io
 
-import com.typesafe.scalalogging.LazyLogging
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import akka.actor._
-
 import scredis.Transaction
 import scredis.exceptions._
 import scredis.protocol._
 import scredis.util.UniqueNameGenerator
 
-import scala.util.Try
-import scala.concurrent.{ ExecutionContext, Future, Await }
+import scala.concurrent.Future
 import scala.concurrent.duration._
-
-import java.net.InetSocketAddress
-import java.util.concurrent.locks.ReentrantReadWriteLock
+import scala.util.Try
 
 /**
  * This trait represents a non-blocking connection to a `Redis` server.
@@ -75,7 +71,7 @@ abstract class AkkaNonBlockingConnection(
     UniqueNameGenerator.getUniqueName(s"${nameOpt.getOrElse(s"$host:$port")}-listener-actor")
   )
   
-  override protected def send[A](request: Request[A]): Future[A] = {
+  override protected[scredis] def send[A](request: Request[A]): Future[A] = {
     if (isShuttingDown) {
       Future.failed(RedisIOException(s"Connection has been shutdown to $host:$port"))
     } else {
@@ -85,7 +81,7 @@ abstract class AkkaNonBlockingConnection(
     }
   }
   
-  override protected def send(transaction: Transaction): Future[Vector[Try[Any]]] = {
+  override protected[scredis] def send(transaction: Transaction): Future[Vector[Try[Any]]] = {
     if (isShuttingDown) {
       Future.failed(RedisIOException(s"Connection has been shutdown to $host:$port"))
     } else {

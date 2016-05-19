@@ -12,6 +12,7 @@ import scredis.util.TestUtils._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 class ListCommandsSpec extends WordSpec
   with GivenWhenThen

@@ -1,5 +1,6 @@
 package scredis.protocol.requests
 
+import scala.language.higherKinds
 import scredis.protocol._
 import scredis.serialization.{ Reader, Writer }
 
@@ -68,19 +69,21 @@ object KeyRequests {
     args.toList
   }
   
-  case class Del(keys: String*) extends Request[Long](Del, keys: _*) {
+  case class Del(keysDel: String*) extends Request[Long](Del, keysDel: _*) with Key {
     override def decode = {
       case IntegerResponse(value) => value
     }
+
+    override val key = keysDel.head
   }
   
-  case class Dump(key: String) extends Request[Option[Array[Byte]]](Dump, key) {
+  case class Dump(key: String) extends Request[Option[Array[Byte]]](Dump, key) with Key {
     override def decode = {
       case b: BulkStringResponse => b.parsed[Array[Byte]]
     }
   }
   
-  case class Exists(key: String) extends Request[Boolean](Exists, key) {
+  case class Exists(key: String) extends Request[Boolean](Exists, key) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -88,7 +91,7 @@ object KeyRequests {
   
   case class Expire(key: String, ttlSeconds: Int) extends Request[Boolean](
     Expire, key, ttlSeconds
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -96,7 +99,7 @@ object KeyRequests {
   
   case class ExpireAt(key: String, timestampSeconds: Long) extends Request[Boolean](
     ExpireAt, key, timestampSeconds
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -132,39 +135,39 @@ object KeyRequests {
       }
       args.toList
     }: _*
-  ) {
+  ) with Key {
     override def decode = {
       case s: SimpleStringResponse => ()
     }
   }
   
-  case class Move(key: String, database: Int) extends Request[Boolean](Move, key, database) {
+  case class Move(key: String, database: Int) extends Request[Boolean](Move, key, database) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class ObjectRefCount(key: String) extends Request[Option[Long]](ObjectRefCount, key) {
+  case class ObjectRefCount(key: String) extends Request[Option[Long]](ObjectRefCount, key) with Key {
     override def decode = {
       case IntegerResponse(value)   => Some(value)
       case BulkStringResponse(None) => None
     }
   }
   
-  case class ObjectEncoding(key: String) extends Request[Option[String]](ObjectEncoding, key) {
+  case class ObjectEncoding(key: String) extends Request[Option[String]](ObjectEncoding, key) with Key {
     override def decode = {
       case b: BulkStringResponse => b.parsed[String]
     }
   }
   
-  case class ObjectIdleTime(key: String) extends Request[Option[Long]](ObjectIdleTime, key) {
+  case class ObjectIdleTime(key: String) extends Request[Option[Long]](ObjectIdleTime, key) with Key {
     override def decode = {
       case IntegerResponse(value)   => Some(value)
       case BulkStringResponse(None) => None
     }
   }
   
-  case class Persist(key: String) extends Request[Boolean](Persist, key) {
+  case class Persist(key: String) extends Request[Boolean](Persist, key) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -172,7 +175,7 @@ object KeyRequests {
   
   case class PExpire(key: String, ttlMillis: Long) extends Request[Boolean](
     PExpire, key, ttlMillis
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -180,13 +183,13 @@ object KeyRequests {
   
   case class PExpireAt(key: String, timestampMillis: Long) extends Request[Boolean](
     PExpireAt, key, timestampMillis
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class PTTL(key: String) extends Request[Either[Boolean, Long]](PTTL, key) {
+  case class PTTL(key: String) extends Request[Either[Boolean, Long]](PTTL, key) with Key {
     override def decode = {
       case IntegerResponse(-2)  => Left(false)
       case IntegerResponse(-1)  => Left(true)
@@ -200,7 +203,7 @@ object KeyRequests {
     }
   }
   
-  case class Rename(key: String, newKey: String) extends Request[Unit](Rename, key, newKey) {
+  case class Rename(key: String, newKey: String) extends Request[Unit](Rename, key, newKey) with Key {
     override def decode = {
       case s: SimpleStringResponse => ()
     }
@@ -208,7 +211,7 @@ object KeyRequests {
   
   case class RenameNX(key: String, newKey: String) extends Request[Boolean](
     RenameNX, key, newKey
-  ) {
+  ) with Key {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
@@ -218,7 +221,7 @@ object KeyRequests {
     key: String, value: W, ttlOpt: Option[FiniteDuration]
   ) extends Request[Unit](
     Restore, key, ttlOpt.map(_.toMillis).getOrElse(0), implicitly[Writer[W]].write(value)
-  ) {
+  ) with Key {
     override def decode = {
       case s: SimpleStringResponse => ()
     }
@@ -256,7 +259,7 @@ object KeyRequests {
   ) extends Request[CC[Option[R]]](
     Sort,
     generateSortArgs(key, byOpt, limitOpt, get, desc, alpha, None): _*
-  ) {
+  ) with Key {
     override def decode = {
       case a: ArrayResponse => a.parsed[Option[R], CC] {
         case b: BulkStringResponse => b.parsed[R]
@@ -275,7 +278,7 @@ object KeyRequests {
   ) extends Request[Long](
     Sort,
     generateSortArgs(key, byOpt, limitOpt, get, desc, alpha, Some(targetKey)): _*
-  ) {
+  ) with Key {
     
     override def isReadOnly = false
     
@@ -284,7 +287,7 @@ object KeyRequests {
     }
   }
   
-  case class TTL(key: String) extends Request[Either[Boolean, Int]](TTL, key) {
+  case class TTL(key: String) extends Request[Either[Boolean, Int]](TTL, key) with Key {
     override def decode = {
       case IntegerResponse(-2)  => Left(false)
       case IntegerResponse(-1)  => Left(true)
@@ -292,7 +295,7 @@ object KeyRequests {
     }
   }
   
-  case class Type(key: String) extends Request[Option[scredis.Type]](Type, key) {
+  case class Type(key: String) extends Request[Option[scredis.Type]](Type, key) with Key {
     override def decode = {
       case SimpleStringResponse("none") => None
       case SimpleStringResponse(value)  => Some(scredis.Type(value))

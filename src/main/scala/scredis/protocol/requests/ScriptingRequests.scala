@@ -18,16 +18,22 @@ object ScriptingRequests {
     implicit decoder: Decoder[R], keysWriter: Writer[W1], argsWriter: Writer[W2]
   ) extends Request[R](
     Eval, script +: keys.size +: keys.map(keysWriter.write) ++: args.map(argsWriter.write): _*
-  ) {
+  ) with Key {
     override def decode = decoder
+    override val key =
+      if (keys.isEmpty) "" // cluster client needs a key to choose a node. Empty string is hopefully good as any
+      else new String(keysWriter.write(keys.head), Protocol.Encoding)
   }
   
   case class EvalSHA[R, W1: Writer, W2: Writer](sha1: String, keys: Seq[W1], args: Seq[W2])(
     implicit decoder: Decoder[R], keysWriter: Writer[W1], argsWriter: Writer[W2]
   ) extends Request[R](
     EvalSHA, sha1 +: keys.size +: keys.map(keysWriter.write) ++: args.map(argsWriter.write): _*
-  ) {
+  ) with Key {
     override def decode = decoder
+    override val key =
+      if (keys.isEmpty) "" // cluster client needs a key to choose a node. Empty string is hopefully good as any
+      else new String(keysWriter.write(keys.head), Protocol.Encoding)
   }
   
   case class ScriptExists(sha1s: String*) extends Request[Map[String, Boolean]](
