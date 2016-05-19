@@ -1388,7 +1388,7 @@ class SortedSetCommandsSpec extends WordSpec
   ZScan.toString when {
     "the key does not exist" should {
       "return an empty set" taggedAs (V280) in {
-        val (next, set) = client.zScan[String]("NONEXISTENTKEY", 0).!
+        val (next, set) = client.zScan[String, String]("NONEXISTENTKEY", 0).!
         next should be (0)
         set should be (empty)
       }
@@ -1396,7 +1396,7 @@ class SortedSetCommandsSpec extends WordSpec
     "the key does not contain a sorted set" should {
       "return an error" taggedAs (V280) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.zScan[String]("HASH", 0).!
+          client.zScan[String, String]("HASH", 0).!
         }
       }
     }
@@ -1405,7 +1405,7 @@ class SortedSetCommandsSpec extends WordSpec
         for (i <- 1 to 5) {
           client.zAdd("SSET", "value" + i, i)
         }
-        val (next, set) = client.zScan[String]("SSET", 0).!
+        val (next, set) = client.zScan[String, String]("SSET", 0).!
         next should be (0)
         set should contain theSameElementsInOrderAs List[(String, Score)](
           ("value1", 1.0),
@@ -1434,7 +1434,7 @@ class SortedSetCommandsSpec extends WordSpec
         val elements = ListBuffer[(String, Score)]()
         var cursor = 0L
         do {
-          val (next, set) = client.zScan[String]("SSET", cursor).!
+          val (next, set) = client.zScan[String, String]("SSET", cursor).!
           elements ++= set
           cursor = next
         } while (cursor > 0)
@@ -1445,7 +1445,7 @@ class SortedSetCommandsSpec extends WordSpec
         val elements = ListBuffer[(String, Score)]()
         var cursor = 0L
         do {
-          val (next, set) = client.zScan[String]("SSET", cursor, matchOpt = Some("foo*")).!
+          val (next, set) = client.zScan[String, String]("SSET", cursor, matchOpt = Some("foo*")).!
           elements ++= set
           cursor = next
         } while (cursor > 0)
@@ -1458,7 +1458,7 @@ class SortedSetCommandsSpec extends WordSpec
         val elements = ListBuffer[(String, Score)]()
         var cursor = 0L
         do {
-          val (next, set) = client.zScan[String](
+          val (next, set) = client.zScan[String, String](
             "SSET", cursor, matchOpt = Some("foo*"), countOpt = Some(100)
           ).!
           set.size should be (10)

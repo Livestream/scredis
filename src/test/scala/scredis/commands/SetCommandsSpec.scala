@@ -2,15 +2,13 @@ package scredis.commands
 
 import org.scalatest._
 import org.scalatest.concurrent._
-
 import scredis._
-import scredis.protocol.requests.SetRequests._
 import scredis.exceptions._
+import scredis.protocol.requests.SetRequests._
 import scredis.tags._
 import scredis.util.TestUtils._
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.duration._
 
 class SetCommandsSpec extends WordSpec
   with GivenWhenThen
@@ -579,7 +577,7 @@ class SetCommandsSpec extends WordSpec
   SScan.toString when {
     "the key does not exist" should {
       "return an empty set" taggedAs (V280) in {
-        val (next, set) = client.sScan[String]("NONEXISTENTKEY", 0).!
+        val (next, set) = client.sScan[String, String]("NONEXISTENTKEY", 0).!
         next should be (0)
         set should be (empty)
       }
@@ -587,7 +585,7 @@ class SetCommandsSpec extends WordSpec
     "the key does not contain a set" should {
       "return an error" taggedAs (V280) in {
         a [RedisErrorResponseException] should be thrownBy {
-          client.sScan[String]("HASH", 0).!
+          client.sScan[String, String]("HASH", 0).!
         }
       }
     }
@@ -596,7 +594,7 @@ class SetCommandsSpec extends WordSpec
         for (i <- 1 to 5) {
           client.sAdd("SSET", "value" + i)
         }
-        val (next, set) = client.sScan[String]("SSET", 0).!
+        val (next, set) = client.sScan[String, String]("SSET", 0).!
         next should be (0)
         set should contain theSameElementsAs List("value1", "value2", "value3", "value4", "value5")
         for (i <- 1 to 10) {
@@ -619,7 +617,7 @@ class SetCommandsSpec extends WordSpec
         val elements = ListBuffer[String]()
         var cursor = 0L
         do {
-          val (next, set) = client.sScan[String]("SSET", cursor).!
+          val (next, set) = client.sScan[String, String]("SSET", cursor).!
           elements ++= set
           cursor = next
         } while (cursor > 0)
@@ -630,7 +628,7 @@ class SetCommandsSpec extends WordSpec
         val elements = ListBuffer[String]()
         var cursor = 0L
         do {
-          val (next, set) = client.sScan[String]("SSET", cursor, matchOpt = Some("foo*")).!
+          val (next, set) = client.sScan[String, String]("SSET", cursor, matchOpt = Some("foo*")).!
           elements ++= set
           cursor = next
         } while (cursor > 0)
@@ -641,7 +639,7 @@ class SetCommandsSpec extends WordSpec
         val elements = ListBuffer[String]()
         var cursor = 0L
         do {
-          val (next, set) = client.sScan[String](
+          val (next, set) = client.sScan[String, String](
             "SSET", cursor, matchOpt = Some("foo*"), countOpt = Some(100)
           ).!
           set.size should be (10)

@@ -33,7 +33,7 @@ trait HyperLogLogCommands { self: NonBlockingConnection =>
    *
    * @since 2.8.9
    */
-  def pfAdd[W: Writer](key: String, elements: W*): Future[Boolean] = send(
+  def pfAdd[K: Writer, W: Writer](key: K, elements: W*): Future[Boolean] = send(
     PFAdd(key, elements: _*)
   )
   
@@ -59,7 +59,7 @@ trait HyperLogLogCommands { self: NonBlockingConnection =>
    *
    * @since 2.8.9
    */
-  def pfCount(keys: String*): Future[Long] = send(
+  def pfCount[K: Writer](keys: K*): Future[Long] = send(
     PFCount(keys: _*)
   )
   
@@ -83,7 +83,7 @@ trait HyperLogLogCommands { self: NonBlockingConnection =>
    *
    * @since 2.8.9
    */
-  def pfMerge(destKey: String, keys: String*): Future[Unit] = send(
+  def pfMerge[K: Writer](destKey: K, keys: K*): Future[Unit] = send(
     PFMerge(destKey, keys: _*)
   )
   

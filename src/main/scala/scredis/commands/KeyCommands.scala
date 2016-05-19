@@ -27,7 +27,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def del(keys: String*): Future[Long] = send(Del(keys: _*))
+  def del[K: Writer](keys: K*): Future[Long] = send(Del(keys: _*))
   
   /**
    * Returns a serialized version of the value stored at the specified key.
@@ -37,7 +37,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def dump(key: String): Future[Option[Array[Byte]]] = send(Dump(key))
+  def dump[K: Writer](key: K): Future[Option[Array[Byte]]] = send(Dump(key))
   
   /**
    * Determines if a key exists.
@@ -47,7 +47,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def exists(key: String): Future[Boolean] = send(Exists(key))
+  def exists[K: Writer](key: K): Future[Boolean] = send(Exists(key))
   
   /**
    * Sets a key's time to live in seconds.
@@ -59,7 +59,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def expire(key: String, ttlSeconds: Int): Future[Boolean] = send(Expire(key, ttlSeconds))
+  def expire[K: Writer](key: K, ttlSeconds: Int): Future[Boolean] = send(Expire(key, ttlSeconds))
 
   /**
    * Sets the expiration for a key as a UNIX timestamp.
@@ -71,7 +71,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def expireAt(key: String, timestamp: Long): Future[Boolean] = send(ExpireAt(key, timestamp))
+  def expireAt[K: Writer](key: K, timestamp: Long): Future[Boolean] = send(ExpireAt(key, timestamp))
   
   /**
    * Finds all keys matching the given pattern.
@@ -97,8 +97,8 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def migrate(
-    key: String,
+  def migrate[K: Writer](
+    key: K,
     host: String,
     port: Int = 6379,
     database: Int = 0,
@@ -126,7 +126,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def move(key: String, database: Int): Future[Boolean] = send(Move(key, database))
+  def move[K: Writer](key: K, database: Int): Future[Boolean] = send(Move(key, database))
   
   /**
    * Returns the number of references of the value associated with the specified key.
@@ -136,7 +136,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.3
    */
-  def objectRefCount(key: String): Future[Option[Long]] = send(ObjectRefCount(key))
+  def objectRefCount[K: Writer](key: K): Future[Option[Long]] = send(ObjectRefCount(key))
   
   /**
    * Returns the kind of internal representation used in order to store the value associated with
@@ -154,7 +154,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.3
    */
-  def objectEncoding(key: String): Future[Option[String]] = send(ObjectEncoding(key))
+  def objectEncoding[K: Writer](key: K): Future[Option[String]] = send(ObjectEncoding(key))
   
   /**
    * Returns the number of seconds since the object stored at the specified key is idle (not
@@ -168,7 +168,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.3
    */
-  def objectIdleTime(key: String): Future[Option[Long]] = send(ObjectIdleTime(key))
+  def objectIdleTime[K: Writer](key: K): Future[Option[Long]] = send(ObjectIdleTime(key))
   
   /**
    * Removes the expiration from a key.
@@ -179,7 +179,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def persist(key: String): Future[Boolean] = send(Persist(key))
+  def persist[K: Writer](key: K): Future[Boolean] = send(Persist(key))
   
   /**
    * Sets a key's time to live in milliseconds.
@@ -191,7 +191,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def pExpire(key: String, ttlMillis: Long): Future[Boolean] = send(PExpire(key, ttlMillis))
+  def pExpire[K: Writer](key: K, ttlMillis: Long): Future[Boolean] = send(PExpire(key, ttlMillis))
   
   /**
    * Sets the expiration for a key as a UNIX timestamp specified in milliseconds.
@@ -203,7 +203,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def pExpireAt(key: String, timestampMillis: Long): Future[Boolean] = send(
+  def pExpireAt[K: Writer](key: K, timestampMillis: Long): Future[Boolean] = send(
     PExpireAt(key, timestampMillis)
   )
   
@@ -236,7 +236,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def pTtl(key: String): Future[Either[Boolean, Long]] = send(PTTL(key))
+  def pTtl[K: Writer](key: K): Future[Either[Boolean, Long]] = send(PTTL(key))
   
   /**
    * Returns a random key from the keyspace.
@@ -259,7 +259,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def rename(key: String, newKey: String): Future[Unit] = send(Rename(key, newKey))
+  def rename[K: Writer, KN: Writer](key: K, newKey: KN): Future[Unit] = send(Rename(key, newKey))
   
   /**
    * Renames a key, only if the new key does not exist.
@@ -271,7 +271,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def renameNX(key: String, newKey: String): Future[Boolean] = send(RenameNX(key, newKey))
+  def renameNX[K: Writer, KN: Writer](key: K, newKey: KN): Future[Boolean] = send(RenameNX(key, newKey))
   
   /**
    * Creates a key using the provided serialized value, previously obtained using DUMP.
@@ -283,8 +283,8 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def restore[W: Writer](
-    key: String,
+  def restore[K: Writer, W: Writer](
+    key: K,
     serializedValue: W,
     ttlOpt: Option[FiniteDuration] = None
   ): Future[Unit] = send(
@@ -336,15 +336,15 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sort[R: Reader](
-    key: String,
+  def sort[K: Writer, R: Reader](
+    key: K,
     byOpt: Option[String] = None,
     limitOpt: Option[(Long, Long)] = None,
     get: Traversable[String] = Nil,
     desc: Boolean = false,
     alpha: Boolean = false
   ): Future[List[Option[R]]] = send(
-    Sort[R, List](
+    Sort[K, R, List](
       key = key,
       byOpt = byOpt,
       limitOpt = limitOpt,
@@ -374,9 +374,9 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sortAndStore(
-    key: String,
-    targetKey: String,
+  def sortAndStore[K: Writer, KT: Writer](
+    key: K,
+    targetKey: KT,
     byOpt: Option[String] = None,
     limitOpt: Option[(Long, Long)] = None,
     get: Traversable[String] = Nil,
@@ -423,7 +423,7 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def ttl(key: String): Future[Either[Boolean, Int]] = send(TTL(key))
+  def ttl[K: Writer](key: K): Future[Either[Boolean, Int]] = send(TTL(key))
   
   /**
    * Determine the type stored at key.
@@ -438,6 +438,6 @@ trait KeyCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def `type`(key: String): Future[Option[scredis.Type]] = send(Type(key))
+  def `type`[K: Writer](key: K): Future[Option[scredis.Type]] = send(Type(key))
   
 }

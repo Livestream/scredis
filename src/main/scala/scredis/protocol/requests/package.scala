@@ -1,18 +1,20 @@
 package scredis.protocol
 
+import scredis.serialization.Writer
+
 import scala.collection.mutable.ListBuffer
 
 package object requests {
   
-  private[requests] def generateScanLikeArgs(
-    keyOpt: Option[String],
+  private[requests] def generateScanLikeArgs[K](
+    keyOpt: Option[K],
     cursor: Long,
     matchOpt: Option[String],
     countOpt: Option[Int]
-  ): List[Any] = {
+  )(implicit keyWriter: Writer[K]): List[Any] = {
     val args = ListBuffer[Any]()
-    keyOpt.foreach {
-      args += _
+    keyOpt.foreach { key =>
+      args += keyWriter.write(key)
     }
     args += cursor
     countOpt.foreach {

@@ -27,7 +27,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def append[W: Writer](key: String, value: W): Future[Long] = send(Append(key, value))
+  def append[K: Writer, W: Writer](key: K, value: W): Future[Long] = send(Append(key, value))
   
   /**
    * Counts the number of bits set to 1 in a string from start offset to stop offset.
@@ -42,7 +42,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def bitCount(key: String, start: Long = 0, stop: Long = -1): Future[Long] = send(
+  def bitCount[K: Writer](key: K, start: Long = 0, stop: Long = -1): Future[Long] = send(
     BitCount(key, start, stop)
   )
   
@@ -63,7 +63,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def bitOp(operation: scredis.BitOp, destKey: String, keys: String*): Future[Long] = send(
+  def bitOp[KD: Writer, K: Writer](operation: scredis.BitOp, destKey: KD, keys: K*): Future[Long] = send(
     BitOp(operation, destKey, keys: _*)
   )
   
@@ -101,7 +101,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.8.7
    */
-  def bitPos(key: String, bit: Boolean, start: Long = 0, stop: Long = -1): Future[Long] = send(
+  def bitPos[K: Writer](key: K, bit: Boolean, start: Long = 0, stop: Long = -1): Future[Long] = send(
     BitPos(key, bit, start, stop)
   )
   
@@ -117,7 +117,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def decr(key: String): Future[Long] = send(Decr(key))
+  def decr[K: Writer](key: K): Future[Long] = send(Decr(key))
   
   /**
    * Decrements the integer value of a key by the given amount.
@@ -132,7 +132,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def decrBy(key: String, decrement: Long): Future[Long] = send(DecrBy(key, decrement))
+  def decrBy[K: Writer](key: K, decrement: Long): Future[Long] = send(DecrBy(key, decrement))
   
   /**
    * Returns the value stored at key.
@@ -143,7 +143,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def get[R: Reader](key: String): Future[Option[R]] = send(Get(key))
+  def get[K: Writer, R: Reader](key: K): Future[Option[R]] = send(Get(key))
   
   /**
    * Returns the bit value at offset in the string value stored at key.
@@ -155,7 +155,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def getBit(key: String, offset: Long): Future[Boolean] = send(GetBit(key, offset))
+  def getBit[K: Writer](key: K, offset: Long): Future[Boolean] = send(GetBit(key, offset))
   
   /**
    * Returns a substring of the string stored at a key.
@@ -172,7 +172,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.4.0
    */
-  def getRange[R: Reader](key: String, start: Long, stop: Long): Future[R] = send(
+  def getRange[K: Writer, R: Reader](key: K, start: Long, stop: Long): Future[R] = send(
     GetRange(key, start, stop)
   )
   
@@ -186,7 +186,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def getSet[R: Reader, W: Writer](key: String, value: W): Future[Option[R]] = send(
+  def getSet[K: Writer, R: Reader, W: Writer](key: K, value: W): Future[Option[R]] = send(
     GetSet(key, value)
   )
   
@@ -202,7 +202,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def incr(key: String): Future[Long] = send(Incr(key))
+  def incr[K: Writer](key: K): Future[Long] = send(Incr(key))
   
   /**
    * Increments the integer value of a key by the given amount.
@@ -217,7 +217,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def incrBy(key: String, increment: Long): Future[Long] = send(IncrBy(key, increment))
+  def incrBy[K: Writer](key: K, increment: Long): Future[Long] = send(IncrBy(key, increment))
   
   /**
    * Increment the float value of a key by the given amount.
@@ -232,7 +232,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def incrByFloat(key: String, increment: Double): Future[Double] = send(
+  def incrByFloat[K: Writer](key: K, increment: Double): Future[Double] = send(
     IncrByFloat(key, increment)
   )
   
@@ -247,7 +247,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def mGet[R: Reader](keys: String*): Future[List[Option[R]]] = send(MGet[R, List](keys: _*))
+  def mGet[K: Writer, R: Reader](keys: K*): Future[List[Option[R]]] = send(MGet[K, R, List](keys: _*))
   
   /**
    * Returns a `Map` containing the specified key(s) paired to their respective value(s).
@@ -260,7 +260,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def mGetAsMap[R: Reader](keys: String*): Future[Map[String, R]] = send(MGetAsMap[R](keys: _*))
+  def mGetAsMap[K: Writer, R: Reader](keys: K*): Future[Map[K, R]] = send(MGetAsMap[K, R](keys: _*))
   
   /**
    * Atomically sets multiple keys to multiple values.
@@ -305,7 +305,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def pSetEX[W: Writer](key: String, value: W, ttlMillis: Long): Future[Unit] = send(
+  def pSetEX[K: Writer, W: Writer](key: K, value: W, ttlMillis: Long): Future[Unit] = send(
     PSetEX(key, ttlMillis, value)
   )
   
@@ -325,8 +325,8 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def set[W: Writer](
-    key: String,
+  def set[K: Writer, W: Writer](
+    key: K,
     value: W,
     ttlOpt: Option[FiniteDuration] = None,
     conditionOpt: Option[scredis.Condition] = None
@@ -352,7 +352,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def setBit(key: String, offset: Long, bit: Boolean): Future[Boolean] = send(
+  def setBit[K: Writer](key: K, offset: Long, bit: Boolean): Future[Boolean] = send(
     SetBit(key, offset, bit)
   )
   
@@ -367,7 +367,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.0.0
    */
-  def setEX[W: Writer](key: String, value: W, ttlSeconds: Int): Future[Unit] = send(
+  def setEX[K: Writer, W: Writer](key: K, value: W, ttlSeconds: Int): Future[Unit] = send(
     SetEX(key, ttlSeconds, value)
   )
   
@@ -380,7 +380,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def setNX[W: Writer](key: String, value: W): Future[Boolean] = send(SetNX(key, value))
+  def setNX[K: Writer, W: Writer](key: K, value: W): Future[Boolean] = send(SetNX(key, value))
   
   /**
    * Overwrites part of a string at key starting at the specified offset.
@@ -398,7 +398,7 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def setRange[W: Writer](key: String, offset: Long, value: W): Future[Long] = send(
+  def setRange[K: Writer, W: Writer](key: K, offset: Long, value: W): Future[Long] = send(
     SetRange(key, offset, value)
   )
   
@@ -411,6 +411,6 @@ trait StringCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def strLen(key: String): Future[Long] = send(StrLen(key))
+  def strLen[K: Writer](key: K): Future[Long] = send(StrLen(key))
   
 }

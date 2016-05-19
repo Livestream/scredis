@@ -68,8 +68,8 @@ trait BlockingListCommands { self: BlockingConnection =>
    *
    * @since 2.2.0
    */
-  def brPopLPush[R: Reader](
-    sourceKey: String, destKey: String, timeoutSeconds: Int
+  def brPopLPush[KS: Writer, KD: Writer, R: Reader](
+    sourceKey: KS, destKey: KD, timeoutSeconds: Int
   ): Try[Option[R]] = sendBlocking(BRPopLPush(sourceKey, destKey, timeoutSeconds))(timeoutSeconds)
   
 }

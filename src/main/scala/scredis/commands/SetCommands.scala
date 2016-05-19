@@ -28,7 +28,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sAdd[W: Writer](key: String, members: W*): Future[Long] = send(SAdd(key, members: _*))
+  def sAdd[K: Writer, W: Writer](key: K, members: W*): Future[Long] = send(SAdd(key, members: _*))
   
   /**
    * Returns the number of members in a set.
@@ -39,7 +39,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sCard(key: String): Future[Long] = send(SCard(key))
+  def sCard[K: Writer](key: K): Future[Long] = send(SCard(key))
   
   /**
    * Returns the set resulting from the difference between the first set and all the successive
@@ -52,8 +52,8 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sDiff[R: Reader](key: String, keys: String*): Future[Set[R]] = send(
-    SDiff[R, Set](key +: keys: _*)
+  def sDiff[K: Writer, R: Reader](key: K, keys: K*): Future[Set[R]] = send(
+    SDiff[K, R, Set](key +: keys: _*)
   )
   
   /**
@@ -70,7 +70,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sDiffStore(destKey: String, key: String, keys: String*): Future[Long] = send(
+  def sDiffStore[KD: Writer, K: Writer](destKey: KD, key: K, keys: K*): Future[Long] = send(
     SDiffStore(destKey, key +: keys: _*)
   )
   
@@ -83,7 +83,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sInter[R: Reader](keys: String*): Future[Set[R]] = send(SInter[R, Set](keys: _*))
+  def sInter[K: Writer, R: Reader](keys: K*): Future[Set[R]] = send(SInter[K, R, Set](keys: _*))
   
   /**
    * Intersects multiple sets and stores the resulting set in a key.
@@ -98,7 +98,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sInterStore(destKey: String, keys: String*): Future[Long] = send(
+  def sInterStore[KD: Writer, K: Writer](destKey: KD, keys: K*): Future[Long] = send(
     SInterStore(destKey, keys: _*)
   )
   
@@ -112,7 +112,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sIsMember[W: Writer](key: String, member: W): Future[Boolean] = send(
+  def sIsMember[K: Writer, W: Writer](key: K, member: W): Future[Boolean] = send(
     SIsMember(key, member)
   )
   
@@ -125,7 +125,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sMembers[R: Reader](key: String): Future[Set[R]] = send(SMembers[R, Set](key))
+  def sMembers[K: Writer, R: Reader](key: K): Future[Set[R]] = send(SMembers[K, R, Set](key))
   
   /**
    * Moves a member from one set to another.
@@ -139,7 +139,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sMove[W: Writer](sourceKey: String, destKey: String, member: W): Future[Boolean] = send(
+  def sMove[KS: Writer, KD: Writer, W: Writer](sourceKey: KS, destKey: KD, member: W): Future[Boolean] = send(
     SMove(sourceKey, destKey, member)
   )
   
@@ -155,7 +155,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sPop[R: Reader](key: String): Future[Option[R]] = send(SPop(key))
+  def sPop[K: Writer, R: Reader](key: K): Future[Option[R]] = send(SPop(key))
   
   /**
    * Returns a random member from a set (without removing it).
@@ -166,7 +166,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sRandMember[R: Reader](key: String): Future[Option[R]] = send(SRandMember(key))
+  def sRandMember[K: Writer, R: Reader](key: K): Future[Option[R]] = send(SRandMember(key))
   
   /**
    * Returns a random member from a set (without removing it).
@@ -178,8 +178,8 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 2.6.0
    */
-  def sRandMembers[R: Reader](key: String, count: Int = 1): Future[Set[R]] = send(
-    SRandMembers[R, Set](key, count)
+  def sRandMembers[K: Writer, R: Reader](key: K, count: Int = 1): Future[Set[R]] = send(
+    SRandMembers[K, R, Set](key, count)
   )
   
   /**
@@ -195,7 +195,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sRem[W: Writer](key: String, members: W*): Future[Long] = send(SRem(key, members: _*))
+  def sRem[K: Writer, W: Writer](key: K, members: W*): Future[Long] = send(SRem(key, members: _*))
   
   /**
    * Incrementally iterates the elements of a set.
@@ -208,13 +208,13 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 2.8.0
    */
-  def sScan[R: Reader](
-    key: String,
+  def sScan[K: Writer, R: Reader](
+    key: K,
     cursor: Long,
     matchOpt: Option[String] = None,
     countOpt: Option[Int] = None
   ): Future[(Long, Set[R])] = send(
-    SScan[R, Set](
+    SScan[K, R, Set](
       key = key,
       cursor = cursor,
       matchOpt = matchOpt,
@@ -231,8 +231,8 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sUnion[R: Reader](keys: String*): Future[Set[R]] = send(
-    SUnion[R, Set](keys: _*)
+  def sUnion[K: Writer, R: Reader](keys: K*): Future[Set[R]] = send(
+    SUnion[K, R, Set](keys: _*)
   )
   
   /**
@@ -248,7 +248,7 @@ trait SetCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def sUnionStore(destKey: String, keys: String*): Future[Long] = send(
+  def sUnionStore[KD: Writer, K: Writer](destKey: KD, keys: K*): Future[Long] = send(
     SUnionStore(destKey, keys: _*)
   )
   

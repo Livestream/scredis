@@ -36,17 +36,17 @@ object KeyRequests {
   object TTL extends Command("TTL")
   object Type extends Command("TYPE")
   
-  protected def generateSortArgs(
-    key: String,
+  protected def generateSortArgs[K, KS](
+    key: K,
     byOpt: Option[String],
     limitOpt: Option[(Long, Long)],
     get: Traversable[String],
     desc: Boolean,
     alpha: Boolean,
-    storeKeyOpt: Option[String]
-  ): List[Any] = {
+    storeKeyOpt: Option[KS]
+  )(implicit keyWriter: Writer[K], storeKeyWriter: Writer[KS]): List[Any] = {
     val args = ListBuffer[Any]()
-    args += key
+    args += keyWriter.write(key)
     byOpt.foreach {
       args += "BY" += _
     }
@@ -62,40 +62,46 @@ object KeyRequests {
     if (alpha) {
       args += "ALPHA"
     }
-    storeKeyOpt.foreach {
-      args += "STORE" += _
+    storeKeyOpt.foreach { key =>
+      args += "STORE" += storeKeyWriter.write(key)
     }
     args.toList
   }
   
-  case class Del(keys: String*) extends Request[Long](Del, keys: _*) {
+  case class Del[K](keys: K*)(implicit keyWriter: Writer[K]) extends Request[Long](
+    Del, keys.map(keyWriter.write): _*
+  ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class Dump(key: String) extends Request[Option[Array[Byte]]](Dump, key) {
+  case class Dump[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[Array[Byte]]](
+    Dump, keyWriter.write(key)
+  ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[Array[Byte]]
     }
   }
   
-  case class Exists(key: String) extends Request[Boolean](Exists, key) {
-    override def decode = {
-      case i: IntegerResponse => i.toBoolean
-    }
-  }
-  
-  case class Expire(key: String, ttlSeconds: Int) extends Request[Boolean](
-    Expire, key, ttlSeconds
+  case class Exists[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Boolean](
+    Exists, keyWriter.write(key)
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class ExpireAt(key: String, timestampSeconds: Long) extends Request[Boolean](
-    ExpireAt, key, timestampSeconds
+  case class Expire[K](key: K, ttlSeconds: Int)(implicit keyWriter: Writer[K]) extends Request[Boolean](
+    Expire, keyWriter.write(key), ttlSeconds
+  ) {
+    override def decode = {
+      case i: IntegerResponse => i.toBoolean
+    }
+  }
+  
+  case class ExpireAt[K](key: K, timestampSeconds: Long)(implicit keyWriter: Writer[K]) extends Request[Boolean](
+    ExpireAt, keyWriter.write(key), timestampSeconds
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
@@ -112,18 +118,18 @@ object KeyRequests {
     }
   }
   
-  case class Migrate(
-    key: String,
+  case class Migrate[K](
+    key: K,
     host: String,
     port: Int,
     database: Int,
     timeout: FiniteDuration,
     copy: Boolean,
     replace: Boolean
-  ) extends Request[Unit](
+  )(implicit keyWriter: Writer[K]) extends Request[Unit](
     Migrate,
     {
-      val args = ListBuffer[Any](host, port, key, database, timeout.toMillis)
+      val args = ListBuffer[Any](host, port, keyWriter.write(key), database, timeout.toMillis)
       if (copy) {
         args += "COPY"
       }
@@ -138,55 +144,67 @@ object KeyRequests {
     }
   }
   
-  case class Move(key: String, database: Int) extends Request[Boolean](Move, key, database) {
+  case class Move[K](key: K, database: Int)(implicit keyWriter: Writer[K]) extends Request[Boolean](
+    Move, keyWriter.write(key), database
+  ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class ObjectRefCount(key: String) extends Request[Option[Long]](ObjectRefCount, key) {
+  case class ObjectRefCount[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[Long]](
+    ObjectRefCount, keyWriter.write(key)
+  ) {
     override def decode = {
       case IntegerResponse(value)   => Some(value)
       case BulkStringResponse(None) => None
     }
   }
   
-  case class ObjectEncoding(key: String) extends Request[Option[String]](ObjectEncoding, key) {
+  case class ObjectEncoding[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[String]](
+    ObjectEncoding, keyWriter.write(key)
+  ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[String]
     }
   }
   
-  case class ObjectIdleTime(key: String) extends Request[Option[Long]](ObjectIdleTime, key) {
+  case class ObjectIdleTime[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[Long]](
+    ObjectIdleTime, keyWriter.write(key)
+  ) {
     override def decode = {
       case IntegerResponse(value)   => Some(value)
       case BulkStringResponse(None) => None
     }
   }
   
-  case class Persist(key: String) extends Request[Boolean](Persist, key) {
-    override def decode = {
-      case i: IntegerResponse => i.toBoolean
-    }
-  }
-  
-  case class PExpire(key: String, ttlMillis: Long) extends Request[Boolean](
-    PExpire, key, ttlMillis
+  case class Persist[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Boolean](
+    Persist, keyWriter.write(key)
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class PExpireAt(key: String, timestampMillis: Long) extends Request[Boolean](
-    PExpireAt, key, timestampMillis
+  case class PExpire[K](key: K, ttlMillis: Long)(implicit keyWriter: Writer[K]) extends Request[Boolean](
+    PExpire, keyWriter.write(key), ttlMillis
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class PTTL(key: String) extends Request[Either[Boolean, Long]](PTTL, key) {
+  case class PExpireAt[K](key: K, timestampMillis: Long)(implicit keyWriter: Writer[K]) extends Request[Boolean](
+    PExpireAt, keyWriter.write(key), timestampMillis
+  ) {
+    override def decode = {
+      case i: IntegerResponse => i.toBoolean
+    }
+  }
+  
+  case class PTTL[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Either[Boolean, Long]](
+    PTTL, keyWriter.write(key)
+  ) {
     override def decode = {
       case IntegerResponse(-2)  => Left(false)
       case IntegerResponse(-1)  => Left(true)
@@ -200,24 +218,30 @@ object KeyRequests {
     }
   }
   
-  case class Rename(key: String, newKey: String) extends Request[Unit](Rename, key, newKey) {
+  case class Rename[K, KN](key: K, newKey: KN)(
+    implicit keyWriter: Writer[K], newKeyWriter: Writer[KN]
+  ) extends Request[Unit](
+    Rename, keyWriter.write(key), newKeyWriter.write(newKey)
+  ) {
     override def decode = {
       case s: SimpleStringResponse => ()
     }
   }
   
-  case class RenameNX(key: String, newKey: String) extends Request[Boolean](
-    RenameNX, key, newKey
+  case class RenameNX[K, KN](key: K, newKey: KN)(
+    implicit keyWriter: Writer[K], newKeyWriter: Writer[KN]
+  )  extends Request[Boolean](
+    RenameNX, keyWriter.write(key), newKeyWriter.write(newKey)
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class Restore[W: Writer](
-    key: String, value: W, ttlOpt: Option[FiniteDuration]
-  ) extends Request[Unit](
-    Restore, key, ttlOpt.map(_.toMillis).getOrElse(0), implicitly[Writer[W]].write(value)
+  case class Restore[K, W: Writer](
+    key: K, value: W, ttlOpt: Option[FiniteDuration]
+  )(implicit keyWriter: Writer[K]) extends Request[Unit](
+    Restore, keyWriter.write(key), ttlOpt.map(_.toMillis).getOrElse(0), implicitly[Writer[W]].write(value)
   ) {
     override def decode = {
       case s: SimpleStringResponse => ()
@@ -228,7 +252,7 @@ object KeyRequests {
     cursor: Long, matchOpt: Option[String], countOpt: Option[Int]
   )(implicit cbf: CanBuildFrom[Nothing, String, CC[String]]) extends Request[(Long, CC[String])](
     Scan,
-    generateScanLikeArgs(
+    generateScanLikeArgs[Boolean](
       keyOpt = None,
       cursor = cursor,
       matchOpt = matchOpt,
@@ -244,15 +268,15 @@ object KeyRequests {
     }
   }
   
-  case class Sort[R: Reader, CC[X] <: Traversable[X]](
-    key: String,
+  case class Sort[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K,
     byOpt: Option[String],
     limitOpt: Option[(Long, Long)],
     get: Traversable[String],
     desc: Boolean,
     alpha: Boolean
   )(
-    implicit cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, Option[R], CC[Option[R]]]
   ) extends Request[CC[Option[R]]](
     Sort,
     generateSortArgs(key, byOpt, limitOpt, get, desc, alpha, None): _*
@@ -264,15 +288,15 @@ object KeyRequests {
     }
   }
   
-  case class SortAndStore(
-    key: String,
-    targetKey: String,
+  case class SortAndStore[K, KT](
+    key: K,
+    targetKey: KT,
     byOpt: Option[String],
     limitOpt: Option[(Long, Long)],
     get: Traversable[String],
     desc: Boolean,
     alpha: Boolean
-  ) extends Request[Long](
+  )(implicit keyWriter: Writer[K], targetKeyWriter: Writer[KT]) extends Request[Long](
     Sort,
     generateSortArgs(key, byOpt, limitOpt, get, desc, alpha, Some(targetKey)): _*
   ) {
@@ -284,7 +308,9 @@ object KeyRequests {
     }
   }
   
-  case class TTL(key: String) extends Request[Either[Boolean, Int]](TTL, key) {
+  case class TTL[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Either[Boolean, Int]](
+    TTL, keyWriter.write(key)
+  ) {
     override def decode = {
       case IntegerResponse(-2)  => Left(false)
       case IntegerResponse(-1)  => Left(true)
@@ -292,7 +318,9 @@ object KeyRequests {
     }
   }
   
-  case class Type(key: String) extends Request[Option[scredis.Type]](Type, key) {
+  case class Type[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[scredis.Type]](
+    Type, keyWriter.write(key)
+  ) {
     override def decode = {
       case SimpleStringResponse("none") => None
       case SimpleStringResponse(value)  => Some(scredis.Type(value))

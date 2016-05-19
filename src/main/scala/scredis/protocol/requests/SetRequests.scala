@@ -1,7 +1,7 @@
 package scredis.protocol.requests
 
 import scredis.protocol._
-import scredis.serialization.{ Reader, Writer }
+import scredis.serialization.{Reader, Writer}
 
 import scala.collection.generic.CanBuildFrom
 
@@ -23,23 +23,27 @@ object SetRequests {
   object SUnion extends Command("SUNION")
   object SUnionStore extends Command("SUNIONSTORE") with WriteCommand
   
-  case class SAdd[W](key: String, members: W*)(implicit writer: Writer[W]) extends Request[Long](
-    SAdd, key +: members.map(writer.write): _*
+  case class SAdd[K, W](key: K, members: W*)(implicit writer: Writer[W], keyWriter: Writer[K]) extends Request[Long](
+    SAdd, keyWriter.write(key) +: members.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class SCard(key: String) extends Request[Long](SCard, key) {
+  case class SCard[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Long](
+    SCard, keyWriter.write(key)
+  ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class SDiff[R: Reader, CC[X] <: Traversable[X]](keys: String*)(
-    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](SDiff, keys: _*) {
+  case class SDiff[K, R: Reader, CC[X] <: Traversable[X]](keys: K*)(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](
+    SDiff, keys.map(keyWriter.write): _*
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -47,17 +51,21 @@ object SetRequests {
     }
   }
   
-  case class SDiffStore(destination: String, keys: String*) extends Request[Long](
-    SDiffStore, destination +: keys: _*
+  case class SDiffStore[KD, K](destination: KD, keys: K*)(
+    implicit destKeyWriter: Writer[KD], keyWriter: Writer[K]
+  ) extends Request[Long](
+    SDiffStore, destKeyWriter.write(destination) +: keys.map(keyWriter.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class SInter[R: Reader, CC[X] <: Traversable[X]](keys: String*)(
-    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](SInter, keys: _*) {
+  case class SInter[K, R: Reader, CC[X] <: Traversable[X]](keys: K*)(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](
+    SInter, keys.map(keyWriter.write): _*
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -65,25 +73,29 @@ object SetRequests {
     }
   }
   
-  case class SInterStore(destination: String, keys: String*) extends Request[Long](
-    SInterStore, destination +: keys: _*
+  case class SInterStore[KD, K](destination: KD, keys: K*)(
+    implicit destinationKeyWriter: Writer[KD], keyWriter: Writer[K]
+  ) extends Request[Long](
+    SInterStore, destinationKeyWriter.write(destination) +: keys.map(keyWriter.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class SIsMember[W: Writer](key: String, member: W) extends Request[Boolean](
-    SIsMember, key, implicitly[Writer[W]].write(member)
+  case class SIsMember[K, W: Writer](key: K, member: W)(implicit keyWriter: Writer[K]) extends Request[Boolean](
+    SIsMember, keyWriter.write(key), implicitly[Writer[W]].write(member)
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class SMembers[R: Reader, CC[X] <: Traversable[X]](key: String)(
-    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](SMembers, key) {
+  case class SMembers[K, R: Reader, CC[X] <: Traversable[X]](key: K)(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](
+    SMembers, keyWriter.write(key)
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -91,31 +103,39 @@ object SetRequests {
     }
   }
   
-  case class SMove[W: Writer](
-    source: String, destination: String, member: W
+  case class SMove[KS, KD, W: Writer](
+    source: KS, destination: KD, member: W
+  )(
+    implicit sourceKeyWriter: Writer[KS], destinationKeyWriter: Writer[KD]
   ) extends Request[Boolean](
-    SMove, source, destination, implicitly[Writer[W]].write(member)
+    SMove, sourceKeyWriter.write(source), destinationKeyWriter.write(destination), implicitly[Writer[W]].write(member)
   ) {
     override def decode = {
       case i: IntegerResponse => i.toBoolean
     }
   }
   
-  case class SPop[R: Reader](key: String) extends Request[Option[R]](SPop, key) {
+  case class SPop[K, R: Reader](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[R]](
+    SPop, keyWriter.write(key)
+  ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class SRandMember[R: Reader](key: String) extends Request[Option[R]](SRandMember, key) {
+  case class SRandMember[K, R: Reader](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[R]](
+    SRandMember, keyWriter.write(key)
+  ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class SRandMembers[R: Reader, CC[X] <: Traversable[X]](key: String, count: Int)(
-    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](SRandMember, key, count) {
+  case class SRandMembers[K, R: Reader, CC[X] <: Traversable[X]](key: K, count: Int)(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](
+    SRandMember, keyWriter.write(key), count
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -123,20 +143,20 @@ object SetRequests {
     }
   }
   
-  case class SRem[W](key: String, members: W*)(implicit writer: Writer[W]) extends Request[Long](
-    SRem, key +: members.map(writer.write): _*
+  case class SRem[K, W](key: K, members: W*)(implicit keyWriter: Writer[K], writer: Writer[W]) extends Request[Long](
+    SRem, keyWriter.write(key) +: members.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class SScan[R: Reader, CC[X] <: Traversable[X]](
-    key: String,
+  case class SScan[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K,
     cursor: Long,
     matchOpt: Option[String],
     countOpt: Option[Int]
-  )(implicit cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[(Long, CC[R])](
+  )(implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[(Long, CC[R])](
     SScan,
     generateScanLikeArgs(
       keyOpt = Some(key),
@@ -154,9 +174,9 @@ object SetRequests {
     }
   }
   
-  case class SUnion[R: Reader, CC[X] <: Traversable[X]](keys: String*)(
-    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](SUnion, keys: _*) {
+  case class SUnion[K, R: Reader, CC[X] <: Traversable[X]](keys: K*)(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](SUnion, keys.map(keyWriter.write): _*) {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -164,8 +184,10 @@ object SetRequests {
     }
   }
   
-  case class SUnionStore(destination: String, keys: String*) extends Request[Long](
-    SUnionStore, destination +: keys: _*
+  case class SUnionStore[KD, K](destination: KD, keys: K*)(
+    implicit destinationKeyWriter: Writer[KD], keyWriter: Writer[K]
+  ) extends Request[Long](
+    SUnionStore, destinationKeyWriter.write(destination) +: keys.map(keyWriter.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value

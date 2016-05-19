@@ -1,14 +1,13 @@
 package scredis.protocol.requests
 
 import scredis.protocol._
-import scredis.serialization.{ Reader, Writer }
+import scredis.serialization.{Reader, Writer}
 
 import scala.collection.generic.CanBuildFrom
 
 object SortedSetRequests {
   
-  import scredis.serialization.Implicits.stringReader
-  import scredis.serialization.Implicits.doubleReader
+  import scredis.serialization.Implicits.{doubleReader, stringReader}
   
   object ZAdd extends Command("ZADD") with WriteCommand
   object ZCard extends Command("ZCARD")
@@ -36,10 +35,10 @@ object SortedSetRequests {
   private val AggregateName = "AGGREGATE"
   private val Limit = "LIMIT"
   
-  case class ZAdd[W](key: String, members: Map[W, scredis.Score])(
-    implicit writer: Writer[W]
+  case class ZAdd[K, W](key: K, members: Map[W, scredis.Score])(
+    implicit keyWriter: Writer[K], writer: Writer[W]
   ) extends Request[Long](
-    ZAdd, key +: unpair(
+    ZAdd, keyWriter.write(key) +: unpair(
       (members toList).map {
         case (member, score) => (score.stringValue, writer.write(member))
       }
@@ -50,44 +49,51 @@ object SortedSetRequests {
     }
   }
   
-  case class ZCard(key: String) extends Request[Long](ZCard, key) {
+  case class ZCard[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Long](
+    ZCard, keyWriter.write(key)
+  ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZCount(
-    key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit
-  ) extends Request[Long](ZCount, key, min.stringValue, max.stringValue) {
+  case class ZCount[K](
+    key: K, min: scredis.ScoreLimit, max: scredis.ScoreLimit
+  )(implicit keyWriter: Writer[K]) extends Request[Long](
+    ZCount, keyWriter.write(key), min.stringValue, max.stringValue
+  ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZIncrBy[W: Writer](key: String, increment: Double, member: W) extends Request[Double](
-    ZIncrBy, key, increment, implicitly[Writer[W]].write(member)
+  case class ZIncrBy[K, W: Writer](
+    key: K, increment: Double, member: W
+  )(implicit keyWriter: Writer[K]) extends Request[Double](
+    ZIncrBy, keyWriter.write(key), increment, implicitly[Writer[W]].write(member)
   ) {
     override def decode = {
       case b: BulkStringResponse => b.flattened[Double]
     }
   }
   
-  case class ZInterStore(
-    destination: String, keys: Seq[String], aggregate: scredis.Aggregate
-  ) extends Request[Long](
-    ZInterStore, destination +: keys.size +: keys :+ AggregateName :+ aggregate.name: _*
+  case class ZInterStore[KD, K](
+    destination: KD, keys: Seq[K], aggregate: scredis.Aggregate
+  )(implicit destKeyWriter: Writer[KD], keyWriter: Writer[K]) extends Request[Long](
+    ZInterStore,
+    destKeyWriter.write(destination) +: keys.size +: keys.map(keyWriter.write) :+ AggregateName :+ aggregate.name: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZInterStoreWeighted(
-    destination: String, keyWeightPairs: Map[String, Double], aggregate: scredis.Aggregate
-  ) extends Request[Long](
-    ZInterStore, destination :: keyWeightPairs.size :: {
+  case class ZInterStoreWeighted[KD, K](
+    destination: KD, keyWeightPairs: Map[K, Double], aggregate: scredis.Aggregate
+  )(implicit destKeyWriter: Writer[KD], keyWriter: Writer[K]) extends Request[Long](
+    ZInterStore, destKeyWriter.write(destination) :: keyWeightPairs.size :: {
       val (keys, weights) = keyWeightPairs.toList.unzip
-      keys ::: Weights :: weights ::: AggregateName :: aggregate.name :: Nil
+      keys.map(keyWriter.write) ::: Weights :: weights ::: AggregateName :: aggregate.name :: Nil
     }: _*
   ) {
     override def decode = {
@@ -95,17 +101,21 @@ object SortedSetRequests {
     }
   }
   
-  case class ZLexCount(
-    key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
-  ) extends Request[Long](ZLexCount, key, min.stringValue, max.stringValue) {
+  case class ZLexCount[K](
+    key: K, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
+  )(implicit keyWriter: Writer[K]) extends Request[Long](
+    ZLexCount, keyWriter.write(key), min.stringValue, max.stringValue
+  ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZRange[R: Reader, CC[X] <: Traversable[X]](key: String, start: Long, stop: Long)(
-    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](ZRange, key, start, stop) {
+  case class ZRange[K, R: Reader, CC[X] <: Traversable[X]](key: K, start: Long, stop: Long)(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](
+    ZRange, keyWriter.write(key), start, stop
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -113,11 +123,13 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRangeWithScores[R: Reader, CC[X] <: Traversable[X]](
-    key: String, start: Long, stop: Long
+  case class ZRangeWithScores[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K, start: Long, stop: Long
   )(
-    implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
-  ) extends Request[CC[(R, scredis.Score)]](ZRange, key, start, stop, WithScores) {
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
+  ) extends Request[CC[(R, scredis.Score)]](
+    ZRange, keyWriter.write(key), start, stop, WithScores
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -127,13 +139,13 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRangeByLex[R: Reader, CC[X] <: Traversable[X]](
-    key: String,
+  case class ZRangeByLex[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K,
     min: scredis.LexicalScoreLimit,
     max: scredis.LexicalScoreLimit,
     limitOpt: Option[(Long, Int)]
-  )(implicit cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
-    ZRangeByLex, key +: min.stringValue +: max.stringValue +: {
+  )(implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
+    ZRangeByLex, keyWriter.write(key) +: min.stringValue +: max.stringValue +: {
       limitOpt match {
         case Some((offset, count)) => Seq(Limit, offset, count)
         case None => Seq.empty
@@ -147,13 +159,13 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRangeByScore[R: Reader, CC[X] <: Traversable[X]](
-    key: String,
+  case class ZRangeByScore[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K,
     min: scredis.ScoreLimit,
     max: scredis.ScoreLimit,
     limitOpt: Option[(Long, Int)]
-  )(implicit cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
-    ZRangeByScore, key +: min.stringValue +: max.stringValue +: {
+  )(implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
+    ZRangeByScore, keyWriter.write(key) +: min.stringValue +: max.stringValue +: {
       limitOpt match {
         case Some((offset, count)) => Seq(Limit, offset, count)
         case None => Seq.empty
@@ -167,15 +179,15 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRangeByScoreWithScores[R: Reader, CC[X] <: Traversable[X]](
-    key: String,
+  case class ZRangeByScoreWithScores[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K,
     min: scredis.ScoreLimit,
     max: scredis.ScoreLimit,
     limitOpt: Option[(Long, Int)]
   )(
-    implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
   ) extends Request[CC[(R, scredis.Score)]](
-    ZRangeByScore, key +: min.stringValue +: max.stringValue +: WithScores +: {
+    ZRangeByScore, keyWriter.write(key) +: min.stringValue +: max.stringValue +: WithScores +: {
       limitOpt match {
         case Some((offset, count)) => Seq(Limit, offset, count)
         case None => Seq.empty
@@ -191,8 +203,8 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRank[W: Writer](key: String, member: W) extends Request[Option[Long]](
-    ZRank, key, implicitly[Writer[W]].write(member)
+  case class ZRank[K, W: Writer](key: K, member: W)(implicit keyWriter: Writer[K]) extends Request[Option[Long]](
+    ZRank, keyWriter.write(key), implicitly[Writer[W]].write(member)
   ) {
     override def decode = {
       case IntegerResponse(value)   => Some(value)
@@ -200,78 +212,46 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRem[W](key: String, members: W*)(implicit writer: Writer[W]) extends Request[Long](
-    ZRem, key +: members.map(writer.write): _*
+  case class ZRem[K, W](key: K, members: W*)(implicit keyWriter: Writer[K], writer: Writer[W]) extends Request[Long](
+    ZRem, keyWriter.write(key) +: members.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZRemRangeByLex(
-    key: String, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
-  ) extends Request[Long](
-    ZRemRangeByLex, key, min.stringValue, max.stringValue
+  case class ZRemRangeByLex[K](
+    key: K, min: scredis.LexicalScoreLimit, max: scredis.LexicalScoreLimit
+  )(implicit keyWriter: Writer[K]) extends Request[Long](
+    ZRemRangeByLex, keyWriter.write(key), min.stringValue, max.stringValue
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZRemRangeByRank(key: String, start: Long, stop: Long) extends Request[Long](
-    ZRemRangeByRank, key, start, stop
+  case class ZRemRangeByRank[K](key: K, start: Long, stop: Long)(implicit keyWriter: Writer[K]) extends Request[Long](
+    ZRemRangeByRank, keyWriter.write(key), start, stop
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZRemRangeByScore(
-    key: String, min: scredis.ScoreLimit, max: scredis.ScoreLimit
-  ) extends Request[Long](
-    ZRemRangeByScore, key, min.stringValue, max.stringValue
+  case class ZRemRangeByScore[K](
+    key: K, min: scredis.ScoreLimit, max: scredis.ScoreLimit
+  )(implicit keyWriter: Writer[K]) extends Request[Long](
+    ZRemRangeByScore, keyWriter.write(key), min.stringValue, max.stringValue
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZRevRange[R: Reader, CC[X] <: Traversable[X]](key: String, start: Long, stop: Long)(
-    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](ZRevRange, key, start, stop) {
-    override def decode = {
-      case a: ArrayResponse => a.parsed[R, CC] {
-        case b: BulkStringResponse => b.flattened[R]
-      }
-    }
-  }
-  
-  case class ZRevRangeWithScores[R: Reader, CC[X] <: Traversable[X]](
-    key: String, start: Long, stop: Long
-  )(
-    implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
-  ) extends Request[CC[(R, scredis.Score)]](ZRevRange, key, start, stop, WithScores) {
-    override def decode = {
-      case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
-        case b: BulkStringResponse => b.flattened[R]
-      } {
-        case b: BulkStringResponse => scredis.Score(b.flattened[String])
-      }
-    }
-  }
-  
-  case class ZRevRangeByScore[R: Reader, CC[X] <: Traversable[X]](
-    key: String,
-    max: scredis.ScoreLimit,
-    min: scredis.ScoreLimit,
-    limitOpt: Option[(Long, Int)]
-  )(implicit cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
-    ZRevRangeByScore, key +: max.stringValue +: min.stringValue +: {
-      limitOpt match {
-        case Some((offset, count)) => Seq(Limit, offset, count)
-        case None => Seq.empty
-      }
-    }: _*
+  case class ZRevRange[K, R: Reader, CC[X] <: Traversable[X]](key: K, start: Long, stop: Long)(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](
+    ZRevRange, keyWriter.write(key), start, stop
   ) {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
@@ -280,15 +260,51 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRevRangeByScoreWithScores[R: Reader, CC[X] <: Traversable[X]](
-    key: String,
-    max: scredis.ScoreLimit,
-    min: scredis.ScoreLimit,
-    limitOpt: Option[(Long, Int)]
+  case class ZRevRangeWithScores[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K, start: Long, stop: Long
   )(
-    implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
   ) extends Request[CC[(R, scredis.Score)]](
-    ZRevRangeByScore, key +: max.stringValue +: min.stringValue +: WithScores +: {
+    ZRevRange, keyWriter.write(key), start, stop, WithScores
+  ) {
+    override def decode = {
+      case a: ArrayResponse => a.parsedAsPairs[R, scredis.Score, CC] {
+        case b: BulkStringResponse => b.flattened[R]
+      } {
+        case b: BulkStringResponse => scredis.Score(b.flattened[String])
+      }
+    }
+  }
+  
+  case class ZRevRangeByScore[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K,
+    max: scredis.ScoreLimit,
+    min: scredis.ScoreLimit,
+    limitOpt: Option[(Long, Int)]
+  )(implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]) extends Request[CC[R]](
+    ZRevRangeByScore, keyWriter.write(key) +: max.stringValue +: min.stringValue +: {
+      limitOpt match {
+        case Some((offset, count)) => Seq(Limit, offset, count)
+        case None => Seq.empty
+      }
+    }: _*
+  ) {
+    override def decode = {
+      case a: ArrayResponse => a.parsed[R, CC] {
+        case b: BulkStringResponse => b.flattened[R]
+      }
+    }
+  }
+  
+  case class ZRevRangeByScoreWithScores[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K,
+    max: scredis.ScoreLimit,
+    min: scredis.ScoreLimit,
+    limitOpt: Option[(Long, Int)]
+  )(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
+  ) extends Request[CC[(R, scredis.Score)]](
+    ZRevRangeByScore, keyWriter.write(key) +: max.stringValue +: min.stringValue +: WithScores +: {
       limitOpt match {
         case Some((offset, count)) => Seq(Limit, offset, count)
         case None => Seq.empty
@@ -304,8 +320,8 @@ object SortedSetRequests {
     }
   }
   
-  case class ZRevRank[W: Writer](key: String, member: W) extends Request[Option[Long]](
-    ZRevRank, key, implicitly[Writer[W]].write(member)
+  case class ZRevRank[K, W: Writer](key: K, member: W)(implicit keyWriter: Writer[K]) extends Request[Option[Long]](
+    ZRevRank, keyWriter.write(key), implicitly[Writer[W]].write(member)
   ) {
     override def decode = {
       case IntegerResponse(value)   => Some(value)
@@ -313,13 +329,13 @@ object SortedSetRequests {
     }
   }
   
-  case class ZScan[R: Reader, CC[X] <: Traversable[X]](
-    key: String,
+  case class ZScan[K, R: Reader, CC[X] <: Traversable[X]](
+    key: K,
     cursor: Long,
     matchOpt: Option[String],
     countOpt: Option[Int]
   )(
-    implicit cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, (R, scredis.Score), CC[(R, scredis.Score)]]
   ) extends Request[(Long, CC[(R, scredis.Score)])](
     ZScan,
     generateScanLikeArgs(
@@ -340,30 +356,35 @@ object SortedSetRequests {
     }
   }
   
-  case class ZScore[W: Writer](key: String, member: W) extends Request[Option[scredis.Score]](
-    ZScore, key, implicitly[Writer[W]].write(member)
+  case class ZScore[K, W: Writer](key: K, member: W)(implicit keyWriter: Writer[K]) extends Request[Option[scredis.Score]](
+    ZScore, keyWriter.write(key), implicitly[Writer[W]].write(member)
   ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[String].map(scredis.Score.apply)
     }
   }
   
-  case class ZUnionStore(
-    destination: String, keys: Seq[String], aggregate: scredis.Aggregate
+  case class ZUnionStore[KD, K](
+    destination: KD, keys: Seq[K], aggregate: scredis.Aggregate
+  )(
+    implicit destKeyWriter: Writer[KD], keyWriter: Writer[K]
   ) extends Request[Long](
-    ZUnionStore, destination +: keys.size +: keys :+ AggregateName :+ aggregate.name: _*
+    ZUnionStore,
+    destKeyWriter.write(destination) +: keys.size +: keys.map(keyWriter.write) :+ AggregateName :+ aggregate.name: _*
   ) {
     override def decode = {
       case IntegerResponse(value) => value
     }
   }
   
-  case class ZUnionStoreWeighted(
-    destination: String, keyWeightPairs: Map[String, Double], aggregate: scredis.Aggregate
+  case class ZUnionStoreWeighted[KD, K](
+    destination: KD, keyWeightPairs: Map[K, Double], aggregate: scredis.Aggregate
+  )(
+    implicit destKeyWriter: Writer[KD], keyWriter: Writer[K]
   ) extends Request[Long](
-    ZUnionStore, destination :: keyWeightPairs.size :: {
+    ZUnionStore, destKeyWriter.write(destination) :: keyWeightPairs.size :: {
       val (keys, weights) = keyWeightPairs.toList.unzip
-      keys ::: Weights :: weights ::: AggregateName :: aggregate.name :: Nil
+      keys.map(keyWriter.write) ::: Weights :: weights ::: AggregateName :: aggregate.name :: Nil
     }: _*
   ) {
     override def decode = {

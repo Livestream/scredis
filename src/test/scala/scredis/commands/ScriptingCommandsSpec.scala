@@ -104,7 +104,7 @@ class ScriptingCommandsSpec extends WordSpec
         client.eval[Unit, String, String](
           ScriptAsUnit, keys = Seq("STR"), args = Seq(Value)
         ).futureValue should be (())
-        client.get[String]("STR").futureValue should contain (Value)
+        client.get[String, String]("STR").futureValue should contain (Value)
       }
       Given("that the script returns true")
       "succeed and return true" taggedAs (V260) in {

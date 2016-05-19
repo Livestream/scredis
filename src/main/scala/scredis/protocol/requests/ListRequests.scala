@@ -27,9 +27,11 @@ object ListRequests {
   object RPush extends Command("RPUSH") with WriteCommand
   object RPushX extends Command("RPUSHX") with WriteCommand
   
-  case class BLPop[R: Reader](
-    timeoutSeconds: Int, keys: String*
-  ) extends Request[Option[(String, R)]](BLPop, keys :+ timeoutSeconds: _*) {
+  case class BLPop[K, R: Reader](
+    timeoutSeconds: Int, keys: K*
+  )(implicit keyWriter: Writer[K]) extends Request[Option[(String, R)]](
+    BLPop, keys.map(keyWriter.write) :+ timeoutSeconds: _*
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[String, R, List] {
         case b: BulkStringResponse => b.flattened[String]
@@ -39,9 +41,11 @@ object ListRequests {
     }
   }
   
-  case class BRPop[R: Reader](
-    timeoutSeconds: Int, keys: String*
-  ) extends Request[Option[(String, R)]](BRPop, keys :+ timeoutSeconds: _*) {
+  case class BRPop[K, R: Reader](
+    timeoutSeconds: Int, keys: K*
+  )(implicit keyWriter: Writer[K]) extends Request[Option[(String, R)]](
+    BRPop, keys.map(keyWriter.write) :+ timeoutSeconds: _*
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsedAsPairs[String, R, List] {
         case b: BulkStringResponse => b.flattened[String]
@@ -51,28 +55,32 @@ object ListRequests {
     }
   }
   
-  case class BRPopLPush[R: Reader](
-    source: String, destination: String, timeoutSeconds: Int
-  ) extends Request[Option[R]](BRPopLPush, source, destination, timeoutSeconds) {
+  case class BRPopLPush[KS, KD, R: Reader](
+    source: KS, destination: KD, timeoutSeconds: Int
+  )(
+    implicit sourceKeyWriter: Writer[KS], destKeyWriter: Writer[KD]
+  ) extends Request[Option[R]](
+    BRPopLPush, sourceKeyWriter.write(source), destKeyWriter.write(destination), timeoutSeconds
+  ) {
     override def decode = {
       case b: BulkStringResponse  => b.parsed[R]
       case ArrayResponse(-1, _)   => None
     }
   }
   
-  case class LIndex[R: Reader](key: String, index: Long) extends Request[Option[R]](
-    LIndex, key, index
+  case class LIndex[K, R: Reader](key: K, index: Long)(implicit keyWriter: Writer[K]) extends Request[Option[R]](
+    LIndex, keyWriter.write(key), index
   ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class LInsert[W1: Writer, W2: Writer](
-    key: String, position: scredis.Position, pivot: W1, value: W2
-  ) extends Request[Option[Long]](
+  case class LInsert[K, W1: Writer, W2: Writer](
+    key: K, position: scredis.Position, pivot: W1, value: W2
+  )(implicit keyWriter: Writer[K]) extends Request[Option[Long]](
     LInsert,
-    key,
+    keyWriter.write(key),
     position.name,
     implicitly[Writer[W1]].write(pivot),
     implicitly[Writer[W2]].write(value)
@@ -83,37 +91,43 @@ object ListRequests {
     }
   }
   
-  case class LLen(key: String) extends Request[Long](LLen, key) {
+  case class LLen[K](key: K)(implicit keyWriter: Writer[K]) extends Request[Long](
+    LLen, keyWriter.write(key)
+  ) {
     override def decode = {
       case IntegerResponse(x) => x
     }
   }
   
-  case class LPop[R: Reader](key: String) extends Request[Option[R]](LPop, key) {
+  case class LPop[K, R: Reader](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[R]](
+    LPop, keyWriter.write(key)
+  ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class LPush[W](key: String, values: W*)(implicit writer: Writer[W]) extends Request[Long](
-    LPush, key +: values.map(writer.write): _*
+  case class LPush[K, W](key: K, values: W*)(implicit writer: Writer[W], keyWriter: Writer[K]) extends Request[Long](
+    LPush, keyWriter.write(key) +: values.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(x) => x
     }
   }
   
-  case class LPushX[W: Writer](key: String, value: W) extends Request[Long](
-    LPushX, key, implicitly[Writer[W]].write(value)
+  case class LPushX[K, W: Writer](key: K, value: W)(implicit keyWriter: Writer[K]) extends Request[Long](
+    LPushX, keyWriter.write(key), implicitly[Writer[W]].write(value)
   ) {
     override def decode = {
       case IntegerResponse(x) => x
     }
   }
   
-  case class LRange[R: Reader, CC[X] <: Traversable[X]](key: String, start: Long, end: Long)(
-    implicit cbf: CanBuildFrom[Nothing, R, CC[R]]
-  ) extends Request[CC[R]](LRange, key, start, end) {
+  case class LRange[K, R: Reader, CC[X] <: Traversable[X]](key: K, start: Long, end: Long)(
+    implicit keyWriter: Writer[K], cbf: CanBuildFrom[Nothing, R, CC[R]]
+  ) extends Request[CC[R]](
+    LRange, keyWriter.write(key), start, end
+  ) {
     override def decode = {
       case a: ArrayResponse => a.parsed[R, CC] {
         case b: BulkStringResponse => b.flattened[R]
@@ -121,54 +135,60 @@ object ListRequests {
     }
   }
   
-  case class LRem[W: Writer](key: String, count: Int, value: W) extends Request[Long](
-    LRem, key, count, implicitly[Writer[W]].write(value)
+  case class LRem[K, W: Writer](key: K, count: Int, value: W)(implicit keyWriter: Writer[K]) extends Request[Long](
+    LRem, keyWriter.write(key), count, implicitly[Writer[W]].write(value)
   ) {
     override def decode = {
       case IntegerResponse(x) => x
     }
   }
   
-  case class LSet[W: Writer](key: String, index: Long, value: W) extends Request[Unit](
-    LSet, key, index, implicitly[Writer[W]].write(value)
+  case class LSet[K, W: Writer](key: K, index: Long, value: W)(implicit keyWriter: Writer[K]) extends Request[Unit](
+    LSet, keyWriter.write(key), index, implicitly[Writer[W]].write(value)
   ) {
     override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
-  case class LTrim(key: String, start: Long, end: Long) extends Request[Unit](
-    LTrim, key, start, end
+  case class LTrim[K](key: K, start: Long, end: Long)(implicit keyWriter: Writer[K]) extends Request[Unit](
+    LTrim, keyWriter.write(key), start, end
   ) {
     override def decode = {
       case SimpleStringResponse(_) => ()
     }
   }
   
-  case class RPop[R: Reader](key: String) extends Request[Option[R]](RPop, key) {
+  case class RPop[K, R: Reader](key: K)(implicit keyWriter: Writer[K]) extends Request[Option[R]](
+    RPop, keyWriter.write(key)
+  ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class RPopLPush[R: Reader](
-    source: String, destination: String
-  ) extends Request[Option[R]](RPopLPush, source, destination) {
+  case class RPopLPush[KS, KD, R: Reader](
+    source: KS, destination: KD
+  )(
+    implicit sourceKeyWriter: Writer[KS], destKeyWriter: Writer[KD]
+  ) extends Request[Option[R]](
+    RPopLPush, sourceKeyWriter.write(source), destKeyWriter.write(destination)
+  ) {
     override def decode = {
       case b: BulkStringResponse => b.parsed[R]
     }
   }
   
-  case class RPush[W](key: String, values: W*)(implicit writer: Writer[W]) extends Request[Long](
-    RPush, key +: values.map(writer.write): _*
+  case class RPush[K, W](key: K, values: W*)(implicit writer: Writer[W], keyWriter: Writer[K]) extends Request[Long](
+    RPush, keyWriter.write(key) +: values.map(writer.write): _*
   ) {
     override def decode = {
       case IntegerResponse(x) => x
     }
   }
   
-  case class RPushX[W: Writer](key: String, value: W) extends Request[Long](
-    RPushX, key, implicitly[Writer[W]].write(value)
+  case class RPushX[K, W: Writer](key: K, value: W)(implicit keyWriter: Writer[K]) extends Request[Long](
+    RPushX, keyWriter.write(key), implicitly[Writer[W]].write(value)
   ) {
     override def decode = {
       case IntegerResponse(x) => x

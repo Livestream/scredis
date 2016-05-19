@@ -31,7 +31,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def lIndex[R: Reader](key: String, index: Long): Future[Option[R]] = send(LIndex(key, index))
+  def lIndex[K: Writer, R: Reader](key: K, index: Long): Future[Option[R]] = send(LIndex(key, index))
   
   /**
    * Inserts an element before or after another element in a list.
@@ -46,8 +46,8 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def lInsert[W1: Writer, W2: Writer](
-    key: String,
+  def lInsert[K: Writer, W1: Writer, W2: Writer](
+    key: K,
     position: scredis.Position,
     pivot: W1,
     value: W2
@@ -62,7 +62,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def lLen(key: String): Future[Long] = send(LLen(key))
+  def lLen[K: Writer](key: K): Future[Long] = send(LLen(key))
   
   /**
    * Removes and returns the first element of a list.
@@ -73,7 +73,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def lPop[R: Reader](key: String): Future[Option[R]] = send(LPop(key))
+  def lPop[K: Writer, R: Reader](key: K): Future[Option[R]] = send(LPop(key))
   
   /**
    * Prepends one or multiple values to a list.
@@ -88,7 +88,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def lPush[W: Writer](key: String, values: W*): Future[Long] = send(LPush(key, values: _*))
+  def lPush[K: Writer, W: Writer](key: K, values: W*): Future[Long] = send(LPush(key, values: _*))
   
   /**
    * Prepends a value to a list, only if the list exists.
@@ -100,7 +100,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def lPushX[W: Writer](key: String, value: W): Future[Long] = send(LPushX(key, value))
+  def lPushX[K: Writer, W: Writer](key: K, value: W): Future[Long] = send(LPushX(key, value))
   
   /**
    * Returns a range of elements from a list.
@@ -120,8 +120,8 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def lRange[R: Reader](key: String, start: Long = 0, stop: Long = -1): Future[List[R]] = send(
-    LRange[R, List](key, start, stop)
+  def lRange[K: Writer, R: Reader](key: K, start: Long = 0, stop: Long = -1): Future[List[R]] = send(
+    LRange[K, R, List](key, start, stop)
   )
   
   /**
@@ -142,7 +142,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def lRem[W: Writer](key: String, value: W, count: Int = 0): Future[Long] = send(
+  def lRem[K: Writer, W: Writer](key: K, value: W, count: Int = 0): Future[Long] = send(
     LRem(key, count, value)
   )
   
@@ -156,7 +156,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def lSet[W: Writer](key: String, index: Long, value: W): Future[Unit] = send(
+  def lSet[K: Writer, W: Writer](key: K, index: Long, value: W): Future[Unit] = send(
     LSet(key, index, value)
   )
   
@@ -174,7 +174,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def lTrim(key: String, start: Long, stop: Long): Future[Unit] = send(
+  def lTrim[K: Writer](key: K, start: Long, stop: Long): Future[Unit] = send(
     LTrim(key, start, stop)
   )
   
@@ -187,7 +187,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def rPop[R: Reader](key: String): Future[Option[R]] = send(RPop(key))
+  def rPop[K: Writer, R: Reader](key: K): Future[Option[R]] = send(RPop(key))
   
   /**
    * Removes the last element in a list, appends it to another list and returns it.
@@ -199,7 +199,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.2.0
    */
-  def rPopLPush[R: Reader](sourceKey: String, destKey: String): Future[Option[R]] = send(
+  def rPopLPush[KS: Writer, KD: Writer, R: Reader](sourceKey: KS, destKey: KD): Future[Option[R]] = send(
     RPopLPush(sourceKey, destKey)
   )
   
@@ -216,7 +216,7 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 1.0.0
    */
-  def rPush[W: Writer](key: String, values: W*): Future[Long] = send(
+  def rPush[K: Writer, W: Writer](key: K, values: W*): Future[Long] = send(
     RPush(key, values: _*)
   )
   
@@ -230,6 +230,6 @@ trait ListCommands { self: NonBlockingConnection =>
    *
    * @since 2.2.0
    */
-  def rPushX[W: Writer](key: String, value: W): Future[Long] = send(RPushX(key, value))
+  def rPushX[K: Writer, W: Writer](key: K, value: W): Future[Long] = send(RPushX(key, value))
   
 }
