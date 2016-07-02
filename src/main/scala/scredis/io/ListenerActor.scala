@@ -258,6 +258,7 @@ class ListenerActor(
   protected def handleReceiveTimeout(): Unit = {
     logger.error("Receive timeout")
     isReceiveTimeout = true
+    remainingByteStringOpt = None
     timeoutCancellableOpt = None
     ioActor ! IOActor.Shutdown
     become(reconnecting)
